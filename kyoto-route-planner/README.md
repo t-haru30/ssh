@@ -159,3 +159,7 @@ cd frontend
 npm ci
 npm run build
 ```
+
+## GitHub Actions
+
+`.github/workflows/ci.yml` により、`main` へのPull Requestと`main`へのプッシュ時に、バックエンドの全テストとフロントエンドのビルドを自動実行します。CIでは実際の駅すぱあとAPIを呼び出さないため、APIキーをGitHub Actionsへ登録する必要はありません。実際のAPIキーはローカルの`backend/.env`だけに保存してください。
