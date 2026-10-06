@@ -70,6 +70,37 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("KyotoRoutePlanner", request.kwargs["headers"]["User-Agent"])
             self.assertNotIn("Authorization", request.kwargs.get("headers", {}))
 
+    async def test_corrupt_cache_is_discarded_and_refetched(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "travel.sqlite3")
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO osm_places_cache (
+                        cache_key, fetched_at, payload_json,
+                        rate_limited, retry_after
+                    ) VALUES (?, ?, ?, 0, NULL)
+                    """,
+                    (
+                        CACHE_KEY,
+                        datetime.now(timezone.utc).isoformat(),
+                        "{not-json",
+                    ),
+                )
+                connection.commit()
+
+            response = httpx.Response(200, json={"elements": [osm_element()]})
+            with (
+                patch("app.overpass.database_path", return_value=database),
+                patch("app.overpass.httpx.AsyncClient") as client_factory,
+            ):
+                client_factory.return_value.__aenter__.return_value.post = AsyncMock(
+                    return_value=response
+                )
+                places = await list_osm_places()
+
+            self.assertEqual([place.name for place in places], ["京都の神社"])
+
     def test_way_centers_and_osm_tags_are_parsed(self):
         places = _parse_places(
             [osm_element(

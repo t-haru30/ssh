@@ -115,6 +115,7 @@ def choose_place_sets(
         if place.themes and (theme == "all" or theme in place.themes)
     ]
     routes = [first_route]
+    rng = random.SystemRandom()
     used_ids = {place.id for place in first_route}
     used_categories = {place.category for place in first_route}
     route_targets = ("far", "middle")
@@ -147,7 +148,7 @@ def choose_place_sets(
             if place.category not in used_categories
         ]
         first_pool = category_options or ranked
-        selected = [random.SystemRandom().choice(first_pool[: min(5, len(first_pool))])]
+        selected = [rng.choice(first_pool[: min(5, len(first_pool))])]
         available = [place for place in ranked if place.id != selected[0].id]
         while available and len(selected) < stop_count:
             current = selected[-1]
@@ -162,7 +163,7 @@ def choose_place_sets(
                     ),
                 ),
             )
-            next_place = random.SystemRandom().choice(next_ranked[: min(5, len(next_ranked))])
+            next_place = rng.choice(next_ranked[: min(5, len(next_ranked))])
             selected.append(next_place)
             available.remove(next_place)
         if len(selected) == stop_count:

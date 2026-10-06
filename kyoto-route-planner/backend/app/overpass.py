@@ -51,6 +51,24 @@ def _cache_entry(path: Path | None = None) -> sqlite3.Row | None:
         ).fetchone()
 
 
+def _cached_places(entry: sqlite3.Row | None) -> list[Place] | None:
+    if entry is None:
+        return []
+    try:
+        return _parse_places(json.loads(entry["payload_json"]))
+    except (HTTPException, TypeError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def _remove_cache_entry(path: Path) -> None:
+    with closing(sqlite3.connect(path)) as connection:
+        connection.execute(
+            "DELETE FROM osm_places_cache WHERE cache_key = ?",
+            (CACHE_KEY,),
+        )
+        connection.commit()
+
+
 def _parse_places(elements: Any) -> list[Place]:
     if not isinstance(elements, list):
         raise HTTPException(
@@ -219,7 +237,7 @@ def get_osm_status(path: Path | None = None) -> dict[str, Any]:
     fetched_at = datetime.fromisoformat(entry["fetched_at"])
     cached_until = fetched_at + CACHE_TTL
     paused = _rate_limit_pause(entry)
-    cached_places = _parse_places(json.loads(entry["payload_json"]))
+    cached_places = _cached_places(entry) or []
     is_stale = _now() >= cached_until
     warning = None
     if paused and is_stale and cached_places:
@@ -257,11 +275,15 @@ async def _load_osm_places(path: Path | None = None) -> list[Place]:
     now = _now()
     if entry is not None:
         fetched_at = datetime.fromisoformat(entry["fetched_at"])
-        places = _parse_places(json.loads(entry["payload_json"]))
+        places = _cached_places(entry)
+        if entry is not None and places is None:
+            _remove_cache_entry(target)
+            entry = None
+            places = []
         cache_is_fresh = now - fetched_at < CACHE_TTL
         if cache_is_fresh and places:
             return places
-        if _rate_limit_pause(entry):
+        if entry is not None and _rate_limit_pause(entry):
             if places:
                 return places
             raise HTTPException(
@@ -269,7 +291,7 @@ async def _load_osm_places(path: Path | None = None) -> list[Place]:
                 detail=get_osm_status(target)["warning"]
                 or "Overpass APIへの追加検索を一時停止しています。",
             )
-        if cache_is_fresh:
+        if entry is not None and cache_is_fresh:
             return places
 
     try:

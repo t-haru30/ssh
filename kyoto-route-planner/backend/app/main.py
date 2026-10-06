@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.database import initialize_database
@@ -33,6 +34,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 
 
