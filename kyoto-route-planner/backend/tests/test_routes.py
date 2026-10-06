@@ -361,6 +361,25 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 504)
 
+    def test_route_suggestion_returns_timeout_when_place_loading_exceeds_budget(self):
+        client = TestClient(app)
+        request = {
+            "origin": "京都駅",
+            "theme": "all",
+            "stop_count": 1,
+            "departure_date": "2026-10-05",
+            "departure_time": "09:00",
+        }
+
+        async def slow_places():
+            raise asyncio.TimeoutError
+
+        with patch("app.main.list_osm_places", new=slow_places):
+            response = client.post("/api/routes", json=request)
+
+        self.assertEqual(response.status_code, 504)
+        self.assertIn("候補", response.json()["detail"])
+
 
 if __name__ == "__main__":
     unittest.main()

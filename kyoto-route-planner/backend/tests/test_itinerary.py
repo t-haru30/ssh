@@ -34,6 +34,22 @@ def catalog_place(
 
 
 class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
+    async def test_times_out_when_place_search_exceeds_request_budget(self):
+        request = ItineraryRequest(
+            query="京都府の観光地",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 5),
+            departure_time=time(9, 0),
+            stop_count=1,
+        )
+
+        async def slow_search(*_args, **_kwargs):
+            raise asyncio.TimeoutError
+
+        with patch("app.itinerary.search_osm_places", new=slow_search):
+            with self.assertRaisesRegex(HTTPException, "候補.*タイムアウト"):
+                await plan_itinerary(request)
+
     async def test_times_out_when_route_search_exceeds_budget(self):
         place = catalog_place("a", "スポットA", 35.0, 135.7)
         search_response = PlaceSearchResponse(
