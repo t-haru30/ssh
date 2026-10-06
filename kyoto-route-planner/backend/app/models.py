@@ -1,0 +1,124 @@
+from datetime import date, time
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+
+Theme = Literal["all", "history", "temple", "nature", "food"]
+
+
+class Place(BaseModel):
+    id: str
+    name: str
+    category: str
+    description: str
+    access_point: str
+    latitude: float
+    longitude: float
+    themes: list[Theme]
+    address: str = ""
+    tags: dict[str, str] = Field(default_factory=dict)
+
+
+class Origin(BaseModel):
+    name: str
+    latitude: float
+    longitude: float
+
+
+class RouteSuggestionRequest(BaseModel):
+    origin: str = Field(min_length=1, max_length=80)
+    theme: Theme = "all"
+    stop_count: int = Field(default=3, ge=1, le=3)
+    departure_date: date
+    departure_time: time
+
+
+class RouteLeg(BaseModel):
+    from_name: str
+    to_name: str
+    line_name: str
+    mode: str
+    duration_minutes: int | None = None
+
+
+class RouteSuggestion(BaseModel):
+    places: list[Place]
+    origin: Origin
+    legs: list[RouteLeg]
+    total_minutes: int | None = None
+    departure_time: str | None = None
+    arrival_time: str | None = None
+    note: str
+
+
+class LabelPreference(BaseModel):
+    label_type: Literal["atmosphere", "target_audience", "activity_type"]
+    label: str
+
+
+class ParsedPlaceQuery(BaseModel):
+    region: str | None = None
+    location_unresolved: bool = False
+    category: str | None = None
+    keywords: list[str] = Field(default_factory=list)
+    preferences: list[LabelPreference] = Field(default_factory=list)
+    center_station: str | None = None
+    center_latitude: float | None = None
+    center_longitude: float | None = None
+    max_distance_m: int | None = None
+    warnings: list[str] = Field(default_factory=list)
+
+
+class PlaceSearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+
+
+class CatalogPlace(BaseModel):
+    id: str
+    name: str
+    category: str
+    region: str
+    address: str
+    latitude: float
+    longitude: float
+    description: str
+    source_record_id: str | None = None
+
+
+class PlaceSearchHit(BaseModel):
+    place: CatalogPlace
+    score: float
+    distance_m: int | None = None
+
+
+class PlaceSearchResponse(BaseModel):
+    query: ParsedPlaceQuery
+    results: list[PlaceSearchHit]
+    note: str
+
+
+class ItineraryRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+    departure_station: str = Field(min_length=1, max_length=80)
+    departure_date: date
+    departure_time: time
+    stop_count: int = Field(default=3, ge=1, le=3)
+    return_by: time = time(18, 0)
+    stay_minutes_per_place: int = Field(default=90, ge=0, le=360)
+
+
+class ItinerarySuggestion(BaseModel):
+    query: ParsedPlaceQuery
+    origin: Origin
+    places: list[CatalogPlace]
+    legs: list[RouteLeg]
+    departure_at: str
+    estimated_return_at: str | None = None
+    return_by: str
+    transit_minutes: int | None = None
+    stay_minutes: int
+    estimated_total_minutes: int | None = None
+    feasible: bool | None = None
+    route_search_calls: int
+    note: str
