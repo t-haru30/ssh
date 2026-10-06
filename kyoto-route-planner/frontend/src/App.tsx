@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestionRequest, Theme } from "./types";
 
 const themes: { id: Theme; label: string; icon: string }[] = [
@@ -138,7 +139,10 @@ function App() {
           <span className="brand-mark">寄</span>
           <span>よりみち<span className="brand-light"> / KYOTO</span></span>
         </a>
-        <span className="sample-label"><span /> 駅すぱあと経路検索</span>
+        <div className="topbar-tools">
+          <span className="sample-label"><span /> 駅すぱあと経路検索</span>
+          <ThemeSwitcher />
+        </div>
       </header>
 
       <section className="hero">
