@@ -15,7 +15,7 @@ class PlaceQueryTests(unittest.TestCase):
         )
 
         self.assertEqual(intent.region, "京都府")
-        self.assertEqual(intent.center_station, "京都")
+        self.assertEqual(intent.center_station, "京都駅")
         self.assertEqual(intent.max_distance_m, 1000)
         self.assertEqual(
             {(item.label_type, item.label) for item in intent.preferences},

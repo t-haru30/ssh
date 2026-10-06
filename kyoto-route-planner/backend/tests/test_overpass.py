@@ -117,7 +117,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(response.results[0].place.name, "京都の神社")
             self.assertTrue(response.results[0].place.source_record_id.startswith("osm-node-"))
-            self.assertEqual(response.query.center_station, "京都")
+            self.assertEqual(response.query.center_station, "京都駅")
             self.assertIn("OpenStreetMap", response.note)
 
     async def test_no_api_key_is_required_to_query(self):

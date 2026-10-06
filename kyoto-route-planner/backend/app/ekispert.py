@@ -121,7 +121,7 @@ async def search_route(
             detail="駅すぱあとAPIキーが設定されていません。環境変数 EKISPERT_API_KEY を設定してください。",
         )
 
-    referer = os.getenv("EKISPERT_APPLICATION_URL", "").strip()
+    referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     params = {
         "key": key,
         "viaList": ":".join(via_points),
