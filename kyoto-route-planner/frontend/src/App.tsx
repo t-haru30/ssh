@@ -250,6 +250,46 @@ function App() {
     }
   }
 
+  async function handleRandomRoute() {
+    if (searching || loading) return;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    setError(null);
+    setSuggestions([]);
+    setSearching(true);
+
+    try {
+      const response = await fetchWithTimeout("/api/routes/random", {
+        signal: controller.signal,
+      }, REQUEST_TIMEOUT_MS);
+      if (!response.ok) {
+        throw new Error(await readError(response));
+      }
+      const payload: unknown = await response.json();
+      if (!isRouteSuggestions(payload)) {
+        throw new Error("ルートAPIから有効な候補が返されませんでした。");
+      }
+      if (requestId === requestIdRef.current) {
+        setSuggestions(payload.routes);
+      }
+    } catch (cause) {
+      if (requestId !== requestIdRef.current) return;
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
+      } else {
+        setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        activeRequestRef.current = null;
+        setSearching(false);
+      }
+    }
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -334,7 +374,10 @@ function App() {
             <button className="submit-button" type="submit" disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>この条件でルートを提案 <span>↗</span></>}
             </button>
-            <p className="form-footnote">検索ボタンを押した時だけ、駅すぱあとAPIに最大3パターン問い合わせます。</p>
+            <button className="random-button" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
+              {searching ? "ルートを検索しています" : <>おまかせルートを試す <span>✳</span></>}
+            </button>
+            <p className="form-footnote">検索ボタンまたはおまかせボタンを押した時だけ、駅すぱあとAPIに問い合わせます。</p>
           </form>
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}

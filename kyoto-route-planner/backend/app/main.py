@@ -1,7 +1,9 @@
 import asyncio
-import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
+import random
+import time
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -34,6 +36,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
 ROUTE_SEARCH_BUDGET_SECONDS = 45.0
+RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 
 
 @app.get("/api/health")
@@ -72,6 +75,26 @@ async def recommend_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
 
 @app.post("/api/routes", response_model=RouteSuggestions)
 async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
+    return await _recommend_routes(request)
+
+
+@app.get("/api/routes/random", response_model=RouteSuggestions)
+async def recommend_random_route() -> RouteSuggestions:
+    departure = datetime.now().replace(second=0, microsecond=0)
+    request = RouteSuggestionRequest(
+        origin=list_origins()[0].name,
+        theme=random.choice(RANDOM_ROUTE_THEMES),
+        stop_count=random.randint(1, 3),
+        departure_date=departure.date(),
+        departure_time=departure.time(),
+    )
+    return await _recommend_routes(request, max_routes=1)
+
+
+async def _recommend_routes(
+    request: RouteSuggestionRequest,
+    max_routes: int = 3,
+) -> RouteSuggestions:
     try:
         origin = next(
             (
@@ -89,6 +112,7 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
             request.stop_count,
             request.origin,
             candidates,
+            max_routes=max_routes,
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
@@ -96,7 +120,7 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
     suggestions: list[RouteSuggestion] = []
     deadline = time.monotonic() + ROUTE_SEARCH_BUDGET_SECONDS
     timed_out = False
-    for selected in selected_sets:
+    for selected in selected_sets[:max_routes]:
         last_error: HTTPException | None = None
         for stop_count in range(len(selected), 0, -1):
             remaining_seconds = deadline - time.monotonic()

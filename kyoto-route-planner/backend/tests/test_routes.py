@@ -226,6 +226,36 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(search.await_count, 3)
         self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
 
+    def test_random_route_selects_backend_conditions_and_returns_one_route(self):
+        client = TestClient(app)
+        search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+
+        with (
+            patch("app.main.random.choice", return_value="nature"),
+            patch("app.main.random.randint", return_value=1),
+            patch("app.main.search_route", search),
+            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+        ):
+            response = client.get("/api/routes/random")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["routes"]), 1)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["name"], "京都自然公園")
+        search.assert_awaited_once()
+        self.assertEqual(search.await_args.kwargs["via_points"][0], "34.98585,135.75877")
+        self.assertEqual(search.await_args.kwargs["via_points"][-1], "34.98585,135.75877")
+
     def test_route_suggestion_retries_with_fewer_stops_when_exact_route_is_unavailable(self):
         client = TestClient(app)
         request = {
