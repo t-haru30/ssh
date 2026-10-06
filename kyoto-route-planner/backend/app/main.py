@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 
 from app.database import initialize_database
+from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary
 from app.overpass import (
@@ -178,6 +179,11 @@ async def _recommend_routes(
                 detail="複数ルートの検索がタイムアウトしました。時間をおいて再度お試しください。",
             )
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
+    for suggestion in suggestions:
+        copywriting = await generate_route_copywriting(suggestion.places, request.theme)
+        if copywriting is not None:
+            suggestion.title = copywriting.title
+            suggestion.story = copywriting.story
     return RouteSuggestions(routes=suggestions)
 
 

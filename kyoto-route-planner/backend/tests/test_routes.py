@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from app.ekispert import _make_url, _parse_legs
 from app.main import app
+from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
     ParsedPlaceQuery,
@@ -245,6 +246,13 @@ class RoutePlannerTests(unittest.TestCase):
             patch("app.main.random.choice", return_value="nature"),
             patch("app.main.random.randint", return_value=1),
             patch("app.main.search_route", search),
+            patch(
+                "app.main.generate_route_copywriting",
+                new=AsyncMock(return_value=RouteCopywriting(
+                    title="喧騒を離れて、京都の余白へ",
+                    story="静かな自然に身をゆだねる、短い寄り道の物語です。",
+                )),
+            ),
             patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
         ):
             response = client.get("/api/routes/random")
@@ -252,6 +260,8 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["routes"]), 1)
         self.assertEqual(response.json()["routes"][0]["places"][0]["name"], "京都自然公園")
+        self.assertEqual(response.json()["routes"][0]["title"], "喧騒を離れて、京都の余白へ")
+        self.assertIn("静かな自然", response.json()["routes"][0]["story"])
         search.assert_awaited_once()
         self.assertEqual(search.await_args.kwargs["via_points"][0], "34.98585,135.75877")
         self.assertEqual(search.await_args.kwargs["via_points"][-1], "34.98585,135.75877")

@@ -29,6 +29,8 @@ export type RouteSuggestion = {
   places: Place[];
   origin: Origin;
   legs: RouteLeg[];
+  title: string | null;
+  story: string | null;
   total_minutes: number | null;
   departure_time: string | null;
   arrival_time: string | null;

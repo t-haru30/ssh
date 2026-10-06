@@ -104,6 +104,8 @@ function isRouteSuggestions(value: unknown): value is RouteSuggestions {
     && Array.isArray(route.legs)
     && route.legs.every(isRouteLeg)
     && isOrigin(route.origin)
+    && (route.title === null || typeof route.title === "string")
+    && (route.story === null || typeof route.story === "string")
     && typeof route.note === "string"
   ));
 }
@@ -413,6 +415,7 @@ function App() {
             {suggestions.map((suggestion, index) => (
             <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
               <h3>ルート {index + 1}</h3>
+          {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
           <div className="route-result">
             <div className="stop-list">
               <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>

@@ -46,6 +46,8 @@ class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
     legs: list[RouteLeg]
+    title: str | None = None
+    story: str | None = None
     total_minutes: int | None = None
     departure_time: str | None = None
     arrival_time: str | None = None

@@ -101,6 +101,9 @@ a { color: inherit; text-decoration: none; }
 .route-options { display: grid; gap: 24px; }
 .route-option { padding: 18px; border: 1px solid #e9e9e3; background: rgba(255, 254, 250, .72); }
 .route-option > h3 { margin: 0 0 14px; color: #33463a; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17px; }
+.route-copy { margin: -3px 0 18px; padding: 13px 15px; border-left: 3px solid #7e9a7f; background: #f1f5ee; }
+.route-copy h4 { margin: 0; color: #2f503e; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 16px; font-weight: 600; }
+.route-copy p { margin: 6px 0 0; color: #68766b; font-size: 11px; line-height: 1.7; }
 .route-result { display: grid; grid-template-columns: minmax(240px, .82fr) minmax(0, 1.18fr); gap: 18px; align-items: start; }
 .stop-list { padding: 8px 18px 15px; border: 1px solid #e9e9e3; background: var(--paper); }
 .route-endpoint, .suggested-place { display: grid; grid-template-columns: 26px 1fr; gap: 11px; position: relative; padding: 14px 0; }
