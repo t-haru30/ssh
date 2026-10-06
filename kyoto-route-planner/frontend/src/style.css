@@ -95,6 +95,9 @@ a { color: inherit; text-decoration: none; }
 .empty-icon { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 50%; color: #4f7358; background: #e8eee5; font-size: 19px; }
 .empty-state strong { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 13px; font-weight: 600; }
 .empty-state p { margin: 5px 0 0; color: #858b84; font-size: 10px; }
+.route-options { display: grid; gap: 24px; }
+.route-option { padding: 18px; border: 1px solid #e9e9e3; background: rgba(255, 254, 250, .72); }
+.route-option > h3 { margin: 0 0 14px; color: #33463a; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17px; }
 .route-result { display: grid; grid-template-columns: minmax(240px, .82fr) minmax(0, 1.18fr); gap: 18px; align-items: start; }
 .stop-list { padding: 8px 18px 15px; border: 1px solid #e9e9e3; background: var(--paper); }
 .route-endpoint, .suggested-place { display: grid; grid-template-columns: 26px 1fr; gap: 11px; position: relative; padding: 14px 0; }

@@ -52,6 +52,10 @@ class RouteSuggestion(BaseModel):
     note: str
 
 
+class RouteSuggestions(BaseModel):
+    routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
+
+
 class LabelPreference(BaseModel):
     label_type: Literal["atmosphere", "target_audience", "activity_type"]
     label: str

@@ -84,3 +84,86 @@ def choose_places(
         )
 
     return selected
+
+
+def choose_place_sets(
+    theme: Theme,
+    stop_count: int,
+    origin_name: str,
+    candidates: list[Place],
+    max_routes: int = 3,
+) -> list[list[Place]]:
+    first_route = choose_places(theme, stop_count, origin_name, candidates)
+    origin = next(
+        (
+            item
+            for item in ORIGINS
+            if item.name == origin_name
+            or _normalize_origin_name(item.name) == _normalize_origin_name(origin_name)
+        ),
+        None,
+    )
+    if origin is None:
+        raise ValueError("出発駅を選び直してください。")
+
+    remaining = [
+        place
+        for place in candidates
+        if place.themes and (theme == "all" or theme in place.themes)
+    ]
+    routes = [first_route]
+    used_ids = {place.id for place in first_route}
+    used_categories = {place.category for place in first_route}
+    route_targets = ("far", "middle")
+
+    for target in route_targets[: max_routes - 1]:
+        unused = [place for place in remaining if place.id not in used_ids]
+        if len(unused) < stop_count:
+            unused = remaining
+        if len(unused) < stop_count:
+            break
+
+        def origin_distance(place: Place) -> float:
+            return _distance_km(
+                (origin.latitude, origin.longitude),
+                (place.latitude, place.longitude),
+            )
+
+        distances = sorted(origin_distance(place) for place in unused)
+        midpoint = distances[len(distances) // 2]
+        if target == "far":
+            ranked = sorted(
+                unused,
+                key=lambda place: (place.category in used_categories, -origin_distance(place)),
+            )
+        else:
+            ranked = sorted(
+                unused,
+                key=lambda place: (
+                    place.category in used_categories,
+                    abs(origin_distance(place) - midpoint),
+                ),
+            )
+
+        selected = [ranked[0]]
+        available = [place for place in ranked[1:] if place.id != selected[0].id]
+        while available and len(selected) < stop_count:
+            current = selected[-1]
+            next_place = min(
+                available,
+                key=lambda place: (
+                    place.category in {selected_place.category for selected_place in selected},
+                    _distance_km(
+                        (current.latitude, current.longitude),
+                        (place.latitude, place.longitude),
+                    ),
+                ),
+            )
+            selected.append(next_place)
+            available.remove(next_place)
+        if len(selected) == stop_count:
+            routes.append(selected)
+            used_ids.update(place.id for place in selected)
+            used_categories.update(place.category for place in selected)
+
+    return routes
