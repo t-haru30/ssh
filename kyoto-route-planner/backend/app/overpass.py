@@ -21,12 +21,12 @@ from app.models import (
 from app.search import parse_place_query
 
 API_URL = "https://overpass-api.de/api/interpreter"
-CACHE_KEY = "kyoto-overpass-v1"
+CACHE_KEY = "kyoto-overpass-v2"
 CACHE_TTL = timedelta(hours=24)
 RATE_LIMIT_PAUSE = timedelta(hours=1)
 OUTAGE_PAUSE = timedelta(minutes=15)
 QUERY_CENTER = (34.98585, 135.75877)
-QUERY_BUFFER_METERS = 2_000
+QUERY_BUFFER_METERS = 5_000
 _request_lock = asyncio.Lock()
 
 
