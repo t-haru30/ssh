@@ -159,6 +159,8 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
                 break
         if timed_out:
             break
+        if transient_error is not None:
+            break
         if last_error is not None and last_error.status_code != 404:
             raise last_error
 

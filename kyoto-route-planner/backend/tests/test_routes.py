@@ -326,9 +326,8 @@ class RoutePlannerTests(unittest.TestCase):
             "09:20",
         )
         search = AsyncMock(side_effect=[
+            success,
             HTTPException(504, "temporary outage"),
-            success,
-            success,
         ])
 
         with patch("app.main.search_route", search), patch(
@@ -338,7 +337,8 @@ class RoutePlannerTests(unittest.TestCase):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()["routes"]), 2)
+        self.assertEqual(len(response.json()["routes"]), 1)
+        self.assertEqual(search.await_count, 2)
 
     def test_route_suggestion_returns_timeout_when_no_route_finishes_in_budget(self):
         client = TestClient(app)
