@@ -96,6 +96,7 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
     suggestions: list[RouteSuggestion] = []
     deadline = time.monotonic() + ROUTE_SEARCH_BUDGET_SECONDS
     timed_out = False
+    transient_error: HTTPException | None = None
     for selected in selected_sets:
         last_error: HTTPException | None = None
         for stop_count in range(len(selected), 0, -1):
@@ -134,9 +135,12 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
                 )
                 break
             except HTTPException as error:
-                last_error = error
                 if error.status_code != 404:
+                    if error.status_code in {502, 504}:
+                        transient_error = error
+                        break
                     raise
+                last_error = error
                 if stop_count == 1:
                     break
             except asyncio.TimeoutError:
@@ -153,6 +157,8 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
                 status_code=504,
                 detail="複数ルートの検索がタイムアウトしました。時間をおいて再度お試しください。",
             )
+        if transient_error is not None:
+            raise transient_error
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
     return RouteSuggestions(routes=suggestions)
 

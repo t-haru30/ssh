@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from itertools import permutations
@@ -13,6 +14,8 @@ from app.models import (
 )
 from app.overpass import search_osm_places
 from app.places import list_origins, normalize_origin_name
+
+ITINERARY_SEARCH_BUDGET_SECONDS = 45.0
 
 
 @dataclass(frozen=True)
@@ -68,23 +71,41 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
 
     best: ItineraryCandidate | None = None
     route_search_calls = 0
+    deadline = asyncio.get_running_loop().time() + ITINERARY_SEARCH_BUDGET_SECONDS
+    timed_out = False
+    transient_error: HTTPException | None = None
     for ordered_places in permutations(candidates):
+        remaining_seconds = deadline - asyncio.get_running_loop().time()
+        if remaining_seconds <= 0:
+            timed_out = True
+            break
         via_points = [
             f"{origin.latitude},{origin.longitude}",
             *(f"{place.latitude},{place.longitude}" for place in ordered_places),
             f"{origin.latitude},{origin.longitude}",
         ]
         try:
-            legs, transit_minutes, _departure, _arrival = await search_route(
-                via_points=via_points,
-                departure_date=request.departure_date.isoformat(),
-                departure_time=request.departure_time.strftime("%H:%M"),
+            legs, transit_minutes, _departure, _arrival = await asyncio.wait_for(
+                search_route(
+                    via_points=via_points,
+                    departure_date=request.departure_date.isoformat(),
+                    departure_time=request.departure_time.strftime("%H:%M"),
+                ),
+                timeout=remaining_seconds,
             )
         except HTTPException as error:
             if error.status_code == 404:
                 route_search_calls += 1
                 continue
+            if error.status_code in {502, 504}:
+                route_search_calls += 1
+                transient_error = error
+                continue
             raise
+        except asyncio.TimeoutError:
+            route_search_calls += 1
+            timed_out = True
+            break
         route_search_calls += 1
 
         stay_minutes = len(ordered_places) * request.stay_minutes_per_place
@@ -131,6 +152,13 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             best = candidate
 
     if best is None:
+        if timed_out:
+            raise HTTPException(
+                status_code=504,
+                detail="旅程の経路検索がタイムアウトしました。時間をおいて再度お試しください。",
+            )
+        if transient_error is not None:
+            raise transient_error
         raise HTTPException(
             status_code=404,
             detail="選んだスポットを公共交通で巡る経路が見つかりませんでした。",
