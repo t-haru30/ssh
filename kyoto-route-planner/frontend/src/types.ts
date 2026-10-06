@@ -35,6 +35,10 @@ export type RouteSuggestion = {
   note: string;
 };
 
+export type RouteSuggestions = {
+  routes: RouteSuggestion[];
+};
+
 export type RouteSuggestionRequest = {
   origin: string;
   theme: Theme;

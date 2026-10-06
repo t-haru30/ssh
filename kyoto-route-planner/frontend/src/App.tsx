@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestionRequest, Theme } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme } from "./types";
 
 const themes: { id: Theme; label: string; icon: string }[] = [
   { id: "all", label: "おまかせ", icon: "✳" },
@@ -31,6 +31,83 @@ function modeLabel(mode: string) {
   return "乗換・移動";
 }
 
+const REQUEST_TIMEOUT_MS = 60_000;
+const INITIAL_DATA_TIMEOUT_MS = 15_000;
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS,
+) {
+  const timeout = new AbortController();
+  const combined = new AbortController();
+  const timeoutId = window.setTimeout(() => timeout.abort(), timeoutMs);
+  const abortCombined = () => combined.abort();
+  timeout.signal.addEventListener("abort", abortCombined, { once: true });
+  init.signal?.addEventListener("abort", abortCombined, { once: true });
+  if (timeout.signal.aborted || init.signal?.aborted) {
+    combined.abort();
+  }
+  try {
+    return await fetch(input, { ...init, signal: combined.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+    timeout.signal.removeEventListener("abort", abortCombined);
+    init.signal?.removeEventListener("abort", abortCombined);
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isPlace(value: unknown): value is Place {
+  return (
+    isRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.category === "string"
+    && typeof value.description === "string"
+    && typeof value.latitude === "number"
+    && typeof value.longitude === "number"
+  );
+}
+
+function isOrigin(value: unknown): value is Origin {
+  return (
+    isRecord(value)
+    && typeof value.name === "string"
+    && typeof value.latitude === "number"
+    && typeof value.longitude === "number"
+  );
+}
+
+function isRouteLeg(value: unknown): value is RouteLeg {
+  return (
+    isRecord(value)
+    && typeof value.from_name === "string"
+    && typeof value.to_name === "string"
+    && typeof value.line_name === "string"
+    && typeof value.mode === "string"
+  );
+}
+
+function isRouteSuggestions(value: unknown): value is RouteSuggestions {
+  if (!isRecord(value) || !Array.isArray(value.routes) || value.routes.length === 0) {
+    return false;
+  }
+  return value.routes.every((route) => (
+    isRecord(route)
+    && Array.isArray(route.places)
+    && route.places.length > 0
+    && route.places.every(isPlace)
+    && Array.isArray(route.legs)
+    && route.legs.every(isRouteLeg)
+    && isOrigin(route.origin)
+    && typeof route.note === "string"
+  ));
+}
+
 async function readError(response: Response) {
   try {
     const payload: unknown = await response.json();
@@ -51,18 +128,25 @@ function App() {
   const [stopCount, setStopCount] = useState(3);
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
   const [departureTime, setDepartureTime] = useState("09:00");
-  const [suggestion, setSuggestion] = useState<RouteSuggestion | null>(null);
+  const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
+  const activeRequestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    requestIdRef.current += 1;
+    activeRequestRef.current?.abort();
+  }, []);
 
   useEffect(() => {
     async function loadInitialData() {
       try {
         const [placesResponse, originsResponse] = await Promise.all([
-          fetch("/api/places"),
-          fetch("/api/origins"),
+          fetchWithTimeout("/api/places", {}, INITIAL_DATA_TIMEOUT_MS),
+          fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
         ]);
         if (!placesResponse.ok) {
           throw new Error(await readError(placesResponse));
@@ -70,11 +154,25 @@ function App() {
         if (!originsResponse.ok) {
           throw new Error("アプリの候補地を読み込めませんでした。APIサーバーを確認してください。");
         }
-        const [placeData, originData] = await Promise.all([
-          placesResponse.json() as Promise<Place[]>,
-          originsResponse.json() as Promise<Origin[]>,
+        const [placePayload, originPayload] = await Promise.all([
+          placesResponse.json() as Promise<unknown>,
+          originsResponse.json() as Promise<unknown>,
         ]);
-        const statusResponse = await fetch("/api/places/status");
+        if (
+          !Array.isArray(placePayload)
+          || !Array.isArray(originPayload)
+          || !placePayload.every(isPlace)
+          || !originPayload.every(isOrigin)
+        ) {
+          throw new Error("候補地または出発駅のデータ形式が不正です。");
+        }
+        const placeData = placePayload as Place[];
+        const originData = originPayload as Origin[];
+        const statusResponse = await fetchWithTimeout(
+          "/api/places/status",
+          {},
+          INITIAL_DATA_TIMEOUT_MS,
+        );
         const placeSourceStatus = statusResponse.ok
           ? await statusResponse.json() as { warning: string | null }
           : { warning: null };
@@ -98,12 +196,18 @@ function App() {
     () => origins.find((item) => item.name === originName) ?? null,
     [originName, origins],
   );
-  const mapPlaces = suggestion?.places ?? places;
+  const mapPlaces = suggestions[0]?.places ?? places;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (searching) return;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
     setError(null);
-    setSuggestion(null);
+    setSuggestions([]);
     setSearching(true);
 
     const request: RouteSuggestionRequest = {
@@ -115,19 +219,34 @@ function App() {
     };
 
     try {
-      const response = await fetch("/api/routes", {
+      const response = await fetchWithTimeout("/api/routes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
-      });
+        signal: controller.signal,
+      }, REQUEST_TIMEOUT_MS);
       if (!response.ok) {
         throw new Error(await readError(response));
       }
-      setSuggestion(await response.json() as RouteSuggestion);
+      const payload: unknown = await response.json();
+      if (!isRouteSuggestions(payload)) {
+        throw new Error("ルートAPIから有効な候補が返されませんでした。");
+      }
+      if (requestId === requestIdRef.current) {
+        setSuggestions(payload.routes);
+      }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+      if (requestId !== requestIdRef.current) return;
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
+      } else {
+        setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+      }
     } finally {
-      setSearching(false);
+      if (requestId === requestIdRef.current) {
+        activeRequestRef.current = null;
+        setSearching(false);
+      }
     }
   }
 
@@ -173,6 +292,7 @@ function App() {
                     type="button"
                     key={item.id}
                     onClick={() => setTheme(item.id)}
+                    disabled={searching}
                     aria-pressed={theme === item.id}
                   >
                     <span>{item.icon}</span>{item.label}
@@ -184,7 +304,7 @@ function App() {
             <div className="form-fields">
               <label>
                 <span>出発駅</span>
-                <select value={originName} onChange={(event) => setOriginName(event.target.value)} disabled={loading}>
+                <select value={originName} onChange={(event) => setOriginName(event.target.value)} disabled={loading || searching}>
                   {origins.map((item) => (
                     <option value={item.name} key={item.name}>
                       {item.name.endsWith("駅") ? item.name : `${item.name}駅`}
@@ -195,15 +315,15 @@ function App() {
               </label>
               <label>
                 <span>出発日</span>
-                <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} required />
+                <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching} required />
               </label>
               <label>
                 <span>出発時刻</span>
-                <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} required />
+                <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching} required />
               </label>
               <label>
                 <span>立ち寄り先</span>
-                <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))}>
+                <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))} disabled={searching}>
                   <option value={1}>1か所</option>
                   <option value={2}>2か所</option>
                   <option value={3}>3か所</option>
@@ -214,7 +334,7 @@ function App() {
             <button className="submit-button" type="submit" disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>この条件でルートを提案 <span>↗</span></>}
             </button>
-            <p className="form-footnote">検索ボタンを押した時だけ、駅すぱあとAPIに1回問い合わせます。</p>
+            <p className="form-footnote">検索ボタンを押した時だけ、駅すぱあとAPIに最大3パターン問い合わせます。</p>
           </form>
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
@@ -225,27 +345,31 @@ function App() {
         <section className="map-card" aria-label="京都の候補地マップ">
           <div className="map-heading">
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{suggestion ? `${suggestion.places.length} SPOTS` : "KYOTO"}</span>
+            <span className="map-count">{suggestions.length > 0 ? `${suggestions[0].places.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={suggestion ? suggestion.origin : origin} />
+          <MapView places={mapPlaces} origin={suggestions[0]?.origin ?? origin} />
           <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
         </section>
       </div>
 
       <section className="results-section" aria-live="polite">
         <div className="section-heading results-heading">
-          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
-          {suggestion && <span className="result-date">{departureDate}</span>}
+          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
+          {suggestions.length > 0 && <span className="result-date">{departureDate}</span>}
         </div>
 
-        {!suggestion && !error && (
+        {suggestions.length === 0 && !error && (
           <div className="empty-state">
             <span className="empty-icon">↗</span>
             <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
           </div>
         )}
 
-        {suggestion && (
+        {suggestions.length > 0 && (
+          <div className="route-options">
+            {suggestions.map((suggestion, index) => (
+            <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
+              <h3>ルート {index + 1}</h3>
           <div className="route-result">
             <div className="stop-list">
               <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
@@ -273,6 +397,9 @@ function App() {
               )}
               <p className="result-note">{suggestion.note}</p>
             </div>
+          </div>
+            </article>
+            ))}
           </div>
         )}
       </section>

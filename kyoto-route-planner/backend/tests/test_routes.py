@@ -1,4 +1,5 @@
 import unittest
+import asyncio
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -14,7 +15,7 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import choose_places
+from app.places import choose_place_sets, choose_places
 
 
 def sample_places() -> list[Place]:
@@ -188,7 +189,7 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertIn("EKISPERT_API_KEY", response.json()["detail"])
 
-    def test_route_suggestion_uses_one_real_route_search(self):
+    def test_route_suggestion_returns_up_to_three_route_options(self):
         client = TestClient(app)
         request = {
             "origin": "京都駅",
@@ -219,18 +220,11 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["legs"][0]["line_name"], "JR奈良線")
-        self.assertEqual(body["total_minutes"], 35)
-        selected = choose_places("all", 3, "京都駅", candidates)
-        search.assert_awaited_once_with(
-            via_points=[
-                "34.98585,135.75877",
-                *(f"{place.latitude},{place.longitude}" for place in selected),
-                "34.98585,135.75877",
-            ],
-            departure_date="2026-10-05",
-            departure_time="09:00",
-        )
+        self.assertEqual(len(body["routes"]), 3)
+        self.assertEqual(body["routes"][0]["legs"][0]["line_name"], "JR奈良線")
+        self.assertEqual(body["routes"][0]["total_minutes"], 35)
+        self.assertEqual(search.await_count, 3)
+        self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
 
     def test_route_suggestion_retries_with_fewer_stops_when_exact_route_is_unavailable(self):
         client = TestClient(app)
@@ -242,20 +236,23 @@ class RoutePlannerTests(unittest.TestCase):
             "departure_time": "09:00",
         }
         candidates = sample_places()
+        success = (
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            20,
+            "09:00",
+            "09:20",
+        )
         search = AsyncMock(side_effect=[
             HTTPException(404, "no route for three points"),
-            (
-                [RouteLeg(
-                    from_name="京都",
-                    to_name="稲荷",
-                    line_name="JR奈良線",
-                    mode="train",
-                    duration_minutes=5,
-                )],
-                20,
-                "09:00",
-                "09:20",
-            ),
+            success,
+            success,
+            success,
         ])
 
         with patch("app.main.search_route", search), patch(
@@ -265,8 +262,68 @@ class RoutePlannerTests(unittest.TestCase):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()["places"]), 2)
-        self.assertEqual(search.await_count, 2)
+        self.assertEqual(len(response.json()["routes"]), 3)
+        self.assertEqual(len(response.json()["routes"][0]["places"]), 2)
+        self.assertEqual(search.await_count, 4)
+
+    def test_route_suggestion_returns_partial_results_when_some_variants_have_no_route(self):
+        client = TestClient(app)
+        request = {
+            "origin": "京都駅",
+            "theme": "all",
+            "stop_count": 1,
+            "departure_date": "2026-10-05",
+            "departure_time": "09:00",
+        }
+        success = (
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            20,
+            "09:00",
+            "09:20",
+        )
+        search = AsyncMock(side_effect=[
+            success,
+            success,
+            HTTPException(404, "no route for this variant"),
+            HTTPException(404, "no route for this variant"),
+            HTTPException(404, "no route for this variant"),
+        ])
+
+        with patch("app.main.search_route", search), patch(
+            "app.main.list_osm_places",
+            new=AsyncMock(return_value=sample_places()),
+        ):
+            response = client.post("/api/routes", json=request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["routes"]), 2)
+
+    def test_route_suggestion_returns_timeout_when_no_route_finishes_in_budget(self):
+        client = TestClient(app)
+        request = {
+            "origin": "京都駅",
+            "theme": "all",
+            "stop_count": 1,
+            "departure_date": "2026-10-05",
+            "departure_time": "09:00",
+        }
+
+        async def slow_search(**_kwargs):
+            raise asyncio.TimeoutError
+
+        with patch("app.main.search_route", new=slow_search), patch(
+            "app.main.list_osm_places",
+            new=AsyncMock(return_value=sample_places()),
+        ):
+            response = client.post("/api/routes", json=request)
+
+        self.assertEqual(response.status_code, 504)
 
 
 if __name__ == "__main__":
