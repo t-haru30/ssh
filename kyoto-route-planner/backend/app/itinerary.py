@@ -12,7 +12,7 @@ from app.models import (
     RouteLeg,
 )
 from app.overpass import search_osm_places
-from app.places import list_origins
+from app.places import list_origins, normalize_origin_name
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,12 @@ class ItineraryCandidate:
 
 async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     origin = next(
-        (item for item in list_origins() if item.name == request.departure_station),
+        (
+            item
+            for item in list_origins()
+            if normalize_origin_name(item.name)
+            == normalize_origin_name(request.departure_station)
+        ),
         None,
     )
     if origin is None:

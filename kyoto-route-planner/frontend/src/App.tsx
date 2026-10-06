@@ -248,14 +248,14 @@ function App() {
         {suggestion && (
           <div className="route-result">
             <div className="stop-list">
-              <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}駅</strong></div></div>
+              <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
               {suggestion.places.map((place, index) => (
                 <div className="suggested-place" key={place.id}>
                   <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
                   <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "OpenStreetMapのPOI"}</p></div>
                 </div>
               ))}
-              <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}駅</strong></div></div>
+              <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
             </div>
 
             <div className="transit-card">

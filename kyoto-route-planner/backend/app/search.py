@@ -90,7 +90,7 @@ def parse_place_query(text: str) -> ParsedPlaceQuery:
             if any(
                 marker in query
                 for marker in (
-                    f"{origin.name}駅",
+                    origin.name,
                     f"{origin.name}周辺",
                     f"{origin.name}近く",
                     f"{origin.name}から",

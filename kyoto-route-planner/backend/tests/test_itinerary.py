@@ -79,7 +79,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         route_search = AsyncMock(side_effect=fake_search_route)
         request = ItineraryRequest(
             query="京都府の自然スポット",
-            departure_station="京都",
+            departure_station="京都駅",
             departure_date=date(2026, 10, 5),
             departure_time=time(9, 0),
             stop_count=3,
@@ -108,7 +108,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         )
         request = ItineraryRequest(
             query="京都府の観光地",
-            departure_station="京都",
+            departure_station="京都駅",
             departure_date=date(2026, 10, 5),
             departure_time=time(16, 0),
             stop_count=1,
