@@ -46,7 +46,7 @@ async function readError(response: Response) {
 function App() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [origins, setOrigins] = useState<Origin[]>([]);
-  const [originName, setOriginName] = useState("京都");
+  const [originName, setOriginName] = useState("京都駅");
   const [theme, setTheme] = useState<Theme>("all");
   const [stopCount, setStopCount] = useState(3);
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
@@ -185,7 +185,11 @@ function App() {
               <label>
                 <span>出発駅</span>
                 <select value={originName} onChange={(event) => setOriginName(event.target.value)} disabled={loading}>
-                  {origins.map((item) => <option value={item.name} key={item.name}>{item.name}駅</option>)}
+                  {origins.map((item) => (
+                    <option value={item.name} key={item.name}>
+                      {item.name.endsWith("駅") ? item.name : `${item.name}駅`}
+                    </option>
+                  ))}
                 </select>
                 <small>スポット候補は京都駅周辺2kmから取得します。</small>
               </label>

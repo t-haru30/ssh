@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS datasets (
     source_version TEXT,
     fetched_at TEXT NOT NULL,
     notes TEXT NOT NULL DEFAULT ''
-) STRICT;
+);
 
 CREATE TABLE IF NOT EXISTS places (
     id TEXT PRIMARY KEY,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS places (
     source_record_id TEXT,
     dataset_id TEXT NOT NULL REFERENCES datasets(dataset_id),
     source_attributes_json TEXT NOT NULL DEFAULT '{}'
-) STRICT;
+);
 
 CREATE INDEX IF NOT EXISTS places_category_idx ON places(category);
 CREATE INDEX IF NOT EXISTS places_coordinates_idx ON places(latitude, longitude);
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS place_labels (
     prompt_version TEXT NOT NULL DEFAULT 'v1',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (place_id, label_type, label, method, prompt_version)
-) STRICT;
+);
 
 CREATE INDEX IF NOT EXISTS place_labels_lookup_idx
     ON place_labels(label_type, label, place_id);
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS place_embeddings (
     embedding_json TEXT NOT NULL,
     content_hash TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-) STRICT;
+);
 
 CREATE TABLE IF NOT EXISTS osm_places_cache (
     cache_key TEXT PRIMARY KEY,
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS osm_places_cache (
     payload_json TEXT NOT NULL,
     rate_limited INTEGER NOT NULL DEFAULT 0,
     retry_after TEXT
-) STRICT;
+);
 """
 
 
