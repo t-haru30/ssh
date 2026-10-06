@@ -115,7 +115,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             if error.status_code in {502, 504}:
                 route_search_calls += 1
                 transient_error = error
-                continue
+                break
             raise
         except asyncio.TimeoutError:
             route_search_calls += 1

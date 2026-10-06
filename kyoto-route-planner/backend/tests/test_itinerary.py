@@ -93,8 +93,8 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
             stop_count=2,
         )
         search = AsyncMock(side_effect=[
-            HTTPException(504, "temporary outage"),
             ([], 30, "09:00", "09:30"),
+            HTTPException(504, "temporary outage"),
         ])
 
         with (
