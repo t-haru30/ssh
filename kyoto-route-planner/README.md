@@ -97,6 +97,7 @@ Python 3.12以降とNode.js 24以降が必要です。
 cd kyoto-route-planner\backend
 Copy-Item .env.example .env
 # .envを開き、取得済みのキーを EKISPERT_API_KEY= に設定します。
+# 例として、ローカル開発では EKISPERT_APPLICATION_URL=http://127.0.0.1:8000 を使います。
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -114,7 +115,7 @@ cd ..
 .\start.bat
 ```
 
-駅すぱあとAPIの利用登録ドメインに開発用ドメインを登録してください。`localhost` は登録ドメインと一致せず認証エラーになる場合があります。登録ドメインとローカル開発の利用条件は必要に応じて駅すぱあとAPIの窓口に確認してください。
+駅すぱあとAPIの利用登録ドメインに開発用ドメインを登録してください。ローカル開発では `127.0.0.1` のような実際の利用URLを `EKISPERT_APPLICATION_URL` に設定し、`localhost` だけに寄せすぎないことが重要です。登録ドメインとローカル開発の利用条件は必要に応じて駅すぱあとAPIの窓口に確認してください。
 
 ## Google Cloud Runへの公開
 

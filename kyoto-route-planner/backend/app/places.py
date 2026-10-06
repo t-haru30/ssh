@@ -6,8 +6,16 @@ from app.models import Origin, Place, Theme
 
 
 ORIGINS = [
-    Origin(name="京都", latitude=34.98585, longitude=135.75877),
+    Origin(name="京都駅", latitude=34.98585, longitude=135.75877),
 ]
+
+
+def normalize_origin_name(value: str) -> str:
+    return value.strip().replace(" ", "").replace("駅", "")
+
+
+def _normalize_origin_name(value: str) -> str:
+    return normalize_origin_name(value)
 
 
 def list_origins() -> list[Origin]:
@@ -32,7 +40,15 @@ def choose_places(
     origin_name: str,
     candidates: list[Place],
 ) -> list[Place]:
-    origin = next((item for item in ORIGINS if item.name == origin_name), None)
+    origin = next(
+        (
+            item
+            for item in ORIGINS
+            if item.name == origin_name
+            or _normalize_origin_name(item.name) == _normalize_origin_name(origin_name)
+        ),
+        None,
+    )
     if origin is None:
         raise ValueError("出発駅を選び直してください。")
 
@@ -42,7 +58,7 @@ def choose_places(
         if place.themes and (theme == "all" or theme in place.themes)
     ]
     if not remaining:
-        raise ValueError("OpenStreetMapの取得データに選択したテーマの候補がありません。")
+        raise ValueError("OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u306b\u9078\u629e\u3057\u305f\u30c6\u30fc\u30de\u306e\u30b3\u30f3\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002")
 
     selected: list[Place] = []
     current = (origin.latitude, origin.longitude)
@@ -62,8 +78,8 @@ def choose_places(
         raise HTTPException(
             status_code=422,
             detail=(
-                f"OpenStreetMapの取得データから立ち寄り先が{len(selected)}件しか見つかりませんでした。"
-                "立ち寄り件数またはテーマを変更してください。"
+                f"OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u304b\u3089\u7acb\u3061\u5bc4\u308a\u5148\u304c{len(selected)}\u4ef6\u3057\u304b\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002"
+                "\u7acb\u3061\u5bc4\u308a\u4ef6\u6570\u307e\u305f\u306f\u30c6\u30fc\u30de\u3092\u5909\u66f4\u3057\u3066\u304f\u3060\u3055\u3044\u3002"
             ),
         )
 
