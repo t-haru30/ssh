@@ -15,7 +15,7 @@ from app.models import (
 from app.overpass import search_osm_places
 from app.places import list_origins, normalize_origin_name
 
-ITINERARY_SEARCH_BUDGET_SECONDS = 45.0
+ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
 
 
 @dataclass(frozen=True)
@@ -47,7 +47,23 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             detail="出発時刻は帰着期限より前に設定してください。",
         )
 
-    search_result = await search_osm_places(request.query, limit=20)
+    deadline = asyncio.get_running_loop().time() + ITINERARY_REQUEST_BUDGET_SECONDS
+    remaining_seconds = deadline - asyncio.get_running_loop().time()
+    if remaining_seconds <= 0:
+        raise HTTPException(
+            status_code=504,
+            detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
+        )
+    try:
+        search_result = await asyncio.wait_for(
+            search_osm_places(request.query, limit=20),
+            timeout=remaining_seconds,
+        )
+    except asyncio.TimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
+        ) from error
     if not search_result.results:
         detail = (
             " ".join(search_result.query.warnings)
@@ -71,7 +87,6 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
 
     best: ItineraryCandidate | None = None
     route_search_calls = 0
-    deadline = asyncio.get_running_loop().time() + ITINERARY_SEARCH_BUDGET_SECONDS
     timed_out = False
     transient_error: HTTPException | None = None
     for ordered_places in permutations(candidates):

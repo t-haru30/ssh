@@ -33,7 +33,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
-ROUTE_SEARCH_BUDGET_SECONDS = 45.0
+ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 
 
 @app.get("/api/health")
@@ -72,6 +72,7 @@ async def recommend_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
 
 @app.post("/api/routes", response_model=RouteSuggestions)
 async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
+    deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
     try:
         origin = next(
             (
@@ -83,7 +84,13 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
         )
         if origin is None:
             raise ValueError("出発駅を選び直してください。")
-        candidates = await list_osm_places()
+        remaining_seconds = deadline - time.monotonic()
+        if remaining_seconds <= 0:
+            raise asyncio.TimeoutError
+        candidates = await asyncio.wait_for(
+            list_osm_places(),
+            timeout=remaining_seconds,
+        )
         selected_sets = choose_place_sets(
             request.theme,
             request.stop_count,
@@ -92,9 +99,13 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
+    except asyncio.TimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail="ルート候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
+        ) from error
 
     suggestions: list[RouteSuggestion] = []
-    deadline = time.monotonic() + ROUTE_SEARCH_BUDGET_SECONDS
     timed_out = False
     transient_error: HTTPException | None = None
     for selected in selected_sets:
