@@ -1,7 +1,9 @@
 import unittest
+import asyncio
 from datetime import date, time
 from unittest.mock import AsyncMock, patch
 
+from fastapi import HTTPException
 from app.itinerary import plan_itinerary
 from app.models import (
     CatalogPlace,
@@ -32,6 +34,78 @@ def catalog_place(
 
 
 class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
+    async def test_times_out_when_place_search_exceeds_request_budget(self):
+        request = ItineraryRequest(
+            query="京都府の観光地",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 5),
+            departure_time=time(9, 0),
+            stop_count=1,
+        )
+
+        async def slow_search(*_args, **_kwargs):
+            raise asyncio.TimeoutError
+
+        with patch("app.itinerary.search_osm_places", new=slow_search):
+            with self.assertRaisesRegex(HTTPException, "候補.*タイムアウト"):
+                await plan_itinerary(request)
+
+    async def test_times_out_when_route_search_exceeds_budget(self):
+        place = catalog_place("a", "スポットA", 35.0, 135.7)
+        search_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[PlaceSearchHit(place=place, score=1)],
+            note="",
+        )
+        request = ItineraryRequest(
+            query="京都府の観光地",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 5),
+            departure_time=time(9, 0),
+            stop_count=1,
+        )
+
+        async def slow_search(**_kwargs):
+            raise asyncio.TimeoutError
+
+        with (
+            patch("app.itinerary.search_osm_places", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_route", new=slow_search),
+        ):
+            with self.assertRaisesRegex(HTTPException, "タイムアウト"):
+                await plan_itinerary(request)
+
+    async def test_keeps_successful_route_when_another_route_temporarily_fails(self):
+        places = [
+            catalog_place("a", "スポットA", 35.0, 135.7),
+            catalog_place("b", "スポットB", 35.01, 135.71),
+        ]
+        search_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[PlaceSearchHit(place=place, score=0.8) for place in places],
+            note="",
+        )
+        request = ItineraryRequest(
+            query="京都府の観光地",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 5),
+            departure_time=time(9, 0),
+            stop_count=2,
+        )
+        search = AsyncMock(side_effect=[
+            ([], 30, "09:00", "09:30"),
+            HTTPException(504, "temporary outage"),
+        ])
+
+        with (
+            patch("app.itinerary.search_osm_places", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_route", new=search),
+        ):
+            result = await plan_itinerary(request)
+
+        self.assertEqual(result.route_search_calls, 2)
+        self.assertEqual(result.estimated_total_minutes, 210)
+
     async def test_compares_all_three_stop_orders_and_chooses_fastest_feasible_route(self):
         places = [
             catalog_place("a", "スポットA", 35.0, 135.7),
@@ -79,7 +153,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         route_search = AsyncMock(side_effect=fake_search_route)
         request = ItineraryRequest(
             query="京都府の自然スポット",
-            departure_station="京都",
+            departure_station="京都駅",
             departure_date=date(2026, 10, 5),
             departure_time=time(9, 0),
             stop_count=3,
@@ -108,7 +182,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         )
         request = ItineraryRequest(
             query="京都府の観光地",
-            departure_station="京都",
+            departure_station="京都駅",
             departure_date=date(2026, 10, 5),
             departure_time=time(16, 0),
             stop_count=1,
