@@ -314,6 +314,22 @@ function App() {
         <div className="hero-stamp" aria-hidden="true"><span>京</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
+      <section className={`route-copy-banner${suggestions.length > 0 ? " visible" : ""}`} aria-live="polite">
+        {suggestions[0]?.title ? (
+          <>
+            <p className="eyebrow">YOUR KYOTO STORY</p>
+            <h2>{suggestions[0].title}</h2>
+            {suggestions[0].story && <p>{suggestions[0].story}</p>}
+          </>
+        ) : (
+          <>
+            <p className="eyebrow">ONE TAP JOURNEY</p>
+            <h2>今の気分で、どこかへ行く。</h2>
+            <p>テーマも立ち寄り先もおまかせ。京都の寄り道をひとつ見つけます。</p>
+          </>
+        )}
+      </section>
+
       <div className="content-grid">
         <section className="planner-card" aria-labelledby="planner-title">
           <div className="section-heading">
@@ -323,6 +339,10 @@ function App() {
             </div>
             <span className="step-number">01 <i>/ 02</i></span>
           </div>
+
+          <button className="random-button random-button-primary" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
+            {searching ? <><span className="button-spinner" /> おまかせルートを探しています</> : <>今の気分でどこかへ行く <span>✳</span></>}
+          </button>
 
           <form onSubmit={handleSubmit}>
             <fieldset className="theme-picker">
@@ -375,9 +395,6 @@ function App() {
 
             <button className="submit-button" type="submit" disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>この条件でルートを提案 <span>↗</span></>}
-            </button>
-            <button className="random-button" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
-              {searching ? "ルートを検索しています" : <>おまかせルートを試す <span>✳</span></>}
             </button>
             <p className="form-footnote">検索ボタンまたはおまかせボタンを押した時だけ、駅すぱあとAPIに問い合わせます。</p>
           </form>
