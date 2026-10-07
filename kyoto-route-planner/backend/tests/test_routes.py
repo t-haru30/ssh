@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from app.ekispert import _make_url, _parse_legs
 from app.main import app
+from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
     ParsedPlaceQuery,
@@ -15,7 +16,7 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import choose_place_sets, choose_places
+from app.places import calculate_place_score, choose_place_sets, choose_places
 
 
 def sample_places() -> list[Place]:
@@ -103,6 +104,46 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(len(places), 1)
         self.assertTrue(all("nature" in place.themes for place in places))
+
+    def test_osm_score_prioritizes_referenced_tourist_places(self):
+        popular = sample_places()[0].model_copy(update={
+            "tags": {
+                "wikipedia": "ja:清水寺",
+                "wikidata": "Q160236",
+                "tourism": "attraction",
+                "historic": "temple",
+                "website": "https://example.test",
+            },
+        })
+        ordinary = sample_places()[1]
+
+        self.assertGreater(
+            calculate_place_score(popular, "history"),
+            calculate_place_score(ordinary, "history"),
+        )
+        self.assertEqual(
+            choose_places("nature", 1, "京都駅", [ordinary, popular])[0].id,
+            popular.id,
+        )
+
+    def test_osm_score_uses_facility_attributes_as_food_and_lodging_proxies(self):
+        restaurant = sample_places()[2].model_copy(update={
+            "tags": {
+                "amenity": "restaurant",
+                "cuisine": "japanese",
+                "brand": "地元店",
+            },
+        })
+        lodging = sample_places()[0].model_copy(update={
+            "tags": {
+                "tourism": "hotel",
+                "stars": "5",
+                "beds": "100",
+            },
+        })
+
+        self.assertGreater(calculate_place_score(restaurant, "food"), 0)
+        self.assertGreater(calculate_place_score(lodging, "all"), 0)
 
     def test_unknown_origin_is_rejected(self):
         with self.assertRaises(ValueError):
@@ -225,6 +266,45 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(body["routes"][0]["total_minutes"], 35)
         self.assertEqual(search.await_count, 3)
         self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
+
+    def test_random_route_selects_backend_conditions_and_returns_one_route(self):
+        client = TestClient(app)
+        search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+
+        with (
+            patch("app.main.random.choice", return_value="nature"),
+            patch("app.main.random.randint", return_value=1),
+            patch("app.main.search_route", search),
+            patch(
+                "app.main.generate_route_copywriting",
+                new=AsyncMock(return_value=RouteCopywriting(
+                    title="喧騒を離れて、京都の余白へ",
+                    story="静かな自然に身をゆだねる、短い寄り道の物語です。",
+                )),
+            ),
+            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+        ):
+            response = client.get("/api/routes/random")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["routes"]), 1)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["name"], "京都自然公園")
+        self.assertEqual(response.json()["routes"][0]["title"], "喧騒を離れて、京都の余白へ")
+        self.assertIn("静かな自然", response.json()["routes"][0]["story"])
+        search.assert_awaited_once()
+        self.assertEqual(search.await_args.kwargs["via_points"][0], "34.98585,135.75877")
+        self.assertEqual(search.await_args.kwargs["via_points"][-1], "34.98585,135.75877")
 
     def test_route_suggestion_retries_with_fewer_stops_when_exact_route_is_unavailable(self):
         client = TestClient(app)

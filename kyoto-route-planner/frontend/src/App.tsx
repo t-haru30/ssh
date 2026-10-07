@@ -105,6 +105,8 @@ function isRouteSuggestions(value: unknown): value is RouteSuggestions {
     && Array.isArray(route.legs)
     && route.legs.every(isRouteLeg)
     && isOrigin(route.origin)
+    && (route.title === null || typeof route.title === "string")
+    && (route.story === null || typeof route.story === "string")
     && typeof route.note === "string"
   ));
 }
@@ -134,6 +136,7 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
+  const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
 
@@ -144,45 +147,64 @@ function App() {
 
   useEffect(() => {
     async function loadInitialData() {
-      try {
-        const [placesResponse, originsResponse] = await Promise.all([
+      const [placesResult, originsResult] = await Promise.allSettled([
           fetchWithTimeout("/api/places", {}, INITIAL_DATA_TIMEOUT_MS),
           fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
-        ]);
-        if (!placesResponse.ok) {
-          throw new Error(await readError(placesResponse));
+      ]);
+      try {
+        let placeData: Place[] = [];
+        let originData: Origin[] = [];
+        let initialError: string | null = null;
+
+        if (originsResult.status === "fulfilled" && originsResult.value.ok) {
+          const originPayload: unknown = await originsResult.value.json();
+          if (Array.isArray(originPayload) && originPayload.every(isOrigin)) {
+            originData = originPayload;
+            setOrigins(originData);
+          } else {
+            initialError = "出発駅のデータ形式が不正です。";
+          }
+        } else {
+          initialError = "出発駅を読み込めませんでした。APIサーバーを確認してください。";
         }
-        if (!originsResponse.ok) {
-          throw new Error("アプリの候補地を読み込めませんでした。APIサーバーを確認してください。");
+
+        if (placesResult.status === "fulfilled" && placesResult.value.ok) {
+          const placePayload: unknown = await placesResult.value.json();
+          if (Array.isArray(placePayload) && placePayload.every(isPlace)) {
+            placeData = placePayload;
+            setPlaces(placeData);
+          } else {
+            initialError ??= "候補地のデータ形式が不正です。";
+          }
+        } else if (placesResult.status === "fulfilled") {
+          initialError ??= await readError(placesResult.value);
+        } else {
+          initialError ??= "候補地を読み込めませんでした。APIサーバーを確認してください。";
         }
-        const [placePayload, originPayload] = await Promise.all([
-          placesResponse.json() as Promise<unknown>,
-          originsResponse.json() as Promise<unknown>,
-        ]);
-        if (
-          !Array.isArray(placePayload)
-          || !Array.isArray(originPayload)
-          || !placePayload.every(isPlace)
-          || !originPayload.every(isOrigin)
-        ) {
-          throw new Error("候補地または出発駅のデータ形式が不正です。");
+
+        try {
+          const statusResponse = await fetchWithTimeout(
+            "/api/places/status",
+            {},
+            INITIAL_DATA_TIMEOUT_MS,
+          );
+          const placeSourceStatus = statusResponse.ok
+            ? await statusResponse.json() as { warning: string | null }
+            : { warning: null };
+          setPlaceSourceWarning(placeSourceStatus.warning);
+        } catch {
+          setPlaceSourceWarning(null);
         }
-        const placeData = placePayload as Place[];
-        const originData = originPayload as Origin[];
-        const statusResponse = await fetchWithTimeout(
-          "/api/places/status",
-          {},
-          INITIAL_DATA_TIMEOUT_MS,
-        );
-        const placeSourceStatus = statusResponse.ok
-          ? await statusResponse.json() as { warning: string | null }
-          : { warning: null };
-        if (!placeData.length || !originData.length) {
-          throw new Error("候補地または出発駅のデータがありません。");
+
+        if (!placeData.length) {
+          initialError ??= "候補地のデータがありません。";
         }
-        setPlaces(placeData);
-        setOrigins(originData);
-        setPlaceSourceWarning(placeSourceStatus.warning);
+        if (!originData.length) {
+          initialError ??= "出発駅のデータがありません。";
+        }
+        if (initialError) {
+          setError(initialError);
+        }
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "初期データを読み込めませんでした。");
       } finally {
@@ -217,6 +239,7 @@ function App() {
       stop_count: stopCount,
       departure_date: departureDate,
       departure_time: departureTime,
+      variation: 0,
     };
 
     try {
@@ -224,6 +247,101 @@ function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
+        signal: controller.signal,
+      }, REQUEST_TIMEOUT_MS);
+      if (!response.ok) {
+        throw new Error(await readError(response));
+      }
+
+      const payload: unknown = await response.json();
+      if (!isRouteSuggestions(payload)) {
+        throw new Error("ルートAPIから有効な候補が返されませんでした。");
+      }
+
+      if (requestId === requestIdRef.current) {
+        setSuggestions(payload.routes);
+      }
+    } catch (cause) {
+      if (requestId !== requestIdRef.current) return;
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
+      } else {
+        setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        activeRequestRef.current = null;
+        setSearching(false);
+      }
+    }
+  }
+
+  async function handleRegenerate() {
+    if (searching || loading || suggestions.length === 0) return;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    setError(null);
+    setSearching(true);
+    const nextRegenerationCount = regenerationCount + 1;
+    setRegenerationCount(nextRegenerationCount);
+
+    const request: RouteSuggestionRequest = {
+      origin: originName,
+      theme,
+      stop_count: stopCount,
+      departure_date: departureDate,
+      departure_time: departureTime,
+      variation: nextRegenerationCount,
+    };
+    try {
+      const response = await fetchWithTimeout("/api/routes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      }, REQUEST_TIMEOUT_MS);
+      if (!response.ok) throw new Error(await readError(response));
+      const payload: unknown = await response.json();
+      if (!isRouteSuggestions(payload)) {
+        throw new Error("ルートAPIから有効な候補が返されませんでした。");
+      }
+      if (requestId === requestIdRef.current) {
+        setSuggestions(payload.routes);
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+    } catch (cause) {
+      if (requestId !== requestIdRef.current) return;
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError("再提案がタイムアウトしました。時間をおいて再度お試しください。");
+      } else {
+        setError(cause instanceof Error ? cause.message : "別のルートを取得できませんでした。");
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        activeRequestRef.current = null;
+        setSearching(false);
+      }
+    }
+  }
+
+  async function handleRandomRoute() {
+    if (searching || loading) return;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    setError(null);
+    setSuggestions([]);
+    setSearching(true);
+
+    try {
+      const response = await fetchWithTimeout("/api/routes/random", {
         signal: controller.signal,
       }, REQUEST_TIMEOUT_MS);
       if (!response.ok) {
@@ -276,6 +394,22 @@ function App() {
         <div className="hero-stamp" aria-hidden="true"><span>京</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
+      <section className={`route-copy-banner${suggestions.length > 0 ? " visible" : ""}`} aria-live="polite">
+        {suggestions[0]?.title ? (
+          <>
+            <p className="eyebrow">YOUR KYOTO STORY</p>
+            <h2>{suggestions[0].title}</h2>
+            {suggestions[0].story && <p>{suggestions[0].story}</p>}
+          </>
+        ) : (
+          <>
+            <p className="eyebrow">ONE TAP JOURNEY</p>
+            <h2>今の気分で、どこかへ行く。</h2>
+            <p>テーマも立ち寄り先もおまかせ。京都の寄り道をひとつ見つけます。</p>
+          </>
+        )}
+      </section>
+
       <div className="content-grid">
         <section className="planner-card" aria-labelledby="planner-title">
           <div className="section-heading">
@@ -285,6 +419,10 @@ function App() {
             </div>
             <span className="step-number">01 <i>/ 02</i></span>
           </div>
+
+          <button className="random-button random-button-primary" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
+            {searching ? <><span className="button-spinner" /> おまかせルートを探しています</> : <>今の気分でどこかへ行く <span>✳</span></>}
+          </button>
 
           <form onSubmit={handleSubmit}>
             <fieldset className="theme-picker">
@@ -338,7 +476,7 @@ function App() {
             <button className="submit-button" type="submit" disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>この条件でルートを提案 <span>↗</span></>}
             </button>
-            <p className="form-footnote">検索ボタンを押した時だけ、駅すぱあとAPIに最大3パターン問い合わせます。</p>
+            <p className="form-footnote">検索ボタンまたはおまかせボタンを押した時だけ、駅すぱあとAPIに問い合わせます。</p>
           </form>
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
@@ -374,6 +512,7 @@ function App() {
             {suggestions.map((suggestion, index) => (
             <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
               <h3>ルート {index + 1}</h3>
+          {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
           <div className="route-result">
             <div className="stop-list">
               <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
@@ -404,6 +543,9 @@ function App() {
           </div>
             </article>
             ))}
+            <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
+              {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
+            </button>
           </div>
         )}
       </section>

@@ -1,12 +1,16 @@
 import asyncio
-import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
+import random
+import time
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.database import initialize_database
+from app.database import database_path, initialize_database
+from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary
 from app.overpass import (
@@ -33,7 +37,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
+RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 
 
 @app.get("/api/health")
@@ -72,6 +78,27 @@ async def recommend_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
 
 @app.post("/api/routes", response_model=RouteSuggestions)
 async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
+    return await _recommend_routes(request)
+
+
+@app.get("/api/routes/random", response_model=RouteSuggestions)
+async def recommend_random_route() -> RouteSuggestions:
+    departure = datetime.now().replace(second=0, microsecond=0)
+    request = RouteSuggestionRequest(
+        origin=list_origins()[0].name,
+        theme=random.choice(RANDOM_ROUTE_THEMES),
+        stop_count=random.randint(1, 3),
+        departure_date=departure.date(),
+        departure_time=departure.time(),
+        variation=random.randint(1, 2_147_483_647),
+    )
+    return await _recommend_routes(request, max_routes=1)
+
+
+async def _recommend_routes(
+    request: RouteSuggestionRequest,
+    max_routes: int = 3,
+) -> RouteSuggestions:
     deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
     try:
         origin = next(
@@ -96,6 +123,9 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
             request.stop_count,
             request.origin,
             candidates,
+            max_routes=max_routes,
+            database=database_path(),
+            variation=request.variation,
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
@@ -108,7 +138,7 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
     suggestions: list[RouteSuggestion] = []
     timed_out = False
     transient_error: HTTPException | None = None
-    for selected in selected_sets:
+    for selected in selected_sets[:max_routes]:
         last_error: HTTPException | None = None
         for stop_count in range(len(selected), 0, -1):
             remaining_seconds = deadline - time.monotonic()
@@ -173,6 +203,11 @@ async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
         if transient_error is not None:
             raise transient_error
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
+    for suggestion in suggestions:
+        copywriting = await generate_route_copywriting(suggestion.places, request.theme)
+        if copywriting is not None:
+            suggestion.title = copywriting.title
+            suggestion.story = copywriting.story
     return RouteSuggestions(routes=suggestions)
 
 

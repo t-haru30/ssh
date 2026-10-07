@@ -36,6 +36,31 @@ class DatabaseSchemaTests(unittest.TestCase):
             self.assertIn("rate_limited", columns)
             self.assertIn("retry_after", columns)
 
+    def test_popularity_tables_are_created(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+
+            with closing(sqlite3.connect(database)) as connection:
+                tables = {
+                    row[0]
+                    for row in connection.execute(
+                        "SELECT name FROM sqlite_master WHERE type = 'table'"
+                    )
+                }
+                popularity_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(place_popularity)")
+                }
+                score_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(place_scores)")
+                }
+
+            self.assertIn("place_popularity", tables)
+            self.assertIn("place_scores", tables)
+            self.assertIn("open_data_match", popularity_columns)
+            self.assertIn("open_data_score", score_columns)
+
     def test_schema_initializes_repeatably_and_supports_hybrid_search_records(self):
         with tempfile.TemporaryDirectory() as temp_directory:
             database = Path(temp_directory) / "places.sqlite3"
