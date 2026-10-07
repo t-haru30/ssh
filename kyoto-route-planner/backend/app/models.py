@@ -129,3 +129,35 @@ class ItinerarySuggestion(BaseModel):
     feasible: bool | None = None
     route_search_calls: int
     note: str
+
+
+class OvernightItineraryRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+    departure_station: str = Field(min_length=1, max_length=80)
+    departure_date: date
+    departure_time: time = time(9, 0)
+    # 立ち寄り件数は1日あたり1〜3件（合計2〜6件程度を想定）
+    stops_per_day: int = Field(default=2, ge=1, le=3)
+    # ホテルの希望条件（例：「高級」「格安」などキーワードで解決）
+    hotel_query: str | None = Field(default=None, max_length=100)
+
+
+class DailyItinerary(BaseModel):
+    day: int  # 1 or 2
+    date: date
+    places: list[CatalogPlace]
+    legs: list[RouteLeg]
+    transit_minutes: int | None = None
+    stay_minutes: int
+    estimated_arrival_at: str | None = None
+
+
+class OvernightItinerarySuggestion(BaseModel):
+    query: ParsedPlaceQuery
+    origin: Origin
+    hotel: CatalogPlace
+    days: list[DailyItinerary]
+    feasible: bool = True
+    route_search_calls: int
+    note: str
+

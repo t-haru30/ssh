@@ -102,11 +102,14 @@ def _parse_places(elements: Any) -> list[Place]:
 
         themes: set[str] = set()
         amenity = str(tags.get("amenity", "")).casefold()
+
         religion = str(tags.get("religion", "")).casefold()
         historic = str(tags.get("historic", "")).casefold()
         natural = str(tags.get("natural", "")).casefold()
         leisure = str(tags.get("leisure", "")).casefold()
         shop = str(tags.get("shop", "")).casefold()
+        tourism = str(tags.get("tourism", "")).casefold()
+
         if (
             historic in {"temple", "monastery", "church"}
             or tags.get("amenity") == "place_of_worship"
@@ -114,7 +117,7 @@ def _parse_places(elements: Any) -> list[Place]:
             themes.add("temple")
         if religion in {"buddhist", "shinto"}:
             themes.add("temple")
-        tourism = str(tags.get("tourism", "")).casefold()
+        
         if historic or tourism in {
             "museum",
             "gallery",
@@ -127,6 +130,8 @@ def _parse_places(elements: Any) -> list[Place]:
             themes.add("nature")
         if amenity in {"restaurant", "cafe", "fast_food", "food_court", "bar", "pub"}:
             themes.add("food")
+        if tourism in {"hotel", "hostel", "guest_house", "motel", "apartment", "camp_site"}:
+            themes.add("lodging")
         if shop in {
             "convenience",
             "supermarket",
@@ -259,10 +264,12 @@ def _build_query() -> str:
     latitude, longitude = QUERY_CENTER
     radius = QUERY_BUFFER_METERS
     selectors = (
+
         f'nwr(around:{radius},{latitude},{longitude})[name][tourism];',
         f'nwr(around:{radius},{latitude},{longitude})[name][historic];',
-        f'nwr(around:{radius},{latitude},{longitude})[name][tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo)$"];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo|hotel|hostel|guest_house|motel|apartment|camp_site)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][historic~"^(temple|castle|monument|memorial|archaeological_site|ruins|shrine)$"];',
+
         f'nwr(around:{radius},{latitude},{longitude})[name][heritage];',
         f'nwr(around:{radius},{latitude},{longitude})[name][amenity="place_of_worship"][religion~"^(buddhist|shinto)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][natural];',

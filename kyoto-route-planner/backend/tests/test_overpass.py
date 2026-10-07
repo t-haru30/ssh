@@ -67,7 +67,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(request.args[0], API_URL)
             self.assertEqual(request.kwargs["data"]["data"].count("nwr("), 10)
             self.assertIn(
-                '[tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo)$"]',
+                '[tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo|hotel|hostel|guest_house|motel|apartment|camp_site)$"]',
                 request.kwargs["data"]["data"],
             )
             self.assertIn('[heritage]', request.kwargs["data"]["data"])

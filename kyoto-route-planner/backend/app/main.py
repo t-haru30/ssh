@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
-from app.itinerary import plan_itinerary
+from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.overpass import (
     get_osm_status,
     list_osm_places,
@@ -21,12 +21,15 @@ from app.overpass import (
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
+    OvernightItineraryRequest,
+    OvernightItinerarySuggestion,
     PlaceSearchRequest,
     PlaceSearchResponse,
     RouteSuggestion,
     RouteSuggestions,
     RouteSuggestionRequest,
 )
+
 from app.places import choose_place_sets, list_origins, normalize_origin_name
 
 
@@ -74,6 +77,12 @@ async def search_place_catalog(request: PlaceSearchRequest) -> PlaceSearchRespon
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
 async def recommend_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     return await plan_itinerary(request)
+
+
+@app.post("/api/itineraries/overnight", response_model=OvernightItinerarySuggestion)
+async def recommend_overnight_itinerary(request: OvernightItineraryRequest) -> OvernightItinerarySuggestion:
+    return await plan_overnight_itinerary(request)
+
 
 
 @app.post("/api/routes", response_model=RouteSuggestions)
