@@ -1,4 +1,5 @@
 import sqlite3
+import asyncio
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -12,6 +13,7 @@ from app.models import Place, Theme
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 WIKIMEDIA_PAGEVIEWS_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
 POPULARITY_SCORE_VERSION = "v2"
+WIKIDATA_TTL = timedelta(days=7)
 POPULARITY_USER_AGENT = (
     "KyotoRoutePlanner/1.0 (local non-commercial application; "
     "https://www.mediawiki.org/wiki/API:Etiquette)"
@@ -78,7 +80,8 @@ def _sparql_rows(payload: object) -> list[dict[str, str]]:
 async def _fetch_wikidata(client: httpx.AsyncClient, qids: list[str]) -> dict[str, dict[str, str]]:
     if not qids:
         return {}
-    response = await client.get(
+    response = await _get_with_backoff(
+        client,
         WIKIDATA_SPARQL_URL,
         params={"query": _sparql_query(qids), "format": "json"},
         headers={"Accept": "application/sparql-results+json"},
@@ -105,7 +108,11 @@ async def _fetch_pageviews(
         f"{WIKIMEDIA_PAGEVIEWS_URL}/{language}.wikipedia/all-access/user/"
         f"{article}/daily/{start:%Y%m%d}/{end:%Y%m%d}"
     )
-    response = await client.get(url, headers={"User-Agent": POPULARITY_USER_AGENT})
+    response = await _get_with_backoff(
+        client,
+        url,
+        headers={"User-Agent": POPULARITY_USER_AGENT},
+    )
     if response.status_code == 404:
         return 0
     response.raise_for_status()
@@ -116,6 +123,29 @@ async def _fetch_pageviews(
         for item in items
         if isinstance(item, dict) and isinstance(item.get("views"), int)
     )
+
+
+async def _get_with_backoff(
+    client: httpx.AsyncClient,
+    url: str,
+    *,
+    params: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
+    attempts: int = 3,
+) -> httpx.Response:
+    for attempt in range(attempts):
+        response = await client.get(url, params=params, headers=headers)
+        if response.status_code != 429 and response.status_code < 500:
+            return response
+        if attempt == attempts - 1:
+            return response
+        retry_after = response.headers.get("Retry-After")
+        try:
+            delay = min(float(retry_after), 30.0) if retry_after else 2**attempt
+        except ValueError:
+            delay = 2**attempt
+        await asyncio.sleep(delay)
+    raise RuntimeError("外部APIリクエストの再試行に失敗しました。")
 
 
 def _log_score(pageviews: int) -> float:
@@ -148,11 +178,34 @@ def _upsert_results(
         for place in places:
             qid = _wikidata_id(place)
             row = wikidata.get(qid or "", {})
+            previous = connection.execute(
+                """
+                SELECT wikidata_id, wikipedia_ja_title, wikipedia_en_title,
+                       wikipedia_sitelink_count, wikipedia_pageviews_30d
+                FROM place_popularity
+                WHERE place_id = ?
+                """,
+                (place.id,),
+            ).fetchone()
             ja_title = row.get("jaTitle") or _wikipedia_title(place, "ja")
             en_title = row.get("enTitle") or _wikipedia_title(place, "en")
-            views = pageviews.get(place.id, 0)
+            if previous:
+                ja_title = ja_title or previous[1]
+                en_title = en_title or previous[2]
+            sitelinks = row.get("sitelinks")
+            if not sitelinks and previous:
+                sitelinks = str(previous[3])
+            views = pageviews.get(place.id)
+            if views is None:
+                views = int(previous[4]) if previous else 0
             osm_score = _osm_score(place)
             wikidata_score = _wikidata_score(row)
+            if not row and previous:
+                wikidata_score = _wikidata_score({
+                    "sitelinks": str(previous[3]),
+                    "jaTitle": previous[1] or "",
+                    "enTitle": previous[2] or "",
+                })
             total_score = osm_score * 0.35 + wikidata_score * 0.25 + _log_score(views) * 0.20
             connection.execute(
                 """
@@ -178,7 +231,7 @@ def _upsert_results(
                     qid,
                     ja_title,
                     en_title,
-                    int(row.get("sitelinks", "0") or 0),
+                    int(sitelinks or 0),
                     views,
                     int(bool(ja_title)),
                     int(bool(en_title)),
@@ -214,17 +267,54 @@ async def sync_popularity(path: Path | None = None) -> int:
     from app.overpass import list_osm_places
 
     places = await list_osm_places(path)
+    target_path = path or database_path()
+    if _cached_popularity_is_fresh(target_path, places):
+        return len(places)
     qids = sorted({qid for place in places if (qid := _wikidata_id(place))})
     async with httpx.AsyncClient(timeout=30.0, headers={"User-Agent": POPULARITY_USER_AGENT}) as client:
-        wikidata = await _fetch_wikidata(client, qids)
+        try:
+            wikidata = await _fetch_wikidata(client, qids)
+        except (httpx.HTTPError, ValueError):
+            wikidata = {}
         pageviews: dict[str, int] = {}
         for place in places:
             row = wikidata.get(_wikidata_id(place) or "", {})
             title = row.get("jaTitle") or _wikipedia_title(place, "ja")
             if title:
-                pageviews[place.id] = await _fetch_pageviews(client, title, "ja")
-    _upsert_results(path or database_path(), places, wikidata, pageviews)
+                try:
+                    pageviews[place.id] = await _fetch_pageviews(client, title, "ja")
+                except (httpx.HTTPError, ValueError):
+                    pageviews[place.id] = _cached_pageview(target_path, place.id)
+    _upsert_results(target_path, places, wikidata, pageviews)
     return len(places)
+
+
+def _cached_popularity_is_fresh(path: Path, places: list[Place]) -> bool:
+    if not places:
+        return True
+    target = initialize_database(path)
+    cutoff = _now() - WIKIDATA_TTL
+    with closing(sqlite3.connect(target)) as connection:
+        rows = connection.execute(
+            "SELECT place_id, source_fetched_at FROM place_popularity"
+        ).fetchall()
+    fetched: dict[str, datetime] = {}
+    for place_id, timestamp in rows:
+        try:
+            fetched[place_id] = datetime.fromisoformat(timestamp)
+        except ValueError:
+            continue
+    return all(fetched.get(place.id, datetime.min.replace(tzinfo=timezone.utc)) >= cutoff for place in places)
+
+
+def _cached_pageview(path: Path, place_id: str) -> int:
+    target = initialize_database(path)
+    with closing(sqlite3.connect(target)) as connection:
+        row = connection.execute(
+            "SELECT wikipedia_pageviews_30d FROM place_popularity WHERE place_id = ?",
+            (place_id,),
+        ).fetchone()
+    return int(row[0]) if row else 0
 
 
 def load_cached_scores(path: Path | None = None) -> dict[str, float]:

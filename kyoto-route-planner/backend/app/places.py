@@ -1,4 +1,5 @@
 from math import asin, cos, log10, radians, sin, sqrt
+from pathlib import Path
 
 from fastapi import HTTPException
 
@@ -109,6 +110,7 @@ def choose_places(
     stop_count: int,
     origin_name: str,
     candidates: list[Place],
+    database: Path | None = None,
 ) -> list[Place]:
     origin = next(
         (
@@ -131,7 +133,7 @@ def choose_places(
         raise ValueError("OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u306b\u9078\u629e\u3057\u305f\u30c6\u30fc\u30de\u306e\u30b3\u30f3\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002")
 
     selected: list[Place] = []
-    cached_scores = load_cached_scores()
+    cached_scores = load_cached_scores(database)
     current = (origin.latitude, origin.longitude)
     while remaining and len(selected) < stop_count:
         closest = min(
@@ -163,8 +165,9 @@ def choose_place_sets(
     origin_name: str,
     candidates: list[Place],
     max_routes: int = 3,
+    database: Path | None = None,
 ) -> list[list[Place]]:
-    first_route = choose_places(theme, stop_count, origin_name, candidates)
+    first_route = choose_places(theme, stop_count, origin_name, candidates, database)
     origin = next(
         (
             item
@@ -183,7 +186,7 @@ def choose_place_sets(
         if place.themes and (theme == "all" or theme in place.themes)
     ]
     routes = [first_route]
-    cached_scores = load_cached_scores()
+    cached_scores = load_cached_scores(database)
     used_ids = {place.id for place in first_route}
     used_categories = {place.category for place in first_route}
     route_targets = ("far", "middle")

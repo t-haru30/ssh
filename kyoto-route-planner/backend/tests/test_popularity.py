@@ -2,11 +2,12 @@ import sqlite3
 import tempfile
 import unittest
 from contextlib import closing
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
 from app.database import initialize_database
 from app.models import Place
 from app.popularity import (
+    _cached_popularity_is_fresh,
     _log_score,
     _sparql_rows,
     _upsert_results,
@@ -80,3 +81,47 @@ class PopularityTests(unittest.TestCase):
     def test_pageview_score_is_logarithmic_and_bounded(self):
         self.assertLess(_log_score(100), _log_score(100000))
         self.assertLessEqual(_log_score(10**12), 100)
+
+    def test_fresh_cache_skips_missing_external_refresh(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+            _upsert_results(database, [place_with_wikidata()], {}, {})
+
+            self.assertTrue(_cached_popularity_is_fresh(database, [place_with_wikidata()]))
+
+    def test_stale_cache_is_detected(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+            _upsert_results(database, [place_with_wikidata()], {}, {})
+            stale = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE place_popularity SET source_fetched_at = ?",
+                    (stale,),
+                )
+                connection.commit()
+
+            self.assertFalse(_cached_popularity_is_fresh(database, [place_with_wikidata()]))
+
+    def test_missing_refresh_values_preserve_previous_cache(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+            place = place_with_wikidata()
+            _upsert_results(
+                database,
+                [place],
+                {"Q160236": {"sitelinks": "42", "jaTitle": "清水寺"}},
+                {"osm-1": 120000},
+            )
+            _upsert_results(database, [place], {}, {})
+
+            with closing(sqlite3.connect(database)) as connection:
+                row = connection.execute(
+                    """
+                    SELECT wikipedia_ja_title, wikipedia_sitelink_count,
+                           wikipedia_pageviews_30d
+                    FROM place_popularity
+                    """
+                ).fetchone()
+
+            self.assertEqual(row, ("清水寺", 42, 120000))

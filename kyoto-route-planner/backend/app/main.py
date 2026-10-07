@@ -8,7 +8,7 @@ import time
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 
-from app.database import initialize_database
+from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary
@@ -114,6 +114,7 @@ async def _recommend_routes(
             request.origin,
             candidates,
             max_routes=max_routes,
+            database=database_path(),
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
