@@ -4,3 +4,6 @@ backend/data/*.sqlite3-shm
 backend/data/*.sqlite3-wal
 backend/data/raw/
 backend/data/processed/
+backend/.venv/
+backend/**/__pycache__/
+frontend/dist/

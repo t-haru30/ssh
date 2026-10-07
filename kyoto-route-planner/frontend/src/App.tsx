@@ -144,45 +144,64 @@ function App() {
 
   useEffect(() => {
     async function loadInitialData() {
-      try {
-        const [placesResponse, originsResponse] = await Promise.all([
+      const [placesResult, originsResult] = await Promise.allSettled([
           fetchWithTimeout("/api/places", {}, INITIAL_DATA_TIMEOUT_MS),
           fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
-        ]);
-        if (!placesResponse.ok) {
-          throw new Error(await readError(placesResponse));
+      ]);
+      try {
+        let placeData: Place[] = [];
+        let originData: Origin[] = [];
+        let initialError: string | null = null;
+
+        if (originsResult.status === "fulfilled" && originsResult.value.ok) {
+          const originPayload: unknown = await originsResult.value.json();
+          if (Array.isArray(originPayload) && originPayload.every(isOrigin)) {
+            originData = originPayload;
+            setOrigins(originData);
+          } else {
+            initialError = "出発駅のデータ形式が不正です。";
+          }
+        } else {
+          initialError = "出発駅を読み込めませんでした。APIサーバーを確認してください。";
         }
-        if (!originsResponse.ok) {
-          throw new Error("アプリの候補地を読み込めませんでした。APIサーバーを確認してください。");
+
+        if (placesResult.status === "fulfilled" && placesResult.value.ok) {
+          const placePayload: unknown = await placesResult.value.json();
+          if (Array.isArray(placePayload) && placePayload.every(isPlace)) {
+            placeData = placePayload;
+            setPlaces(placeData);
+          } else {
+            initialError ??= "候補地のデータ形式が不正です。";
+          }
+        } else if (placesResult.status === "fulfilled") {
+          initialError ??= await readError(placesResult.value);
+        } else {
+          initialError ??= "候補地を読み込めませんでした。APIサーバーを確認してください。";
         }
-        const [placePayload, originPayload] = await Promise.all([
-          placesResponse.json() as Promise<unknown>,
-          originsResponse.json() as Promise<unknown>,
-        ]);
-        if (
-          !Array.isArray(placePayload)
-          || !Array.isArray(originPayload)
-          || !placePayload.every(isPlace)
-          || !originPayload.every(isOrigin)
-        ) {
-          throw new Error("候補地または出発駅のデータ形式が不正です。");
+
+        try {
+          const statusResponse = await fetchWithTimeout(
+            "/api/places/status",
+            {},
+            INITIAL_DATA_TIMEOUT_MS,
+          );
+          const placeSourceStatus = statusResponse.ok
+            ? await statusResponse.json() as { warning: string | null }
+            : { warning: null };
+          setPlaceSourceWarning(placeSourceStatus.warning);
+        } catch {
+          setPlaceSourceWarning(null);
         }
-        const placeData = placePayload as Place[];
-        const originData = originPayload as Origin[];
-        const statusResponse = await fetchWithTimeout(
-          "/api/places/status",
-          {},
-          INITIAL_DATA_TIMEOUT_MS,
-        );
-        const placeSourceStatus = statusResponse.ok
-          ? await statusResponse.json() as { warning: string | null }
-          : { warning: null };
-        if (!placeData.length || !originData.length) {
-          throw new Error("候補地または出発駅のデータがありません。");
+
+        if (!placeData.length) {
+          initialError ??= "候補地のデータがありません。";
         }
-        setPlaces(placeData);
-        setOrigins(originData);
-        setPlaceSourceWarning(placeSourceStatus.warning);
+        if (!originData.length) {
+          initialError ??= "出発駅のデータがありません。";
+        }
+        if (initialError) {
+          setError(initialError);
+        }
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "初期データを読み込めませんでした。");
       } finally {

@@ -1,3 +1,4 @@
+import random
 from math import asin, cos, radians, sin, sqrt
 
 from fastapi import HTTPException
@@ -62,14 +63,16 @@ def choose_places(
 
     selected: list[Place] = []
     current = (origin.latitude, origin.longitude)
+    rng = random.SystemRandom()
     while remaining and len(selected) < stop_count:
-        closest = min(
+        ranked = sorted(
             remaining,
             key=lambda place: _distance_km(
                 current,
                 (place.latitude, place.longitude),
             ),
         )
+        closest = rng.choice(ranked[: min(5, len(ranked))])
         selected.append(closest)
         remaining.remove(closest)
         current = (closest.latitude, closest.longitude)
@@ -112,6 +115,7 @@ def choose_place_sets(
         if place.themes and (theme == "all" or theme in place.themes)
     ]
     routes = [first_route]
+    rng = random.SystemRandom()
     used_ids = {place.id for place in first_route}
     used_categories = {place.category for place in first_route}
     route_targets = ("far", "middle")
@@ -132,33 +136,34 @@ def choose_place_sets(
         distances = sorted(origin_distance(place) for place in unused)
         midpoint = distances[len(distances) // 2]
         if target == "far":
-            ranked = sorted(
-                unused,
-                key=lambda place: (place.category in used_categories, -origin_distance(place)),
-            )
+            ranked = sorted(unused, key=lambda place: -origin_distance(place))
         else:
             ranked = sorted(
                 unused,
-                key=lambda place: (
-                    place.category in used_categories,
-                    abs(origin_distance(place) - midpoint),
-                ),
+                key=lambda place: abs(origin_distance(place) - midpoint),
             )
 
-        selected = [ranked[0]]
-        available = [place for place in ranked[1:] if place.id != selected[0].id]
+        category_options = [
+            place for place in ranked
+            if place.category not in used_categories
+        ]
+        first_pool = category_options or ranked
+        selected = [rng.choice(first_pool[: min(5, len(first_pool))])]
+        available = [place for place in ranked if place.id != selected[0].id]
         while available and len(selected) < stop_count:
             current = selected[-1]
-            next_place = min(
+            selected_categories = {selected_place.category for selected_place in selected}
+            next_ranked = sorted(
                 available,
                 key=lambda place: (
-                    place.category in {selected_place.category for selected_place in selected},
+                    place.category in selected_categories,
                     _distance_km(
                         (current.latitude, current.longitude),
                         (place.latitude, place.longitude),
                     ),
                 ),
             )
+            next_place = rng.choice(next_ranked[: min(5, len(next_ranked))])
             selected.append(next_place)
             available.remove(next_place)
         if len(selected) == stop_count:
