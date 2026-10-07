@@ -1,8 +1,9 @@
 import asyncio
 import time as time_module
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 from dataclasses import dataclass
 from itertools import permutations
+
 
 from fastapi import HTTPException
 
@@ -227,14 +228,15 @@ async def _find_best_route(
             "calls": calls
         }
     
-    best["calls"] = calls
+        best["calls"] = calls
     return best
 
-
+async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     origin = next(
         (
             item
             for item in list_origins()
+
             if normalize_origin_name(item.name)
             == normalize_origin_name(request.departure_station)
         ),
