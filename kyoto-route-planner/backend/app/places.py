@@ -35,6 +35,50 @@ def _distance_km(first: tuple[float, float], second: tuple[float, float]) -> flo
     return 6371.0 * 2 * asin(sqrt(haversine))
 
 
+def _importance_score(place: Place) -> int:
+    tags = {key.casefold(): value.casefold() for key, value in place.tags.items()}
+    score = 0
+    if tags.get("tourism") in {"attraction", "museum", "gallery", "viewpoint"}:
+        score += 3
+    if tags.get("historic") in {
+        "temple",
+        "castle",
+        "monument",
+        "memorial",
+        "archaeological_site",
+        "ruins",
+        "shrine",
+    }:
+        score += 3
+    if tags.get("heritage") or tags.get("heritage:operator"):
+        score += 3
+    if tags.get("wikipedia") or tags.get("wikidata"):
+        score += 2
+    if tags.get("name:en"):
+        score += 1
+    if tags.get("amenity") == "place_of_worship" and tags.get("religion") in {
+        "buddhist",
+        "shinto",
+    }:
+        score += 2
+    return score
+
+
+def _selection_pool(ranked: list[Place]) -> list[Place]:
+    nearby = ranked[:5]
+    important = sorted(
+        enumerate(ranked),
+        key=lambda item: (-_importance_score(item[1]), item[0]),
+    )[:5]
+    pool: list[Place] = []
+    seen_ids: set[str] = set()
+    for place in (*nearby, *(place for _, place in important)):
+        if place.id not in seen_ids:
+            pool.append(place)
+            seen_ids.add(place.id)
+    return pool
+
+
 def choose_places(
     theme: Theme,
     stop_count: int,
@@ -72,7 +116,7 @@ def choose_places(
                 (place.latitude, place.longitude),
             ),
         )
-        closest = rng.choice(ranked[: min(5, len(ranked))])
+        closest = rng.choice(_selection_pool(ranked))
         selected.append(closest)
         remaining.remove(closest)
         current = (closest.latitude, closest.longitude)
@@ -148,7 +192,7 @@ def choose_place_sets(
             if place.category not in used_categories
         ]
         first_pool = category_options or ranked
-        selected = [rng.choice(first_pool[: min(5, len(first_pool))])]
+        selected = [rng.choice(_selection_pool(first_pool))]
         available = [place for place in ranked if place.id != selected[0].id]
         while available and len(selected) < stop_count:
             current = selected[-1]
@@ -163,7 +207,7 @@ def choose_place_sets(
                     ),
                 ),
             )
-            next_place = rng.choice(next_ranked[: min(5, len(next_ranked))])
+            next_place = rng.choice(_selection_pool(next_ranked))
             selected.append(next_place)
             available.remove(next_place)
         if len(selected) == stop_count:
