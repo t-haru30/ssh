@@ -1,6 +1,13 @@
 backend/.env
+backend/.venv/
+backend/**/__pycache__/
+**/*.py[cod]
 backend/data/*.sqlite3
 backend/data/*.sqlite3-shm
 backend/data/*.sqlite3-wal
 backend/data/raw/
 backend/data/processed/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+**/*.tsbuildinfo
