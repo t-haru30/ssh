@@ -88,6 +88,7 @@ async def recommend_random_route() -> RouteSuggestions:
         stop_count=random.randint(1, 3),
         departure_date=departure.date(),
         departure_time=departure.time(),
+        variation=random.randint(1, 2_147_483_647),
     )
     return await _recommend_routes(request, max_routes=1)
 
@@ -115,6 +116,7 @@ async def _recommend_routes(
             candidates,
             max_routes=max_routes,
             database=database_path(),
+            variation=request.variation,
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error

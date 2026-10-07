@@ -47,4 +47,5 @@ export type RouteSuggestionRequest = {
   stop_count: number;
   departure_date: string;
   departure_time: string;
+  variation?: number;
 };

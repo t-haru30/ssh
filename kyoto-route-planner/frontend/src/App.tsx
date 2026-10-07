@@ -135,6 +135,7 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
+  const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
 
@@ -218,6 +219,7 @@ function App() {
       stop_count: stopCount,
       departure_date: departureDate,
       departure_time: departureTime,
+      variation: 0,
     };
 
     try {
@@ -230,10 +232,12 @@ function App() {
       if (!response.ok) {
         throw new Error(await readError(response));
       }
+
       const payload: unknown = await response.json();
       if (!isRouteSuggestions(payload)) {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
+
       if (requestId === requestIdRef.current) {
         setSuggestions(payload.routes);
       }
@@ -243,6 +247,59 @@ function App() {
         setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
       } else {
         setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        activeRequestRef.current = null;
+        setSearching(false);
+      }
+    }
+  }
+
+  async function handleRegenerate() {
+    if (searching || loading || suggestions.length === 0) return;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    setError(null);
+    setSearching(true);
+    const nextRegenerationCount = regenerationCount + 1;
+    setRegenerationCount(nextRegenerationCount);
+
+    const request: RouteSuggestionRequest = {
+      origin: originName,
+      theme,
+      stop_count: stopCount,
+      departure_date: departureDate,
+      departure_time: departureTime,
+      variation: nextRegenerationCount,
+    };
+    try {
+      const response = await fetchWithTimeout("/api/routes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      }, REQUEST_TIMEOUT_MS);
+      if (!response.ok) throw new Error(await readError(response));
+      const payload: unknown = await response.json();
+      if (!isRouteSuggestions(payload)) {
+        throw new Error("ルートAPIから有効な候補が返されませんでした。");
+      }
+      if (requestId === requestIdRef.current) {
+        setSuggestions(payload.routes);
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+    } catch (cause) {
+      if (requestId !== requestIdRef.current) return;
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError("再提案がタイムアウトしました。時間をおいて再度お試しください。");
+      } else {
+        setError(cause instanceof Error ? cause.message : "別のルートを取得できませんでした。");
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -463,6 +520,9 @@ function App() {
           </div>
             </article>
             ))}
+            <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
+              {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
+            </button>
           </div>
         )}
       </section>

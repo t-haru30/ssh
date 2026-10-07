@@ -1,5 +1,6 @@
 from math import asin, cos, log10, radians, sin, sqrt
 from pathlib import Path
+import random
 
 from fastapi import HTTPException
 
@@ -98,11 +99,16 @@ def _selection_score(
     theme: Theme,
     current: tuple[float, float],
     cached_scores: dict[str, float],
+    variation: int = 0,
 ) -> float:
     distance = _distance_km(current, (place.latitude, place.longitude))
     proximity_score = max(0.0, 100.0 - distance / 2.0 * 100.0)
     popularity_score = cached_scores.get(place.id, calculate_place_score(place, theme))
-    return popularity_score * 0.75 + proximity_score * 0.25
+    base_score = popularity_score * 0.75 + proximity_score * 0.25
+    if variation == 0:
+        return base_score
+    jitter = random.Random(f"{variation}:{place.id}").uniform(-7.0, 7.0)
+    return base_score + jitter
 
 
 def choose_places(
@@ -111,6 +117,7 @@ def choose_places(
     origin_name: str,
     candidates: list[Place],
     database: Path | None = None,
+    variation: int = 0,
 ) -> list[Place]:
     origin = next(
         (
@@ -139,7 +146,7 @@ def choose_places(
         closest = min(
             remaining,
             key=lambda place: (
-                -_selection_score(place, theme, current, cached_scores),
+                -_selection_score(place, theme, current, cached_scores, variation),
                 place.id,
             ),
         )
@@ -166,8 +173,11 @@ def choose_place_sets(
     candidates: list[Place],
     max_routes: int = 3,
     database: Path | None = None,
+    variation: int = 0,
 ) -> list[list[Place]]:
-    first_route = choose_places(theme, stop_count, origin_name, candidates, database)
+    first_route = choose_places(
+        theme, stop_count, origin_name, candidates, database, variation
+    )
     origin = next(
         (
             item
@@ -211,7 +221,8 @@ def choose_place_sets(
                 unused,
                 key=lambda place: (
                     place.category in used_categories,
-                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme))
+                    + random.Random(f"{variation}:{place.id}").uniform(-7.0, 7.0),
                     -origin_distance(place),
                     place.id,
                 ),
@@ -221,7 +232,8 @@ def choose_place_sets(
                 unused,
                 key=lambda place: (
                     place.category in used_categories,
-                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme))
+                    + random.Random(f"{variation}:{place.id}").uniform(-7.0, 7.0),
                     abs(origin_distance(place) - midpoint),
                     place.id,
                 ),
@@ -235,7 +247,8 @@ def choose_place_sets(
                 available,
                 key=lambda place: (
                     place.category in {selected_place.category for selected_place in selected},
-                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme))
+                    + random.Random(f"{variation}:{place.id}").uniform(-7.0, 7.0),
                     _distance_km(
                         (current.latitude, current.longitude),
                         (place.latitude, place.longitude),
