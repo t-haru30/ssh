@@ -125,9 +125,12 @@ def _parse_places(elements: Any) -> list[Place]:
             themes.add("history")
         if natural or leisure in {"park", "garden", "nature_reserve"}:
             themes.add("nature")
-        if amenity in {"restaurant", "cafe", "fast_food", "food_court", "bar", "pub"}:
+                if amenity in {"restaurant", "cafe", "fast_food", "food_court", "bar", "pub"}:
             themes.add("food")
+        if tourism in {"hotel", "hostel", "guest_house", "motel", "apartment", "camp_site"}:
+            themes.add("lodging")
         if shop in {
+
             "convenience",
             "supermarket",
             "marketplace",
@@ -258,11 +261,12 @@ def get_osm_status(path: Path | None = None) -> dict[str, Any]:
 def _build_query() -> str:
     latitude, longitude = QUERY_CENTER
     radius = QUERY_BUFFER_METERS
-    selectors = (
+        selectors = (
         f'nwr(around:{radius},{latitude},{longitude})[name][tourism];',
         f'nwr(around:{radius},{latitude},{longitude})[name][historic];',
-        f'nwr(around:{radius},{latitude},{longitude})[name][tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo)$"];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo|hotel|hostel|guest_house|motel|apartment|camp_site)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][historic~"^(temple|castle|monument|memorial|archaeological_site|ruins|shrine)$"];',
+
         f'nwr(around:{radius},{latitude},{longitude})[name][heritage];',
         f'nwr(around:{radius},{latitude},{longitude})[name][amenity="place_of_worship"][religion~"^(buddhist|shinto)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][natural];',

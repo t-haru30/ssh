@@ -10,8 +10,12 @@ from app.models import (
     CatalogPlace,
     ItineraryRequest,
     ItinerarySuggestion,
+    OvernightItineraryRequest,
+    OvernightItinerarySuggestion,
+    DailyItinerary,
     RouteLeg,
 )
+
 from app.overpass import search_osm_places
 from app.places import list_origins, normalize_origin_name
 
@@ -29,7 +33,182 @@ class ItineraryCandidate:
     feasible: bool | None
 
 
-async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
+async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> OvernightItinerarySuggestion:
+    origin = next(
+        (
+            item
+            for item in list_origins()
+            if normalize_origin_name(item.name)
+            == normalize_origin_name(request.departure_station)
+        ),
+        None,
+    )
+    if origin is None:
+        raise HTTPException(status_code=422, detail="出発駅を選び直してください。")
+
+    deadline = asyncio.get_running_loop().time() + ITINERARY_REQUEST_BUDGET_SECONDS
+
+    # 1. ホテルの選定
+    hotel_query = request.hotel_query or f"{request.query} ホテル"
+    hotel_search = await search_osm_places(hotel_query, limit=10)
+    # lodgingカテゴリに絞り込み
+    hotels = [
+        hit.place for hit in hotel_search.results 
+        if hit.place.category in {"hotel", "hostel", "guest_house", "motel", "apartment", "lodging"}
+    ]
+    if not hotels:
+        # フォールバック: クエリに関係なく京都駅周辺のホテルを探す
+        hotel_search = await search_osm_places("京都駅 ホテル", limit=10)
+        hotels = [hit.place for hit in hotel_search.results]
+    
+    if not hotels:
+        raise HTTPException(status_code=404, detail="宿泊施設が見つかりませんでした。条件を変えてお試しください。")
+    
+    selected_hotel = hotels[0]
+
+    # 2. 観光スポットの選定 (ホテルは除外)
+    spot_search = await search_osm_places(request.query, limit=30)
+    all_spots = [
+        hit.place for hit in spot_search.results 
+        if hit.place.id != selected_hotel.id and hit.place.category not in {"hotel", "hostel", "guest_house", "motel", "apartment", "lodging"}
+    ]
+    
+    required_spots = request.stops_per_day * 2
+    if len(all_spots) < required_spots:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"観光スポットが不足しています（見つかった件数: {len(all_spots)}）。条件を広げてください。"
+        )
+
+    day1_spots = all_spots[:request.stops_per_day]
+    day2_spots = all_spots[request.stops_per_day : required_spots]
+
+    route_search_calls = 0
+    
+    # Day 1 計算: Origin -> Spots -> Hotel
+    best_day1 = await _find_best_route(
+        origin_lat=origin.latitude,
+        origin_lon=origin.longitude,
+        dest_lat=selected_hotel.latitude,
+        dest_lon=selected_hotel.longitude,
+        spots=day1_spots,
+        dep_date=request.departure_date,
+        dep_time=request.departure_time,
+        stay_min=90,
+        deadline=deadline
+    )
+    route_search_calls += best_day1["calls"]
+
+    # Day 2 計算: Hotel -> Spots -> Origin
+    # 2日目の出発はチェックアウト後 (10:00) と仮定
+    checkout_time = time(10, 0)
+    day2_date = request.departure_date + timedelta(days=1)
+    best_day2 = await _find_best_route(
+        origin_lat=selected_hotel.latitude,
+        origin_lon=selected_hotel.longitude,
+        dest_lat=origin.latitude,
+        dest_lon=origin.longitude,
+        spots=day2_spots,
+        dep_date=day2_date,
+        dep_time=checkout_time,
+        stay_min=90,
+        deadline=deadline
+    )
+    route_search_calls += best_day2["calls"]
+
+    days = [
+        DailyItinerary(
+            day=1,
+            date=request.departure_date,
+            places=list(best_day1["places"]),
+            legs=best_day1["legs"],
+            transit_minutes=best_day1["transit_minutes"],
+            stay_minutes=len(day1_spots) * 90,
+            estimated_arrival_at=best_day1["arrival_at"]
+        ),
+        DailyItinerary(
+            day=2,
+            date=day2_date,
+            places=list(best_day2["places"]),
+            legs=best_day2["legs"],
+            transit_minutes=best_day2["transit_minutes"],
+            stay_minutes=len(day2_spots) * 90,
+            estimated_arrival_at=best_day2["arrival_at"]
+        )
+    ]
+
+    return OvernightItinerarySuggestion(
+        query=spot_search.query,
+        origin=Origin(name=origin.name, latitude=origin.latitude, longitude=origin.longitude),
+        hotel=selected_hotel,
+        days=days,
+        feasible=True,
+        route_search_calls=route_search_calls,
+        note=(
+            f"宿泊先に「{selected_hotel.name}」を選定した1泊2日プランです。"
+            "1日目は指定時刻に出発し、2日目は10:00にホテルを出発する計算です。"
+            "各スポットの滞在時間は90分としています。"
+        )
+    )
+
+
+async def _find_best_route(
+    origin_lat: float, origin_lon: float,
+    dest_lat: float, dest_lon: float,
+    spots: list[CatalogPlace],
+    dep_date: date, dep_time: time,
+    stay_min: int, deadline: float
+):
+    """特定の日の最適ルート（順列）を探すヘルパー関数"""
+    best = None
+    calls = 0
+    for p in permutations(spots):
+        if asyncio.get_running_loop().time() > deadline:
+            break
+        
+        via_points = [
+            f"{origin_lat},{origin_lon}",
+            *(f"{s.latitude},{s.longitude}" for s in p),
+            f"{dest_lat},{dest_lon}"
+        ]
+        try:
+            legs, transit_min, _dep, arrival_dt = await asyncio.wait_for(
+                search_route(
+                    via_points=via_points,
+                    departure_date=dep_date.isoformat(),
+                    departure_time=dep_time.strftime("%H:%M"),
+                ),
+                timeout=max(0.1, deadline - asyncio.get_running_loop().time())
+            )
+            calls += 1
+            
+            total_min = (transit_min or 0) + (len(spots) * stay_min)
+            if best is None or total_min < best["total_minutes"]:
+                best = {
+                    "places": p,
+                    "legs": legs,
+                    "transit_minutes": transit_min,
+                    "total_minutes": total_min,
+                    "arrival_at": arrival_dt.isoformat() if arrival_dt else None
+                }
+        except Exception:
+            calls += 1
+            continue
+
+    if best is None:
+        # 経路が見つからない場合のフォールバック（直線距離順など、本来はもっと凝るべきだが一旦空で返す）
+        return {
+            "places": spots,
+            "legs": [],
+            "transit_minutes": None,
+            "total_minutes": 9999,
+            "arrival_at": None,
+            "calls": calls
+        }
+    
+    best["calls"] = calls
+    return best
+
     origin = next(
         (
             item
