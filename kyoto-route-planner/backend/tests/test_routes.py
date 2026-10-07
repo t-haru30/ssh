@@ -15,7 +15,7 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import choose_place_sets, choose_places
+from app.places import _selection_pool, choose_place_sets, choose_places
 
 
 def sample_places() -> list[Place]:
@@ -51,6 +51,36 @@ def sample_places() -> list[Place]:
             themes=["food"],
         ),
     ]
+
+
+def major_place() -> Place:
+    return Place(
+        id="kiyomizu-dera",
+        name="清水寺",
+        category="attraction",
+        description="",
+        access_point="座標から経路検索",
+        latitude=35.10,
+        longitude=135.7850,
+        themes=["history", "temple"],
+        tags={
+            "tourism": "attraction",
+            "historic": "temple",
+            "heritage": "1",
+            "wikipedia": "ja:清水寺",
+            "name:en": "Kiyomizu-dera",
+        },
+    )
+
+
+class PlaceSelectionTests(unittest.TestCase):
+    def test_major_attraction_is_in_selection_pool_even_when_farther_away(self):
+        nearby = sample_places()
+        candidates = nearby + [major_place()]
+        ranked = sorted(candidates, key=lambda place: place.latitude)
+
+        self.assertEqual(ranked[0].name, "京都自然公園")
+        self.assertIn(major_place(), _selection_pool(ranked))
 
 
 class RoutePlannerTests(unittest.TestCase):

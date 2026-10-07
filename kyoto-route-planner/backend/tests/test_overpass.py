@@ -65,7 +65,16 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             client.post.assert_awaited_once()
             request = client.post.await_args
             self.assertEqual(request.args[0], API_URL)
-            self.assertEqual(request.kwargs["data"]["data"].count("nwr("), 6)
+            self.assertEqual(request.kwargs["data"]["data"].count("nwr("), 10)
+            self.assertIn(
+                '[tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo)$"]',
+                request.kwargs["data"]["data"],
+            )
+            self.assertIn('[heritage]', request.kwargs["data"]["data"])
+            self.assertIn(
+                '[religion~"^(buddhist|shinto)$"]',
+                request.kwargs["data"]["data"],
+            )
             self.assertIn(f"around:{QUERY_BUFFER_METERS}", request.kwargs["data"]["data"])
             self.assertIn("KyotoRoutePlanner", request.kwargs["headers"]["User-Agent"])
             self.assertNotIn("Authorization", request.kwargs.get("headers", {}))

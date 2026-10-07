@@ -21,7 +21,7 @@ from app.models import (
 from app.search import parse_place_query
 
 API_URL = "https://overpass-api.de/api/interpreter"
-CACHE_KEY = "kyoto-overpass-v2"
+CACHE_KEY = "kyoto-overpass-v3"
 CACHE_TTL = timedelta(hours=24)
 RATE_LIMIT_PAUSE = timedelta(hours=1)
 OUTAGE_PAUSE = timedelta(minutes=15)
@@ -261,6 +261,10 @@ def _build_query() -> str:
     selectors = (
         f'nwr(around:{radius},{latitude},{longitude})[name][tourism];',
         f'nwr(around:{radius},{latitude},{longitude})[name][historic];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][tourism~"^(attraction|museum|gallery|viewpoint|theme_park|zoo)$"];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][historic~"^(temple|castle|monument|memorial|archaeological_site|ruins|shrine)$"];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][heritage];',
+        f'nwr(around:{radius},{latitude},{longitude})[name][amenity="place_of_worship"][religion~"^(buddhist|shinto)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][natural];',
         f'nwr(around:{radius},{latitude},{longitude})[name][leisure~"^(park|garden|nature_reserve)$"];',
         f'nwr(around:{radius},{latitude},{longitude})[name][amenity~"^(restaurant|cafe|fast_food|food_court|bar|pub|place_of_worship)$"];',
