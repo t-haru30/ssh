@@ -70,13 +70,47 @@ class PopularityTests(unittest.TestCase):
                     "SELECT wikidata_id, wikipedia_pageviews_30d FROM place_popularity"
                 ).fetchone()
                 score = connection.execute(
-                    "SELECT total_score, score_version FROM place_scores"
+                    "SELECT total_score, open_data_score, score_version FROM place_scores"
                 ).fetchone()
 
             self.assertEqual(popularity, ("Q160236", 120000))
-            self.assertEqual(score[1], "v2")
+            self.assertEqual(score[1], 0)
+            self.assertEqual(score[2], "v3")
             self.assertGreater(score[0], 0)
             self.assertEqual(load_cached_scores(database)["osm-1"], score[0])
+
+    def test_p12_match_contributes_open_data_score(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO datasets (
+                        dataset_id, title, publisher, source_url, license_name,
+                        attribution_text, fetched_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    ("ksj-p12-2014-26", "P12", "MLIT", "https://example.gov",
+                     "license", "source", "2026-10-07"),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO places (
+                        id, name, category, latitude, longitude, dataset_id
+                    ) VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    ("p12-1", "清水寺", "tourism", 34.9949, 135.785,
+                     "ksj-p12-2014-26"),
+                )
+                connection.commit()
+            _upsert_results(database, [place_with_wikidata()], {}, {})
+
+            with closing(sqlite3.connect(database)) as connection:
+                row = connection.execute(
+                    "SELECT open_data_match, open_data_score FROM place_popularity JOIN place_scores USING (place_id)"
+                ).fetchone()
+
+            self.assertEqual(row, (1, 100.0))
 
     def test_pageview_score_is_logarithmic_and_bounded(self):
         self.assertLess(_log_score(100), _log_score(100000))

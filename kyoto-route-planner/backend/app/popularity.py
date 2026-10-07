@@ -12,7 +12,7 @@ from app.models import Place, Theme
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 WIKIMEDIA_PAGEVIEWS_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
-POPULARITY_SCORE_VERSION = "v2"
+POPULARITY_SCORE_VERSION = "v3"
 WIKIDATA_TTL = timedelta(days=7)
 POPULARITY_USER_AGENT = (
     "KyotoRoutePlanner/1.0 (local non-commercial application; "
@@ -166,6 +166,32 @@ def _wikidata_score(row: dict[str, str]) -> float:
     return min(score, 100.0)
 
 
+def _open_data_matches(
+    connection: sqlite3.Connection,
+    places: list[Place],
+) -> dict[str, bool]:
+    matches: dict[str, bool] = {}
+    for place in places:
+        row = connection.execute(
+            """
+            SELECT 1
+            FROM places
+            WHERE dataset_id LIKE 'ksj-p12-%'
+              AND (
+                name = ?
+                OR (
+                    ABS(latitude - ?) < 0.001
+                    AND ABS(longitude - ?) < 0.001
+                )
+              )
+            LIMIT 1
+            """,
+            (place.name, place.latitude, place.longitude),
+        ).fetchone()
+        matches[place.id] = row is not None
+    return matches
+
+
 def _upsert_results(
     path: Path,
     places: list[Place],
@@ -175,6 +201,7 @@ def _upsert_results(
     target = initialize_database(path)
     fetched_at = _now().isoformat()
     with closing(sqlite3.connect(target)) as connection:
+        open_data_matches = _open_data_matches(connection, places)
         for place in places:
             qid = _wikidata_id(place)
             row = wikidata.get(qid or "", {})
@@ -207,14 +234,16 @@ def _upsert_results(
                     "enTitle": previous[2] or "",
                 })
             total_score = osm_score * 0.35 + wikidata_score * 0.25 + _log_score(views) * 0.20
+            open_data_score = 100.0 if open_data_matches.get(place.id) else 0.0
+            total_score += open_data_score * 0.20
             connection.execute(
                 """
                 INSERT INTO place_popularity (
                     place_id, wikidata_id, wikipedia_ja_title, wikipedia_en_title,
                     wikipedia_sitelink_count, wikipedia_pageviews_30d,
                     has_japanese_wikipedia, has_english_wikipedia,
-                    source_fetched_at, source_status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok')
+                    source_fetched_at, source_status, open_data_match
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok', ?)
                 ON CONFLICT(place_id) DO UPDATE SET
                     wikidata_id=excluded.wikidata_id,
                     wikipedia_ja_title=excluded.wikipedia_ja_title,
@@ -225,6 +254,7 @@ def _upsert_results(
                     has_english_wikipedia=excluded.has_english_wikipedia,
                     source_fetched_at=excluded.source_fetched_at,
                     source_status=excluded.source_status
+                    ,open_data_match=excluded.open_data_match
                 """,
                 (
                     place.id,
@@ -236,23 +266,25 @@ def _upsert_results(
                     int(bool(ja_title)),
                     int(bool(en_title)),
                     fetched_at,
+                    int(open_data_matches.get(place.id, False)),
                 ),
             )
             connection.execute(
                 """
                 INSERT INTO place_scores (
                     place_id, osm_score, wikidata_score, pageview_score,
-                    total_score, score_version, calculated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    open_data_score, total_score, score_version, calculated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(place_id) DO UPDATE SET
                     osm_score=excluded.osm_score,
                     wikidata_score=excluded.wikidata_score,
                     pageview_score=excluded.pageview_score,
+                    open_data_score=excluded.open_data_score,
                     total_score=excluded.total_score,
                     score_version=excluded.score_version,
                     calculated_at=excluded.calculated_at
                 """,
-                (place.id, osm_score, wikidata_score, _log_score(views), total_score, POPULARITY_SCORE_VERSION, fetched_at),
+                (place.id, osm_score, wikidata_score, _log_score(views), open_data_score, total_score, POPULARITY_SCORE_VERSION, fetched_at),
             )
         connection.commit()
 

@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS place_popularity (
     has_english_wikipedia INTEGER NOT NULL DEFAULT 0,
     is_world_heritage INTEGER NOT NULL DEFAULT 0,
     is_cultural_property INTEGER NOT NULL DEFAULT 0,
+    open_data_match INTEGER NOT NULL DEFAULT 0,
     source_fetched_at TEXT NOT NULL,
     source_status TEXT NOT NULL DEFAULT 'ok'
 );
@@ -147,6 +148,7 @@ CREATE TABLE IF NOT EXISTS place_scores (
     osm_score REAL NOT NULL,
     wikidata_score REAL NOT NULL DEFAULT 0,
     pageview_score REAL NOT NULL DEFAULT 0,
+    open_data_score REAL NOT NULL DEFAULT 0,
     total_score REAL NOT NULL,
     score_version TEXT NOT NULL,
     calculated_at TEXT NOT NULL
@@ -187,6 +189,22 @@ def initialize_database(path: Path | None = None) -> Path:
         if "retry_after" not in cache_columns:
             connection.execute(
                 "ALTER TABLE osm_places_cache ADD COLUMN retry_after TEXT"
+            )
+        popularity_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(place_popularity)")
+        }
+        if "open_data_match" not in popularity_columns:
+            connection.execute(
+                "ALTER TABLE place_popularity ADD COLUMN "
+                "open_data_match INTEGER NOT NULL DEFAULT 0"
+            )
+        score_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(place_scores)")
+        }
+        if "open_data_score" not in score_columns:
+            connection.execute(
+                "ALTER TABLE place_scores ADD COLUMN "
+                "open_data_score REAL NOT NULL DEFAULT 0"
             )
         connection.commit()
     return target
