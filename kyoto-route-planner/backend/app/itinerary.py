@@ -133,14 +133,19 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     route_search_calls += best_day2["calls"]
 
     days = [
-        DailyItinerary(
+                DailyItinerary(
             day=1,
             date=request.departure_date,
             places=list(best_day1["places"]),
             legs=best_day1["legs"],
             transit_minutes=best_day1["transit_minutes"],
             stay_minutes=len(best_day1["places"]) * 90,
-            estimated_arrival_at=best_day1["arrival_at"]
+            estimated_arrival_at=best_day1["arrival_at"],
+            coordinates=[
+                [origin.latitude, origin.longitude],
+                *[[p.latitude, p.longitude] for p in best_day1["places"]],
+                [selected_hotel.latitude, selected_hotel.longitude],
+            ]
         ),
         DailyItinerary(
             day=2,
@@ -149,8 +154,14 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
             legs=best_day2["legs"],
             transit_minutes=best_day2["transit_minutes"],
             stay_minutes=len(best_day2["places"]) * 90,
-            estimated_arrival_at=best_day2["arrival_at"]
+            estimated_arrival_at=best_day2["arrival_at"],
+            coordinates=[
+                [selected_hotel.latitude, selected_hotel.longitude],
+                *[[p.latitude, p.longitude] for p in best_day2["places"]],
+                [origin.latitude, origin.longitude],
+            ]
         )
+
     ]
 
     return OvernightItinerarySuggestion(
@@ -390,7 +401,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     else:
         feasibility_note = "経路の所要時間が不明なため、帰着時刻内か判定できません。"
 
-    return ItinerarySuggestion(
+        return ItinerarySuggestion(
         query=search_result.query,
         origin=origin,
         places=list(best.places),
@@ -410,7 +421,13 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         estimated_total_minutes=best.total_minutes,
         feasible=feasible,
         route_search_calls=route_search_calls,
+        coordinates=[
+            [origin.latitude, origin.longitude],
+            *[[p.latitude, p.longitude] for p in best.places],
+            [origin.latitude, origin.longitude],
+        ],
         note=(
+
             "候補はOpenStreetMapのPOIタグ・キーワード・距離検索で選び、"
             "候補順列ごとに駅すぱあとAPIの公共交通所要時間を比較しました。"
             "立ち寄り先あたりの滞在時間は一律90分の仮定です。"

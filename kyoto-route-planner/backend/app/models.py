@@ -50,9 +50,12 @@ class RouteSuggestion(BaseModel):
     title: str | None = None
     story: str | None = None
     total_minutes: int | None = None
-    departure_time: str | None = None
+        departure_time: str | None = None
     arrival_time: str | None = None
     note: str
+    coordinates: list[list[float]] = Field(default_factory=list)
+
+
 
 
 class RouteSuggestions(BaseModel):
@@ -126,9 +129,11 @@ class ItinerarySuggestion(BaseModel):
     transit_minutes: int | None = None
     stay_minutes: int
     estimated_total_minutes: int | None = None
-    feasible: bool | None = None
+        feasible: bool | None = None
     route_search_calls: int
     note: str
+    coordinates: list[list[float]] = Field(default_factory=list)
+
 
 
 class OvernightItineraryRequest(BaseModel):
@@ -147,9 +152,11 @@ class DailyItinerary(BaseModel):
     date: date
     places: list[CatalogPlace]
     legs: list[RouteLeg]
-    transit_minutes: int | None = None
+        transit_minutes: int | None = None
     stay_minutes: int
     estimated_arrival_at: str | None = None
+    coordinates: list[list[float]] = Field(default_factory=list)
+
 
 
 class OvernightItinerarySuggestion(BaseModel):
