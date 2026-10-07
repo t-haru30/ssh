@@ -49,3 +49,33 @@ export type RouteSuggestionRequest = {
   departure_time: string;
   variation?: number;
 };
+
+export type OvernightItineraryRequest = {
+  query: string;
+  departure_station: string;
+  departure_date: string;
+  departure_time: string;
+  stops_per_day: number;
+  hotel_query?: string;
+};
+
+export type DailyItinerary = {
+  day: number;
+  date: string;
+  places: Place[];
+  legs: RouteLeg[];
+  transit_minutes: number | null;
+  stay_minutes: number;
+  estimated_arrival_at: string | null;
+};
+
+export type OvernightItinerarySuggestion = {
+  query: any;
+  origin: Origin;
+  hotel: Place;
+  days: DailyItinerary[];
+  feasible: boolean;
+  route_search_calls: number;
+  note: string;
+};
+

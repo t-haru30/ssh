@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion, DailyItinerary } from "./types";
+
 
 const themes: { id: Theme; label: string; icon: string }[] = [
   { id: "all", label: "おまかせ", icon: "✳" },
@@ -130,9 +131,12 @@ function App() {
   const [theme, setTheme] = useState<Theme>("all");
   const [stopCount, setStopCount] = useState(3);
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
-  const [departureTime, setDepartureTime] = useState("09:00");
+    const [departureTime, setDepartureTime] = useState("09:00");
+  const [isOvernight, setIsOvernight] = useState(false);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
+  const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
@@ -219,7 +223,13 @@ function App() {
     () => origins.find((item) => item.name === originName) ?? null,
     [originName, origins],
   );
-  const mapPlaces = suggestions[0]?.places ?? places;
+    const mapPlaces = useMemo(() => {
+    if (isOvernight && overnightSuggestion) {
+      const allPlaces = overnightSuggestion.days.flatMap(d => d.places);
+      return [overnightSuggestion.hotel, ...allPlaces];
+    }
+    return suggestions[0]?.places ?? places;
+  }, [isOvernight, overnightSuggestion, suggestions, places]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -231,50 +241,87 @@ function App() {
     activeRequestRef.current = controller;
     setError(null);
     setSuggestions([]);
+    setOvernightSuggestion(null);
     setSearching(true);
 
-    const request: RouteSuggestionRequest = {
-      origin: originName,
-      theme,
-      stop_count: stopCount,
-      departure_date: departureDate,
-      departure_time: departureTime,
-      variation: 0,
-    };
+    const themeLabel = themes.find(t => t.id === theme)?.label || "";
 
-    try {
-      const response = await fetchWithTimeout("/api/routes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(request),
-        signal: controller.signal,
-      }, REQUEST_TIMEOUT_MS);
-      if (!response.ok) {
-        throw new Error(await readError(response));
-      }
+    if (isOvernight) {
+      const request: OvernightItineraryRequest = {
+        query: theme === "all" ? "京都 観光" : themeLabel,
+        departure_station: originName,
+        departure_date: departureDate,
+        departure_time: departureTime,
+        stops_per_day: stopCount,
+      };
 
-      const payload: unknown = await response.json();
-      if (!isRouteSuggestions(payload)) {
-        throw new Error("ルートAPIから有効な候補が返されませんでした。");
-      }
+      try {
+        const response = await fetchWithTimeout("/api/itineraries/overnight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        }, REQUEST_TIMEOUT_MS);
+        if (!response.ok) throw new Error(await readError(response));
 
-      if (requestId === requestIdRef.current) {
-        setSuggestions(payload.routes);
+        const payload = await response.json() as OvernightItinerarySuggestion;
+        if (requestId === requestIdRef.current) {
+          setOvernightSuggestion(payload);
+        }
+      } catch (cause) {
+        if (requestId !== requestIdRef.current) return;
+        setError(cause instanceof Error ? cause.message : "宿泊プランを取得できませんでした。");
+      } finally {
+        if (requestId === requestIdRef.current) {
+          activeRequestRef.current = null;
+          setSearching(false);
+        }
       }
-    } catch (cause) {
-      if (requestId !== requestIdRef.current) return;
-      if (cause instanceof DOMException && cause.name === "AbortError") {
-        setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
-      } else {
-        setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
-      }
-    } finally {
-      if (requestId === requestIdRef.current) {
-        activeRequestRef.current = null;
-        setSearching(false);
+    } else {
+      const request: RouteSuggestionRequest = {
+        origin: originName,
+        theme,
+        stop_count: stopCount,
+        departure_date: departureDate,
+        departure_time: departureTime,
+        variation: 0,
+      };
+
+      try {
+        const response = await fetchWithTimeout("/api/routes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        }, REQUEST_TIMEOUT_MS);
+        if (!response.ok) {
+          throw new Error(await readError(response));
+        }
+
+        const payload: unknown = await response.json();
+        if (!isRouteSuggestions(payload)) {
+          throw new Error("ルートAPIから有効な候補が返されませんでした。");
+        }
+
+        if (requestId === requestIdRef.current) {
+          setSuggestions(payload.routes);
+        }
+      } catch (cause) {
+        if (requestId !== requestIdRef.current) return;
+        if (cause instanceof DOMException && cause.name === "AbortError") {
+          setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
+        } else {
+          setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+        }
+      } finally {
+        if (requestId === requestIdRef.current) {
+          activeRequestRef.current = null;
+          setSearching(false);
+        }
       }
     }
   }
+
 
   async function handleRegenerate() {
     if (searching || loading || suggestions.length === 0) return;
@@ -412,17 +459,33 @@ function App() {
 
       <div className="content-grid">
         <section className="planner-card" aria-labelledby="planner-title">
-          <div className="section-heading">
+                    <div className="section-heading">
             <div>
               <p className="eyebrow">YOUR JOURNEY</p>
-              <h2 id="planner-title">旅の気分を選ぶ</h2>
+              <h2 id="planner-title">旅のプランを立てる</h2>
             </div>
             <span className="step-number">01 <i>/ 02</i></span>
           </div>
 
-          <button className="random-button random-button-primary" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
-            {searching ? <><span className="button-spinner" /> おまかせルートを探しています</> : <>今の気分でどこかへ行く <span>✳</span></>}
-          </button>
+          <div className="plan-type-toggle">
+            <button 
+              type="button" 
+              className={!isOvernight ? "active" : ""} 
+              onClick={() => setIsOvernight(false)}
+            >日帰り</button>
+            <button 
+              type="button" 
+              className={isOvernight ? "active" : ""} 
+              onClick={() => setIsOvernight(true)}
+            >1泊2日</button>
+          </div>
+
+          {!isOvernight && (
+            <button className="random-button random-button-primary" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
+              {searching ? <><span className="button-spinner" /> おまかせルートを探しています</> : <>今の気分でどこかへ行く <span>✳</span></>}
+            </button>
+          )}
+
 
           <form onSubmit={handleSubmit}>
             <fieldset className="theme-picker">
@@ -463,14 +526,15 @@ function App() {
                 <span>出発時刻</span>
                 <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching} required />
               </label>
-              <label>
-                <span>立ち寄り先</span>
+                            <label>
+                <span>{isOvernight ? "1日あたりの立ち寄り先" : "立ち寄り先"}</span>
                 <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))} disabled={searching}>
                   <option value={1}>1か所</option>
                   <option value={2}>2か所</option>
                   <option value={3}>3か所</option>
                 </select>
               </label>
+
             </div>
 
             <button className="submit-button" type="submit" disabled={searching || loading}>
@@ -489,25 +553,66 @@ function App() {
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
             <span className="map-count">{suggestions.length > 0 ? `${suggestions[0].places.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={suggestions[0]?.origin ?? origin} />
+          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} />
+
           <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
         </section>
       </div>
 
       <section className="results-section" aria-live="polite">
-        <div className="section-heading results-heading">
-          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
-          {suggestions.length > 0 && <span className="result-date">{departureDate}</span>}
+                <div className="section-heading results-heading">
+          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
+          {(suggestions.length > 0 || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
         </div>
 
-        {suggestions.length === 0 && !error && (
+        {suggestions.length === 0 && !overnightSuggestion && !error && (
+
           <div className="empty-state">
             <span className="empty-icon">↗</span>
             <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
           </div>
         )}
 
-        {suggestions.length > 0 && (
+                {overnightSuggestion && (
+          <div className="route-options">
+            <article className="route-option">
+              <h3>1泊2日宿泊プラン：{overnightSuggestion.hotel.name} に泊まる旅</h3>
+              <div className="route-result">
+                {overnightSuggestion.days.map((day) => (
+                  <div key={day.day} className="overnight-day-section">
+                    <h4>【Day {day.day}】 {day.date}</h4>
+                    <div className="stop-list">
+                      <div className="route-endpoint"><span className="endpoint-dot" /><div><small>{day.day === 1 ? "START" : "HOTEL"}</small><strong>{day.day === 1 ? overnightSuggestion.origin.name : overnightSuggestion.hotel.name}</strong></div></div>
+                      {day.places.map((place, idx) => (
+                        <div className="suggested-place" key={place.id}>
+                          <span className="place-number">{String(idx + 1).padStart(2, "0")}</span>
+                          <div><small>{place.category}</small><strong>{place.name}</strong></div>
+                        </div>
+                      ))}
+                      <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>{day.day === 1 ? "HOTEL" : "FINISH"}</small><strong>{day.day === 1 ? overnightSuggestion.hotel.name : overnightSuggestion.origin.name}</strong></div></div>
+                    </div>
+                    
+                    <div className="transit-card">
+                      <div className="transit-summary">
+                        <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
+                        {day.estimated_arrival_at && (
+                          <div className="transit-clock"><span>到着予定</span><strong>{new Date(day.estimated_arrival_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></div>
+                        )}
+                      </div>
+                      {day.legs.length > 0 && (
+                        <ol className="leg-list">
+                          {day.legs.map((leg, i) => <LegRow leg={leg} index={i} key={`${day.day}-${i}`} />)}
+                        </ol>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="result-note">{overnightSuggestion.note}</p>
+            </article>
+          </div>
+        )}
+
           <div className="route-options">
             {suggestions.map((suggestion, index) => (
             <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
