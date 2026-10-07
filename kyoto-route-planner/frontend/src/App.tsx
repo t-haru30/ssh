@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion, DailyItinerary } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+
 
 
 const themes: { id: Theme; label: string; icon: string }[] = [
@@ -559,21 +560,20 @@ function App() {
         </section>
       </div>
 
-      <section className="results-section" aria-live="polite">
-                <div className="section-heading results-heading">
+            <section className="results-section" aria-live="polite">
+        <div className="section-heading results-heading">
           <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
           {(suggestions.length > 0 || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
         </div>
 
         {suggestions.length === 0 && !overnightSuggestion && !error && (
-
           <div className="empty-state">
             <span className="empty-icon">↗</span>
             <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
           </div>
         )}
 
-                {overnightSuggestion && (
+        {overnightSuggestion && (
           <div className="route-options">
             <article className="route-option">
               <h3>1泊2日宿泊プラン：{overnightSuggestion.hotel.name} に泊まる旅</h3>
@@ -613,40 +613,41 @@ function App() {
           </div>
         )}
 
+        {suggestions.length > 0 && (
           <div className="route-options">
             {suggestions.map((suggestion, index) => (
-            <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
-              <h3>ルート {index + 1}</h3>
-          {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
-          <div className="route-result">
-            <div className="stop-list">
-              <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
-              {suggestion.places.map((place, index) => (
-                <div className="suggested-place" key={place.id}>
-                  <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
-                  <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "OpenStreetMapのPOI"}</p></div>
-                </div>
-              ))}
-              <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
-            </div>
+              <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
+                <h3>ルート {index + 1}</h3>
+                {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
+                <div className="route-result">
+                  <div className="stop-list">
+                    <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
+                    {suggestion.places.map((place, index) => (
+                      <div className="suggested-place" key={place.id}>
+                        <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
+                        <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "OpenStreetMapのPOI"}</p></div>
+                      </div>
+                    ))}
+                    <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
+                  </div>
 
-            <div className="transit-card">
-              <div className="transit-summary">
-                <div><small>ESTIMATED TRANSIT TIME</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
-                <div className="transit-clock"><span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>{suggestion.arrival_time && <><span>到着</span><strong>{suggestion.arrival_time}</strong></>}</div>
-              </div>
-              <h3>公共交通の経路</h3>
-              {suggestion.legs.length > 0 ? (
-                <ol className="leg-list">
-                  {suggestion.legs.map((leg, index) => <LegRow leg={leg} index={index} key={`${index}-${leg.line_name}`} />)}
-                </ol>
-              ) : (
-                <p className="no-leg-detail">経路は検索されましたが、区間の詳細はAPIから返されませんでした。</p>
-              )}
-              <p className="result-note">{suggestion.note}</p>
-            </div>
-          </div>
-            </article>
+                  <div className="transit-card">
+                    <div className="transit-summary">
+                      <div><small>ESTIMATED TRANSIT TIME</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
+                      <div className="transit-clock"><span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>{suggestion.arrival_time && <><span>到着</span><strong>{suggestion.arrival_time}</strong></>}</div>
+                    </div>
+                    <h3>公共交通の経路</h3>
+                    {suggestion.legs.length > 0 ? (
+                      <ol className="leg-list">
+                        {suggestion.legs.map((leg, index) => <LegRow leg={leg} index={index} key={`${index}-${leg.line_name}`} />)}
+                      </ol>
+                    ) : (
+                      <p className="no-leg-detail">経路は検索されましたが、区間の詳細はAPIから返されませんでした。</p>
+                    )}
+                    <p className="result-note">{suggestion.note}</p>
+                  </div>
+                </div>
+              </article>
             ))}
             <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
@@ -654,6 +655,7 @@ function App() {
           </div>
         )}
       </section>
+
 
       <footer className="footer">
         <p>POI：Overpass API / © OpenStreetMap contributors　·　地図：MapLibre / OpenFreeMap</p>
