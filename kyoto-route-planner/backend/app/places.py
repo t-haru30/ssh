@@ -3,6 +3,7 @@ from math import asin, cos, log10, radians, sin, sqrt
 from fastapi import HTTPException
 
 from app.models import Origin, Place, Theme
+from app.popularity import load_cached_scores
 
 
 ORIGINS = [
@@ -91,10 +92,16 @@ def _distance_km(first: tuple[float, float], second: tuple[float, float]) -> flo
     return 6371.0 * 2 * asin(sqrt(haversine))
 
 
-def _selection_score(place: Place, theme: Theme, current: tuple[float, float]) -> float:
+def _selection_score(
+    place: Place,
+    theme: Theme,
+    current: tuple[float, float],
+    cached_scores: dict[str, float],
+) -> float:
     distance = _distance_km(current, (place.latitude, place.longitude))
     proximity_score = max(0.0, 100.0 - distance / 2.0 * 100.0)
-    return calculate_place_score(place, theme) * 0.75 + proximity_score * 0.25
+    popularity_score = cached_scores.get(place.id, calculate_place_score(place, theme))
+    return popularity_score * 0.75 + proximity_score * 0.25
 
 
 def choose_places(
@@ -124,12 +131,13 @@ def choose_places(
         raise ValueError("OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u306b\u9078\u629e\u3057\u305f\u30c6\u30fc\u30de\u306e\u30b3\u30f3\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002")
 
     selected: list[Place] = []
+    cached_scores = load_cached_scores()
     current = (origin.latitude, origin.longitude)
     while remaining and len(selected) < stop_count:
         closest = min(
             remaining,
             key=lambda place: (
-                -_selection_score(place, theme, current),
+                -_selection_score(place, theme, current, cached_scores),
                 place.id,
             ),
         )
@@ -175,6 +183,7 @@ def choose_place_sets(
         if place.themes and (theme == "all" or theme in place.themes)
     ]
     routes = [first_route]
+    cached_scores = load_cached_scores()
     used_ids = {place.id for place in first_route}
     used_categories = {place.category for place in first_route}
     route_targets = ("far", "middle")
@@ -199,7 +208,7 @@ def choose_place_sets(
                 unused,
                 key=lambda place: (
                     place.category in used_categories,
-                    -calculate_place_score(place, theme),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
                     -origin_distance(place),
                     place.id,
                 ),
@@ -209,7 +218,7 @@ def choose_place_sets(
                 unused,
                 key=lambda place: (
                     place.category in used_categories,
-                    -calculate_place_score(place, theme),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
                     abs(origin_distance(place) - midpoint),
                     place.id,
                 ),
@@ -223,7 +232,7 @@ def choose_place_sets(
                 available,
                 key=lambda place: (
                     place.category in {selected_place.category for selected_place in selected},
-                    -calculate_place_score(place, theme),
+                    -cached_scores.get(place.id, calculate_place_score(place, theme)),
                     _distance_km(
                         (current.latitude, current.longitude),
                         (place.latitude, place.longitude),

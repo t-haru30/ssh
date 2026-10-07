@@ -126,6 +126,34 @@ CREATE TABLE IF NOT EXISTS osm_places_cache (
     rate_limited INTEGER NOT NULL DEFAULT 0,
     retry_after TEXT
 );
+
+CREATE TABLE IF NOT EXISTS place_popularity (
+    place_id TEXT PRIMARY KEY,
+    wikidata_id TEXT,
+    wikipedia_ja_title TEXT,
+    wikipedia_en_title TEXT,
+    wikipedia_sitelink_count INTEGER NOT NULL DEFAULT 0,
+    wikipedia_pageviews_30d INTEGER NOT NULL DEFAULT 0,
+    has_japanese_wikipedia INTEGER NOT NULL DEFAULT 0,
+    has_english_wikipedia INTEGER NOT NULL DEFAULT 0,
+    is_world_heritage INTEGER NOT NULL DEFAULT 0,
+    is_cultural_property INTEGER NOT NULL DEFAULT 0,
+    source_fetched_at TEXT NOT NULL,
+    source_status TEXT NOT NULL DEFAULT 'ok'
+);
+
+CREATE TABLE IF NOT EXISTS place_scores (
+    place_id TEXT PRIMARY KEY,
+    osm_score REAL NOT NULL,
+    wikidata_score REAL NOT NULL DEFAULT 0,
+    pageview_score REAL NOT NULL DEFAULT 0,
+    total_score REAL NOT NULL,
+    score_version TEXT NOT NULL,
+    calculated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS place_scores_total_idx
+    ON place_scores(total_score DESC);
 """
 
 

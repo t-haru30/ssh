@@ -62,7 +62,18 @@ POI検索にHeiGIT/OpenRouteServiceのAPIキーは必要ありません。アプ
 
 ルート候補の選定では、外部の有料口コミAPIを使わず、OSMの公開タグから知名度・情報充実度の代理スコアを計算します。`wikipedia`、`wikidata`、`tourism=attraction`、`historic`、公式サイト、料理ジャンル、宿泊施設の`stars`・`beds`などを加点し、テーマ適合度を加味したうえで、出発地点からの近さと組み合わせて優先順位を決めます。
 
-このスコアは口コミ評価や実際の訪問者数ではありません。OSMのタグ未登録は低評価を意味しないため、タグがないことによる減点は行いません。飲食店の「評価」や宿泊施設の品質を断定せず、公開情報にもとづく候補の優先順位として扱います。Wikidata・Wikimediaの定期同期や観光統計の統合は第2段階とし、別途指示があるまで実施しません。
+このスコアは口コミ評価や実際の訪問者数ではありません。OSMのタグ未登録は低評価を意味しないため、タグがないことによる減点は行いません。飲食店の「評価」や宿泊施設の品質を断定せず、公開情報にもとづく候補の優先順位として扱います。
+
+### Wikidata・Wikimediaによる人気度同期（第2段階）
+
+第2段階では、APIキー・アカウント登録不要のWikidata Query ServiceとWikimedia Pageviews APIを、明示的に実行する同期コマンドから利用します。OSMの`wikidata`・`wikipedia`タグを手がかりに、Wikipedia言語版数と日本語版記事の過去30日ページビューを取得し、SQLiteの`place_popularity`と`place_scores`へ保存します。Wikimedia APIには識別可能なUser-Agentを付け、取得結果はルート検索のたびに取得せず、キャッシュを候補選定へ利用します。
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m app.sync_popularity
+```
+
+同期に失敗した場合も既存キャッシュや第1段階のOSMタグスコアは削除されません。同期コマンドは外部APIへ接続するため、定期実行する場合は各サービスの利用ポリシーとレート制限を確認してください。Wikidata・Wikimedia由来の値は知名度・公開情報の代理指標であり、口コミ評価ではありません。観光統計などの第3段階はまだ実装していません。
 
 ```powershell
 cd backend
