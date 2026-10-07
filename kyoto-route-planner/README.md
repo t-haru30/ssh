@@ -58,6 +58,12 @@ POI検索にHeiGIT/OpenRouteServiceのAPIキーは必要ありません。アプ
 
 データはOpenStreetMap由来です。POIの最新性・網羅性は保証されません。画面上のOpenStreetMap出典表示を維持してください。公開サーバーの利用前に[利用ポリシー](https://operations.osmfoundation.org/policies/overpass/)を確認してください。
 
+### OSMタグによる候補スコア（第1段階）
+
+ルート候補の選定では、外部の有料口コミAPIを使わず、OSMの公開タグから知名度・情報充実度の代理スコアを計算します。`wikipedia`、`wikidata`、`tourism=attraction`、`historic`、公式サイト、料理ジャンル、宿泊施設の`stars`・`beds`などを加点し、テーマ適合度を加味したうえで、出発地点からの近さと組み合わせて優先順位を決めます。
+
+このスコアは口コミ評価や実際の訪問者数ではありません。OSMのタグ未登録は低評価を意味しないため、タグがないことによる減点は行いません。飲食店の「評価」や宿泊施設の品質を断定せず、公開情報にもとづく候補の優先順位として扱います。Wikidata・Wikimediaの定期同期や観光統計の統合は第2段階とし、別途指示があるまで実施しません。
+
 ```powershell
 cd backend
 .\.venv\Scripts\python.exe -m app.labeling

@@ -16,7 +16,7 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import choose_place_sets, choose_places
+from app.places import calculate_place_score, choose_place_sets, choose_places
 
 
 def sample_places() -> list[Place]:
@@ -104,6 +104,46 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(len(places), 1)
         self.assertTrue(all("nature" in place.themes for place in places))
+
+    def test_osm_score_prioritizes_referenced_tourist_places(self):
+        popular = sample_places()[0].model_copy(update={
+            "tags": {
+                "wikipedia": "ja:清水寺",
+                "wikidata": "Q160236",
+                "tourism": "attraction",
+                "historic": "temple",
+                "website": "https://example.test",
+            },
+        })
+        ordinary = sample_places()[1]
+
+        self.assertGreater(
+            calculate_place_score(popular, "history"),
+            calculate_place_score(ordinary, "history"),
+        )
+        self.assertEqual(
+            choose_places("nature", 1, "京都駅", [ordinary, popular])[0].id,
+            popular.id,
+        )
+
+    def test_osm_score_uses_facility_attributes_as_food_and_lodging_proxies(self):
+        restaurant = sample_places()[2].model_copy(update={
+            "tags": {
+                "amenity": "restaurant",
+                "cuisine": "japanese",
+                "brand": "地元店",
+            },
+        })
+        lodging = sample_places()[0].model_copy(update={
+            "tags": {
+                "tourism": "hotel",
+                "stars": "5",
+                "beds": "100",
+            },
+        })
+
+        self.assertGreater(calculate_place_score(restaurant, "food"), 0)
+        self.assertGreater(calculate_place_score(lodging, "all"), 0)
 
     def test_unknown_origin_is_rejected(self):
         with self.assertRaises(ValueError):
