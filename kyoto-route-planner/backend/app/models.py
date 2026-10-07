@@ -32,6 +32,7 @@ class RouteSuggestionRequest(BaseModel):
     stop_count: int = Field(default=3, ge=1, le=3)
     departure_date: date
     departure_time: time
+    variation: int = Field(default=0, ge=0, le=2_147_483_647)
 
 
 class RouteLeg(BaseModel):
@@ -46,6 +47,8 @@ class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
     legs: list[RouteLeg]
+    title: str | None = None
+    story: str | None = None
     total_minutes: int | None = None
     departure_time: str | None = None
     arrival_time: str | None = None

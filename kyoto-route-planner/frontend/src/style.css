@@ -55,6 +55,9 @@ a { color: inherit; text-decoration: none; }
 .hero-stamp { width: 106px; height: 106px; margin-right: 7%; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(60, 91, 70, .36); border-radius: 50%; color: #55705c; z-index: 1; transform: rotate(-9deg); }
 .hero-stamp span { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 30px; line-height: 1.15; }
 .hero-stamp small { font-size: 6px; line-height: 1.4; text-align: center; letter-spacing: .12em; }
+.route-copy-banner { min-height: 118px; margin-top: 18px; padding: 23px 30px 21px; border: 1px solid #dfe7dc; background: linear-gradient(105deg, #eef4eb, #f8f8f2); }
+.route-copy-banner h2 { margin: 0; color: #284b39; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(21px, 3vw, 30px); font-weight: 600; letter-spacing: .04em; }
+.route-copy-banner p:last-child { max-width: 720px; margin: 8px 0 0; color: #637267; font-size: 12px; line-height: 1.8; }
 
 .content-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, .93fr); gap: 17px; margin-top: 18px; align-items: stretch; }
 .planner-card, .map-card { background: var(--paper); border: 1px solid #edede7; }
@@ -79,6 +82,12 @@ a { color: inherit; text-decoration: none; }
 .submit-button:hover:not(:disabled) { background: var(--forest-deep); }
 .submit-button:disabled { cursor: wait; opacity: .65; }
 .submit-button > span:last-child { font-size: 17px; }
+.random-button { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; min-height: 39px; margin-top: 8px; border: 1px solid #9bad9b; border-radius: 2px; color: var(--forest); background: #f8faf6; font-size: 11px; font-weight: 600; transition: background .15s ease, border-color .15s ease; }
+.random-button:hover:not(:disabled) { border-color: var(--forest); background: #edf3eb; }
+.random-button:disabled { cursor: wait; opacity: .65; }
+.random-button-primary { min-height: 58px; margin: 25px 0 0; border: 0; color: #fff; background: var(--forest); font-size: 15px; letter-spacing: .04em; box-shadow: 0 5px 14px rgba(36, 75, 61, .14); }
+.random-button-primary:hover:not(:disabled) { border-color: transparent; color: #fff; background: var(--forest-deep); transform: translateY(-1px); }
+.random-button-primary > span:last-child { font-size: 18px; }
 .form-footnote { margin: 9px 0 0; color: #92968e; font-size: 9px; text-align: center; }
 .button-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -110,8 +119,15 @@ a { color: inherit; text-decoration: none; }
 .empty-state strong { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 13px; font-weight: 600; }
 .empty-state p { margin: 5px 0 0; color: #858b84; font-size: 10px; }
 .route-options { display: grid; gap: 24px; }
+.regenerate-button { display: flex; justify-content: center; align-items: center; gap: 10px; width: min(100%, 460px); min-height: 52px; margin: 24px auto 0; border: 1px solid #6f9077; border-radius: 3px; color: #fff; background: var(--forest); font-size: 13px; font-weight: 600; letter-spacing: .03em; box-shadow: 0 4px 12px rgba(36, 75, 61, .13); transition: background .15s ease, transform .15s ease; }
+.regenerate-button:hover:not(:disabled) { background: var(--forest-deep); transform: translateY(-1px); }
+.regenerate-button:disabled { cursor: wait; opacity: .65; }
+.regenerate-button > span:last-child { font-size: 19px; }
 .route-option { padding: 18px; border: 1px solid #e9e9e3; background: rgba(255, 254, 250, .72); }
 .route-option > h3 { margin: 0 0 14px; color: #33463a; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17px; }
+.route-copy { margin: -3px 0 18px; padding: 13px 15px; border-left: 3px solid #7e9a7f; background: #f1f5ee; }
+.route-copy h4 { margin: 0; color: #2f503e; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 16px; font-weight: 600; }
+.route-copy p { margin: 6px 0 0; color: #68766b; font-size: 11px; line-height: 1.7; }
 .route-result { display: grid; grid-template-columns: minmax(240px, .82fr) minmax(0, 1.18fr); gap: 18px; align-items: start; }
 .stop-list { padding: 8px 18px 15px; border: 1px solid #e9e9e3; background: var(--paper); }
 .route-endpoint, .suggested-place { display: grid; grid-template-columns: 26px 1fr; gap: 11px; position: relative; padding: 14px 0; }
