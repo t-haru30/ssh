@@ -63,11 +63,13 @@ class RoutePlannerTests(unittest.TestCase):
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],
         )
-        with patch("app.main.list_osm_places", side_effect=HTTPException(503, "Overpass unavailable")):
-            self.assertEqual(client.get("/api/places").status_code, 503)
+        with patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())):
+            places_response = client.get("/api/places")
+            self.assertEqual(places_response.status_code, 200)
+            self.assertTrue(places_response.json())
         self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
 
-    def test_natural_language_search_endpoint_uses_overpass_search(self):
+    def test_natural_language_search_endpoint_uses_yahoo_search(self):
         client = TestClient(app)
         result = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
@@ -89,7 +91,7 @@ class RoutePlannerTests(unittest.TestCase):
             note="OpenStreetMap",
         )
         search = AsyncMock(return_value=result)
-        with patch("app.main.search_osm_places", search):
+        with patch("app.main.search_yahoo_place_catalog", search):
             response = client.post(
                 "/api/search/places",
                 json={"query": "京都の神社"},
@@ -223,7 +225,7 @@ class RoutePlannerTests(unittest.TestCase):
         with (
             patch.dict("os.environ", {}, clear=True),
             patch("app.ekispert.load_dotenv"),
-            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -254,7 +256,7 @@ class RoutePlannerTests(unittest.TestCase):
 
         candidates = sample_places()
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
+            "app.main.search_yahoo_places",
             new=AsyncMock(return_value=candidates),
         ):
             response = client.post("/api/routes", json=request)
@@ -293,7 +295,7 @@ class RoutePlannerTests(unittest.TestCase):
                     story="静かな自然に身をゆだねる、短い寄り道の物語です。",
                 )),
             ),
-            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())),
         ):
             response = client.get("/api/routes/random")
 
@@ -336,7 +338,7 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
+            "app.main.search_yahoo_places",
             new=AsyncMock(return_value=candidates),
         ):
             response = client.post("/api/routes", json=request)
@@ -376,7 +378,7 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
+            "app.main.search_yahoo_places",
             new=AsyncMock(return_value=sample_places()),
         ):
             response = client.post("/api/routes", json=request)
@@ -411,7 +413,7 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
+            "app.main.search_yahoo_places",
             new=AsyncMock(return_value=sample_places()),
         ):
             response = client.post("/api/routes", json=request)
@@ -434,7 +436,7 @@ class RoutePlannerTests(unittest.TestCase):
             raise asyncio.TimeoutError
 
         with patch("app.main.search_route", new=slow_search), patch(
-            "app.main.list_osm_places",
+            "app.main.search_yahoo_places",
             new=AsyncMock(return_value=sample_places()),
         ):
             response = client.post("/api/routes", json=request)
@@ -451,10 +453,10 @@ class RoutePlannerTests(unittest.TestCase):
             "departure_time": "09:00",
         }
 
-        async def slow_places():
+        async def slow_places(*_args, **_kwargs):
             raise asyncio.TimeoutError
 
-        with patch("app.main.list_osm_places", new=slow_places):
+        with patch("app.main.search_yahoo_places", new=slow_places):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 504)
