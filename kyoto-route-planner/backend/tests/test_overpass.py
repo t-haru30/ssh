@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sqlite3
 import tempfile
 import unittest
@@ -77,6 +78,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             with (
                 patch("app.overpass.database_path", return_value=database),
                 patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": API_URL}),
             ):
                 client = client_factory.return_value.__aenter__.return_value
                 client.post = AsyncMock(return_value=response)
@@ -126,6 +128,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             with (
                 patch("app.overpass.database_path", return_value=database),
                 patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": API_URL}),
             ):
                 client_factory.return_value.__aenter__.return_value.post = AsyncMock(
                     return_value=response
@@ -191,6 +194,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             with (
                 patch("app.overpass.database_path", return_value=database),
                 patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": API_URL}),
             ):
                 client_factory.return_value.__aenter__.return_value.post = AsyncMock(
                     return_value=response
@@ -199,6 +203,40 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(len(places), 1)
 
+    async def test_local_places_are_used_without_overpass_cache(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "travel.sqlite3")
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO datasets (
+                        dataset_id, title, publisher, source_url, license_name,
+                        attribution_text, fetched_at
+                    ) VALUES ('local', 'Local places', 'Test', 'https://example.test',
+                              'Test', 'Test data', '2026-10-08')
+                    """
+                )
+                connection.execute(
+                    """
+                    INSERT INTO places (
+                        id, name, category, region, latitude, longitude,
+                        description, dataset_id
+                    ) VALUES ('清水寺', '清水寺', 'tourism', '京都府',
+                              34.9949, 135.785, '歴史と文化の寺院', 'local')
+                    """
+                )
+                connection.commit()
+
+            with (
+                patch("app.overpass.database_path", return_value=database),
+                patch("app.overpass.httpx.AsyncClient") as client_factory,
+            ):
+                places = await list_osm_places()
+
+            self.assertEqual([place.name for place in places], ["清水寺"])
+            self.assertEqual(places[0].themes, ["history", "temple"])
+            client_factory.assert_not_called()
+
     async def test_rate_limited_server_is_paused_without_retries(self):
         with tempfile.TemporaryDirectory() as temp_directory:
             database = initialize_database(Path(temp_directory) / "travel.sqlite3")
@@ -206,6 +244,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             with (
                 patch("app.overpass.database_path", return_value=database),
                 patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": API_URL}),
             ):
                 client = client_factory.return_value.__aenter__.return_value
                 client.post = AsyncMock(return_value=response)
@@ -219,6 +258,28 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("Overpass API", raised.exception.detail)
             client.post.assert_awaited_once()
             self.assertTrue(get_osm_status(database)["requests_paused"])
+
+    async def test_rate_limited_primary_endpoint_fails_over_to_secondary(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "travel.sqlite3")
+            responses = [
+                httpx.Response(429, headers={"Retry-After": "3600"}),
+                httpx.Response(200, json={"elements": [osm_element()]}),
+            ]
+            with (
+                patch("app.overpass.database_path", return_value=database),
+                patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": "https://primary,https://secondary"}),
+            ):
+                client = client_factory.return_value.__aenter__.return_value
+                client.post = AsyncMock(side_effect=responses)
+                places = await list_osm_places()
+
+            self.assertEqual([place.name for place in places], ["京都の神社"])
+            self.assertEqual(
+                [call.args[0] for call in client.post.await_args_list],
+                ["https://primary", "https://secondary"],
+            )
 
     async def test_stale_cache_is_used_and_warned_when_provider_is_unavailable(self):
         with tempfile.TemporaryDirectory() as temp_directory:
@@ -243,6 +304,7 @@ class OverpassTests(unittest.IsolatedAsyncioTestCase):
             with (
                 patch("app.overpass.database_path", return_value=database),
                 patch("app.overpass.httpx.AsyncClient") as client_factory,
+                patch.dict(os.environ, {"OVERPASS_API_URLS": API_URL}),
             ):
                 client = client_factory.return_value.__aenter__.return_value
                 client.post = AsyncMock(return_value=response)

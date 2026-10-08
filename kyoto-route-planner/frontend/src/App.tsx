@@ -141,6 +141,7 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
+  const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "fallback" | "idle">("loading");
   const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
@@ -187,17 +188,29 @@ function App() {
         }
 
         try {
+          setPlaceSourceState("loading");
           const statusResponse = await fetchWithTimeout(
             "/api/places/status",
             {},
             INITIAL_DATA_TIMEOUT_MS,
           );
           const placeSourceStatus = statusResponse.ok
-            ? await statusResponse.json() as { warning: string | null }
+            ? await statusResponse.json() as { warning: string | null; state?: string; using_fallback?: boolean }
             : { warning: null };
-          setPlaceSourceWarning(placeSourceStatus.warning ?? placeWarning);
+          setPlaceSourceWarning(
+            placeSourceStatus.warning
+            ?? (placeSourceStatus.using_fallback ? "Yahoo! Local Searchを利用できないため、ローカルサンプルを表示しています。" : placeWarning),
+          );
+          setPlaceSourceState(
+            placeSourceStatus.state === "fallback"
+              ? "fallback"
+              : placeSourceStatus.state === "success"
+                ? "success"
+                : "idle",
+          );
         } catch {
           setPlaceSourceWarning(placeWarning);
+          setPlaceSourceState("idle");
         }
         if (!originData.length) {
           initialError ??= "出発駅のデータがありません。";
@@ -554,8 +567,9 @@ function App() {
           </form>
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
-          {placeSourceWarning && <div className="error-panel" role="status"><strong>検索サーバーの負荷を抑えています</strong><span>{placeSourceWarning}</span></div>}
-          {loading && <p className="status-message">候補地を読み込んでいます…</p>}
+          {placeSourceState === "loading" && <p className="status-message" role="status">Yahoo! Local Searchから候補地を読み込んでいます…</p>}
+          {placeSourceWarning && <div className="error-panel" role="status"><strong>Yahoo! Local Searchの代替データを使用中</strong><span>{placeSourceWarning}</span></div>}
+          {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
         </section>
 
                 <section className="map-card" aria-label="京都の候補地マップ">
@@ -669,7 +683,7 @@ function App() {
 
       <footer className="footer">
         <p>POI：Yahoo! JAPAN API → Overpass API / © OpenStreetMap contributors　·　地図：MapLibre / OpenFreeMap</p>
-        <p>Yahoo!を優先し、不足時はOverpassで補完します。Overpassの結果は24時間キャッシュし、利用制限時は一時停止します。</p>
+        <p>検索はYahoo!を優先し、不足時はOverpassで補完します。候補地一覧はYahoo! Local Searchを利用し、利用できない場合はローカルサンプルへ切り替えます。</p>
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>

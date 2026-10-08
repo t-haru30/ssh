@@ -238,9 +238,11 @@ class RoutePlannerTests(unittest.TestCase):
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],
         )
-        with patch("app.main.list_osm_places", side_effect=HTTPException(503, "Overpass unavailable")):
-            self.assertEqual(client.get("/api/places").status_code, 503)
-        self.assertIn("requests_paused", client.get("/api/places/status").json())
+        with patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())):
+            places_response = client.get("/api/places")
+            self.assertEqual(places_response.status_code, 200)
+            self.assertTrue(places_response.json())
+        self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
 
     def test_natural_language_search_endpoint_uses_priority_search(self):
         client = TestClient(app)
@@ -398,7 +400,7 @@ class RoutePlannerTests(unittest.TestCase):
         with (
             patch.dict("os.environ", {}, clear=True),
             patch("app.ekispert.load_dotenv"),
-            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -429,8 +431,8 @@ class RoutePlannerTests(unittest.TestCase):
 
         candidates = sample_places()
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
-            new=AsyncMock(return_value=candidates),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(candidates, "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -468,7 +470,7 @@ class RoutePlannerTests(unittest.TestCase):
                     story="静かな自然に身をゆだねる、短い寄り道の物語です。",
                 )),
             ),
-            patch("app.main.list_osm_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
             response = client.get("/api/routes/random")
 
@@ -511,8 +513,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
-            new=AsyncMock(return_value=candidates),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(candidates, "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -551,8 +553,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -586,8 +588,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.list_osm_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -609,8 +611,8 @@ class RoutePlannerTests(unittest.TestCase):
             raise asyncio.TimeoutError
 
         with patch("app.main.search_route", new=slow_search), patch(
-            "app.main.list_osm_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -626,10 +628,10 @@ class RoutePlannerTests(unittest.TestCase):
             "departure_time": "09:00",
         }
 
-        async def slow_places():
+        async def slow_places(*_args, **_kwargs):
             raise asyncio.TimeoutError
 
-        with patch("app.main.list_osm_places", new=slow_places):
+        with patch("app.main._route_candidates", new=slow_places):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 504)

@@ -16,10 +16,11 @@ from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
-from app.overpass import (
-    get_osm_status,
-    list_osm_places,
+from app.yahoo_local import (
+    get_yahoo_status,
+    search_yahoo_places,
 )
+from app.overpass import list_osm_places
 from app.poi_search import search_places_with_fallback
 from app.models import (
     ItineraryRequest,
@@ -182,12 +183,9 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/places")
-async def places():
-    return [
-        place
-        for place in await list_osm_places()
-        if place.themes
-    ][:60]
+async def places(keyword: str = "京都 観光", category: str | None = None):
+    """Yahoo!ローカルサーチAPIを優先し、失敗時はローカルサンプルを返す。"""
+    return await search_yahoo_places(keyword, category_code=category, limit=60)
 
 
 @app.get("/api/origins")
@@ -197,7 +195,7 @@ def origins():
 
 @app.get("/api/places/status")
 def places_status():
-    return get_osm_status()
+    return get_yahoo_status()
 
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
