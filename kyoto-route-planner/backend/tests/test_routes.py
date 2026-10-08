@@ -22,7 +22,7 @@ from app.places import calculate_place_score, choose_place_sets, choose_places
 def sample_places() -> list[Place]:
     return [
         Place(
-            id="osm-1-1",
+            id="yahoo-1-1",
             name="京都自然公園",
             category="park",
             description="",
@@ -32,7 +32,7 @@ def sample_places() -> list[Place]:
             themes=["nature"],
         ),
         Place(
-            id="osm-1-2",
+            id="yahoo-1-2",
             name="京都寺院",
             category="place_of_worship",
             description="",
@@ -42,7 +42,7 @@ def sample_places() -> list[Place]:
             themes=["history", "temple"],
         ),
         Place(
-            id="osm-1-3",
+            id="yahoo-1-3",
             name="京都の市場",
             category="marketplace",
             description="",
@@ -57,7 +57,7 @@ def sample_places() -> list[Place]:
 class RoutePlannerTests(unittest.TestCase):
     def setUp(self):
         self.search_places_patch = patch(
-            "app.main.search_places_with_fallback",
+            "app.main.search_yahoo_catalog",
             new=AsyncMock(return_value=PlaceSearchResponse(
                 query=ParsedPlaceQuery(),
                 results=[],
@@ -69,7 +69,7 @@ class RoutePlannerTests(unittest.TestCase):
     def tearDown(self):
         self.search_places_patch.stop()
 
-    def test_route_generation_uses_yahoo_places_without_overpass(self):
+    def test_route_generation_uses_yahoo_places(self):
         client = TestClient(app)
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
@@ -103,8 +103,7 @@ class RoutePlannerTests(unittest.TestCase):
             "09:35",
         ))
         with (
-            patch("app.main.search_places_with_fallback", new=AsyncMock(return_value=yahoo_response)) as poi_search,
-            patch("app.main.list_osm_places", new=AsyncMock(side_effect=AssertionError("Overpass must not be called"))),
+            patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)) as poi_search,
             patch("app.main.search_route", route_search),
         ):
             response = client.post(
@@ -122,6 +121,31 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-shrine-1")
         self.assertIn("Yahoo", response.json()["routes"][0]["note"])
         poi_search.assert_awaited_once_with("京都府 神社 寺院", limit=100)
+
+    def test_route_search_reports_empty_yahoo_results_without_substitute_places(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[],
+            note="Yahoo!ローカルサーチで該当する候補が見つかりませんでした。",
+        )
+        with patch(
+            "app.main.search_yahoo_catalog",
+            new=AsyncMock(return_value=yahoo_response),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Yahoo", response.json()["detail"])
 
     def test_all_theme_accepts_yahoo_places_without_a_recognized_category(self):
         client = TestClient(app)
@@ -158,8 +182,7 @@ class RoutePlannerTests(unittest.TestCase):
         ))
         poi_search = AsyncMock(return_value=yahoo_response)
         with (
-            patch("app.main.search_places_with_fallback", new=poi_search),
-            patch("app.main.list_osm_places", new=AsyncMock(side_effect=AssertionError("Overpass must not be called"))),
+            patch("app.main.search_yahoo_catalog", new=poi_search),
             patch("app.main.search_route", route_search),
         ):
             response = client.post(
@@ -177,7 +200,7 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-viewpoint-1")
         poi_search.assert_awaited_once_with("京都 観光", limit=100)
 
-    def test_yahoo_route_is_kept_when_overpass_fallback_is_rate_limited(self):
+    def test_yahoo_route_uses_partial_yahoo_results_when_too_few_stops_are_found(self):
         client = TestClient(app)
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
@@ -211,8 +234,7 @@ class RoutePlannerTests(unittest.TestCase):
             "09:35",
         ))
         with (
-            patch("app.main.search_places_with_fallback", new=AsyncMock(return_value=yahoo_response)),
-            patch("app.main.list_osm_places", new=AsyncMock(side_effect=HTTPException(429, "Overpass paused"))),
+            patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)),
             patch("app.main.search_route", route_search),
         ):
             response = client.post(
@@ -228,9 +250,9 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["routes"][0]["places"]), 1)
-        self.assertIn("Overpass APIが利用できない", response.json()["routes"][0]["note"])
+        self.assertIn("Yahoo", response.json()["routes"][0]["note"])
 
-    def test_health_and_origins_remain_available_when_overpass_is_unavailable(self):
+    def test_health_origins_and_place_status_are_available(self):
         client = TestClient(app)
 
         self.assertEqual(client.get("/api/health").json(), {"status": "ok"})
@@ -238,11 +260,33 @@ class RoutePlannerTests(unittest.TestCase):
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],
         )
-        with patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())):
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-1",
+                        name="京都自然公園",
+                        category="公園",
+                        region="京都府",
+                        address="京都市",
+                        latitude=35.01,
+                        longitude=135.76,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        with patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)):
             places_response = client.get("/api/places")
             self.assertEqual(places_response.status_code, 200)
-            self.assertTrue(places_response.json())
-        self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
+            self.assertEqual(places_response.json()[0]["id"], "yahoo-1")
+        self.assertEqual(
+            client.get("/api/places/status").json()["source"],
+            "Yahoo! Local Search",
+        )
 
     def test_natural_language_search_endpoint_uses_priority_search(self):
         client = TestClient(app)
@@ -251,7 +295,7 @@ class RoutePlannerTests(unittest.TestCase):
             results=[
                 PlaceSearchHit(
                     place=CatalogPlace(
-                        id="osm-1-123",
+                        id="yahoo-1-123",
                         name="京都の神社",
                         category="place_of_worship",
                         region="京都府",
@@ -263,17 +307,17 @@ class RoutePlannerTests(unittest.TestCase):
                     score=1.0,
                 )
             ],
-            note="OpenStreetMap",
+            note="Yahoo!ローカルサーチ",
         )
         search = AsyncMock(return_value=result)
-        with patch("app.main.search_places_with_fallback", search):
+        with patch("app.main.search_yahoo_catalog", search):
             response = client.post(
                 "/api/search/places",
                 json={"query": "京都の神社"},
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["results"][0]["place"]["id"], "osm-1-123")
+        self.assertEqual(response.json()["results"][0]["place"]["id"], "yahoo-1-123")
         search.assert_awaited_once_with("京都の神社")
 
     def test_itinerary_uses_selected_theme_and_stop_limit(self):
@@ -282,15 +326,12 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(len(places), 1)
         self.assertTrue(all("nature" in place.themes for place in places))
 
-    def test_osm_score_prioritizes_referenced_tourist_places(self):
+    def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={
-            "tags": {
-                "wikipedia": "ja:清水寺",
-                "wikidata": "Q160236",
-                "tourism": "attraction",
-                "historic": "temple",
-                "website": "https://example.test",
-            },
+            "category": "文化財",
+            "description": "歴史ある寺院",
+            "address": "京都市東山区",
+            "themes": ["history", "nature"],
         })
         ordinary = sample_places()[1]
 
@@ -303,20 +344,14 @@ class RoutePlannerTests(unittest.TestCase):
             popular.id,
         )
 
-    def test_osm_score_uses_facility_attributes_as_food_and_lodging_proxies(self):
+    def test_yahoo_score_uses_category_and_description_completeness(self):
         restaurant = sample_places()[2].model_copy(update={
-            "tags": {
-                "amenity": "restaurant",
-                "cuisine": "japanese",
-                "brand": "地元店",
-            },
+            "category": "レストラン",
+            "description": "地元の料理を提供",
+            "address": "京都市",
         })
         lodging = sample_places()[0].model_copy(update={
-            "tags": {
-                "tourism": "hotel",
-                "stars": "5",
-                "beds": "100",
-            },
+            "category": "ホテル",
         })
 
         self.assertGreater(calculate_place_score(restaurant, "food"), 0)

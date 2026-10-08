@@ -2,10 +2,8 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
-from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 import random
-import re
 import time
 
 from fastapi import FastAPI, HTTPException
@@ -16,12 +14,7 @@ from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
-from app.yahoo_local import (
-    get_yahoo_status,
-    search_yahoo_places,
-)
-from app.overpass import list_osm_places
-from app.poi_search import search_places_with_fallback
+from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
@@ -112,69 +105,21 @@ def _route_place_from_search_hit(hit: PlaceSearchHit) -> Place:
     )
 
 
-def _same_route_place(first: Place, second: Place) -> bool:
-    first_name = re.sub(r"[\s　]+", "", first.name).casefold()
-    second_name = re.sub(r"[\s　]+", "", second.name).casefold()
-    if first_name != second_name:
-        return False
-    lat1, lat2 = radians(first.latitude), radians(second.latitude)
-    lat_delta = radians(second.latitude - first.latitude)
-    lon_delta = radians(second.longitude - first.longitude)
-    haversine = sin(lat_delta / 2) ** 2 + cos(lat1) * cos(lat2) * sin(lon_delta / 2) ** 2
-    return 6_371_000 * 2 * asin(sqrt(min(1.0, haversine))) <= 30
-
-
-def _route_provider(candidates: list[Place]) -> str:
-    yahoo_count = sum(place.id.startswith("yahoo-") for place in candidates)
-    osm_count = len(candidates) - yahoo_count
-    if yahoo_count and osm_count:
-        return "Yahoo Local Search + Overpass"
-    return "Yahoo Local Search" if yahoo_count else "Overpass"
-
-
-async def _route_candidates(theme: Theme, stop_count: int) -> tuple[list[Place], str]:
+async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
     query = ROUTE_SEARCH_QUERIES[theme]
-    search = await search_places_with_fallback(query, limit=100)
+    search = await search_yahoo_catalog(query, limit=100)
     candidates = [
         _route_place_from_search_hit(hit)
         for hit in search.results
         if theme == "all" or theme in _route_themes(hit.place.name, hit.place.category)
     ]
-    if len(candidates) >= stop_count:
-        provider = _route_provider(candidates)
-        logger.info("Route candidate provider selected: %s (%d results)", provider, len(candidates))
-        return candidates, f"候補地検索: {search.note}"
-
-    try:
-        osm_places = await list_osm_places()
-    except HTTPException as error:
-        if not candidates:
-            raise
-        provider = _route_provider(candidates)
-        logger.warning(
-            "Overpass route fallback unavailable; retaining %s candidates: %s",
-            provider,
-            error.detail,
+    logger.info("Route candidate provider selected: Yahoo Local Search (%d results)", len(candidates))
+    if not candidates:
+        raise HTTPException(
+            status_code=404,
+            detail=search.note or "Yahoo!ローカルサーチで条件に合う候補が見つかりませんでした。",
         )
-        logger.info(
-            "Route candidate provider selected: %s (%d results)",
-            provider,
-            len(candidates),
-        )
-        return candidates, (
-            f"Overpass APIが利用できないため、{provider}から取得した候補地を表示しています。"
-        )
-
-    combined = list(candidates)
-    for place in osm_places:
-        if not place.themes or (theme != "all" and theme not in place.themes):
-            continue
-        if not any(_same_route_place(existing, place) for existing in combined):
-            combined.append(place)
-
-    provider = _route_provider(combined)
-    logger.info("Route candidate provider selected: %s (%d results)", provider, len(combined))
-    return combined, "Yahoo!検索の候補を優先し、不足分をOverpass APIで補完しました。"
+    return candidates, f"候補地検索: {search.note}"
 
 
 @app.get("/api/health")
@@ -184,8 +129,10 @@ def health() -> dict[str, str]:
 
 @app.get("/api/places")
 async def places(keyword: str = "京都 観光", category: str | None = None):
-    """Yahoo!ローカルサーチAPIを優先し、失敗時はローカルサンプルを返す。"""
-    return await search_yahoo_places(keyword, category_code=category, limit=60)
+    """Yahoo!ローカルサーチAPIの候補地のみを返す。"""
+    query = f"{keyword} {category}" if category else keyword
+    result = await search_yahoo_catalog(query, limit=60)
+    return [_route_place_from_search_hit(hit) for hit in result.results]
 
 
 @app.get("/api/origins")
@@ -195,12 +142,12 @@ def origins():
 
 @app.get("/api/places/status")
 def places_status():
-    return get_yahoo_status()
+    return get_yahoo_search_status()
 
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
 async def search_place_catalog(request: PlaceSearchRequest) -> PlaceSearchResponse:
-    return await search_places_with_fallback(request.query)
+    return await search_yahoo_catalog(request.query)
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
@@ -253,7 +200,7 @@ async def _recommend_routes(
         if remaining_seconds <= 0:
             raise asyncio.TimeoutError
         candidates, candidate_note = await asyncio.wait_for(
-            _route_candidates(request.theme, request.stop_count),
+            _route_candidates(request.theme),
             timeout=remaining_seconds,
         )
         effective_stop_count = min(request.stop_count, len(candidates))

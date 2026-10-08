@@ -1,17 +1,26 @@
+import asyncio
 import sqlite3
 import tempfile
 import unittest
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import AsyncMock, patch
 from app.database import initialize_database
-from app.models import Place
+from app.models import (
+    CatalogPlace,
+    ParsedPlaceQuery,
+    Place,
+    PlaceSearchHit,
+    PlaceSearchResponse,
+)
 from app.popularity import (
     _cached_popularity_is_fresh,
     _log_score,
     _sparql_rows,
     _upsert_results,
     load_cached_scores,
+    sync_popularity,
 )
 
 
@@ -34,6 +43,37 @@ def place_with_wikidata() -> Place:
 
 
 class PopularityTests(unittest.TestCase):
+    def test_popularity_sync_uses_yahoo_candidates(self):
+        response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-1",
+                        name="清水寺",
+                        category="寺院",
+                        region="京都府",
+                        address="京都市東山区",
+                        latitude=34.9949,
+                        longitude=135.785,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="",
+        )
+        yahoo_search = AsyncMock(return_value=response)
+
+        with (
+            patch("app.poi_search.search_yahoo_catalog", yahoo_search),
+            patch("app.popularity._cached_popularity_is_fresh", return_value=True),
+        ):
+            count = asyncio.run(sync_popularity())
+
+        self.assertEqual(count, 1)
+        yahoo_search.assert_awaited_once_with("京都 観光", limit=100)
+
     def test_sparql_bindings_are_normalized(self):
         rows = _sparql_rows({
             "results": {
@@ -75,7 +115,7 @@ class PopularityTests(unittest.TestCase):
 
             self.assertEqual(popularity, ("Q160236", 120000))
             self.assertEqual(score[1], 0)
-            self.assertEqual(score[2], "v3")
+            self.assertEqual(score[2], "v4")
             self.assertGreater(score[0], 0)
             self.assertEqual(load_cached_scores(database)["osm-1"], score[0])
 

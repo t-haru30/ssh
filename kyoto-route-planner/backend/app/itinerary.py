@@ -19,7 +19,7 @@ from app.models import (
     ItineraryScheduleItem,
     RouteLeg,
 )
-from app.poi_search import search_places_with_fallback
+from app.poi_search import search_yahoo_catalog
 from app.places import list_origins, normalize_origin_name
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
@@ -156,21 +156,24 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     # 1. ホテルの選定
     # lodgingカテゴリを含めて検索
     hotel_query = request.hotel_query or f"{request.query} ホテル 旅館"
-    hotel_search = await search_places_with_fallback(hotel_query, limit=20)
+    hotel_search = await search_yahoo_catalog(hotel_query, limit=20)
 
     hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place)]
 
     if not hotels:
-        fallback_search = await search_places_with_fallback("京都駅 ホテル", limit=10)
+        fallback_search = await search_yahoo_catalog("京都駅 ホテル", limit=10)
         hotels = [hit.place for hit in fallback_search.results if _is_lodging(hit.place)]
 
     if not hotels:
-        raise HTTPException(status_code=404, detail="宿泊施設が見つかりませんでした。")
+        raise HTTPException(
+            status_code=404,
+            detail=hotel_search.note or "Yahoo!ローカルサーチで宿泊施設が見つかりませんでした。",
+        )
 
     selected_hotel = hotels[0]
 
     # 2. 観光スポットの選定（宿泊施設を除外）
-    spot_search = await search_places_with_fallback(request.query, limit=40)
+    spot_search = await search_yahoo_catalog(request.query, limit=40)
     all_spots = [
         hit.place for hit in spot_search.results
         if hit.place.id != selected_hotel.id and not _is_lodging(hit.place)
@@ -181,7 +184,10 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         if len(all_spots) < 2:
             raise HTTPException(
                 status_code=404,
-                detail=f"2日分の観光スポットが不足しています（{len(all_spots)}件のみ）。条件を広げてください。"
+                detail=(
+                    f"{spot_search.note} 2日分の観光スポットが不足しています"
+                    f"（{len(all_spots)}件のみ）。条件を広げてください。"
+                ),
             )
         actual_stops_per_day = len(all_spots) // 2
     else:
@@ -370,7 +376,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         )
     try:
         search_result = await asyncio.wait_for(
-            search_places_with_fallback(request.query, limit=20),
+            search_yahoo_catalog(request.query, limit=20),
             timeout=remaining_seconds,
         )
     except asyncio.TimeoutError as error:
@@ -379,14 +385,12 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
         ) from error
     if not search_result.results:
-        detail = (
-            " ".join(search_result.query.warnings)
-            if search_result.query.warnings
-            else "条件に合うスポットがデータベースにありません。京都のスポットデータを取り込んでから検索してください。"
-        )
+        detail = " ".join(
+            [search_result.note, *search_result.query.warnings]
+        ).strip()
         raise HTTPException(
             status_code=404,
-            detail=detail,
+            detail=detail or "Yahoo!ローカルサーチで条件に合うスポットが見つかりませんでした。",
         )
 
     candidates = [hit.place for hit in search_result.results[: request.stop_count]]
@@ -394,7 +398,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         raise HTTPException(
             status_code=404,
             detail=(
-                f"条件に合うスポットが{len(candidates)}件のみです。"
+                f"Yahoo!ローカルサーチの候補が{len(candidates)}件のみです。"
                 "立ち寄り件数を減らすか、検索条件を広げてください。"
             ),
         )
@@ -522,7 +526,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         feasible=feasible,
         route_search_calls=route_search_calls,
         note=(
-            "候補はOpenStreetMapのPOIタグ・キーワード・距離検索で選び、"
+            "候補はYahoo!ローカルサーチの検索結果をテーマ・距離条件で絞り込み、"
             "候補順列ごとに駅すぱあとAPIの公共交通所要時間を比較しました。"
             "立ち寄り先あたりの滞在時間は一律90分の仮定です。"
             "営業時間、乗車遅延、施設間の徒歩道順は考慮しません。"

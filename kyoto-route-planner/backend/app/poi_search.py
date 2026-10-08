@@ -7,15 +7,12 @@ from typing import Any
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import HTTPException
-
 from app.models import (
     CatalogPlace,
     ParsedPlaceQuery,
     PlaceSearchHit,
     PlaceSearchResponse,
 )
-from app.overpass import search_osm_places
 from app.search import PREFECTURE_NAMES, parse_place_query
 
 YAHOO_LOCAL_SEARCH_URL = "https://map.yahooapis.jp/search/local/V1/localSearch"
@@ -23,6 +20,11 @@ YAHOO_GEOCODER_URL = "https://map.yahooapis.jp/geocode/V1/geoCoder"
 DEFAULT_CENTER = (34.98585, 135.75877)
 DEFAULT_RADIUS_M = 5_000
 logger = logging.getLogger(__name__)
+_last_search_status: dict[str, Any] = {
+    "source": "Yahoo! Local Search",
+    "state": "idle",
+    "warning": None,
+}
 
 
 class YahooAPIError(RuntimeError):
@@ -291,65 +293,11 @@ async def _search_yahoo(
         return _parse_yahoo_places(response.json(), intent, limit)
 
 
-def _normalize_name(value: str) -> str:
-    return re.sub(r"[\s　]+", "", value).casefold()
+def get_yahoo_search_status() -> dict[str, Any]:
+    return dict(_last_search_status)
 
 
-def _is_duplicate(first: PlaceSearchHit, second: PlaceSearchHit) -> bool:
-    first_name = _normalize_name(first.place.name)
-    second_name = _normalize_name(second.place.name)
-    distance = _distance_m(
-        first.place.latitude,
-        first.place.longitude,
-        second.place.latitude,
-        second.place.longitude,
-    )
-    if first_name == second_name:
-        return distance <= 30
-    return (
-        min(len(first_name), len(second_name)) >= 4
-        and (first_name in second_name or second_name in first_name)
-        and distance <= 80
-    )
-
-
-def _merge_results(
-    yahoo_results: list[PlaceSearchHit],
-    osm_results: list[PlaceSearchHit],
-    limit: int,
-) -> list[PlaceSearchHit]:
-    merged = list(yahoo_results)
-    for osm_hit in osm_results:
-        duplicate_index = next(
-            (
-                index
-                for index, yahoo_hit in enumerate(merged)
-                if _is_duplicate(yahoo_hit, osm_hit)
-            ),
-            None,
-        )
-        if duplicate_index is None:
-            merged.append(osm_hit)
-            continue
-
-        yahoo_hit = merged[duplicate_index]
-        yahoo_place = yahoo_hit.place
-        osm_place = osm_hit.place
-        merged[duplicate_index] = yahoo_hit.model_copy(
-            update={
-                "place": yahoo_place.model_copy(
-                    update={
-                        "category": yahoo_place.category or osm_place.category,
-                        "address": yahoo_place.address or osm_place.address,
-                        "description": yahoo_place.description or osm_place.description,
-                    }
-                )
-            }
-        )
-    return merged[:limit]
-
-
-async def search_places_with_fallback(
+async def search_yahoo_catalog(
     query_text: str,
     limit: int = 20,
 ) -> PlaceSearchResponse:
@@ -357,12 +305,12 @@ async def search_places_with_fallback(
         raise ValueError("limit must be positive")
     intent = parse_place_query(query_text)
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
-    yahoo_results: list[PlaceSearchHit] = []
-    yahoo_incomplete = True
-    yahoo_error: str | None = None
+    warning: str | None = None
     app_id = os.getenv("YAHOO_APP_ID", "").strip()
     if not app_id:
-        yahoo_error = "YAHOO_APP_ID is not configured."
+        warning = "YAHOO_APP_ID が設定されていません。"
+        yahoo_results: list[PlaceSearchHit] = []
+        logger.error("Yahoo Local Search unavailable: YAHOO_APP_ID is not configured")
     else:
         try:
             yahoo_results, yahoo_incomplete = await _search_yahoo(
@@ -371,48 +319,30 @@ async def search_places_with_fallback(
                 limit,
                 app_id,
             )
+            if yahoo_incomplete:
+                warning = "Yahoo!ローカルサーチの一部結果でカテゴリまたは位置情報が不足しています。"
         except (
             httpx.HTTPError,
             ValueError,
             YahooAPIError,
         ) as error:
-            yahoo_error = (
-                str(error) if isinstance(error, YahooAPIError) else type(error).__name__
+            warning = (
+                f"Yahoo!ローカルサーチに接続できませんでした（{error}）。"
+                if isinstance(error, YahooAPIError)
+                else "Yahoo!ローカルサーチへの接続に失敗しました。"
             )
+            yahoo_results = []
+            logger.warning("Yahoo Local Search failed: %s", type(error).__name__)
 
-    if yahoo_results and not yahoo_incomplete:
-        logger.info("POI search provider selected: Yahoo Local Search (%d results)", len(yahoo_results))
-        return PlaceSearchResponse(
-            query=intent,
-            results=yahoo_results,
-            note="Yahoo!ローカルサーチAPIの検索結果です。",
-        )
-
-    if yahoo_error:
-        logger.warning("Yahoo Local Search failed; falling back to Overpass: %s", yahoo_error)
-    osm_results: list[PlaceSearchHit] = []
-    osm_error: str | None = None
-    try:
-        osm_response = await search_osm_places(query_text, limit=limit)
-        osm_results = osm_response.results
-    except HTTPException as error:
-        osm_error = error.detail
-        logger.warning("Overpass fallback search failed: %s", error.detail)
-
-    results = _merge_results(yahoo_results, osm_results, limit)
-    if yahoo_results and osm_results:
-        provider = "Yahoo Local Search + Overpass"
-        note = "Yahoo!ローカルサーチAPIを優先し、Overpass APIの情報で不足を補完しました。"
-    elif yahoo_results:
-        provider = "Yahoo Local Search"
-        note = "Yahoo!ローカルサーチAPIの結果を表示しています。"
-        if osm_error:
-            note += " Overpass APIによる補完は利用できませんでした。"
-    elif osm_results:
-        provider = "Overpass"
-        note = "Yahoo APIの結果を取得できなかったため、Overpass APIの結果を表示しています。"
-    else:
-        provider = "none"
-        note = "Yahoo APIとOverpass APIで検索結果を取得できませんでした。"
-    logger.info("POI search provider selected: %s (%d results)", provider, len(results))
-    return PlaceSearchResponse(query=intent, results=results, note=note)
+    if not warning and not yahoo_results:
+        warning = "Yahoo!ローカルサーチで該当する候補が見つかりませんでした。"
+    _last_search_status.update(
+        state="success" if yahoo_results else "error",
+        warning=warning,
+    )
+    logger.info("POI search provider selected: Yahoo Local Search (%d results)", len(yahoo_results))
+    return PlaceSearchResponse(
+        query=intent,
+        results=yahoo_results,
+        note=warning or "Yahoo!ローカルサーチAPIの検索結果です。",
+    )

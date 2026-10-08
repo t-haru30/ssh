@@ -12,7 +12,7 @@ from app.models import Place, Theme
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 WIKIMEDIA_PAGEVIEWS_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
-POPULARITY_SCORE_VERSION = "v3"
+POPULARITY_SCORE_VERSION = "v4"
 WIKIDATA_TTL = timedelta(days=7)
 POPULARITY_USER_AGENT = (
     "KyotoRoutePlanner/1.0 (local non-commercial application; "
@@ -225,7 +225,7 @@ def _upsert_results(
             views = pageviews.get(place.id)
             if views is None:
                 views = int(previous[4]) if previous else 0
-            osm_score = _osm_score(place)
+            osm_score = _place_score(place)
             wikidata_score = _wikidata_score(row)
             if not row and previous:
                 wikidata_score = _wikidata_score({
@@ -289,16 +289,32 @@ def _upsert_results(
         connection.commit()
 
 
-def _osm_score(place: Place) -> float:
+def _place_score(place: Place) -> float:
     from app.places import calculate_place_score
 
     return calculate_place_score(place, "all")
 
 
 async def sync_popularity(path: Path | None = None) -> int:
-    from app.overpass import list_osm_places
+    from app.poi_search import search_yahoo_catalog
 
-    places = await list_osm_places(path)
+    response = await search_yahoo_catalog("京都 観光", limit=100)
+    places = [
+        Place(
+            id=hit.place.id,
+            name=hit.place.name,
+            category=hit.place.category,
+            description=hit.place.description,
+            access_point="",
+            latitude=hit.place.latitude,
+            longitude=hit.place.longitude,
+            themes=[],
+            address=hit.place.address,
+        )
+        for hit in response.results
+    ]
+    if not places:
+        return 0
     target_path = path or database_path()
     if _cached_popularity_is_fresh(target_path, places):
         return len(places)

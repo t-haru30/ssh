@@ -64,7 +64,7 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with (
-            patch("app.itinerary.search_places_with_fallback", new=search),
+            patch("app.itinerary.search_yahoo_catalog", new=search),
             patch("app.itinerary.search_route", new=route_search),
         ):
             result = await plan_overnight_itinerary(request)
