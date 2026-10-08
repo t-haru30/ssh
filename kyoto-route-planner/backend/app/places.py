@@ -134,7 +134,7 @@ def choose_places(
     remaining = [
         place
         for place in candidates
-        if place.themes and (theme == "all" or theme in place.themes)
+        if theme == "all" or theme in place.themes
     ]
     if not remaining:
         raise ValueError("OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u306b\u9078\u629e\u3057\u305f\u30c6\u30fc\u30de\u306e\u30b3\u30f3\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002")
@@ -195,7 +195,7 @@ def choose_place_sets(
     remaining = [
         place
         for place in candidates
-        if place.themes and (theme == "all" or theme in place.themes)
+        if theme == "all" or theme in place.themes
     ]
     routes = [first_route]
     rng = random.SystemRandom()

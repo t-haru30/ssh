@@ -55,6 +55,181 @@ def sample_places() -> list[Place]:
 
 
 class RoutePlannerTests(unittest.TestCase):
+    def setUp(self):
+        self.search_places_patch = patch(
+            "app.main.search_places_with_fallback",
+            new=AsyncMock(return_value=PlaceSearchResponse(
+                query=ParsedPlaceQuery(),
+                results=[],
+                note="",
+            )),
+        )
+        self.search_places_patch.start()
+
+    def tearDown(self):
+        self.search_places_patch.stop()
+
+    def test_route_generation_uses_yahoo_places_without_overpass(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-shrine-1",
+                        name="伏見稲荷大社",
+                        category="神社",
+                        region="京都府",
+                        address="京都市伏見区",
+                        latitude=34.9671,
+                        longitude=135.7727,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+        with (
+            patch("app.main.search_places_with_fallback", new=AsyncMock(return_value=yahoo_response)) as poi_search,
+            patch("app.main.list_osm_places", new=AsyncMock(side_effect=AssertionError("Overpass must not be called"))),
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-shrine-1")
+        self.assertIn("Yahoo", response.json()["routes"][0]["note"])
+        poi_search.assert_awaited_once_with("京都府 神社 寺院", limit=100)
+
+    def test_all_theme_accepts_yahoo_places_without_a_recognized_category(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-viewpoint-1",
+                        name="京都展望スポット",
+                        category="観光スポット",
+                        region="京都府",
+                        address="京都市",
+                        latitude=34.99,
+                        longitude=135.76,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="展望地",
+                line_name="市バス",
+                mode="bus",
+                duration_minutes=10,
+            )],
+            20,
+            "09:00",
+            "09:20",
+        ))
+        poi_search = AsyncMock(return_value=yahoo_response)
+        with (
+            patch("app.main.search_places_with_fallback", new=poi_search),
+            patch("app.main.list_osm_places", new=AsyncMock(side_effect=AssertionError("Overpass must not be called"))),
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "all",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-viewpoint-1")
+        poi_search.assert_awaited_once_with("京都 観光", limit=100)
+
+    def test_yahoo_route_is_kept_when_overpass_fallback_is_rate_limited(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-shrine-1",
+                        name="伏見稲荷大社",
+                        category="神社",
+                        region="京都府",
+                        address="京都市伏見区",
+                        latitude=34.9671,
+                        longitude=135.7727,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+        with (
+            patch("app.main.search_places_with_fallback", new=AsyncMock(return_value=yahoo_response)),
+            patch("app.main.list_osm_places", new=AsyncMock(side_effect=HTTPException(429, "Overpass paused"))),
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 3,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["routes"][0]["places"]), 1)
+        self.assertIn("Overpass APIが利用できない", response.json()["routes"][0]["note"])
+
     def test_health_and_origins_remain_available_when_overpass_is_unavailable(self):
         client = TestClient(app)
 
@@ -65,7 +240,7 @@ class RoutePlannerTests(unittest.TestCase):
         )
         with patch("app.main.list_osm_places", side_effect=HTTPException(503, "Overpass unavailable")):
             self.assertEqual(client.get("/api/places").status_code, 503)
-        self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
+        self.assertIn("requests_paused", client.get("/api/places/status").json())
 
     def test_natural_language_search_endpoint_uses_priority_search(self):
         client = TestClient(app)

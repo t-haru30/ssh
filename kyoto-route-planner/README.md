@@ -8,7 +8,7 @@
 - `backend/`: FastAPI。Yahoo! JAPAN APIを優先するPOI検索、Overpass APIによる補完、駅すぱあとAPIによる経路検索
 - `Dockerfile`: フロントエンドとAPIを1つのコンテナにまとめる構成。公開環境へのデプロイは利用許諾を確認するまで行いません。
 
-Yahoo! JAPAN APIと駅すぱあとAPIの認証情報はバックエンドだけで使い、ブラウザーには渡しません。検索クエリはYahoo!ローカルサーチAPIを優先し、結果なし・位置情報やカテゴリの不足・APIエラー時に限りOverpass APIで補完します。Yahoo!ジオコーダAPIは登録駅以外の検索地点の座標解決に使います。Overpassの結果は24時間ローカルSQLiteにキャッシュし、HTTP 429時は一定時間検索を停止します。公開Overpassサーバーは稼働保証がなく、混雑時に遅延・制限・停止する場合があります。ルート候補一覧は引き続きOverpassデータを利用します。
+Yahoo! JAPAN APIと駅すぱあとAPIの認証情報はバックエンドだけで使い、ブラウザーには渡しません。POI検索とルート候補の検索はYahoo!ローカルサーチAPIを優先し、結果なし・位置情報やカテゴリの不足・APIエラー時、またはルート候補数が不足するときにOverpass APIで補完します。Yahoo!ジオコーダAPIは登録駅以外の検索地点の座標解決に使います。Overpassの結果は24時間ローカルSQLiteにキャッシュし、HTTP 429時は一定時間検索を停止します。公開Overpassサーバーは稼働保証がなく、混雑時に遅延・制限・停止する場合があります。
 
 ## 国土数値情報・旅行データ基盤（フェーズ1）
 
@@ -48,13 +48,13 @@ python -m app.labeling
 
 初期版は外部LLMを使わず、`backend/app/labeling.py` のキーワードルールで `atmosphere`、`target_audience`、`activity_type` を抽出します。ラベルには一致した原文語句、信頼度、方式 `rule`、ルール版を保存します。明示根拠がない客層などは推測で付与しません。
 
-P12データはローカル検索基盤の試作用として保持しています。検索クエリではYahoo! JAPANのPOI結果を優先し、不足時にOverpass API経由のOpenStreetMapデータで補完します。ルート候補一覧はOverpassのOpenStreetMapデータを使用します。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
+P12データはローカル検索基盤の試作用として保持しています。検索クエリおよびルート候補ではYahoo! JAPANのPOI結果を優先し、不足時にOverpass API経由のOpenStreetMapデータで補完します。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
 
 ### Yahoo! JAPAN API優先のPOI検索
 
 `backend/.env` に `YAHOO_APP_ID`（Yahoo!デベロッパーネットワークで発行）を設定すると、検索クエリは[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で先に検索されます。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。Yahoo結果に有効な位置情報とカテゴリがあり1件以上得られた場合、Overpassは呼び出しません。結果が0件・不完全、またはYahoo APIが利用できない場合は、[Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)をバックアップとして使用します。統合時はYahoo結果を先に保ち、重複候補ではYahooの情報を優先します。YahooのClient IDが未設定の場合も、Overpassへ自動的にフォールバックします。
 
-Overpassから取得した京都駅周辺の名前付き地点はローカルSQLiteに24時間キャッシュし、バックアップ検索およびルート候補一覧に使います。HTTP 429を受けた場合はサーバーの `Retry-After` に従い、ヘッダーがない場合も1時間検索を止めます。公開サーバーは無料ですが、安定稼働や全POIの網羅性は保証されません。
+Overpassから取得した京都駅周辺の名前付き地点はローカルSQLiteに24時間キャッシュし、バックアップ検索・ルート候補の補完に使います。HTTP 429を受けた場合はサーバーの `Retry-After` に従い、ヘッダーがない場合も1時間検索を止めます。公開サーバーは無料ですが、安定稼働や全POIの網羅性は保証されません。Yahooの候補だけで指定立ち寄り数に足りない場合はOverpassで候補を追加し、Overpassも停止中なら利用可能なYahoo候補数まで立ち寄り数を減らして経路検索します。
 
 データはOpenStreetMap由来です。POIの最新性・網羅性は保証されません。画面上のOpenStreetMap出典表示を維持してください。公開サーバーの利用前に[利用ポリシー](https://operations.osmfoundation.org/policies/overpass/)を確認してください。
 
@@ -88,7 +88,7 @@ cd backend
 
 ## 自然文検索（フェーズ3）
 
-`POST /api/search/places` に `{"query":"京都駅周辺で自然を感じられる場所"}` を渡すと、ルールベースで地域、登録済み出発駅、カテゴリー、希望、距離条件を抽出し、Overpassから取得したキャッシュ済みPOIとOpenStreetMapタグを検索します。登録駅の「周辺」は1km、徒歩N分は毎分80mの検索半径として扱います。登録駅で解決できない距離指定は警告と空結果にし、別の中心地点へフォールバックしません。原典タグに客層等の明示根拠がない場合、その希望は推測で満たしたことにしません。
+`POST /api/search/places` に `{"query":"京都駅周辺で自然を感じられる場所"}` を渡すと、ルールベースで地域、登録済み出発駅、カテゴリー、希望、距離条件を抽出し、Yahoo!ローカルサーチAPIを優先してPOIを検索します。不足時はOverpassから取得したキャッシュ済みPOIとOpenStreetMapタグで補完します。登録駅の「周辺」は1km、徒歩N分は毎分80mの検索半径として扱います。登録駅で解決できない距離指定は警告と空結果にし、別の中心地点へフォールバックしません。原典タグに客層等の明示根拠がない場合、その希望は推測で満たしたことにしません。
 
 移動時間は駅すぱあとAPIの経路検索で別途評価します。P12ベースのFTS5/R*Tree検索関数はローカルDBの検証用として残しますが、画面・ルート・自然文検索APIのスポット候補取得には使いません。ベクトル検索・意味検索も未導入です。
 
@@ -131,7 +131,7 @@ npm ci
 npm run build
 ```
 
-2回目以降は `start.bat` をダブルクリックすれば、APIを起動してブラウザーを開きます。起動したAPIウィンドウを閉じるとアプリが停止します。
+`start.bat` はフロントエンドのソースがビルド済みファイルより新しい場合、自動で `npm run build` を実行してからAPIとブラウザーを起動します。起動したAPIウィンドウを閉じるとアプリが停止します。
 
 ```powershell
 cd ..

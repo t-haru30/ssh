@@ -157,9 +157,9 @@ function App() {
           fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
       ]);
       try {
-        let placeData: Place[] = [];
         let originData: Origin[] = [];
         let initialError: string | null = null;
+        let placeWarning: string | null = null;
 
         if (originsResult.status === "fulfilled" && originsResult.value.ok) {
           const originPayload: unknown = await originsResult.value.json();
@@ -176,15 +176,14 @@ function App() {
         if (placesResult.status === "fulfilled" && placesResult.value.ok) {
           const placePayload: unknown = await placesResult.value.json();
           if (Array.isArray(placePayload) && placePayload.every(isPlace)) {
-            placeData = placePayload;
-            setPlaces(placeData);
+            setPlaces(placePayload);
           } else {
-            initialError ??= "候補地のデータ形式が不正です。";
+            placeWarning = "候補地のデータ形式が不正です。";
           }
         } else if (placesResult.status === "fulfilled") {
-          initialError ??= await readError(placesResult.value);
+          placeWarning = await readError(placesResult.value);
         } else {
-          initialError ??= "候補地を読み込めませんでした。APIサーバーを確認してください。";
+          placeWarning = "候補地を読み込めませんでした。APIサーバーを確認してください。";
         }
 
         try {
@@ -196,13 +195,9 @@ function App() {
           const placeSourceStatus = statusResponse.ok
             ? await statusResponse.json() as { warning: string | null }
             : { warning: null };
-          setPlaceSourceWarning(placeSourceStatus.warning);
+          setPlaceSourceWarning(placeSourceStatus.warning ?? placeWarning);
         } catch {
-          setPlaceSourceWarning(null);
-        }
-
-        if (!placeData.length) {
-          initialError ??= "候補地のデータがありません。";
+          setPlaceSourceWarning(placeWarning);
         }
         if (!originData.length) {
           initialError ??= "出発駅のデータがありません。";
@@ -673,8 +668,8 @@ function App() {
 
 
       <footer className="footer">
-        <p>POI：Overpass API / © OpenStreetMap contributors　·　地図：MapLibre / OpenFreeMap</p>
-        <p>POI検索結果は24時間キャッシュします。公開検索サーバーの利用制限時は、連続アクセスを避けて一時停止します。</p>
+        <p>POI：Yahoo! JAPAN API → Overpass API / © OpenStreetMap contributors　·　地図：MapLibre / OpenFreeMap</p>
+        <p>Yahoo!を優先し、不足時はOverpassで補完します。Overpassの結果は24時間キャッシュし、利用制限時は一時停止します。</p>
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>
