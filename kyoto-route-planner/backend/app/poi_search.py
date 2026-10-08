@@ -112,7 +112,7 @@ def _region(properties: Any, default: str | None) -> str:
             index = int(code[:2]) - 1
             if 0 <= index < len(PREFECTURE_NAMES):
                 return PREFECTURE_NAMES[index]
-    return default or "京都府"
+    return default or ""
 
 
 def _parse_yahoo_places(
@@ -147,6 +147,8 @@ def _parse_yahoo_places(
                 latitude,
                 longitude,
             )
+            if intent.max_distance_m is not None and distance > intent.max_distance_m:
+                continue
         results.append(
             PlaceSearchHit(
                 place=CatalogPlace(
@@ -187,8 +189,6 @@ def _distance_m(
 def _geocoder_query(query: str, intent: ParsedPlaceQuery) -> str | None:
     if intent.center_station:
         return None
-    if intent.region and intent.region != "京都府":
-        return intent.region
     if intent.location_unresolved:
         match = re.search(r"(.+?)(?:駅|周辺|近く|近辺|付近)", query)
         if match:
@@ -225,18 +225,22 @@ def _local_search_params(
         "query": search_terms,
         "output": "json",
         "results": min(max(limit, 1), 100),
-        "sort": "geo",
     }
     if center is None and not geocode_query and (
         intent.region is None or intent.region == "京都府"
-    ):
+    ) and intent.max_distance_m is None:
         center = (intent.center_latitude, intent.center_longitude) if (
             intent.center_latitude is not None and intent.center_longitude is not None
         ) else DEFAULT_CENTER
     if center is not None:
         params.update({"lat": center[0], "lon": center[1]})
-        radius = intent.max_distance_m or DEFAULT_RADIUS_M
+        radius = (
+            intent.max_distance_m
+            if intent.max_distance_m is not None
+            else DEFAULT_RADIUS_M
+        )
         params["dist"] = min(max(radius / 1000, 0.1), 20)
+        params["sort"] = "geo"
     elif intent.region in PREFECTURE_NAMES:
         params["ac"] = f"{PREFECTURE_NAMES.index(intent.region) + 1:02d}"
     return params
@@ -266,7 +270,7 @@ async def _search_yahoo(
             center = (intent.center_latitude, intent.center_longitude)
         if center is None and not location_query and (
             intent.region is None or intent.region == "京都府"
-        ):
+        ) and intent.max_distance_m is None:
             center = DEFAULT_CENTER
         if center is not None:
             intent.center_latitude, intent.center_longitude = center
@@ -294,17 +298,18 @@ def _normalize_name(value: str) -> str:
 def _is_duplicate(first: PlaceSearchHit, second: PlaceSearchHit) -> bool:
     first_name = _normalize_name(first.place.name)
     second_name = _normalize_name(second.place.name)
+    distance = _distance_m(
+        first.place.latitude,
+        first.place.longitude,
+        second.place.latitude,
+        second.place.longitude,
+    )
     if first_name == second_name:
-        return True
+        return distance <= 30
     return (
         min(len(first_name), len(second_name)) >= 4
         and (first_name in second_name or second_name in first_name)
-        and _distance_m(
-            first.place.latitude,
-            first.place.longitude,
-            second.place.latitude,
-            second.place.longitude,
-        ) <= 80
+        and distance <= 80
     )
 
 
@@ -348,6 +353,8 @@ async def search_places_with_fallback(
     query_text: str,
     limit: int = 20,
 ) -> PlaceSearchResponse:
+    if limit < 1:
+        raise ValueError("limit must be positive")
     intent = parse_place_query(query_text)
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     yahoo_results: list[PlaceSearchHit] = []

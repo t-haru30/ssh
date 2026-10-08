@@ -1,3 +1,4 @@
+import asyncio
 import json
 import sqlite3
 import tempfile
@@ -43,6 +44,29 @@ def osm_element(
 
 
 class OverpassTests(unittest.IsolatedAsyncioTestCase):
+    async def test_concurrent_cache_misses_share_one_overpass_request(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "travel.sqlite3")
+            response = httpx.Response(200, json={"elements": [osm_element()]})
+            with (
+                patch("app.overpass.database_path", return_value=database),
+                patch("app.overpass.httpx.AsyncClient") as client_factory,
+            ):
+                client = client_factory.return_value.__aenter__.return_value
+
+                async def delayed_post(*_args, **_kwargs):
+                    await asyncio.sleep(0.01)
+                    return response
+
+                client.post = AsyncMock(side_effect=delayed_post)
+                first, second = await asyncio.gather(
+                    list_osm_places(),
+                    list_osm_places(),
+                )
+
+            self.assertEqual(first, second)
+            client.post.assert_awaited_once()
+
     async def test_places_are_cached_and_query_uses_public_overpass_api(self):
         with tempfile.TemporaryDirectory() as temp_directory:
             database = initialize_database(Path(temp_directory) / "travel.sqlite3")

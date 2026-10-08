@@ -12,6 +12,10 @@ from app.models import (
 from app.poi_search import (
     YAHOO_GEOCODER_URL,
     YAHOO_LOCAL_SEARCH_URL,
+    _geocoder_query,
+    _local_search_params,
+    _merge_results,
+    _parse_yahoo_places,
     search_places_with_fallback,
 )
 from app.search import parse_place_query
@@ -20,7 +24,7 @@ from app.search import parse_place_query
 def yahoo_feature(
     name: str = "京都の神社",
     category: str = "神社",
-    coordinates: str = "135.768,35.002",
+    coordinates: str = "135.759,34.986",
     address: str = "京都府京都市",
 ) -> dict:
     return {
@@ -126,7 +130,14 @@ class YahooPrioritySearchTests(unittest.IsolatedAsyncioTestCase):
         client_context = AsyncMock()
         client_context.__aenter__.return_value = client
         osm_response = response(
-            hit("osm-1", "京都の神社", address="京都市東山区", description="OSMの補完説明"),
+            hit(
+                "osm-1",
+                "京都の神社",
+                address="京都市東山区",
+                description="OSMの補完説明",
+                latitude=34.986,
+                longitude=135.759,
+            ),
             hit("osm-2", "近くの寺院", latitude=35.01, longitude=135.77),
         )
 
@@ -280,6 +291,105 @@ class YahooPrioritySearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(geocode_params["query"], "浜松")
         self.assertEqual(local_params["lat"], 34.71)
         self.assertEqual(local_params["lon"], 137.726)
+
+    def test_yahoo_distance_filter_is_applied_exactly_after_api_search(self):
+        intent = parse_place_query("京都駅周辺の神社を半径100m以内")
+        intent.center_latitude = 34.98585
+        intent.center_longitude = 135.75877
+        inside = yahoo_feature(coordinates="135.75900,34.98600")
+        outside = yahoo_feature(
+            name="遠い神社",
+            coordinates="135.77000,35.00000",
+        )
+
+        results, incomplete = _parse_yahoo_places(
+            yahoo_payload(inside, outside),
+            intent,
+            20,
+        )
+
+        self.assertFalse(incomplete)
+        self.assertEqual([item.place.name for item in results], ["京都の神社"])
+        params = _local_search_params(
+            "京都駅周辺の神社",
+            intent,
+            "test-app-id",
+            20,
+            (intent.center_latitude, intent.center_longitude),
+            None,
+        )
+        self.assertEqual(params["dist"], 0.1)
+        self.assertEqual(params["sort"], "geo")
+
+    def test_prefecture_search_uses_address_code_without_geocoding_or_geo_sort(self):
+        intent = parse_place_query("東京都のラーメン")
+
+        self.assertIsNone(_geocoder_query("東京都のラーメン", intent))
+        params = _local_search_params(
+            "東京都のラーメン",
+            intent,
+            "test-app-id",
+            20,
+            None,
+            None,
+        )
+        self.assertEqual(params["ac"], "13")
+        self.assertNotIn("sort", params)
+        self.assertNotIn("dist", params)
+
+    def test_distance_without_resolved_center_does_not_assume_kyoto(self):
+        intent = parse_place_query("半径2km以内でラーメン")
+        params = _local_search_params(
+            "半径2km以内でラーメン",
+            intent,
+            "test-app-id",
+            20,
+            None,
+            None,
+        )
+
+        self.assertTrue(intent.location_unresolved)
+        self.assertNotIn("lat", params)
+        self.assertNotIn("lon", params)
+        self.assertNotIn("dist", params)
+
+    def test_duplicate_names_at_distinct_locations_are_preserved(self):
+        yahoo_hit = hit(
+            "yahoo-1",
+            "ローソン",
+            latitude=34.986,
+            longitude=135.759,
+        )
+        nearby_osm_hit = hit(
+            "osm-near",
+            "ローソン",
+            address="京都市",
+            latitude=34.98601,
+            longitude=135.75901,
+        )
+        distant_osm_hit = hit(
+            "osm-far",
+            "ローソン",
+            latitude=35.01,
+            longitude=135.71,
+        )
+
+        merged = _merge_results([yahoo_hit], [nearby_osm_hit, distant_osm_hit], 10)
+
+        self.assertEqual([item.place.id for item in merged], ["yahoo-1", "osm-far"])
+        self.assertEqual(merged[0].place.address, "京都市")
+
+    def test_missing_region_metadata_is_not_mislabeled_as_kyoto(self):
+        feature = yahoo_feature(address="")
+        feature["Property"]["GovernmentCode"] = ""
+        results, incomplete = _parse_yahoo_places(
+            yahoo_payload(feature),
+            parse_place_query("浜松駅周辺の神社"),
+            20,
+        )
+
+        self.assertFalse(incomplete)
+        self.assertEqual(results[0].place.region, "")
 
 
 if __name__ == "__main__":
