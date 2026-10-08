@@ -130,6 +130,7 @@ function App() {
   const [origins, setOrigins] = useState<Origin[]>([]);
   const [originName, setOriginName] = useState("京都駅");
   const [theme, setTheme] = useState<Theme>("all");
+  const [mood, setMood] = useState("");
   const [stopCount, setStopCount] = useState(3);
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
@@ -271,7 +272,7 @@ function App() {
 
     if (isOvernight) {
       const request: OvernightItineraryRequest = {
-        query: theme === "all" ? "京都 観光" : themeLabel,
+        query: mood.trim() || (theme === "all" ? "京都 観光" : `京都 ${themeLabel}`),
         departure_station: originName,
         departure_date: departureDate,
         departure_time: departureTime,
@@ -511,6 +512,19 @@ function App() {
 
 
           <form onSubmit={handleSubmit}>
+            {isOvernight && (
+              <label className="mood-input">
+                <span>今日の気分</span>
+                <textarea
+                  value={mood}
+                  onChange={(event) => setMood(event.target.value)}
+                  maxLength={500}
+                  placeholder="例：温泉でのんびりしたい／自然の中で体を動かしたい／静かな場所で美味しいものを食べたい"
+                  disabled={searching}
+                  rows={3}
+                />
+              </label>
+            )}
             <fieldset className="theme-picker">
               <legend>今日はどんな寄り道をしたい？</legend>
               <div className="theme-options">
@@ -617,6 +631,17 @@ function App() {
                     </div>
                     
                     <div className="transit-card">
+                      {day.schedule.length > 0 && (
+                        <ol className="itinerary-schedule">
+                          {day.schedule.map((item, index) => (
+                            <li key={`${day.day}-${index}`}>
+                              <time>{item.start_time && item.end_time ? `${item.start_time}–${item.end_time}` : "時刻未確定"}</time>
+                              <strong>{item.title}</strong>
+                              <span>{item.detail}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
                       <div className="transit-summary">
                         <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
                         {day.estimated_arrival_at && (

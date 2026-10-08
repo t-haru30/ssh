@@ -16,12 +16,113 @@ from app.models import (
     OvernightItineraryRequest,
     OvernightItinerarySuggestion,
     DailyItinerary,
+    ItineraryScheduleItem,
     RouteLeg,
 )
 from app.poi_search import search_places_with_fallback
 from app.places import list_origins, normalize_origin_name
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
+
+
+LODGING_CATEGORIES = {
+    "hotel", "hostel", "guest_house", "motel", "apartment", "lodging", "ryokan",
+}
+
+
+def _is_lodging(place: CatalogPlace) -> bool:
+    text = f"{place.category} {place.name}".casefold()
+    return place.category.casefold() in LODGING_CATEGORIES or any(
+        term in text
+        for term in (
+            "ホテル", "旅館", "民宿", "宿泊", "ryokan", "hotel", "hostel",
+            "guest house", "lodging",
+        )
+    )
+
+
+def _clock(value: datetime) -> str:
+    return value.strftime("%H:%M")
+
+
+def _build_day_schedule(
+    places: list[CatalogPlace],
+    start_at: datetime,
+    destination: str,
+    transit_minutes: int | None,
+    stay_minutes: int,
+    hotel_start: bool = False,
+) -> list[ItineraryScheduleItem]:
+    schedule: list[ItineraryScheduleItem] = []
+    current = start_at
+    if hotel_start:
+        schedule.append(ItineraryScheduleItem(
+            start_time=_clock(current),
+            end_time=_clock(current),
+            title="ホテルを出発",
+            detail="チェックアウト時刻は施設にご確認ください。",
+            kind="hotel",
+        ))
+
+    segment_count = len(places) + 1
+    base_minutes = transit_minutes // segment_count if transit_minutes is not None else None
+    remainder = transit_minutes % segment_count if transit_minutes is not None else 0
+    for index, place in enumerate(places):
+        segment_minutes = (
+            base_minutes + (1 if index < remainder else 0)
+            if base_minutes is not None
+            else None
+        )
+        arrival = current + timedelta(minutes=segment_minutes) if segment_minutes is not None else None
+        schedule.append(ItineraryScheduleItem(
+            start_time=_clock(current) if arrival else None,
+            end_time=_clock(arrival) if arrival else None,
+            title=f"{place.name}へ移動",
+            detail=(
+                "駅すぱあとAPIの総所要時間を区間数で按分した目安です。"
+                if arrival else "経路時間を取得できなかったため時刻は未確定です。"
+            ),
+            kind="travel",
+        ))
+        if arrival is not None:
+            current = arrival
+        visit_end = current + timedelta(minutes=stay_minutes)
+        schedule.append(ItineraryScheduleItem(
+            start_time=_clock(current) if arrival else None,
+            end_time=_clock(visit_end) if arrival else None,
+            title=place.name,
+            detail=f"滞在約{stay_minutes}分の目安です。営業時間・予約状況は施設にご確認ください。",
+            kind="visit",
+        ))
+        current = visit_end
+
+    segment_minutes = (
+        base_minutes + (1 if len(places) < remainder else 0)
+        if base_minutes is not None
+        else None
+    )
+    arrival = current + timedelta(minutes=segment_minutes) if segment_minutes is not None else None
+    schedule.append(ItineraryScheduleItem(
+        start_time=_clock(current) if arrival else None,
+        end_time=_clock(arrival) if arrival else None,
+        title=f"{destination}へ移動",
+        detail=(
+            "駅すぱあとAPIの総所要時間を区間数で按分した目安です。"
+            if arrival else "経路時間を取得できなかったため時刻は未確定です。"
+        ),
+        kind="travel",
+    ))
+    schedule.append(ItineraryScheduleItem(
+        start_time=_clock(arrival) if arrival else None,
+        end_time=_clock(arrival) if arrival else None,
+        title=destination,
+        detail=(
+            "到着時刻の目安です。チェックイン時刻は施設にご確認ください。"
+            if destination != "京都駅" else "到着時刻の目安です。"
+        ),
+        kind="hotel" if destination != "京都駅" else "travel",
+    ))
+    return schedule
 
 
 
@@ -54,45 +155,34 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
 
     # 1. ホテルの選定
     # lodgingカテゴリを含めて検索
-    hotel_query = request.hotel_query or f"{request.query} ホテル"
+    hotel_query = request.hotel_query or f"{request.query} ホテル 旅館"
     hotel_search = await search_places_with_fallback(hotel_query, limit=20)
-    
-    # 宿泊施設タグを持つものを優先
-    hotels = [
-        hit.place for hit in hotel_search.results 
-        if hit.place.category.lower() in {
-            "hotel", "hostel", "guest_house", "motel", "apartment", "lodging", "ryokan"
-        }
-    ]
-    
+
+    hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place)]
+
     if not hotels:
-        # フォールバック: 京都駅周辺で宿泊施設を再検索
         fallback_search = await search_places_with_fallback("京都駅 ホテル", limit=10)
-        hotels = [hit.place for hit in fallback_search.results]
-    
+        hotels = [hit.place for hit in fallback_search.results if _is_lodging(hit.place)]
+
     if not hotels:
         raise HTTPException(status_code=404, detail="宿泊施設が見つかりませんでした。")
-    
+
     selected_hotel = hotels[0]
 
-    # 2. 観光スポットの選定 (ホテルと重複させない)
+    # 2. 観光スポットの選定（宿泊施設を除外）
     spot_search = await search_places_with_fallback(request.query, limit=40)
     all_spots = [
-        hit.place for hit in spot_search.results 
-        if hit.place.id != selected_hotel.id and hit.place.category.lower() not in {
-            "hotel", "hostel", "guest_house", "motel", "apartment", "lodging", "ryokan"
-        }
+        hit.place for hit in spot_search.results
+        if hit.place.id != selected_hotel.id and not _is_lodging(hit.place)
     ]
     
     required_spots = request.stops_per_day * 2
     if len(all_spots) < required_spots:
-        # 足りない場合はカテゴリ制限を緩めて再取得を試みる
-        if len(all_spots) < request.stops_per_day:
-             raise HTTPException(
-                status_code=404, 
-                detail=f"観光スポットが不足しています（{len(all_spots)}件のみ）。条件を広げてください。"
+        if len(all_spots) < 2:
+            raise HTTPException(
+                status_code=404,
+                detail=f"2日分の観光スポットが不足しています（{len(all_spots)}件のみ）。条件を広げてください。"
             )
-        # 1日あたりの件数を減らして調整
         actual_stops_per_day = len(all_spots) // 2
     else:
         actual_stops_per_day = request.stops_per_day
@@ -100,9 +190,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     day1_spots = all_spots[:actual_stops_per_day]
     day2_spots = all_spots[actual_stops_per_day : actual_stops_per_day * 2]
 
-    route_search_calls = 0
-    
-    # Day 1: Origin -> Day1 Spots -> Hotel
+    # Day 1: 出発駅 -> 観光地 -> ホテル
     best_day1 = await _find_best_route(
         origin_lat=origin.latitude,
         origin_lon=origin.longitude,
@@ -112,11 +200,10 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         dep_date=request.departure_date,
         dep_time=request.departure_time,
         stay_min=90,
-        deadline=deadline
+        deadline=deadline,
     )
-    route_search_calls += best_day1["calls"]
 
-    # Day 2: Hotel -> Day2 Spots -> Origin
+    # Day 2: ホテル -> 観光地 -> 出発駅
     checkout_time = time(10, 0)
     day2_date = request.departure_date + timedelta(days=1)
     best_day2 = await _find_best_route(
@@ -128,9 +215,8 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         dep_date=day2_date,
         dep_time=checkout_time,
         stay_min=90,
-        deadline=deadline
+        deadline=deadline,
     )
-    route_search_calls += best_day2["calls"]
 
     days = [
         DailyItinerary(
@@ -138,18 +224,43 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
             date=request.departure_date,
             places=list(best_day1["places"]),
             legs=best_day1["legs"],
+            schedule=_build_day_schedule(
+                places=list(best_day1["places"]),
+                start_at=datetime.combine(request.departure_date, request.departure_time),
+                destination=selected_hotel.name,
+                transit_minutes=best_day1["transit_minutes"],
+                stay_minutes=90,
+            ),
             transit_minutes=best_day1["transit_minutes"],
             stay_minutes=len(best_day1["places"]) * 90,
-            estimated_arrival_at=best_day1["arrival_at"]
+            estimated_arrival_at=best_day1["arrival_at"],
+            coordinates=[
+                [origin.latitude, origin.longitude],
+                *[[place.latitude, place.longitude] for place in best_day1["places"]],
+                [selected_hotel.latitude, selected_hotel.longitude],
+            ],
         ),
         DailyItinerary(
             day=2,
             date=day2_date,
             places=list(best_day2["places"]),
             legs=best_day2["legs"],
+            schedule=_build_day_schedule(
+                places=list(best_day2["places"]),
+                start_at=datetime.combine(day2_date, checkout_time),
+                destination=origin.name,
+                transit_minutes=best_day2["transit_minutes"],
+                stay_minutes=90,
+                hotel_start=True,
+            ),
             transit_minutes=best_day2["transit_minutes"],
             stay_minutes=len(best_day2["places"]) * 90,
-            estimated_arrival_at=best_day2["arrival_at"]
+            estimated_arrival_at=best_day2["arrival_at"],
+            coordinates=[
+                [selected_hotel.latitude, selected_hotel.longitude],
+                *[[place.latitude, place.longitude] for place in best_day2["places"]],
+                [origin.latitude, origin.longitude],
+            ],
         )
     ]
 
@@ -159,11 +270,12 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         hotel=selected_hotel,
         days=days,
         feasible=best_day1["transit_minutes"] is not None and best_day2["transit_minutes"] is not None,
-        route_search_calls=route_search_calls,
+        route_search_calls=best_day1["calls"] + best_day2["calls"],
         note=(
             f"宿泊先に「{selected_hotel.name}」を選定した1泊2日プランです。"
             f"1日目{len(best_day1['places'])}箇所、2日目{len(best_day2['places'])}箇所のスポットを巡ります。"
-            "2日目は10:00にホテルを出発する計算です。"
+            "2日目は10:00にホテルを出発する計算です。移動区間は総所要時間を均等配分した目安で、営業時間・運休・宿泊料金は確認していません。"
+            f"候補地検索: {spot_search.note}"
         )
     )
 
@@ -213,7 +325,7 @@ async def _find_best_route(
                     "total_minutes": total_min,
                     "arrival_at": arrival_dt.isoformat() if arrival_dt else None
                 }
-        except Exception:
+        except (asyncio.TimeoutError, HTTPException):
             calls += 1
             continue
 
@@ -227,8 +339,7 @@ async def _find_best_route(
             "arrival_at": None,
             "calls": calls
         }
-    
-        best["calls"] = calls
+    best["calls"] = calls
     return best
 
 async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:

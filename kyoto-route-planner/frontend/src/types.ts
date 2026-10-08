@@ -66,15 +66,23 @@ export type DailyItinerary = {
   date: string;
   places: Place[];
   legs: RouteLeg[];
-    transit_minutes: number | null;
+  schedule: ItineraryScheduleItem[];
+  transit_minutes: number | null;
   stay_minutes: number;
   estimated_arrival_at: string | null;
   coordinates?: [number, number][];
 };
 
+export type ItineraryScheduleItem = {
+  start_time: string | null;
+  end_time: string | null;
+  title: string;
+  detail: string;
+  kind: "travel" | "visit" | "hotel";
+};
 
 export type OvernightItinerarySuggestion = {
-  query: any;
+  query: unknown;
   origin: Origin;
   hotel: Place;
   days: DailyItinerary[];
@@ -82,4 +90,3 @@ export type OvernightItinerarySuggestion = {
   route_search_calls: number;
   note: string;
 };
-

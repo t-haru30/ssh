@@ -130,10 +130,18 @@ class DailyItinerary(BaseModel):
     date: date
     places: list[CatalogPlace]
     legs: list[RouteLeg]
+    schedule: list["ItineraryScheduleItem"] = Field(default_factory=list)
     transit_minutes: int | None = None
     stay_minutes: int
     estimated_arrival_at: str | None = None
     coordinates: list[list[float]] = Field(default_factory=list)
+
+class ItineraryScheduleItem(BaseModel):
+    start_time: str | None = None
+    end_time: str | None = None
+    title: str
+    detail: str
+    kind: Literal["travel", "visit", "hotel"]
 
 class OvernightItinerarySuggestion(BaseModel):
     query: ParsedPlaceQuery

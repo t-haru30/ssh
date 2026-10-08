@@ -78,6 +78,9 @@ a { color: inherit; text-decoration: none; }
 .form-fields label { display: flex; flex-direction: column; gap: 6px; color: #777e78; font-size: 10px; }
 .form-fields input, .form-fields select { width: 100%; height: 39px; border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; background: var(--surface-input); color: var(--ink); outline: none; font-size: 12px; }
 .form-fields input:focus, .form-fields select:focus { border-color: var(--focus); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 12%, transparent); }
+.mood-input { display: flex; flex-direction: column; gap: 7px; margin-top: 22px; color: #777e78; font-size: 10px; }
+.mood-input textarea { width: 100%; min-height: 74px; resize: vertical; border: 1px solid var(--line); border-radius: 2px; padding: 10px; background: var(--surface-input); color: var(--ink); outline: none; font: inherit; line-height: 1.6; }
+.mood-input textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 12%, transparent); }
 .submit-button { display: flex; justify-content: center; align-items: center; gap: 12px; width: 100%; min-height: 45px; margin-top: 22px; border: 0; border-radius: 2px; color: white; background: var(--forest); font-size: 12px; font-weight: 600; letter-spacing: .03em; transition: background .15s ease; }
 .submit-button:hover:not(:disabled) { background: var(--forest-deep); }
 .submit-button:disabled { cursor: wait; opacity: .65; }
@@ -139,6 +142,11 @@ a { color: inherit; text-decoration: none; }
 .place-number { display: grid; z-index: 1; place-items: center; justify-self: center; width: 23px; height: 23px; border-radius: 50%; color: white; background: #bd795f; font-size: 9px; font-weight: 600; }
 .suggested-place p { margin: 5px 0 0; color: #7d847d; font-size: 10px; line-height: 1.7; }
 .transit-card { padding: 21px 22px; border: 1px solid #e9e9e3; background: var(--paper); }
+.itinerary-schedule { display: grid; gap: 0; padding: 0; margin: 0 0 18px; list-style: none; }
+.itinerary-schedule li { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 3px 10px; padding: 10px 0; border-bottom: 1px solid #eeeee8; }
+.itinerary-schedule time { grid-row: span 2; color: #53785d; font-size: 10px; font-weight: 600; }
+.itinerary-schedule strong { color: var(--ink); font-size: 11px; }
+.itinerary-schedule span { color: #858b84; font-size: 9px; line-height: 1.6; }
 .transit-summary { display: flex; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #eeeee8; }
 .transit-summary small { display: block; margin-bottom: 4px; color: #93988f; font-size: 8px; letter-spacing: .12em; }
 .transit-summary > div:first-child strong { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 22px; }
