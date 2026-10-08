@@ -18,7 +18,7 @@ from app.models import (
     DailyItinerary,
     RouteLeg,
 )
-from app.overpass import search_osm_places
+from app.poi_search import search_places_with_fallback
 from app.places import list_origins, normalize_origin_name
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
@@ -55,7 +55,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     # 1. ホテルの選定
     # lodgingカテゴリを含めて検索
     hotel_query = request.hotel_query or f"{request.query} ホテル"
-    hotel_search = await search_osm_places(hotel_query, limit=20)
+    hotel_search = await search_places_with_fallback(hotel_query, limit=20)
     
     # 宿泊施設タグを持つものを優先
     hotels = [
@@ -67,7 +67,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     
     if not hotels:
         # フォールバック: 京都駅周辺で宿泊施設を再検索
-        fallback_search = await search_osm_places("京都駅 ホテル", limit=10)
+        fallback_search = await search_places_with_fallback("京都駅 ホテル", limit=10)
         hotels = [hit.place for hit in fallback_search.results]
     
     if not hotels:
@@ -76,7 +76,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     selected_hotel = hotels[0]
 
     # 2. 観光スポットの選定 (ホテルと重複させない)
-    spot_search = await search_osm_places(request.query, limit=40)
+    spot_search = await search_places_with_fallback(request.query, limit=40)
     all_spots = [
         hit.place for hit in spot_search.results 
         if hit.place.id != selected_hotel.id and hit.place.category.lower() not in {
@@ -259,7 +259,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         )
     try:
         search_result = await asyncio.wait_for(
-            search_osm_places(request.query, limit=20),
+            search_places_with_fallback(request.query, limit=20),
             timeout=remaining_seconds,
         )
     except asyncio.TimeoutError as error:
