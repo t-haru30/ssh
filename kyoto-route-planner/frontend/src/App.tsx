@@ -232,7 +232,21 @@ function App() {
     return suggestions[0]?.places ?? places;
   }, [isOvernight, overnightSuggestion, suggestions, places]);
 
+    const mapCoordinates = useMemo(() => {
+    if (isOvernight && overnightSuggestion) {
+      const coords: [number, number][] = [];
+      overnightSuggestion.days.forEach(day => {
+        if (day.coordinates) {
+          coords.push(...day.coordinates);
+        }
+      });
+      return coords;
+    }
+    return suggestions[0]?.coordinates ?? [];
+  }, [isOvernight, overnightSuggestion, suggestions]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+
     event.preventDefault();
     if (searching) return;
     const requestId = requestIdRef.current + 1;
@@ -549,15 +563,16 @@ function App() {
           {loading && <p className="status-message">候補地を読み込んでいます…</p>}
         </section>
 
-        <section className="map-card" aria-label="京都の候補地マップ">
+                <section className="map-card" aria-label="京都の候補地マップ">
           <div className="map-heading">
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{suggestions.length > 0 ? `${suggestions[0].places.length} SPOTS` : "KYOTO"}</span>
+            <span className="map-count">{suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} />
+          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} coordinates={mapCoordinates} />
 
           <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
         </section>
+
       </div>
 
             <section className="results-section" aria-live="polite">
