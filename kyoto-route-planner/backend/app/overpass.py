@@ -94,7 +94,8 @@ def _parse_places(elements: Any) -> list[Place]:
         if not (-180 <= longitude <= 180 and -90 <= latitude <= 90):
             continue
 
-        normalized_tags = {
+            # Normalize the tags
+            normalized_tags = {
             str(key): str(value)
             for key, value in tags.items()
             if isinstance(value, (str, int, float))
