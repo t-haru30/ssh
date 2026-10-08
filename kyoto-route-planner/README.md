@@ -5,10 +5,10 @@
 ## 構成
 
 - `frontend/`: React、TypeScript、Vite、MapLibre GL JS
-- `backend/`: FastAPI。Yahoo!ローカルサーチAPI（未設定時はローカルサンプル）による候補スポット検索と駅すぱあとAPIによる経路検索
+- `backend/`: FastAPI。Yahoo! JAPAN APIを優先するPOI検索、Overpass APIによる補完、駅すぱあとAPIによる経路検索
 - `Dockerfile`: フロントエンドとAPIを1つのコンテナにまとめる構成。公開環境へのデプロイは利用許諾を確認するまで行いません。
 
-駅すぱあとAPIキーとYahoo!のAppIDはバックエンドだけで使います。ブラウザーには渡しません。画面のスポット候補はYahoo!ローカルサーチAPIから取得し、未設定時や障害時はローカルサンプルへフォールバックします。MapLibreの地図タイルはOpenFreeMapを使います。Overpassの連携コードは既存データの更新・検索用に残しており、公開サーバーは稼働保証がないため通常の画面取得には使用しません。ローカルのスポット一覧と駅すぱあとAPIによる交通経路検索は別のサービスです。
+Yahoo! JAPAN APIと駅すぱあとAPIの認証情報はバックエンドだけで使い、ブラウザーには渡しません。候補スポット一覧とルート提案はYahoo!ローカルサーチAPIを使い、利用できない場合はローカルサンプルへフォールバックします。自然文検索と旅程検索ではYahoo!の検索結果を優先し、結果がない・不完全・APIエラー時にOverpass APIで補完します。Yahoo!ジオコーダAPIは登録駅以外の検索地点の座標解決に使います。Overpassの結果はローカルSQLiteにキャッシュし、HTTP 429時は一定時間検索を停止します。公開Overpassサーバーは稼働保証がなく、混雑時に遅延・制限・停止する場合があります。MapLibreの地図タイルはOpenFreeMapを使います。
 
 ### Yahoo!ローカルサーチAPI
 
@@ -19,11 +19,11 @@ YAHOO_CLIENT_ID=取得したClient ID（AppID）
 YAHOO_LOCAL_CATEGORY=0101
 ```
 
-AppIDは[Yahoo!デベロッパーネットワーク](https://e.developer.yahoo.co.jp/)へログインしてアプリケーションを登録すると取得できます。15分間、キーワード・カテゴリ・件数ごとにFastAPIプロセス内でキャッシュします。AppID未設定、通信エラー、APIの不正応答、結果0件の場合はアプリを停止せず、少数のローカルサンプルカタログへフォールバックします。AppIDは`.env`へ保存し、Gitへコミットしないでください。
+AppIDは[Yahoo!デベロッパーネットワーク](https://e.developer.yahoo.co.jp/)へログインしてアプリケーションを登録すると取得できます。15分間、キーワード・カテゴリ・件数ごとにFastAPIプロセス内でキャッシュします。AppID未設定、通信エラー、APIの不正応答、結果0件の場合はアプリを停止せず、少数のローカルサンプルカタログへフォールバックします。AppIDは`.env`へ保存し、Gitへコミットしないでください。自然文検索・旅程検索のYahoo!優先検索は`.env`の`YAHOO_APP_ID`も参照し、Yahoo!検索が未設定・失敗した場合はOverpassへフォールバックします。
 
 Overpassの取得は既定で複数の公開エンドポイントを順番に試します。特定の利用ポリシーや自前のインスタンスに合わせる場合は、バックエンドの`.env`で`OVERPASS_API_URLS`をカンマ区切りで指定できます。いずれのエンドポイントも429または一時障害を返した場合だけ、Retry-Afterを尊重した停止状態をキャッシュします。
 
-ローカルSQLiteに取り込み済みのスポットがある場合、通常の画面利用では外部Overpassへアクセスせず、そのデータを優先します。Overpassから明示的に更新する場合だけ、次のコマンドを実行してください。取得に成功したPOIはSQLiteへ保存され、以後の画面利用は保存データを使います。
+Overpassから明示的に更新する場合は、次のコマンドを実行してください。取得に成功したPOIはSQLiteへ保存されます。
 
 ```powershell
 cd backend
@@ -68,13 +68,13 @@ python -m app.labeling
 
 初期版は外部LLMを使わず、`backend/app/labeling.py` のキーワードルールで `atmosphere`、`target_audience`、`activity_type` を抽出します。ラベルには一致した原文語句、信頼度、方式 `rule`、ルール版を保存します。明示根拠がない客層などは推測で付与しません。
 
-P12データはローカル検索基盤の試作用として保持しています。ルート提案画面と自然文検索APIのPOI候補にはYahoo! Local Searchを使用し、AppID未設定・通信障害時はローカルサンプルへフォールバックします。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
+P12データはローカル検索基盤の試作用として保持しています。自然文検索・旅程検索ではYahoo! JAPANのPOI結果を優先し、不足時にOverpass API経由のOpenStreetMapデータで補完します。ルート候補一覧はYahoo!ローカルサーチAPIを利用し、利用できない場合はローカルサンプルへフォールバックします。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
 
-### 旧Overpass連携
+### Yahoo! JAPAN API優先のPOI検索
 
-以前のOverpass連携コードは既存SQLiteデータの更新用に残していますが、画面のスポット一覧・ルート提案・自然文検索APIでは使用しません。POI取得は[Yahoo!ローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)を使用します。
+`backend/.env` に `YAHOO_APP_ID`（Yahoo!デベロッパーネットワークで発行）を設定すると、自然文検索・旅程検索のクエリは[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で先に検索されます。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。Yahoo結果に有効な位置情報とカテゴリがあり1件以上得られた場合、Overpassは呼び出しません。結果が0件・不完全、またはYahoo APIが利用できない場合は、[Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)をバックアップとして使用します。統合時はYahoo結果を先に保ち、重複候補ではYahooの情報を優先します。YahooのAppIDが未設定の場合も、Overpassへ自動的にフォールバックします。
 
-ルート提案では出発駅の緯度・経度と半径10kmをYahoo!へ渡し、テーマに応じたキーワードで候補を取得します。取得した緯度・経度を駅すぱあとAPIの `緯度,経度` の経由地形式へ変換し、順列ごとの公共交通ルートを比較します。検索結果は15分間プロセス内にキャッシュし、Yahoo!が利用できない場合はローカルサンプルへフォールバックします。
+Overpassから取得した名前付き地点はローカルSQLiteに24時間キャッシュし、バックアップ検索に使います。HTTP 429を受けた場合はサーバーの `Retry-After` に従い、ヘッダーがない場合も1時間検索を止めます。公開サーバーは無料ですが、安定稼働や全POIの網羅性は保証されません。
 
 データはOpenStreetMap由来です。POIの最新性・網羅性は保証されません。画面上のOpenStreetMap出典表示を維持してください。公開サーバーの利用前に[利用ポリシー](https://operations.osmfoundation.org/policies/overpass/)を確認してください。
 
@@ -134,12 +134,12 @@ cd backend
 
 Python 3.12以降とNode.js 24以降が必要です。
 
-初回のみ、`backend/.env.example` を `backend/.env` にコピーして `EKISPERT_API_KEY` を設定し、依存関係を準備します。
+初回のみ、`backend/.env.example` を `backend/.env` にコピーして `EKISPERT_API_KEY` と `YAHOO_APP_ID` を設定し、依存関係を準備します。Yahoo!のClient IDを設定しない場合はPOI検索がOverpassへフォールバックします。
 
 ```powershell
 cd kyoto-route-planner\backend
 Copy-Item .env.example .env
-# .envを開き、取得済みのキーを EKISPERT_API_KEY= に設定します。
+# .envを開き、取得済みのキーを EKISPERT_API_KEY= と YAHOO_APP_ID= に設定します。
 # 例として、ローカル開発では EKISPERT_APPLICATION_URL=http://127.0.0.1:8000 を使います。
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt

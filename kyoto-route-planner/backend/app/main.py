@@ -12,13 +12,12 @@ from fastapi.staticfiles import StaticFiles
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
-from app.osrm import fetch_detailed_polyline
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.yahoo_local import (
     get_yahoo_status,
-    search_yahoo_place_catalog,
     search_yahoo_places,
 )
+from app.poi_search import search_places_with_fallback
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
@@ -76,7 +75,7 @@ def places_status():
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
 async def search_place_catalog(request: PlaceSearchRequest) -> PlaceSearchResponse:
-    return await search_yahoo_place_catalog(request.query)
+    return await search_places_with_fallback(request.query)
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
@@ -180,30 +179,28 @@ async def _recommend_routes(
                     ),
                     timeout=remaining_seconds,
                 )
-            except asyncio.TimeoutError:
-                timed_out = True
-                break
-            suggestions.append(
+                suggestions.append(
                     RouteSuggestion(
                         places=chosen,
                         origin=origin,
                         legs=legs,
                         total_minutes=total_minutes,
                         departure_time=departure_time or request.departure_time.strftime("%H:%M"),
-                                                arrival_time=arrival_time or None,
-                        coordinates=await fetch_detailed_polyline([
+                        arrival_time=arrival_time or None,
+                        coordinates=[
                             [origin.latitude, origin.longitude],
                             *[[p.latitude, p.longitude] for p in chosen],
                             [origin.latitude, origin.longitude],
-                        ]),
+                        ],
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
                             "地点から最寄り駅までのアクセス時間は直線距離からの概算で、実際の徒歩道順ではありません。"
                         ),
-                    ),
+                    )
                 )
-
-
+                break
+            except asyncio.TimeoutError:
+                timed_out = True
                 break
             except HTTPException as error:
                 if error.status_code != 404:
@@ -214,9 +211,6 @@ async def _recommend_routes(
                 last_error = error
                 if stop_count == 1:
                     break
-            except asyncio.TimeoutError:
-                timed_out = True
-                break
         if timed_out:
             break
         if transient_error is not None:

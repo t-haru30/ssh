@@ -46,7 +46,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         async def slow_search(*_args, **_kwargs):
             raise asyncio.TimeoutError
 
-        with patch("app.itinerary.search_yahoo_place_catalog", new=slow_search):
+        with patch("app.itinerary.search_places_with_fallback", new=slow_search):
             with self.assertRaisesRegex(HTTPException, "候補.*タイムアウト"):
                 await plan_itinerary(request)
 
@@ -69,7 +69,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
             raise asyncio.TimeoutError
 
         with (
-            patch("app.itinerary.search_yahoo_place_catalog", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_places_with_fallback", new=AsyncMock(return_value=search_response)),
             patch("app.itinerary.search_route", new=slow_search),
         ):
             with self.assertRaisesRegex(HTTPException, "タイムアウト"):
@@ -98,7 +98,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         ])
 
         with (
-            patch("app.itinerary.search_yahoo_place_catalog", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_places_with_fallback", new=AsyncMock(return_value=search_response)),
             patch("app.itinerary.search_route", new=search),
         ):
             result = await plan_itinerary(request)
@@ -160,7 +160,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with (
-            patch("app.itinerary.search_yahoo_place_catalog", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_places_with_fallback", new=AsyncMock(return_value=search_response)),
             patch("app.itinerary.search_route", route_search),
         ):
             result = await plan_itinerary(request)
@@ -189,7 +189,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         )
 
         with (
-            patch("app.itinerary.search_yahoo_place_catalog", new=AsyncMock(return_value=search_response)),
+            patch("app.itinerary.search_places_with_fallback", new=AsyncMock(return_value=search_response)),
             patch(
                 "app.itinerary.search_route",
                 new=AsyncMock(return_value=([], 60, "16:00", "17:00")),

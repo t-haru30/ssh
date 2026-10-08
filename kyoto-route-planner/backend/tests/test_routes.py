@@ -69,7 +69,7 @@ class RoutePlannerTests(unittest.TestCase):
             self.assertTrue(places_response.json())
         self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
 
-    def test_natural_language_search_endpoint_uses_yahoo_search(self):
+    def test_natural_language_search_endpoint_uses_priority_search(self):
         client = TestClient(app)
         result = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
@@ -91,7 +91,7 @@ class RoutePlannerTests(unittest.TestCase):
             note="OpenStreetMap",
         )
         search = AsyncMock(return_value=result)
-        with patch("app.main.search_yahoo_place_catalog", search):
+        with patch("app.main.search_places_with_fallback", search):
             response = client.post(
                 "/api/search/places",
                 json={"query": "京都の神社"},
