@@ -66,13 +66,13 @@ P12データはローカル検索基盤の試作用として保持していま�
 
 ### Yahoo! JAPAN専用のPOI検索
 
-`backend/.env` の `YAHOO_APP_ID` を使い、自然文・旅程・ルート・候補地一覧を[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で検索します。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。Yahoo結果に位置情報がない候補は使わず、カテゴリのない候補は警告付きで保持します。Yahoo APIエラー、結果0件、候補不足時も別の検索エンジンやサンプルPOIには切り替えず、Yahoo結果のみ（該当なしの場合は空結果）を返します。API状態は `GET /api/places/status` で確認できます。
+`backend/.env` の `YAHOO_APP_ID` を使い、自然文・旅程・ルート・候補地一覧を[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で検索します。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。観光ルートはYahooの寺院・神社・博物館・公園等のジャンルコードを指定し、行政機関名やジャンル外の候補を除外します。同名・約100m以内のYahoo重複候補は1件にまとめます。位置情報または有効なジャンル情報がない候補は使わず、カテゴリ名だけが欠落した場合はジャンルコードから補って警告を付けます。Yahoo APIエラー、結果0件、候補不足時も別の検索エンジンやサンプルPOIには切り替えず、Yahoo結果のみ（該当なしの場合は空結果）を返します。API状態は `GET /api/places/status` で確認できます。
 
-ルート候補の選定はYahoo!結果のテーマ適合度、出発地点からの近さ、およびカテゴリ・住所・説明の情報量に基づきます。これは口コミ評価や実際の訪問者数ではありません。Yahoo!項目が欠けた候補も検索結果には保持しますが、順位が下がる場合があります。OpenStreetMapの帰属表示は地図タイルの出典であり、POI検索には使用しません。
+ルート候補はYahoo!ジャンルコードで絞り込み、テーマ適合度、出発地点からの近さ、カテゴリ・住所・説明の情報量、著名観光地名を使って順位付けします。京都の歴史・寺社・全テーマでは、通常検索に「清水寺」「平安神宮」が含まれない場合、Yahoo!へ個別検索して補います。これらは人気度同期前でも著名地スコアが加算されます。これは口コミ評価やリアルタイムの訪問者数ではありません。OpenStreetMapの帰属表示は地図タイルの出典であり、POI検索には使用しません。
 
 ### Yahoo!候補地の順位同期（第2段階）
 
-第2段階では、明示的に実行する同期コマンドがYahoo!ローカルサーチAPIから候補を取得し、SQLiteの`place_popularity`と`place_scores`へ保存します。Wikidata・Wikimediaの追加指標は、Yahoo!結果に識別情報がないため現状は利用しません。
+第2段階では、明示的に実行する同期コマンドがYahoo!ローカルサーチAPIから候補を取得し、名称と座標が一致するWikidata項目を検索します。見つかった項目のWikipedia記事有無、言語版数、直近30日のページビューと、既存SQLiteのP12照合結果を合成したスコアを`place_popularity`と`place_scores`へ保存します。Yahoo!検索結果にはWikidata IDがないため、完全一致する日本語名と1km以内の座標を使って照合します。照合できないスポットはWikipedia指標なしで記録します。同期は明示実行で、ルート提案は保存済みスコアと著名地スコアを使います。
 
 ```powershell
 cd backend

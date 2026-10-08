@@ -1,6 +1,7 @@
 import random
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
+import re
 
 from fastapi import HTTPException
 
@@ -11,6 +12,17 @@ from app.popularity import load_cached_scores
 ORIGINS = [
     Origin(name="京都駅", latitude=34.98585, longitude=135.75877),
 ]
+PROMINENT_LANDMARKS = {
+    "清水寺": 45.0,
+    "平安神宮": 45.0,
+    "伏見稲荷大社": 45.0,
+    "金閣寺": 45.0,
+    "鹿苑寺": 45.0,
+    "銀閣寺": 45.0,
+    "東寺": 40.0,
+    "二条城": 45.0,
+    "京都御所": 40.0,
+}
 
 
 def normalize_origin_name(value: str) -> str:
@@ -26,15 +38,29 @@ def list_origins() -> list[Origin]:
 
 
 def calculate_place_score(place: Place, theme: Theme) -> float:
-    """Rank Yahoo-sourced places by available details and theme relevance."""
+    """Score Yahoo places by tourism relevance and verified prominence signals."""
     score = 0.0
-    score += 10 if place.category.strip() else 0
-    score += 10 if place.address.strip() else 0
-    score += 10 if place.description.strip() else 0
+    score += 5 if place.category.strip() else 0
+    score += 5 if place.address.strip() else 0
+    score += 5 if place.description.strip() else 0
     if theme != "all" and theme in place.themes:
-        score += 40
-    elif theme == "all" and place.themes:
         score += 20
+    elif theme == "all" and place.themes:
+        score += 10
+    genre_code = place.tags.get("yahoo_genre_code", "")
+    if genre_code.startswith(("0424", "0305", "0303")):
+        score += 15
+    score += 10 if place.tags.get("wikidata", "").startswith("Q") else 0
+    score += 10 if place.tags.get("wikipedia", "").strip() else 0
+    normalized_name = re.sub(r"[\s　・]+", "", place.name)
+    score += max(
+        (
+            boost
+            for landmark, boost in PROMINENT_LANDMARKS.items()
+            if re.sub(r"[\s　・]+", "", landmark) in normalized_name
+        ),
+        default=0.0,
+    )
     return min(score, 100.0)
 
 
@@ -98,7 +124,6 @@ def choose_places(
     selected: list[Place] = []
     cached_scores = load_cached_scores(database)
     current = (origin.latitude, origin.longitude)
-    rng = random.SystemRandom()
     while remaining and len(selected) < stop_count:
         ranked = sorted(
             remaining,
@@ -107,7 +132,7 @@ def choose_places(
                 place.id,
             ),
         )
-        closest = rng.choice(ranked[: min(5, len(ranked))])
+        closest = ranked[0]
         selected.append(closest)
         remaining.remove(closest)
         current = (closest.latitude, closest.longitude)

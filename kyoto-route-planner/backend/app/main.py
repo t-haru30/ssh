@@ -47,23 +47,37 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
-    "all": "京都 観光",
-    "history": "京都府 歴史 文化財 博物館 城",
-    "temple": "京都府 神社 寺院",
-    "nature": "京都府 公園 庭園 自然",
-    "food": "京都府 レストラン カフェ 食",
+    "all": "京都",
+    "history": "京都",
+    "temple": "京都",
+    "nature": "京都",
+    "food": "京都",
+}
+ROUTE_GENRE_CODES: dict[Theme, tuple[str, ...]] = {
+    "all": (
+        "0424001", "0424002", "0305002", "0305003", "0305007",
+        "0303002", "0303003", "0303004",
+    ),
+    "history": ("0424001", "0424002", "0305002", "0305003"),
+    "temple": ("0424001", "0424002"),
+    "nature": ("0305007", "0303002", "0303003", "0303004"),
+    "food": ("01",),
+}
+ROUTE_PRIORITY_LANDMARKS = {
+    "清水寺": "0424001",
+    "平安神宮": "0424002",
 }
 
 
-def _route_themes(name: str, category: str) -> list[Theme]:
+def _route_themes(name: str, category: str, genre_code: str = "") -> list[Theme]:
     text = f"{name} {category}".casefold()
     themes: set[Theme] = set()
-    if any(
+    if genre_code.startswith("0424") or any(
         term in text
         for term in ("神社", "寺", "寺院", "temple", "shrine", "place_of_worship")
     ):
         themes.update(("temple", "history"))
-    if any(
+    if genre_code.startswith(("0305002", "0305003")) or any(
         term in text
         for term in (
             "歴史", "史跡", "文化財", "城", "博物館", "美術館", "名所",
@@ -71,7 +85,7 @@ def _route_themes(name: str, category: str) -> list[Theme]:
         )
     ):
         themes.add("history")
-    if any(
+    if genre_code.startswith(("0305007", "0303002", "0303003", "0303004")) or any(
         term in text
         for term in (
             "公園", "庭園", "自然", "山", "川", "森林", "植物園",
@@ -79,7 +93,7 @@ def _route_themes(name: str, category: str) -> list[Theme]:
         )
     ):
         themes.add("nature")
-    if any(
+    if genre_code.startswith("01") or any(
         term in text
         for term in (
             "飲食", "レストラン", "カフェ", "食堂", "市場", "商店街", "パン",
@@ -100,18 +114,46 @@ def _route_place_from_search_hit(hit: PlaceSearchHit) -> Place:
         access_point="座標から経路検索",
         latitude=catalog_place.latitude,
         longitude=catalog_place.longitude,
-        themes=_route_themes(catalog_place.name, catalog_place.category),
+        themes=_route_themes(
+            catalog_place.name,
+            catalog_place.category,
+            catalog_place.genre_code,
+        ),
         address=catalog_place.address,
+        tags={"yahoo_genre_code": catalog_place.genre_code},
     )
 
 
 async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
     query = ROUTE_SEARCH_QUERIES[theme]
-    search = await search_yahoo_catalog(query, limit=100)
+    search = await search_yahoo_catalog(
+        query,
+        limit=100,
+        genre_codes=ROUTE_GENRE_CODES[theme],
+    )
+    additional_hits: list[PlaceSearchHit] = []
+    if theme in {"all", "history", "temple"}:
+        for name, genre_code in ROUTE_PRIORITY_LANDMARKS.items():
+            if any(hit.place.name == name for hit in search.results):
+                continue
+            landmark_search = await search_yahoo_catalog(
+                name,
+                limit=100,
+                genre_codes=(genre_code,),
+            )
+            additional_hits.extend(
+                hit for hit in landmark_search.results if hit.place.name == name
+            )
     candidates = [
         _route_place_from_search_hit(hit)
-        for hit in search.results
-        if theme == "all" or theme in _route_themes(hit.place.name, hit.place.category)
+        for hit in (*search.results, *additional_hits)
+        if theme == "all"
+        or theme
+        in _route_themes(
+            hit.place.name,
+            hit.place.category,
+            hit.place.genre_code,
+        )
     ]
     logger.info("Route candidate provider selected: Yahoo Local Search (%d results)", len(candidates))
     if not candidates:

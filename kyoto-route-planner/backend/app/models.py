@@ -81,6 +81,7 @@ class CatalogPlace(BaseModel):
     longitude: float
     description: str
     source_record_id: str | None = None
+    genre_code: str = ""
 
 class PlaceSearchHit(BaseModel):
     place: CatalogPlace

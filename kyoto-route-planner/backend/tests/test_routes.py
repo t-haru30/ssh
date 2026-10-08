@@ -1,12 +1,14 @@
 import unittest
 import asyncio
-from unittest.mock import AsyncMock, patch
+import tempfile
+from unittest.mock import AsyncMock, call, patch
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from app.ekispert import _make_url, _parse_legs
-from app.main import app
+from app.main import ROUTE_GENRE_CODES, app, _route_candidates
 from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
@@ -120,7 +122,79 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-shrine-1")
         self.assertIn("Yahoo", response.json()["routes"][0]["note"])
-        poi_search.assert_awaited_once_with("京都府 神社 寺院", limit=100)
+        self.assertEqual(
+            poi_search.await_args_list,
+            [
+                call("京都", limit=100, genre_codes=("0424001", "0424002")),
+                call("清水寺", limit=100, genre_codes=("0424001",)),
+                call("平安神宮", limit=100, genre_codes=("0424002",)),
+            ],
+        )
+
+    def test_route_search_uses_location_query_and_yahoo_genre_filter(self):
+        base_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-local-temple",
+                        name="地域の寺院",
+                        category="寺院",
+                        region="京都府",
+                        address="京都市東山区",
+                        latitude=34.986,
+                        longitude=135.759,
+                        description="",
+                        genre_code="0424001",
+                    ),
+                    score=80.0,
+                )
+            ],
+            note="",
+        )
+        landmark_responses = [
+            PlaceSearchResponse(
+                query=ParsedPlaceQuery(region="京都府"),
+                results=[
+                    PlaceSearchHit(
+                        place=CatalogPlace(
+                            id=f"yahoo-{name}",
+                            name=name,
+                            category=category,
+                            region="京都府",
+                            address="京都市",
+                            latitude=latitude,
+                            longitude=longitude,
+                            description="",
+                            genre_code=genre_code,
+                        ),
+                        score=80.0,
+                    )
+                ],
+                note="",
+            )
+            for name, category, latitude, longitude, genre_code in (
+                ("清水寺", "寺院", 34.9949, 135.785, "0424001"),
+                ("平安神宮", "神社", 35.0154, 135.7833, "0424002"),
+            )
+        ]
+        search = AsyncMock(side_effect=[base_response, *landmark_responses])
+
+        with patch("app.main.search_yahoo_catalog", search):
+            candidates, _ = asyncio.run(_route_candidates("history"))
+
+        self.assertEqual(
+            {candidate.name for candidate in candidates},
+            {"地域の寺院", "清水寺", "平安神宮"},
+        )
+        self.assertEqual(
+            search.await_args_list,
+            [
+                call("京都", limit=100, genre_codes=ROUTE_GENRE_CODES["history"]),
+                call("清水寺", limit=100, genre_codes=("0424001",)),
+                call("平安神宮", limit=100, genre_codes=("0424002",)),
+            ],
+        )
 
     def test_route_search_reports_empty_yahoo_results_without_substitute_places(self):
         client = TestClient(app)
@@ -198,7 +272,23 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-viewpoint-1")
-        poi_search.assert_awaited_once_with("京都 観光", limit=100)
+        self.assertEqual(
+            poi_search.await_args_list[0],
+            call(
+                "京都",
+                limit=100,
+                genre_codes=(
+                    "0424001",
+                    "0424002",
+                    "0305002",
+                    "0305003",
+                    "0305007",
+                    "0303002",
+                    "0303003",
+                    "0303004",
+                ),
+            ),
+        )
 
     def test_yahoo_route_uses_partial_yahoo_results_when_too_few_stops_are_found(self):
         client = TestClient(app)
@@ -356,6 +446,44 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertGreater(calculate_place_score(restaurant, "food"), 0)
         self.assertGreater(calculate_place_score(lodging, "all"), 0)
+
+    def test_well_known_yahoo_landmarks_rank_above_ordinary_sites(self):
+        famous = Place(
+            id="yahoo-kiyomizu",
+            name="清水寺",
+            category="寺院",
+            description="",
+            access_point="",
+            latitude=34.9949,
+            longitude=135.785,
+            themes=["history", "temple"],
+            tags={"yahoo_genre_code": "0424001"},
+        )
+        ordinary = Place(
+            id="yahoo-local-temple",
+            name="地域の寺院",
+            category="寺院",
+            description="",
+            access_point="",
+            latitude=34.986,
+            longitude=135.759,
+            themes=["history", "temple"],
+            tags={"yahoo_genre_code": "0424001"},
+        )
+
+        self.assertGreater(
+            calculate_place_score(famous, "temple"),
+            calculate_place_score(ordinary, "temple"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            selected = choose_places(
+                "temple",
+                1,
+                "京都駅",
+                [ordinary, famous],
+                database=Path(directory) / "scores.sqlite3",
+            )
+        self.assertEqual(selected[0].id, "yahoo-kiyomizu")
 
     def test_unknown_origin_is_rejected(self):
         with self.assertRaises(ValueError):

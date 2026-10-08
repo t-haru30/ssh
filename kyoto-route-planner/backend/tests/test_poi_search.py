@@ -21,9 +21,11 @@ def yahoo_feature(
     category: str = "神社",
     coordinates: str = "135.759,34.986",
     address: str = "京都府京都市",
+    genre_code: str = "0424002",
+    record_id: str = "1234",
 ) -> dict:
     return {
-        "Id": "1234",
+        "Id": record_id,
         "Name": name,
         "Geometry": {"Type": "point", "Coordinates": coordinates},
         "Category": "",
@@ -31,7 +33,7 @@ def yahoo_feature(
         "Property": {
             "Address": address,
             "GovernmentCode": "26100",
-            "Genre": {"Code": "123", "Name": category} if category else {},
+            "Genre": {"Code": genre_code, "Name": category},
         },
     }
 
@@ -79,6 +81,7 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
         params = client.get.await_args.kwargs["params"]
         self.assertEqual(params["appid"], "test-app-id")
         self.assertEqual(params["query"], "神社")
+        self.assertIn(params["gc"], {"0424001", "0424002", "0305002", "0305003", "0305007", "0303002", "0303003", "0303004"})
         self.assertEqual(get_yahoo_search_status()["source"], "Yahoo! Local Search")
         self.assertEqual(get_yahoo_search_status()["state"], "success")
         self.assertNotIn("using_fallback", get_yahoo_search_status())
@@ -97,7 +100,19 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(len(result.results), 1)
         self.assertEqual(result.results[0].place.id, "yahoo-1234")
+        self.assertEqual(result.results[0].place.category, "神社")
         self.assertIn("不足", result.note)
+
+    async def test_duplicate_yahoo_records_for_same_place_are_collapsed(self):
+        result, _ = await self._search_with_response(
+            yahoo_payload(
+                yahoo_feature(record_id="1234"),
+                yahoo_feature(record_id="5678", coordinates="135.7591,34.9861"),
+            )
+        )
+
+        self.assertEqual(len(result.results), 1)
+        self.assertEqual(result.results[0].place.id, "yahoo-1234")
 
     async def test_yahoo_failure_returns_empty_without_backup_provider(self):
         client = AsyncMock()
@@ -140,7 +155,7 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
         client_context = AsyncMock()
         client_context.__aenter__.return_value = client
         with patch("app.poi_search.httpx.AsyncClient", return_value=client_context):
-            await search_yahoo_catalog("浜松駅周辺の神社")
+            await search_yahoo_catalog("浜松駅周辺の神社", genre_codes=("0424002",))
 
         self.assertEqual(client.get.await_args_list[0].kwargs["params"]["query"], "浜松")
         local_params = client.get.await_args_list[1].kwargs["params"]
@@ -171,6 +186,7 @@ class YahooParsingTests(unittest.TestCase):
             20,
             (intent.center_latitude, intent.center_longitude),
             None,
+            "0424002",
         )
         self.assertEqual(params["dist"], 0.1)
         self.assertEqual(params["sort"], "geo")
@@ -179,7 +195,9 @@ class YahooParsingTests(unittest.TestCase):
         intent = parse_place_query("東京都のラーメン")
 
         self.assertIsNone(_geocoder_query("東京都のラーメン", intent))
-        params = _local_search_params("東京都のラーメン", intent, "test-app-id", 20, None, None)
+        params = _local_search_params(
+            "東京都のラーメン", intent, "test-app-id", 20, None, None, "01"
+        )
         self.assertEqual(params["ac"], "13")
         self.assertNotIn("lat", params)
         self.assertNotIn("dist", params)
@@ -187,7 +205,7 @@ class YahooParsingTests(unittest.TestCase):
     def test_unresolved_radius_does_not_assume_kyoto(self):
         intent = parse_place_query("半径2km以内でラーメン")
         params = _local_search_params(
-            "半径2km以内でラーメン", intent, "test-app-id", 20, None, None
+            "半径2km以内でラーメン", intent, "test-app-id", 20, None, None, "01"
         )
 
         self.assertTrue(intent.location_unresolved)
@@ -206,6 +224,39 @@ class YahooParsingTests(unittest.TestCase):
 
         self.assertFalse(incomplete)
         self.assertEqual(results[0].place.region, "")
+
+    def test_administrative_records_and_non_tourism_genres_are_rejected(self):
+        intent = parse_place_query("京都 観光")
+        records = yahoo_payload(
+            yahoo_feature(
+                name="京都府庁 商工労働観光部観光政策課観光振興・基盤整備担当",
+                category="官公庁",
+                genre_code="0401",
+            ),
+            yahoo_feature(name="一般企業の本社", category="会社", genre_code="0401"),
+            yahoo_feature(name="清水寺", genre_code="0424001"),
+        )
+
+        results, incomplete = _parse_yahoo_places(records, intent, 20)
+
+        self.assertFalse(incomplete)
+        self.assertEqual([hit.place.name for hit in results], ["清水寺"])
+        self.assertEqual(results[0].place.genre_code, "0424001")
+
+    def test_administrative_name_is_rejected_even_if_genre_is_misclassified(self):
+        results, _ = _parse_yahoo_places(
+            yahoo_payload(
+                yahoo_feature(
+                    name="京都府庁 観光政策課",
+                    category="神社",
+                    genre_code="0424002",
+                )
+            ),
+            parse_place_query("京都 観光"),
+            20,
+        )
+
+        self.assertEqual(results, [])
 
 
 if __name__ == "__main__":
