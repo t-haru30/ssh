@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sqlite3
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
@@ -21,6 +22,11 @@ from app.models import (
 from app.search import parse_place_query
 
 API_URL = "https://overpass-api.de/api/interpreter"
+DEFAULT_API_URLS = (
+    API_URL,
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+)
 CACHE_KEY = "kyoto-overpass-v3"
 CACHE_TTL = timedelta(hours=24)
 RATE_LIMIT_PAUSE = timedelta(hours=1)
@@ -58,6 +64,52 @@ def _cached_places(entry: sqlite3.Row | None) -> list[Place] | None:
         return _parse_places(json.loads(entry["payload_json"]))
     except (HTTPException, TypeError, ValueError, json.JSONDecodeError):
         return None
+
+
+def _local_places(path: Path) -> list[Place]:
+    with closing(sqlite3.connect(path)) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT id, name, category, address, latitude, longitude, description,
+                   source_attributes_json
+            FROM places
+            WHERE region IN ('', '京都府')
+            ORDER BY name
+            """
+        ).fetchall()
+
+    places: list[Place] = []
+    for row in rows:
+        text = " ".join(
+            str(row[key] or "")
+            for key in ("name", "category", "description", "source_attributes_json")
+        ).casefold()
+        themes: set[str] = set()
+        if any(term in text for term in ("神社", "寺", "寺院", "仏", "shrine", "temple")):
+            themes.add("temple")
+        if any(term in text for term in ("歴史", "文化", "城", "遺跡", "historic")):
+            themes.add("history")
+        if any(term in text for term in ("自然", "公園", "庭園", "山", "景", "park", "garden")):
+            themes.add("nature")
+        if any(term in text for term in ("食", "料理", "飲食", "restaurant", "cafe")):
+            themes.add("food")
+        if not themes:
+            themes.add("history")
+        places.append(
+            Place(
+                id=f"local-{row['id']}",
+                name=row["name"],
+                category=row["category"],
+                description=row["description"],
+                access_point="ローカルSQLiteデータ",
+                latitude=row["latitude"],
+                longitude=row["longitude"],
+                themes=sorted(themes),
+                address=row["address"],
+            )
+        )
+    return places
 
 
 def _remove_cache_entry(path: Path) -> None:
@@ -280,7 +332,17 @@ def _build_query() -> str:
     return "[out:json][timeout:25];\n(\n" + "\n".join(selectors) + "\n);\nout center tags;"
 
 
-async def _load_osm_places(path: Path | None = None) -> list[Place]:
+def _api_urls() -> tuple[str, ...]:
+    configured = os.getenv("OVERPASS_API_URLS", "")
+    urls = tuple(item.strip() for item in configured.split(",") if item.strip())
+    return urls or DEFAULT_API_URLS
+
+
+async def _load_osm_places(
+    path: Path | None = None,
+    *,
+    force_refresh: bool = False,
+) -> list[Place]:
     target = _cache_database(path)
     entry = _cache_entry(target)
     now = _now()
@@ -292,9 +354,9 @@ async def _load_osm_places(path: Path | None = None) -> list[Place]:
             entry = None
             places = []
         cache_is_fresh = now - fetched_at < CACHE_TTL
-        if cache_is_fresh and places:
+        if not force_refresh and cache_is_fresh and places:
             return places
-        if entry is not None and _rate_limit_pause(entry):
+        if not force_refresh and entry is not None and _rate_limit_pause(entry):
             if places:
                 return places
             raise HTTPException(
@@ -302,92 +364,99 @@ async def _load_osm_places(path: Path | None = None) -> list[Place]:
                 detail=get_osm_status(target)["warning"]
                 or "Overpass APIへの追加検索を一時停止しています。",
             )
-        if entry is not None and cache_is_fresh:
+        if not force_refresh and entry is not None and cache_is_fresh:
             return places
 
-    try:
-        async with httpx.AsyncClient(timeout=35.0) as client:
-            response = await client.post(
-                API_URL,
-                data={"data": _build_query()},
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "KyotoRoutePlanner/1.0 (non-commercial local app)",
-                },
-            )
-    except httpx.TimeoutException as error:
-        stale_places = _record_provider_failure(
-            target,
-            entry,
-            now,
-            now + OUTAGE_PAUSE,
-        )
-        if stale_places:
-            return stale_places
-        raise HTTPException(
-            status_code=504,
-            detail="Overpass APIの検索がタイムアウトしました。時間をおいて再度お試しください。",
-        ) from error
-    except httpx.RequestError as error:
-        stale_places = _record_provider_failure(
-            target,
-            entry,
-            now,
-            now + OUTAGE_PAUSE,
-        )
-        if stale_places:
-            return stale_places
-        raise HTTPException(
-            status_code=502,
-            detail="Overpass APIに接続できませんでした。",
-        ) from error
+    local_places = _local_places(target)
+    if not force_refresh and not entry and local_places:
+        return local_places
 
-    if response.status_code == 429:
-        stale_places = _record_provider_failure(
-            target,
-            entry,
-            now,
-            _retry_after(response.headers)
-            or (now + RATE_LIMIT_PAUSE).isoformat(),
-        )
+    last_error: HTTPException | None = None
+    payload: dict[str, Any] | None = None
+    retry_after: str | None = None
+    async with httpx.AsyncClient(timeout=35.0) as client:
+        for api_url in _api_urls():
+            try:
+                response = await client.post(
+                    api_url,
+                    data={"data": _build_query()},
+                    headers={
+                        "Accept": "application/json",
+                        "User-Agent": "KyotoRoutePlanner/1.0 (non-commercial local app)",
+                    },
+                )
+            except httpx.TimeoutException:
+                last_error = HTTPException(
+                    status_code=504,
+                    detail="Overpass APIの検索がタイムアウトしました。時間をおいて再度お試しください。",
+                )
+                continue
+            except httpx.RequestError:
+                last_error = HTTPException(
+                    status_code=502,
+                    detail="Overpass APIに接続できませんでした。",
+                )
+                continue
+
+            if response.status_code == 429:
+                retry_after = _retry_after(response.headers) or retry_after
+                last_error = HTTPException(
+                    status_code=429,
+                    detail="Overpass APIからリクエスト制限が返されました。",
+                )
+                continue
+            if response.status_code >= 400:
+                if response.status_code in (500, 502, 503, 504):
+                    last_error = HTTPException(
+                        status_code=503,
+                        detail="Overpass APIが一時的に利用できません。",
+                    )
+                    continue
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Overpass APIがHTTP {response.status_code}を返しました。",
+                )
+            try:
+                parsed_payload = response.json()
+            except json.JSONDecodeError:
+                last_error = HTTPException(
+                    status_code=502,
+                    detail="Overpass APIからJSON形式でない応答が返されました。",
+                )
+                continue
+            if not isinstance(parsed_payload, dict):
+                last_error = HTTPException(
+                    status_code=502,
+                    detail="Overpass APIの応答形式が不正です。",
+                )
+                continue
+            payload = parsed_payload
+            break
+
+    if payload is None:
+        pause_until: datetime | str
+        if last_error is not None and last_error.status_code == 429:
+            pause_until = retry_after or (now + RATE_LIMIT_PAUSE).isoformat()
+        else:
+            pause_until = now + OUTAGE_PAUSE
+        stale_places = _record_provider_failure(target, entry, now, pause_until)
         if stale_places:
             return stale_places
-        raise HTTPException(
-            status_code=429,
-            detail=(
-                "Overpass APIからリクエスト制限が返されました。"
-                "連続アクセスを避けるため、1時間程度おいて再試行してください。"
-            ),
-        )
-    if response.status_code >= 400:
-        if response.status_code in (502, 503, 504):
-            stale_places = _record_provider_failure(
-                target,
-                entry,
-                now,
-                now + OUTAGE_PAUSE,
-            )
-            if stale_places:
-                return stale_places
+        if local_places:
+            return local_places
+        if last_error is not None and last_error.status_code == 429:
             raise HTTPException(
-                status_code=503,
-                detail="Overpass APIが一時的に利用できません。時間をおいて再試行してください。",
-            )
+                status_code=429,
+                detail=(
+                    "Overpass APIの全エンドポイントでリクエスト制限が返されました。"
+                    "時間をおいて再試行してください。"
+                ),
+            ) from last_error
+        if last_error is not None:
+            raise last_error
         raise HTTPException(
-            status_code=502,
-            detail=f"Overpass APIがHTTP {response.status_code}を返しました。",
-        )
-    try:
-        payload = response.json()
-    except json.JSONDecodeError as error:
-        raise HTTPException(
-            status_code=502,
-            detail="Overpass APIからJSON形式でない応答が返されました。",
-        ) from error
-    if not isinstance(payload, dict):
-        raise HTTPException(
-            status_code=502,
-            detail="Overpass APIの応答形式が不正です。",
+            status_code=503,
+            detail="Overpass APIから応答を取得できませんでした。",
         )
     places = _parse_places(payload.get("elements"))
     if not places:
@@ -451,9 +520,13 @@ def _record_provider_failure(
     return _parse_places(json.loads(cached_payload))
 
 
-async def list_osm_places(path: Path | None = None) -> list[Place]:
+async def list_osm_places(
+    path: Path | None = None,
+    *,
+    force_refresh: bool = False,
+) -> list[Place]:
     async with _request_lock:
-        return await _load_osm_places(path)
+        return await _load_osm_places(path, force_refresh=force_refresh)
 
 
 def _distance_m(

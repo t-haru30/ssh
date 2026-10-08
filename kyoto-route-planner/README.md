@@ -8,7 +8,27 @@
 - `backend/`: FastAPI。Yahoo! JAPAN APIを優先するPOI検索、Overpass APIによる補完、駅すぱあとAPIによる経路検索
 - `Dockerfile`: フロントエンドとAPIを1つのコンテナにまとめる構成。公開環境へのデプロイは利用許諾を確認するまで行いません。
 
-Yahoo! JAPAN APIと駅すぱあとAPIの認証情報はバックエンドだけで使い、ブラウザーには渡しません。検索クエリはYahoo!ローカルサーチAPIを優先し、結果なし・位置情報やカテゴリの不足・APIエラー時に限りOverpass APIで補完します。Yahoo!ジオコーダAPIは登録駅以外の検索地点の座標解決に使います。Overpassの結果は24時間ローカルSQLiteにキャッシュし、HTTP 429時は一定時間検索を停止します。公開Overpassサーバーは稼働保証がなく、混雑時に遅延・制限・停止する場合があります。ルート候補一覧は引き続きOverpassデータを利用します。
+Yahoo! JAPAN APIと駅すぱあとAPIの認証情報はバックエンドだけで使い、ブラウザーには渡しません。候補スポット一覧とルート提案はYahoo!ローカルサーチAPIを使い、利用できない場合はローカルサンプルへフォールバックします。自然文検索と旅程検索ではYahoo!の検索結果を優先し、結果がない・不完全・APIエラー時にOverpass APIで補完します。Yahoo!ジオコーダAPIは登録駅以外の検索地点の座標解決に使います。Overpassの結果はローカルSQLiteにキャッシュし、HTTP 429時は一定時間検索を停止します。公開Overpassサーバーは稼働保証がなく、混雑時に遅延・制限・停止する場合があります。MapLibreの地図タイルはOpenFreeMapを使います。
+
+### Yahoo!ローカルサーチAPI
+
+`GET /api/places` はYahoo!ローカルサーチAPIを優先して利用します。バックエンドの`.env`に次を設定してください。
+
+```env
+YAHOO_CLIENT_ID=取得したClient ID（AppID）
+YAHOO_LOCAL_CATEGORY=0101
+```
+
+AppIDは[Yahoo!デベロッパーネットワーク](https://e.developer.yahoo.co.jp/)へログインしてアプリケーションを登録すると取得できます。15分間、キーワード・カテゴリ・件数ごとにFastAPIプロセス内でキャッシュします。AppID未設定、通信エラー、APIの不正応答、結果0件の場合はアプリを停止せず、少数のローカルサンプルカタログへフォールバックします。AppIDは`.env`へ保存し、Gitへコミットしないでください。自然文検索・旅程検索のYahoo!優先検索は`.env`の`YAHOO_APP_ID`も参照し、Yahoo!検索が未設定・失敗した場合はOverpassへフォールバックします。
+
+Overpassの取得は既定で複数の公開エンドポイントを順番に試します。特定の利用ポリシーや自前のインスタンスに合わせる場合は、バックエンドの`.env`で`OVERPASS_API_URLS`をカンマ区切りで指定できます。いずれのエンドポイントも429または一時障害を返した場合だけ、Retry-Afterを尊重した停止状態をキャッシュします。
+
+Overpassから明示的に更新する場合は、次のコマンドを実行してください。取得に成功したPOIはSQLiteへ保存されます。
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m app.refresh_places
+```
 
 ## 国土数値情報・旅行データ基盤（フェーズ1）
 
@@ -48,13 +68,13 @@ python -m app.labeling
 
 初期版は外部LLMを使わず、`backend/app/labeling.py` のキーワードルールで `atmosphere`、`target_audience`、`activity_type` を抽出します。ラベルには一致した原文語句、信頼度、方式 `rule`、ルール版を保存します。明示根拠がない客層などは推測で付与しません。
 
-P12データはローカル検索基盤の試作用として保持しています。検索クエリではYahoo! JAPANのPOI結果を優先し、不足時にOverpass API経由のOpenStreetMapデータで補完します。ルート候補一覧はOverpassのOpenStreetMapデータを使用します。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
+P12データはローカル検索基盤の試作用として保持しています。自然文検索・旅程検索ではYahoo! JAPANのPOI結果を優先し、不足時にOverpass API経由のOpenStreetMapデータで補完します。ルート候補一覧はYahoo!ローカルサーチAPIを利用し、利用できない場合はローカルサンプルへフォールバックします。P12の利用条件により、アプリ・検索結果は引き続きローカル・非公開に限定します。
 
 ### Yahoo! JAPAN API優先のPOI検索
 
-`backend/.env` に `YAHOO_APP_ID`（Yahoo!デベロッパーネットワークで発行）を設定すると、検索クエリは[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で先に検索されます。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。Yahoo結果に有効な位置情報とカテゴリがあり1件以上得られた場合、Overpassは呼び出しません。結果が0件・不完全、またはYahoo APIが利用できない場合は、[Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)をバックアップとして使用します。統合時はYahoo結果を先に保ち、重複候補ではYahooの情報を優先します。YahooのClient IDが未設定の場合も、Overpassへ自動的にフォールバックします。
+`backend/.env` に `YAHOO_APP_ID`（Yahoo!デベロッパーネットワークで発行）を設定すると、自然文検索・旅程検索のクエリは[YOLPローカルサーチAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/localsearch.html)で先に検索されます。登録駅以外の地点は[YOLPジオコーダAPI](https://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html)で座標を解決します。Yahoo結果に有効な位置情報とカテゴリがあり1件以上得られた場合、Overpassは呼び出しません。結果が0件・不完全、またはYahoo APIが利用できない場合は、[Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)をバックアップとして使用します。統合時はYahoo結果を先に保ち、重複候補ではYahooの情報を優先します。YahooのAppIDが未設定の場合も、Overpassへ自動的にフォールバックします。
 
-Overpassから取得した京都駅周辺の名前付き地点はローカルSQLiteに24時間キャッシュし、バックアップ検索およびルート候補一覧に使います。HTTP 429を受けた場合はサーバーの `Retry-After` に従い、ヘッダーがない場合も1時間検索を止めます。公開サーバーは無料ですが、安定稼働や全POIの網羅性は保証されません。
+Overpassから取得した名前付き地点はローカルSQLiteに24時間キャッシュし、バックアップ検索に使います。HTTP 429を受けた場合はサーバーの `Retry-After` に従い、ヘッダーがない場合も1時間検索を止めます。公開サーバーは無料ですが、安定稼働や全POIの網羅性は保証されません。
 
 データはOpenStreetMap由来です。POIの最新性・網羅性は保証されません。画面上のOpenStreetMap出典表示を維持してください。公開サーバーの利用前に[利用ポリシー](https://operations.osmfoundation.org/policies/overpass/)を確認してください。
 

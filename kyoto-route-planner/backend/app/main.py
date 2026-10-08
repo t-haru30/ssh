@@ -13,9 +13,9 @@ from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
-from app.overpass import (
-    get_osm_status,
-    list_osm_places,
+from app.yahoo_local import (
+    get_yahoo_status,
+    search_yahoo_places,
 )
 from app.poi_search import search_places_with_fallback
 from app.models import (
@@ -43,6 +43,13 @@ app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lif
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
+YAHOO_THEME_QUERIES = {
+    "all": "京都 観光",
+    "history": "京都 歴史 文化",
+    "temple": "京都 神社 寺院",
+    "nature": "京都 自然 景色",
+    "food": "京都 食 グルメ",
+}
 
 
 @app.get("/api/health")
@@ -51,12 +58,9 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/places")
-async def places():
-    return [
-        place
-        for place in await list_osm_places()
-        if place.themes
-    ][:60]
+async def places(keyword: str = "京都 観光", category: str | None = None):
+    """Yahoo!ローカルサーチAPIを優先し、失敗時はローカルサンプルを返す。"""
+    return await search_yahoo_places(keyword, category_code=category, limit=60)
 
 
 @app.get("/api/origins")
@@ -66,7 +70,7 @@ def origins():
 
 @app.get("/api/places/status")
 def places_status():
-    return get_osm_status()
+    return get_yahoo_status()
 
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
@@ -124,7 +128,13 @@ async def _recommend_routes(
         if remaining_seconds <= 0:
             raise asyncio.TimeoutError
         candidates = await asyncio.wait_for(
-            list_osm_places(),
+            search_yahoo_places(
+                YAHOO_THEME_QUERIES[request.theme],
+                latitude=origin.latitude,
+                longitude=origin.longitude,
+                distance_m=10_000,
+                limit=60,
+            ),
             timeout=remaining_seconds,
         )
         selected_sets = choose_place_sets(
