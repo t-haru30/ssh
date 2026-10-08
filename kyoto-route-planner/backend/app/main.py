@@ -169,7 +169,7 @@ async def _recommend_routes(
                     ),
                     timeout=remaining_seconds,
                 )
-                                suggestions.append(
+                suggestions.append(
                     RouteSuggestion(
                         places=chosen,
                         origin=origin,
@@ -188,6 +188,7 @@ async def _recommend_routes(
                         ),
                     ),
                 )
+
 
                 break
             except HTTPException as error:
