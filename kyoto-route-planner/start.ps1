@@ -2,15 +2,46 @@ $ErrorActionPreference = "Stop"
 
 $root = $PSScriptRoot
 $backend = Join-Path $root "backend"
+$frontend = Join-Path $root "frontend"
 $python = Join-Path $backend ".venv\Scripts\python.exe"
-$dist = Join-Path $root "frontend\dist"
+$dist = Join-Path $frontend "dist"
+$distIndex = Join-Path $dist "index.html"
+$frontendSource = Join-Path $frontend "src"
 $healthUrl = "http://127.0.0.1:8000/api/health"
 $appUrl = "http://127.0.0.1:8000/"
 
 if (-not (Test-Path $python)) {
     throw "Backend Python environment is missing. See README.md for setup instructions."
 }
-if (-not (Test-Path (Join-Path $dist "index.html"))) {
+if (-not (Test-Path $distIndex)) {
+    $frontendNeedsBuild = $true
+}
+else {
+    $latestSource = Get-ChildItem -LiteralPath $frontendSource -Recurse -File |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+    $frontendNeedsBuild = $latestSource -and $latestSource.LastWriteTime -gt (Get-Item $distIndex).LastWriteTime
+}
+if ($frontendNeedsBuild) {
+    if (-not (Test-Path (Join-Path $frontend "node_modules"))) {
+        throw "Frontend dependencies are missing. Run 'npm.cmd ci' in the frontend folder."
+    }
+    $npm = Get-Command "npm.cmd" -ErrorAction SilentlyContinue
+    if (-not $npm) {
+        throw "Node.js and npm are required to build the updated frontend."
+    }
+    Push-Location $frontend
+    try {
+        & $npm.Source run build
+        if ($LASTEXITCODE -ne 0) {
+            throw "Frontend build failed with exit code $LASTEXITCODE."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+if (-not (Test-Path $distIndex)) {
     throw "Built frontend is missing. Run 'npm.cmd ci' and 'npm.cmd run build' in the frontend folder."
 }
 if (-not (Test-Path (Join-Path $backend ".env"))) {

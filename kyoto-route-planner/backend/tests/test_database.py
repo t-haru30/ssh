@@ -8,7 +8,21 @@ from app.database import initialize_database
 
 
 class DatabaseSchemaTests(unittest.TestCase):
-    def test_osm_cache_migrates_legacy_quota_columns(self):
+    def test_fresh_database_does_not_create_osm_cache(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+
+            with closing(sqlite3.connect(database)) as connection:
+                tables = {
+                    row[0]
+                    for row in connection.execute(
+                        "SELECT name FROM sqlite_master WHERE type = 'table'"
+                    )
+                }
+
+            self.assertNotIn("osm_places_cache", tables)
+
+    def test_legacy_osm_cache_is_preserved_without_migration_or_deletion(self):
         with tempfile.TemporaryDirectory() as temp_directory:
             database = Path(temp_directory) / "places.sqlite3"
             with closing(sqlite3.connect(database)) as connection:
@@ -33,8 +47,16 @@ class DatabaseSchemaTests(unittest.TestCase):
                     for row in connection.execute("PRAGMA table_info(osm_places_cache)")
                 }
 
-            self.assertIn("rate_limited", columns)
-            self.assertIn("retry_after", columns)
+            self.assertEqual(
+                columns,
+                {
+                    "cache_key",
+                    "fetched_at",
+                    "payload_json",
+                    "free_requests_remaining",
+                    "quota_resets_at",
+                },
+            )
 
     def test_popularity_tables_are_created(self):
         with tempfile.TemporaryDirectory() as temp_directory:

@@ -1,7 +1,10 @@
 import sqlite3
 import asyncio
+from math import asin, cos, radians, sin, sqrt
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
+import json
+import logging
 from pathlib import Path
 from urllib.parse import quote
 
@@ -12,8 +15,9 @@ from app.models import Place, Theme
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 WIKIMEDIA_PAGEVIEWS_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
-POPULARITY_SCORE_VERSION = "v3"
+POPULARITY_SCORE_VERSION = "v5"
 WIKIDATA_TTL = timedelta(days=7)
+logger = logging.getLogger(__name__)
 POPULARITY_USER_AGENT = (
     "KyotoRoutePlanner/1.0 (local non-commercial application; "
     "https://www.mediawiki.org/wiki/API:Etiquette)"
@@ -57,6 +61,64 @@ SELECT ?item ?sitelinks ?jaArticle ?jaTitle ?enArticle ?enTitle WHERE {{
 """
 
 
+def _yahoo_places_sparql_query(places: list[Place]) -> str:
+    values = "\n".join(
+        "("
+        f"{json.dumps(place.id, ensure_ascii=False)} "
+        f"{json.dumps(place.name, ensure_ascii=False)}@ja"
+        ")"
+        for place in places
+    )
+    return f"""
+SELECT ?placeId ?item ?sitelinks ?jaTitle ?enTitle ?point WHERE {{
+  VALUES (?placeId ?candidateLabel) {{
+    {values}
+  }}
+  ?item rdfs:label ?candidateLabel ;
+        wdt:P625 ?point ;
+        wikibase:sitelinks ?sitelinks .
+  OPTIONAL {{
+    ?jaArticle schema:about ?item ;
+      schema:isPartOf <https://ja.wikipedia.org/> ;
+      schema:name ?jaTitle .
+  }}
+  OPTIONAL {{
+    ?enArticle schema:about ?item ;
+      schema:isPartOf <https://en.wikipedia.org/> ;
+      schema:name ?enTitle .
+  }}
+}}
+ORDER BY ?placeId
+"""
+
+
+def _coordinates_from_wkt(value: str) -> tuple[float, float] | None:
+    if not value.startswith("Point(") or not value.endswith(")"):
+        return None
+    coordinates = value[6:-1].split()
+    if len(coordinates) != 2:
+        return None
+    try:
+        longitude, latitude = map(float, coordinates)
+    except ValueError:
+        return None
+    if not (-180 <= longitude <= 180 and -90 <= latitude <= 90):
+        return None
+    return latitude, longitude
+
+
+def _distance_km(first: tuple[float, float], second: tuple[float, float]) -> float:
+    latitude_delta = radians(second[0] - first[0])
+    longitude_delta = radians(second[1] - first[1])
+    haversine = (
+        sin(latitude_delta / 2) ** 2
+        + cos(radians(first[0]))
+        * cos(radians(second[0]))
+        * sin(longitude_delta / 2) ** 2
+    )
+    return 6371.0 * 2 * asin(sqrt(haversine))
+
+
 def _sparql_rows(payload: object) -> list[dict[str, str]]:
     if not isinstance(payload, dict):
         return []
@@ -94,6 +156,45 @@ async def _fetch_wikidata(client: httpx.AsyncClient, qids: list[str]) -> dict[st
         if item:
             result[item] = row
     return result
+
+
+async def _fetch_yahoo_wikidata(
+    client: httpx.AsyncClient,
+    places: list[Place],
+) -> tuple[dict[str, dict[str, str]], dict[str, str]]:
+    wikidata: dict[str, dict[str, str]] = {}
+    place_qids: dict[str, str] = {}
+    matched_distances: dict[str, float] = {}
+    places_by_id = {place.id: place for place in places}
+    for offset in range(0, len(places), 25):
+        batch = places[offset : offset + 25]
+        response = await _get_with_backoff(
+            client,
+            WIKIDATA_SPARQL_URL,
+            params={
+                "query": _yahoo_places_sparql_query(batch),
+                "format": "json",
+            },
+            headers={"Accept": "application/sparql-results+json"},
+        )
+        response.raise_for_status()
+        for row in _sparql_rows(response.json()):
+            place_id = row.get("placeId", "")
+            qid = row.get("item", "").rsplit("/", 1)[-1]
+            place = places_by_id.get(place_id)
+            coordinates = _coordinates_from_wkt(row.get("point", ""))
+            if not place or not qid or coordinates is None:
+                continue
+            distance = _distance_km(
+                (place.latitude, place.longitude),
+                coordinates,
+            )
+            if distance > 1.0 or distance >= matched_distances.get(place_id, float("inf")):
+                continue
+            matched_distances[place_id] = distance
+            place_qids[place_id] = qid
+            wikidata[qid] = row
+    return wikidata, place_qids
 
 
 async def _fetch_pageviews(
@@ -197,6 +298,7 @@ def _upsert_results(
     places: list[Place],
     wikidata: dict[str, dict[str, str]],
     pageviews: dict[str, int],
+    source_status: str = "ok",
 ) -> None:
     target = initialize_database(path)
     fetched_at = _now().isoformat()
@@ -225,7 +327,7 @@ def _upsert_results(
             views = pageviews.get(place.id)
             if views is None:
                 views = int(previous[4]) if previous else 0
-            osm_score = _osm_score(place)
+            osm_score = _place_score(place)
             wikidata_score = _wikidata_score(row)
             if not row and previous:
                 wikidata_score = _wikidata_score({
@@ -243,7 +345,7 @@ def _upsert_results(
                     wikipedia_sitelink_count, wikipedia_pageviews_30d,
                     has_japanese_wikipedia, has_english_wikipedia,
                     source_fetched_at, source_status, open_data_match
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok', ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(place_id) DO UPDATE SET
                     wikidata_id=excluded.wikidata_id,
                     wikipedia_ja_title=excluded.wikipedia_ja_title,
@@ -253,8 +355,8 @@ def _upsert_results(
                     has_japanese_wikipedia=excluded.has_japanese_wikipedia,
                     has_english_wikipedia=excluded.has_english_wikipedia,
                     source_fetched_at=excluded.source_fetched_at,
-                    source_status=excluded.source_status
-                    ,open_data_match=excluded.open_data_match
+                    source_status=excluded.source_status,
+                    open_data_match=excluded.open_data_match
                 """,
                 (
                     place.id,
@@ -266,6 +368,7 @@ def _upsert_results(
                     int(bool(ja_title)),
                     int(bool(en_title)),
                     fetched_at,
+                    source_status,
                     int(open_data_matches.get(place.id, False)),
                 ),
             )
@@ -289,25 +392,70 @@ def _upsert_results(
         connection.commit()
 
 
-def _osm_score(place: Place) -> float:
+def _place_score(place: Place) -> float:
     from app.places import calculate_place_score
 
     return calculate_place_score(place, "all")
 
 
 async def sync_popularity(path: Path | None = None) -> int:
-    from app.overpass import list_osm_places
+    from app.poi_search import search_yahoo_catalog
 
-    places = await list_osm_places(path)
+    response = await search_yahoo_catalog("京都", limit=100)
+    places = [
+        Place(
+            id=hit.place.id,
+            name=hit.place.name,
+            category=hit.place.category,
+            description=hit.place.description,
+            access_point="",
+            latitude=hit.place.latitude,
+            longitude=hit.place.longitude,
+            themes=[],
+            address=hit.place.address,
+            tags={"yahoo_genre_code": hit.place.genre_code},
+        )
+        for hit in response.results
+    ]
+    if not places:
+        return 0
     target_path = path or database_path()
     if _cached_popularity_is_fresh(target_path, places):
         return len(places)
-    qids = sorted({qid for place in places if (qid := _wikidata_id(place))})
     async with httpx.AsyncClient(timeout=30.0, headers={"User-Agent": POPULARITY_USER_AGENT}) as client:
+        source_status = "ok"
         try:
-            wikidata = await _fetch_wikidata(client, qids)
-        except (httpx.HTTPError, ValueError):
+            wikidata, place_qids = await _fetch_yahoo_wikidata(client, places)
+        except (httpx.HTTPError, ValueError) as error:
+            logger.warning(
+                "Yahoo candidate Wikidata enrichment failed: %s",
+                type(error).__name__,
+            )
             wikidata = {}
+            place_qids = {}
+            source_status = "partial"
+        places = [
+            place.model_copy(
+                update={
+                    "tags": {
+                        **place.tags,
+                        **(
+                            {
+                                "wikidata": place_qids[place.id],
+                                "wikipedia": (
+                                    f"ja:{wikidata[place_qids[place.id]]['jaTitle']}"
+                                    if wikidata[place_qids[place.id]].get("jaTitle")
+                                    else ""
+                                ),
+                                    }
+                            if place.id in place_qids
+                            else {}
+                        ),
+                    }
+                }
+            )
+            for place in places
+        ]
         pageviews: dict[str, int] = {}
         for place in places:
             row = wikidata.get(_wikidata_id(place) or "", {})
@@ -317,7 +465,12 @@ async def sync_popularity(path: Path | None = None) -> int:
                     pageviews[place.id] = await _fetch_pageviews(client, title, "ja")
                 except (httpx.HTTPError, ValueError):
                     pageviews[place.id] = _cached_pageview(target_path, place.id)
-    _upsert_results(target_path, places, wikidata, pageviews)
+                    source_status = "partial"
+                    logger.warning(
+                        "Wikipedia pageview refresh failed for Yahoo place %s",
+                        place.id,
+                    )
+    _upsert_results(target_path, places, wikidata, pageviews, source_status)
     return len(places)
 
 
@@ -328,15 +481,30 @@ def _cached_popularity_is_fresh(path: Path, places: list[Place]) -> bool:
     cutoff = _now() - WIKIDATA_TTL
     with closing(sqlite3.connect(target)) as connection:
         rows = connection.execute(
-            "SELECT place_id, source_fetched_at FROM place_popularity"
+            """
+            SELECT popularity.place_id, popularity.source_fetched_at,
+                   popularity.source_status, scores.score_version
+            FROM place_popularity AS popularity
+            LEFT JOIN place_scores AS scores USING (place_id)
+            """
         ).fetchall()
-    fetched: dict[str, datetime] = {}
-    for place_id, timestamp in rows:
+    fetched: dict[str, tuple[datetime, str, str | None]] = {}
+    for place_id, timestamp, source_status, score_version in rows:
         try:
-            fetched[place_id] = datetime.fromisoformat(timestamp)
+            fetched[place_id] = (
+                datetime.fromisoformat(timestamp),
+                source_status,
+                score_version,
+            )
         except ValueError:
             continue
-    return all(fetched.get(place.id, datetime.min.replace(tzinfo=timezone.utc)) >= cutoff for place in places)
+    return all(
+        place.id in fetched
+        and fetched[place.id][0] >= cutoff
+        and fetched[place.id][1] == "ok"
+        and fetched[place.id][2] == POPULARITY_SCORE_VERSION
+        for place in places
+    )
 
 
 def _cached_pageview(path: Path, place_id: str) -> int:
@@ -352,5 +520,13 @@ def _cached_pageview(path: Path, place_id: str) -> int:
 def load_cached_scores(path: Path | None = None) -> dict[str, float]:
     target = initialize_database(path or database_path())
     with closing(sqlite3.connect(target)) as connection:
-        rows = connection.execute("SELECT place_id, total_score FROM place_scores").fetchall()
+        rows = connection.execute(
+            """
+            SELECT scores.place_id, scores.total_score
+            FROM place_scores AS scores
+            JOIN place_popularity AS popularity USING (place_id)
+            WHERE scores.score_version = ? AND popularity.source_status = 'ok'
+            """,
+            (POPULARITY_SCORE_VERSION,),
+        ).fetchall()
     return {place_id: float(score) for place_id, score in rows}

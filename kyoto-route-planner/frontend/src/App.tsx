@@ -130,6 +130,7 @@ function App() {
   const [origins, setOrigins] = useState<Origin[]>([]);
   const [originName, setOriginName] = useState("京都駅");
   const [theme, setTheme] = useState<Theme>("all");
+  const [mood, setMood] = useState("");
   const [stopCount, setStopCount] = useState(3);
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
@@ -141,7 +142,7 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
-  const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "fallback" | "idle">("loading");
+  const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "error" | "idle">("loading");
   const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
@@ -158,9 +159,9 @@ function App() {
           fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
       ]);
       try {
-        let placeData: Place[] = [];
         let originData: Origin[] = [];
         let initialError: string | null = null;
+        let placeWarning: string | null = null;
 
         if (originsResult.status === "fulfilled" && originsResult.value.ok) {
           const originPayload: unknown = await originsResult.value.json();
@@ -177,15 +178,14 @@ function App() {
         if (placesResult.status === "fulfilled" && placesResult.value.ok) {
           const placePayload: unknown = await placesResult.value.json();
           if (Array.isArray(placePayload) && placePayload.every(isPlace)) {
-            placeData = placePayload;
-            setPlaces(placeData);
+            setPlaces(placePayload);
           } else {
-            initialError ??= "候補地のデータ形式が不正です。";
+            placeWarning = "候補地のデータ形式が不正です。";
           }
         } else if (placesResult.status === "fulfilled") {
-          initialError ??= await readError(placesResult.value);
+          placeWarning = await readError(placesResult.value);
         } else {
-          initialError ??= "候補地を読み込めませんでした。APIサーバーを確認してください。";
+          placeWarning = "候補地を読み込めませんでした。APIサーバーを確認してください。";
         }
 
         try {
@@ -196,26 +196,19 @@ function App() {
             INITIAL_DATA_TIMEOUT_MS,
           );
           const placeSourceStatus = statusResponse.ok
-            ? await statusResponse.json() as { warning: string | null; state?: string; using_fallback?: boolean }
+            ? await statusResponse.json() as { warning: string | null; state?: string }
             : { warning: null };
-          setPlaceSourceWarning(
-            placeSourceStatus.warning
-            ?? (placeSourceStatus.using_fallback ? "Yahoo! Local Searchを利用できないため、ローカルサンプルを表示しています。" : null),
-          );
+          setPlaceSourceWarning(placeSourceStatus.warning ?? placeWarning);
           setPlaceSourceState(
-            placeSourceStatus.state === "fallback"
-              ? "fallback"
-              : placeSourceStatus.state === "success"
-                ? "success"
+            placeSourceStatus.state === "success"
+              ? "success"
+              : placeSourceStatus.state === "error"
+                ? "error"
                 : "idle",
           );
         } catch {
-          setPlaceSourceWarning(null);
+          setPlaceSourceWarning(placeWarning);
           setPlaceSourceState("idle");
-        }
-
-        if (!placeData.length) {
-          initialError ??= "候補地のデータがありません。";
         }
         if (!originData.length) {
           initialError ??= "出発駅のデータがありません。";
@@ -276,7 +269,7 @@ function App() {
 
     if (isOvernight) {
       const request: OvernightItineraryRequest = {
-        query: theme === "all" ? "京都 観光" : themeLabel,
+        query: mood.trim() || (theme === "all" ? "京都 観光" : `京都 ${themeLabel}`),
         departure_station: originName,
         departure_date: departureDate,
         departure_time: departureTime,
@@ -516,6 +509,19 @@ function App() {
 
 
           <form onSubmit={handleSubmit}>
+            {isOvernight && (
+              <label className="mood-input">
+                <span>今日の気分</span>
+                <textarea
+                  value={mood}
+                  onChange={(event) => setMood(event.target.value)}
+                  maxLength={500}
+                  placeholder="例：温泉でのんびりしたい／自然の中で体を動かしたい／静かな場所で美味しいものを食べたい"
+                  disabled={searching}
+                  rows={3}
+                />
+              </label>
+            )}
             <fieldset className="theme-picker">
               <legend>今日はどんな寄り道をしたい？</legend>
               <div className="theme-options">
@@ -573,7 +579,7 @@ function App() {
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
           {placeSourceState === "loading" && <p className="status-message" role="status">Yahoo! Local Searchから候補地を読み込んでいます…</p>}
-          {placeSourceWarning && <div className="error-panel" role="status"><strong>Yahoo! Local Searchの代替データを使用中</strong><span>{placeSourceWarning}</span></div>}
+          {placeSourceWarning && <div className="error-panel" role="status"><strong>Yahoo! Local Searchの検索状況</strong><span>{placeSourceWarning}</span></div>}
           {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
         </section>
 
@@ -622,6 +628,17 @@ function App() {
                     </div>
                     
                     <div className="transit-card">
+                      {day.schedule.length > 0 && (
+                        <ol className="itinerary-schedule">
+                          {day.schedule.map((item, index) => (
+                            <li key={`${day.day}-${index}`}>
+                              <time>{item.start_time && item.end_time ? `${item.start_time}–${item.end_time}` : "時刻未確定"}</time>
+                              <strong>{item.title}</strong>
+                              <span>{item.detail}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
                       <div className="transit-summary">
                         <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
                         {day.estimated_arrival_at && (
@@ -654,7 +671,7 @@ function App() {
                     {suggestion.places.map((place, index) => (
                       <div className="suggested-place" key={place.id}>
                         <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
-                        <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "OpenStreetMapのPOI"}</p></div>
+                        <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "説明はありません"}</p></div>
                       </div>
                     ))}
                     <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
@@ -687,8 +704,8 @@ function App() {
 
 
       <footer className="footer">
-        <p>POI：Yahoo! Local Search　·　地図：MapLibre / OpenFreeMap</p>
-        <p>Yahoo! Local Searchの検索結果は15分間キャッシュします。利用できない場合はローカルサンプルへ切り替えます。</p>
+        <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
+        <p>観光地・施設の検索にはYahoo! Local Searchのみを利用します。APIエラーや候補不足時は、代替データを混在させず取得状況を表示します。</p>
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>

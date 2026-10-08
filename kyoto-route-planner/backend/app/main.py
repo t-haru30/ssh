@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -13,24 +14,26 @@ from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
-from app.yahoo_local import (
-    get_yahoo_status,
-    search_yahoo_places,
-)
-from app.poi_search import search_places_with_fallback
+from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
     OvernightItineraryRequest,
     OvernightItinerarySuggestion,
+    Place,
+    PlaceSearchHit,
     PlaceSearchRequest,
     PlaceSearchResponse,
     RouteSuggestion,
     RouteSuggestions,
     RouteSuggestionRequest,
+    Theme,
 )
 
 from app.places import choose_place_sets, list_origins, normalize_origin_name
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -43,13 +46,122 @@ app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lif
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
-YAHOO_THEME_QUERIES = {
-    "all": "京都 観光",
-    "history": "京都 歴史 文化",
-    "temple": "京都 神社 寺院",
-    "nature": "京都 自然 景色",
-    "food": "京都 食 グルメ",
+ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
+    "all": "京都",
+    "history": "京都",
+    "temple": "京都",
+    "nature": "京都",
+    "food": "京都",
 }
+ROUTE_GENRE_CODES: dict[Theme, tuple[str, ...]] = {
+    "all": (
+        "0424001", "0424002", "0305002", "0305003", "0305007",
+        "0303002", "0303003", "0303004",
+    ),
+    "history": ("0424001", "0424002", "0305002", "0305003"),
+    "temple": ("0424001", "0424002"),
+    "nature": ("0305007", "0303002", "0303003", "0303004"),
+    "food": ("01",),
+}
+ROUTE_PRIORITY_LANDMARKS = {
+    "清水寺": "0424001",
+    "平安神宮": "0424002",
+}
+
+
+def _route_themes(name: str, category: str, genre_code: str = "") -> list[Theme]:
+    text = f"{name} {category}".casefold()
+    themes: set[Theme] = set()
+    if genre_code.startswith("0424") or any(
+        term in text
+        for term in ("神社", "寺", "寺院", "temple", "shrine", "place_of_worship")
+    ):
+        themes.update(("temple", "history"))
+    if genre_code.startswith(("0305002", "0305003")) or any(
+        term in text
+        for term in (
+            "歴史", "史跡", "文化財", "城", "博物館", "美術館", "名所",
+            "historic", "museum", "castle", "attraction",
+        )
+    ):
+        themes.add("history")
+    if genre_code.startswith(("0305007", "0303002", "0303003", "0303004")) or any(
+        term in text
+        for term in (
+            "公園", "庭園", "自然", "山", "川", "森林", "植物園",
+            "park", "garden", "nature", "mountain", "forest",
+        )
+    ):
+        themes.add("nature")
+    if genre_code.startswith("01") or any(
+        term in text
+        for term in (
+            "飲食", "レストラン", "カフェ", "食堂", "市場", "商店街", "パン",
+            "restaurant", "cafe", "food", "market", "bakery",
+        )
+    ):
+        themes.add("food")
+    return sorted(themes)
+
+
+def _route_place_from_search_hit(hit: PlaceSearchHit) -> Place:
+    catalog_place = hit.place
+    return Place(
+        id=catalog_place.id,
+        name=catalog_place.name,
+        category=catalog_place.category,
+        description=catalog_place.description,
+        access_point="座標から経路検索",
+        latitude=catalog_place.latitude,
+        longitude=catalog_place.longitude,
+        themes=_route_themes(
+            catalog_place.name,
+            catalog_place.category,
+            catalog_place.genre_code,
+        ),
+        address=catalog_place.address,
+        tags={"yahoo_genre_code": catalog_place.genre_code},
+    )
+
+
+async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
+    query = ROUTE_SEARCH_QUERIES[theme]
+    search = await search_yahoo_catalog(
+        query,
+        limit=100,
+        genre_codes=ROUTE_GENRE_CODES[theme],
+    )
+    additional_hits: list[PlaceSearchHit] = []
+    if theme in {"all", "history", "temple"}:
+        for name, genre_code in ROUTE_PRIORITY_LANDMARKS.items():
+            if any(hit.place.name == name for hit in search.results):
+                continue
+            landmark_search = await search_yahoo_catalog(
+                name,
+                limit=100,
+                genre_codes=(genre_code,),
+            )
+            additional_hits.extend(
+                hit for hit in landmark_search.results if hit.place.name == name
+            )
+    candidates = [
+        _route_place_from_search_hit(hit)
+        for hit in (*search.results, *additional_hits)
+        if theme == "all"
+        or theme
+        in _route_themes(
+            hit.place.name,
+            hit.place.category,
+            hit.place.genre_code,
+        )
+    ]
+    logger.info("Route candidate provider selected: Yahoo Local Search (%d results)", len(candidates))
+    if not candidates:
+        raise HTTPException(
+            status_code=404,
+            detail=search.note or "Yahoo!ローカルサーチで条件に合う候補が見つかりませんでした。",
+        )
+    return candidates, f"候補地検索: {search.note}"
 
 
 @app.get("/api/health")
@@ -59,8 +171,10 @@ def health() -> dict[str, str]:
 
 @app.get("/api/places")
 async def places(keyword: str = "京都 観光", category: str | None = None):
-    """Yahoo!ローカルサーチAPIを優先し、失敗時はローカルサンプルを返す。"""
-    return await search_yahoo_places(keyword, category_code=category, limit=60)
+    """Yahoo!ローカルサーチAPIの候補地のみを返す。"""
+    query = f"{keyword} {category}" if category else keyword
+    result = await search_yahoo_catalog(query, limit=60)
+    return [_route_place_from_search_hit(hit) for hit in result.results]
 
 
 @app.get("/api/origins")
@@ -70,12 +184,12 @@ def origins():
 
 @app.get("/api/places/status")
 def places_status():
-    return get_yahoo_status()
+    return get_yahoo_search_status()
 
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
 async def search_place_catalog(request: PlaceSearchRequest) -> PlaceSearchResponse:
-    return await search_places_with_fallback(request.query)
+    return await search_yahoo_catalog(request.query)
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
@@ -127,19 +241,14 @@ async def _recommend_routes(
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds <= 0:
             raise asyncio.TimeoutError
-        candidates = await asyncio.wait_for(
-            search_yahoo_places(
-                YAHOO_THEME_QUERIES[request.theme],
-                latitude=origin.latitude,
-                longitude=origin.longitude,
-                distance_m=10_000,
-                limit=60,
-            ),
+        candidates, candidate_note = await asyncio.wait_for(
+            _route_candidates(request.theme),
             timeout=remaining_seconds,
         )
+        effective_stop_count = min(request.stop_count, len(candidates))
         selected_sets = choose_place_sets(
             request.theme,
-            request.stop_count,
+            effective_stop_count,
             request.origin,
             candidates,
             max_routes=max_routes,
@@ -195,6 +304,7 @@ async def _recommend_routes(
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
                             "地点から最寄り駅までのアクセス時間は直線距離からの概算で、実際の徒歩道順ではありません。"
+                            f"{candidate_note}"
                         ),
                     )
                 )

@@ -1,12 +1,14 @@
 import unittest
 import asyncio
-from unittest.mock import AsyncMock, patch
+import tempfile
+from unittest.mock import AsyncMock, call, patch
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from app.ekispert import _make_url, _parse_legs
-from app.main import app
+from app.main import ROUTE_GENRE_CODES, app, _route_candidates
 from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
@@ -22,7 +24,7 @@ from app.places import calculate_place_score, choose_place_sets, choose_places
 def sample_places() -> list[Place]:
     return [
         Place(
-            id="osm-1-1",
+            id="yahoo-1-1",
             name="京都自然公園",
             category="park",
             description="",
@@ -32,7 +34,7 @@ def sample_places() -> list[Place]:
             themes=["nature"],
         ),
         Place(
-            id="osm-1-2",
+            id="yahoo-1-2",
             name="京都寺院",
             category="place_of_worship",
             description="",
@@ -42,7 +44,7 @@ def sample_places() -> list[Place]:
             themes=["history", "temple"],
         ),
         Place(
-            id="osm-1-3",
+            id="yahoo-1-3",
             name="京都の市場",
             category="marketplace",
             description="",
@@ -55,7 +57,292 @@ def sample_places() -> list[Place]:
 
 
 class RoutePlannerTests(unittest.TestCase):
-    def test_health_and_origins_remain_available_when_overpass_is_unavailable(self):
+    def setUp(self):
+        self.search_places_patch = patch(
+            "app.main.search_yahoo_catalog",
+            new=AsyncMock(return_value=PlaceSearchResponse(
+                query=ParsedPlaceQuery(),
+                results=[],
+                note="",
+            )),
+        )
+        self.search_places_patch.start()
+
+    def tearDown(self):
+        self.search_places_patch.stop()
+
+    def test_route_generation_uses_yahoo_places(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-shrine-1",
+                        name="伏見稲荷大社",
+                        category="神社",
+                        region="京都府",
+                        address="京都市伏見区",
+                        latitude=34.9671,
+                        longitude=135.7727,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+        with (
+            patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)) as poi_search,
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-shrine-1")
+        self.assertIn("Yahoo", response.json()["routes"][0]["note"])
+        self.assertEqual(
+            poi_search.await_args_list,
+            [
+                call("京都", limit=100, genre_codes=("0424001", "0424002")),
+                call("清水寺", limit=100, genre_codes=("0424001",)),
+                call("平安神宮", limit=100, genre_codes=("0424002",)),
+            ],
+        )
+
+    def test_route_search_uses_location_query_and_yahoo_genre_filter(self):
+        base_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-local-temple",
+                        name="地域の寺院",
+                        category="寺院",
+                        region="京都府",
+                        address="京都市東山区",
+                        latitude=34.986,
+                        longitude=135.759,
+                        description="",
+                        genre_code="0424001",
+                    ),
+                    score=80.0,
+                )
+            ],
+            note="",
+        )
+        landmark_responses = [
+            PlaceSearchResponse(
+                query=ParsedPlaceQuery(region="京都府"),
+                results=[
+                    PlaceSearchHit(
+                        place=CatalogPlace(
+                            id=f"yahoo-{name}",
+                            name=name,
+                            category=category,
+                            region="京都府",
+                            address="京都市",
+                            latitude=latitude,
+                            longitude=longitude,
+                            description="",
+                            genre_code=genre_code,
+                        ),
+                        score=80.0,
+                    )
+                ],
+                note="",
+            )
+            for name, category, latitude, longitude, genre_code in (
+                ("清水寺", "寺院", 34.9949, 135.785, "0424001"),
+                ("平安神宮", "神社", 35.0154, 135.7833, "0424002"),
+            )
+        ]
+        search = AsyncMock(side_effect=[base_response, *landmark_responses])
+
+        with patch("app.main.search_yahoo_catalog", search):
+            candidates, _ = asyncio.run(_route_candidates("history"))
+
+        self.assertEqual(
+            {candidate.name for candidate in candidates},
+            {"地域の寺院", "清水寺", "平安神宮"},
+        )
+        self.assertEqual(
+            search.await_args_list,
+            [
+                call("京都", limit=100, genre_codes=ROUTE_GENRE_CODES["history"]),
+                call("清水寺", limit=100, genre_codes=("0424001",)),
+                call("平安神宮", limit=100, genre_codes=("0424002",)),
+            ],
+        )
+
+    def test_route_search_reports_empty_yahoo_results_without_substitute_places(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[],
+            note="Yahoo!ローカルサーチで該当する候補が見つかりませんでした。",
+        )
+        with patch(
+            "app.main.search_yahoo_catalog",
+            new=AsyncMock(return_value=yahoo_response),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Yahoo", response.json()["detail"])
+
+    def test_all_theme_accepts_yahoo_places_without_a_recognized_category(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-viewpoint-1",
+                        name="京都展望スポット",
+                        category="観光スポット",
+                        region="京都府",
+                        address="京都市",
+                        latitude=34.99,
+                        longitude=135.76,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="展望地",
+                line_name="市バス",
+                mode="bus",
+                duration_minutes=10,
+            )],
+            20,
+            "09:00",
+            "09:20",
+        ))
+        poi_search = AsyncMock(return_value=yahoo_response)
+        with (
+            patch("app.main.search_yahoo_catalog", new=poi_search),
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "all",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-viewpoint-1")
+        self.assertEqual(
+            poi_search.await_args_list[0],
+            call(
+                "京都",
+                limit=100,
+                genre_codes=(
+                    "0424001",
+                    "0424002",
+                    "0305002",
+                    "0305003",
+                    "0305007",
+                    "0303002",
+                    "0303003",
+                    "0303004",
+                ),
+            ),
+        )
+
+    def test_yahoo_route_uses_partial_yahoo_results_when_too_few_stops_are_found(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-shrine-1",
+                        name="伏見稲荷大社",
+                        category="神社",
+                        region="京都府",
+                        address="京都市伏見区",
+                        latitude=34.9671,
+                        longitude=135.7727,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+        with (
+            patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)),
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "temple",
+                    "stop_count": 3,
+                    "departure_date": "2026-10-09",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["routes"][0]["places"]), 1)
+        self.assertIn("Yahoo", response.json()["routes"][0]["note"])
+
+    def test_health_origins_and_place_status_are_available(self):
         client = TestClient(app)
 
         self.assertEqual(client.get("/api/health").json(), {"status": "ok"})
@@ -63,11 +350,33 @@ class RoutePlannerTests(unittest.TestCase):
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],
         )
-        with patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())):
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(region="京都府"),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="yahoo-1",
+                        name="京都自然公園",
+                        category="公園",
+                        region="京都府",
+                        address="京都市",
+                        latitude=35.01,
+                        longitude=135.76,
+                        description="",
+                    ),
+                    score=1.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        with patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)):
             places_response = client.get("/api/places")
             self.assertEqual(places_response.status_code, 200)
-            self.assertTrue(places_response.json())
-        self.assertFalse(client.get("/api/places/status").json()["requests_paused"])
+            self.assertEqual(places_response.json()[0]["id"], "yahoo-1")
+        self.assertEqual(
+            client.get("/api/places/status").json()["source"],
+            "Yahoo! Local Search",
+        )
 
     def test_natural_language_search_endpoint_uses_priority_search(self):
         client = TestClient(app)
@@ -76,7 +385,7 @@ class RoutePlannerTests(unittest.TestCase):
             results=[
                 PlaceSearchHit(
                     place=CatalogPlace(
-                        id="osm-1-123",
+                        id="yahoo-1-123",
                         name="京都の神社",
                         category="place_of_worship",
                         region="京都府",
@@ -88,17 +397,17 @@ class RoutePlannerTests(unittest.TestCase):
                     score=1.0,
                 )
             ],
-            note="OpenStreetMap",
+            note="Yahoo!ローカルサーチ",
         )
         search = AsyncMock(return_value=result)
-        with patch("app.main.search_places_with_fallback", search):
+        with patch("app.main.search_yahoo_catalog", search):
             response = client.post(
                 "/api/search/places",
                 json={"query": "京都の神社"},
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["results"][0]["place"]["id"], "osm-1-123")
+        self.assertEqual(response.json()["results"][0]["place"]["id"], "yahoo-1-123")
         search.assert_awaited_once_with("京都の神社")
 
     def test_itinerary_uses_selected_theme_and_stop_limit(self):
@@ -107,15 +416,12 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(len(places), 1)
         self.assertTrue(all("nature" in place.themes for place in places))
 
-    def test_osm_score_prioritizes_referenced_tourist_places(self):
+    def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={
-            "tags": {
-                "wikipedia": "ja:清水寺",
-                "wikidata": "Q160236",
-                "tourism": "attraction",
-                "historic": "temple",
-                "website": "https://example.test",
-            },
+            "category": "文化財",
+            "description": "歴史ある寺院",
+            "address": "京都市東山区",
+            "themes": ["history", "nature"],
         })
         ordinary = sample_places()[1]
 
@@ -128,24 +434,56 @@ class RoutePlannerTests(unittest.TestCase):
             popular.id,
         )
 
-    def test_osm_score_uses_facility_attributes_as_food_and_lodging_proxies(self):
+    def test_yahoo_score_uses_category_and_description_completeness(self):
         restaurant = sample_places()[2].model_copy(update={
-            "tags": {
-                "amenity": "restaurant",
-                "cuisine": "japanese",
-                "brand": "地元店",
-            },
+            "category": "レストラン",
+            "description": "地元の料理を提供",
+            "address": "京都市",
         })
         lodging = sample_places()[0].model_copy(update={
-            "tags": {
-                "tourism": "hotel",
-                "stars": "5",
-                "beds": "100",
-            },
+            "category": "ホテル",
         })
 
         self.assertGreater(calculate_place_score(restaurant, "food"), 0)
         self.assertGreater(calculate_place_score(lodging, "all"), 0)
+
+    def test_well_known_yahoo_landmarks_rank_above_ordinary_sites(self):
+        famous = Place(
+            id="yahoo-kiyomizu",
+            name="清水寺",
+            category="寺院",
+            description="",
+            access_point="",
+            latitude=34.9949,
+            longitude=135.785,
+            themes=["history", "temple"],
+            tags={"yahoo_genre_code": "0424001"},
+        )
+        ordinary = Place(
+            id="yahoo-local-temple",
+            name="地域の寺院",
+            category="寺院",
+            description="",
+            access_point="",
+            latitude=34.986,
+            longitude=135.759,
+            themes=["history", "temple"],
+            tags={"yahoo_genre_code": "0424001"},
+        )
+
+        self.assertGreater(
+            calculate_place_score(famous, "temple"),
+            calculate_place_score(ordinary, "temple"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            selected = choose_places(
+                "temple",
+                1,
+                "京都駅",
+                [ordinary, famous],
+                database=Path(directory) / "scores.sqlite3",
+            )
+        self.assertEqual(selected[0].id, "yahoo-kiyomizu")
 
     def test_unknown_origin_is_rejected(self):
         with self.assertRaises(ValueError):
@@ -225,7 +563,7 @@ class RoutePlannerTests(unittest.TestCase):
         with (
             patch.dict("os.environ", {}, clear=True),
             patch("app.ekispert.load_dotenv"),
-            patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -256,8 +594,8 @@ class RoutePlannerTests(unittest.TestCase):
 
         candidates = sample_places()
         with patch("app.main.search_route", search), patch(
-            "app.main.search_yahoo_places",
-            new=AsyncMock(return_value=candidates),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(candidates, "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -295,7 +633,7 @@ class RoutePlannerTests(unittest.TestCase):
                     story="静かな自然に身をゆだねる、短い寄り道の物語です。",
                 )),
             ),
-            patch("app.main.search_yahoo_places", new=AsyncMock(return_value=sample_places())),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
             response = client.get("/api/routes/random")
 
@@ -338,8 +676,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.search_yahoo_places",
-            new=AsyncMock(return_value=candidates),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(candidates, "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -378,8 +716,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.search_yahoo_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -413,8 +751,8 @@ class RoutePlannerTests(unittest.TestCase):
         ])
 
         with patch("app.main.search_route", search), patch(
-            "app.main.search_yahoo_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -436,8 +774,8 @@ class RoutePlannerTests(unittest.TestCase):
             raise asyncio.TimeoutError
 
         with patch("app.main.search_route", new=slow_search), patch(
-            "app.main.search_yahoo_places",
-            new=AsyncMock(return_value=sample_places()),
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -456,7 +794,7 @@ class RoutePlannerTests(unittest.TestCase):
         async def slow_places(*_args, **_kwargs):
             raise asyncio.TimeoutError
 
-        with patch("app.main.search_yahoo_places", new=slow_places):
+        with patch("app.main._route_candidates", new=slow_places):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 504)

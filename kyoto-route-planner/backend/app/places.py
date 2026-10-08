@@ -1,6 +1,7 @@
 import random
-from math import asin, cos, log10, radians, sin, sqrt
+from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
+import re
 
 from fastapi import HTTPException
 
@@ -11,6 +12,17 @@ from app.popularity import load_cached_scores
 ORIGINS = [
     Origin(name="京都駅", latitude=34.98585, longitude=135.75877),
 ]
+PROMINENT_LANDMARKS = {
+    "清水寺": 45.0,
+    "平安神宮": 45.0,
+    "伏見稲荷大社": 45.0,
+    "金閣寺": 45.0,
+    "鹿苑寺": 45.0,
+    "銀閣寺": 45.0,
+    "東寺": 40.0,
+    "二条城": 45.0,
+    "京都御所": 40.0,
+}
 
 
 def normalize_origin_name(value: str) -> str:
@@ -25,60 +37,30 @@ def list_origins() -> list[Origin]:
     return ORIGINS.copy()
 
 
-def _has_tag(tags: dict[str, str], key: str) -> bool:
-    return bool(tags.get(key, "").strip())
-
-
-def _numeric_tag_score(tags: dict[str, str], key: str, maximum: float) -> float:
-    try:
-        value = float(tags.get(key, ""))
-    except ValueError:
-        return 0.0
-    return min(max(value, 0.0) / maximum, 1.0) * 100
-
-
 def calculate_place_score(place: Place, theme: Theme) -> float:
-    """Return an OSM-only prominence proxy, not a user-review rating."""
-    tags = place.tags
+    """Score Yahoo places by tourism relevance and verified prominence signals."""
     score = 0.0
-
-    score += 20 if _has_tag(tags, "wikipedia") else 0
-    score += 15 if _has_tag(tags, "wikidata") else 0
-    score += 8 if _has_tag(tags, "website") else 0
-    score += 3 if _has_tag(tags, "name:ja") else 0
-    score += 2 if _has_tag(tags, "opening_hours") else 0
-
-    if tags.get("tourism") == "attraction":
-        score += 15
-    if tags.get("historic") or tags.get("heritage") or tags.get("heritage:operator"):
-        score += 15
-    if tags.get("historic") == "castle" or tags.get("heritage") == "2":
-        score += 5
-
-    is_food = tags.get("amenity") in {
-        "restaurant",
-        "cafe",
-        "fast_food",
-        "food_court",
-        "bar",
-        "pub",
-    } or tags.get("shop") in {"bakery", "confectionery", "marketplace"}
-    is_lodging = tags.get("tourism") in {"hotel", "guest_house", "hostel", "ryokan"}
-    if is_food:
-        score += 10
-        score += 5 if _has_tag(tags, "cuisine") else 0
-        score += 5 if _has_tag(tags, "brand") else 0
-    if is_lodging:
-        score += 10
-        score += _numeric_tag_score(tags, "stars", 5) * 0.10
-        try:
-            beds = float(tags.get("beds", ""))
-        except ValueError:
-            beds = 0.0
-        score += min(log10(max(beds, 0.0) + 1), 3) / 3 * 5
-
+    score += 5 if place.category.strip() else 0
+    score += 5 if place.address.strip() else 0
+    score += 5 if place.description.strip() else 0
     if theme != "all" and theme in place.themes:
+        score += 20
+    elif theme == "all" and place.themes:
         score += 10
+    genre_code = place.tags.get("yahoo_genre_code", "")
+    if genre_code.startswith(("0424", "0305", "0303")):
+        score += 15
+    score += 10 if place.tags.get("wikidata", "").startswith("Q") else 0
+    score += 10 if place.tags.get("wikipedia", "").strip() else 0
+    normalized_name = re.sub(r"[\s　・]+", "", place.name)
+    score += max(
+        (
+            boost
+            for landmark, boost in PROMINENT_LANDMARKS.items()
+            if re.sub(r"[\s　・]+", "", landmark) in normalized_name
+        ),
+        default=0.0,
+    )
     return min(score, 100.0)
 
 
@@ -134,15 +116,14 @@ def choose_places(
     remaining = [
         place
         for place in candidates
-        if place.themes and (theme == "all" or theme in place.themes)
+        if theme == "all" or theme in place.themes
     ]
     if not remaining:
-        raise ValueError("OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u306b\u9078\u629e\u3057\u305f\u30c6\u30fc\u30de\u306e\u30b3\u30f3\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002")
+        raise ValueError("Yahoo!検索候補に選択したテーマのスポットがありません。")
 
     selected: list[Place] = []
     cached_scores = load_cached_scores(database)
     current = (origin.latitude, origin.longitude)
-    rng = random.SystemRandom()
     while remaining and len(selected) < stop_count:
         ranked = sorted(
             remaining,
@@ -151,7 +132,7 @@ def choose_places(
                 place.id,
             ),
         )
-        closest = rng.choice(ranked[: min(5, len(ranked))])
+        closest = ranked[0]
         selected.append(closest)
         remaining.remove(closest)
         current = (closest.latitude, closest.longitude)
@@ -160,8 +141,8 @@ def choose_places(
         raise HTTPException(
             status_code=422,
             detail=(
-                f"OpenStreetMap\u306e\u53d6\u5f97\u30c7\u30fc\u30bf\u304b\u3089\u7acb\u3061\u5bc4\u308a\u5148\u304c{len(selected)}\u4ef6\u3057\u304b\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002"
-                "\u7acb\u3061\u5bc4\u308a\u4ef6\u6570\u307e\u305f\u306f\u30c6\u30fc\u30de\u3092\u5909\u66f4\u3057\u3066\u304f\u3060\u3055\u3044\u3002"
+                f"Yahoo!検索で立ち寄り先が{len(selected)}件しか見つかりませんでした。"
+                "立ち寄り件数またはテーマを変更してください。"
             ),
         )
 
@@ -195,7 +176,7 @@ def choose_place_sets(
     remaining = [
         place
         for place in candidates
-        if place.themes and (theme == "all" or theme in place.themes)
+        if theme == "all" or theme in place.themes
     ]
     routes = [first_route]
     rng = random.SystemRandom()
