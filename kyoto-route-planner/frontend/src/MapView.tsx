@@ -9,9 +9,11 @@ const kyotoCenter: [number, number] = [135.7681, 35.004];
 type MapViewProps = {
   places: Place[];
   origin: Origin | null;
+  coordinates?: [number, number][];
 };
 
-export function MapView({ places, origin }: MapViewProps) {
+export function MapView({ places, origin, coordinates }: MapViewProps) {
+
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -20,14 +22,44 @@ export function MapView({ places, origin }: MapViewProps) {
     if (!containerRef.current) return;
 
     setWorkerUrl(workerUrl);
-    const map = new MapLibre({
+        const map = new MapLibre({
       container: containerRef.current,
       style: mapStyle,
       center: kyotoCenter,
       zoom: 11,
     });
     map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+
+    map.on('load', () => {
+      map.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: []
+          }
+        }
+      });
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#bf765e',
+          'line-width': 4,
+          'line-opacity': 0.7
+        }
+      });
+    });
+
     mapRef.current = map;
+
 
     return () => {
       markersRef.current.forEach((marker) => marker.remove());
@@ -66,13 +98,30 @@ export function MapView({ places, origin }: MapViewProps) {
     if (locations.length > 1) {
       const bounds = new LngLatBounds();
       locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
-      map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: 350 });
+            map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: 350 });
     } else if (locations.length === 1) {
       map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: 350 });
     } else {
       map.flyTo({ center: kyotoCenter, zoom: 11, duration: 350 });
     }
-  }, [origin, places]);
+
+    // ポリラインの更新
+    if (map.getSource('route')) {
+      const source = map.getSource('route');
+      if (source && source.type === 'geojson') {
+        const geojson: any = {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: coordinates && coordinates.length > 1 ? coordinates.map(c => [c[1], c[0]]) : []
+          }
+        };
+        (source as any).setData(geojson);
+      }
+    }
+  }, [origin, places, coordinates]);
+
 
   return (
     <div className="map-frame">

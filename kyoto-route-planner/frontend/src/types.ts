@@ -32,10 +32,12 @@ export type RouteSuggestion = {
   title: string | null;
   story: string | null;
   total_minutes: number | null;
-  departure_time: string | null;
+    departure_time: string | null;
   arrival_time: string | null;
   note: string;
+  coordinates?: [number, number][];
 };
+
 
 export type RouteSuggestions = {
   routes: RouteSuggestion[];
@@ -64,10 +66,12 @@ export type DailyItinerary = {
   date: string;
   places: Place[];
   legs: RouteLeg[];
-  transit_minutes: number | null;
+    transit_minutes: number | null;
   stay_minutes: number;
   estimated_arrival_at: string | null;
+  coordinates?: [number, number][];
 };
+
 
 export type OvernightItinerarySuggestion = {
   query: any;
