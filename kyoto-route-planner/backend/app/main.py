@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
+from app.osrm import fetch_detailed_polyline
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.yahoo_local import (
     get_yahoo_status,
@@ -179,19 +180,22 @@ async def _recommend_routes(
                     ),
                     timeout=remaining_seconds,
                 )
-                suggestions.append(
+            except asyncio.TimeoutError:
+                timed_out = True
+                break
+            suggestions.append(
                     RouteSuggestion(
                         places=chosen,
                         origin=origin,
                         legs=legs,
                         total_minutes=total_minutes,
                         departure_time=departure_time or request.departure_time.strftime("%H:%M"),
-                        arrival_time=arrival_time or None,
-                        coordinates=[
+                                                arrival_time=arrival_time or None,
+                        coordinates=await fetch_detailed_polyline([
                             [origin.latitude, origin.longitude],
                             *[[p.latitude, p.longitude] for p in chosen],
                             [origin.latitude, origin.longitude],
-                        ],
+                        ]),
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
                             "地点から最寄り駅までのアクセス時間は直線距離からの概算で、実際の徒歩道順ではありません。"
