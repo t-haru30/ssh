@@ -137,6 +137,7 @@ function App() {
     const [departureTime, setDepartureTime] = useState("09:00");
   const [isOvernight, setIsOvernight] = useState(false);
   const [showIdeaDeck, setShowIdeaDeck] = useState(false);
+  const [ideaMapPlaces, setIdeaMapPlaces] = useState<Place[]>([]);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -480,7 +481,11 @@ function App() {
           origin={origin}
           departureDate={departureDate}
           departureTime={departureTime}
-          onClose={() => setShowIdeaDeck(false)}
+          onActivePlacesChange={setIdeaMapPlaces}
+          onClose={() => {
+            setShowIdeaDeck(false);
+            setIdeaMapPlaces([]);
+          }}
         />
       ) : null}
 
@@ -608,9 +613,13 @@ function App() {
                 <section className="map-card" aria-label="京都の候補地マップ">
           <div className="map-heading">
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
+            <span className="map-count">{showIdeaDeck ? `${ideaMapPlaces.length} SPOTS` : suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} coordinates={mapCoordinates} />
+          <MapView
+            places={showIdeaDeck ? ideaMapPlaces : mapPlaces}
+            origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
+            coordinates={showIdeaDeck ? [] : mapCoordinates}
+          />
 
           <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
         </section>

@@ -57,6 +57,7 @@ class RouteIdeaResponse(BaseModel):
     title: str = Field(min_length=1)
     story: str = Field(min_length=1)
     places: list[Place] = Field(min_length=2, max_length=3)
+    image_url: str | None = None
     copywriting_source: Literal["gemini", "fallback"]
     note: str
 

@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
+from app.image_search import search_pixabay_image
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.models import (
@@ -246,6 +247,11 @@ async def recommend_random_idea(
 
     requested_count = spot_count or random.randint(2, 3)
     places = random.sample(candidates, min(requested_count, len(candidates)))
+    image_url = None
+    for image_query in (places[0].name, f"京都 {IDEA_THEME_LABELS[selected_theme]}", "京都"):
+        image_url = await search_pixabay_image(image_query)
+        if image_url:
+            break
     copywriting_source = "fallback"
     copywriting_note = "GEMINI_API_KEY未設定のため、簡易タイトルとストーリーを使用しています。"
     try:
@@ -276,6 +282,7 @@ async def recommend_random_idea(
         title=title,
         story=story,
         places=places,
+        image_url=image_url,
         copywriting_source=copywriting_source,
         note=f"{candidate_note} {copywriting_note}",
     )

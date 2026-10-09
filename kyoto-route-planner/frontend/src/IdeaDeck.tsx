@@ -8,6 +8,7 @@ type IdeaDeckProps = {
   origin: Origin;
   departureDate: string;
   departureTime: string;
+  onActivePlacesChange: (places: Place[]) => void;
   onClose: () => void;
 };
 
@@ -50,21 +51,33 @@ function isIdea(value: unknown): value is RouteIdea {
   const candidate = value as Record<string, unknown>;
   return typeof candidate.title === "string"
     && typeof candidate.story === "string"
+    && (candidate.image_url === undefined || candidate.image_url === null || typeof candidate.image_url === "string")
     && Array.isArray(candidate.places)
     && candidate.places.length >= 2
     && candidate.places.every(isPlace)
     && typeof candidate.theme === "string";
 }
 
-export function IdeaDeck({ origin, departureDate, departureTime, onClose }: IdeaDeckProps) {
+export function IdeaDeck({
+  origin,
+  departureDate,
+  departureTime,
+  onActivePlacesChange,
+  onClose,
+}: IdeaDeckProps) {
   const [ideas, setIdeas] = useState<RouteIdea[]>([]);
   const [loadingIdeas, setLoadingIdeas] = useState(false);
   const [adopting, setAdopting] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<SwipeDirection>("skip");
   const [error, setError] = useState<string | null>(null);
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const activePlaces = itinerary?.places ?? ideas[0]?.places ?? [];
   const lastAutoLoadCount = useRef<number | null>(null);
   const initialLoadStarted = useRef(false);
+
+  useEffect(() => {
+    onActivePlacesChange(activePlaces);
+  }, [activePlaces, onActivePlacesChange]);
 
   const loadIdeas = useCallback(async (append: boolean) => {
     setLoadingIdeas(true);
@@ -224,7 +237,7 @@ export function IdeaDeck({ origin, departureDate, departureTime, onClose }: Idea
             <button type="button" className="idea-action-button accept" onClick={() => void handleSwipe("accept")} disabled={!ideas.length || adopting} aria-label="このアイデアを採用">✓</button>
           </div>
           {adopting && <p className="idea-loading" role="status">駅すぱあとAPIで選択したスポットの経路を計算しています…</p>}
-          <p className="idea-deck-footnote">残り {ideas.length} 件 · 右へスワイプして採用、左へスワイプしてスキップ</p>
+          <p className="idea-deck-footnote">残り {ideas.length} 件</p>
           {!loadingIdeas && ideas.length <= LOW_CARD_COUNT && !adopting && (
             <button className="idea-reload-button" type="button" onClick={() => void loadIdeas(true)}>アイデアを追加で読み込む</button>
           )}

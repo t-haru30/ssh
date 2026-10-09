@@ -1,4 +1,4 @@
-@import "maplibre-gl/dist/maplibre-gl.css";
+﻿@import "maplibre-gl/dist/maplibre-gl.css";
 
 :root {
   font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
@@ -354,10 +354,13 @@ a { color: inherit; text-decoration: none; }
 .idea-deck-heading { display: flex; justify-content: space-between; align-items: center; max-width: 760px; margin: 0 auto 20px; }
 .idea-deck-heading h2 { margin: 0; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(22px, 4vw, 30px); color: var(--forest); }
 .idea-close-button, .idea-reload-button { border: 1px solid var(--line); padding: 9px 15px; background: var(--paper); color: var(--control-text); font-size: 11px; }
-.idea-stage { position: relative; width: min(100%, 440px); height: 580px; margin: 0 auto; }
+.idea-stage { position: relative; width: min(100%, 440px); height: 600px; margin: 0 auto; }
 .swipe-card {
   position: absolute;
   inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(31, 54, 42, .12);
   border-radius: 14px;
@@ -371,34 +374,74 @@ a { color: inherit; text-decoration: none; }
 .swipe-cover {
   position: relative;
   display: flex;
-  height: 220px;
+  flex: none;
+  width: calc(100% - 28px);
+  aspect-ratio: 16 / 9;
+  margin: 14px 14px 0;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 10px;
   color: #fff;
-  background: linear-gradient(135deg, #597961, #b2a87c);
+  background: #5f7a68;
 }
-.swipe-cover::before, .swipe-cover::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; }
-.swipe-cover::before { width: 280px; height: 280px; }
-.swipe-cover::after { width: 360px; height: 360px; }
-.swipe-cover.theme-temple { background: linear-gradient(135deg, #76624b, #b88d6e); }
-.swipe-cover.theme-food { background: linear-gradient(135deg, #9d6045, #d1a56e); }
-.swipe-cover.theme-history { background: linear-gradient(135deg, #4f5d58, #9b9878); }
-.swipe-cover.theme-all { background: linear-gradient(135deg, #426b58, #bd9f70); }
-.swipe-cover-index, .swipe-cover-count { position: absolute; z-index: 1; top: 17px; font-size: 9px; font-weight: 600; letter-spacing: .17em; }
-.swipe-cover-index { left: 19px; }
-.swipe-cover-count { right: 19px; }
-.swipe-cover-kanji { position: relative; z-index: 1; font-family: "Yu Mincho", serif; font-size: 110px; font-weight: 300; line-height: 1; text-shadow: 0 6px 22px rgba(0,0,0,.16); }
-.swipe-card-copy { padding: 23px 25px 18px; }
-.swipe-card-copy h3 { margin: 0; color: var(--forest-deep); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 24px; line-height: 1.4; }
-.swipe-story { min-height: 42px; margin: 9px 0 15px; color: var(--muted); font-size: 12px; line-height: 1.7; }
-.swipe-spot-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
-.swipe-spot-list li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 0; border-top: 1px solid var(--line); }
-.swipe-spot-number { color: #8fa18e; font-family: Georgia, serif; font-size: 12px; }
-.swipe-spot-copy { display: grid; gap: 4px; min-width: 0; }
-.swipe-spot-copy strong { color: var(--ink); font-size: 13px; }
-.swipe-spot-copy small { overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-.swipe-hint { margin: 14px 0 0; color: #92968e; font-size: 9px; text-align: center; }
+.swipe-cover.theme-temple { background: #7a6650; }
+.swipe-cover.theme-food { background: #9a6248; }
+.swipe-cover.theme-history { background: #55645e; }
+.swipe-cover-placeholder { display: grid; justify-items: center; gap: 6px; color: rgba(255,255,255,.92); font-size: 12px; font-weight: 600; }
+.swipe-cover-placeholder svg { width: 38px; height: 38px; }
+.swipe-cover-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.swipe-cover-image.loaded { opacity: 1; }
+.swipe-cover-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, #d8ded2 8%, #edf0e8 18%, #d8ded2 33%);
+  background-size: 200% 100%;
+  animation: swipe-cover-shimmer 1.4s linear infinite;
+}
+@keyframes swipe-cover-shimmer {
+  to { background-position-x: -200%; }
+}
+.swipe-cover-badge { position: absolute; z-index: 1; top: 8px; left: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(20, 32, 25, .82); color: #fff; font-size: 12px; font-weight: 600; }
+.swipe-cover-image { max-width: none; pointer-events: none; -webkit-user-drag: none; }
+.swipe-cover-placeholder span { max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.swipe-card-copy { display: flex; flex: 1 1 auto; flex-direction: column; gap: 12px; min-height: 0; padding: 18px 20px 20px; overflow: hidden; overflow-wrap: anywhere; }
+.swipe-card-copy > * { flex: none; }
+.swipe-card-copy h3 {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #17251d;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.swipe-story {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #2f3b34;
+  font-size: 14px;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.swipe-spot-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; overflow: hidden; list-style: none; }
+.swipe-spot-list li { display: flex; flex: none; align-items: center; gap: 10px; min-width: 0; padding: 11px 12px; border-radius: 8px; background: #f1f4ee; }
+.swipe-spot-icon { display: grid; flex: none; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: #2f6b4f; color: #fff; }
+.swipe-spot-icon svg { width: 15px; height: 15px; }
+.swipe-spot-copy { min-width: 0; }
+.swipe-spot-copy strong { display: block; overflow: hidden; color: #17251d; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
 .swipe-stamp { position: absolute; z-index: 3; top: 30px; padding: 6px 12px; border: 3px solid currentColor; border-radius: 4px; font-size: 22px; font-weight: 800; letter-spacing: .1em; }
 .swipe-stamp.skip { left: 22px; color: #b85e56; transform: rotate(-12deg); }
 .swipe-stamp.accept { right: 22px; color: #39745a; transform: rotate(12deg); }
@@ -408,7 +451,7 @@ a { color: inherit; text-decoration: none; }
 .idea-action-button.skip { color: #b85e56; }
 .idea-action-button.accept { color: #39745a; }
 .idea-action-button:disabled { cursor: not-allowed; opacity: .4; }
-.idea-deck-footnote, .idea-loading { margin: 10px 0; color: var(--muted); font-size: 10px; text-align: center; }
+.idea-deck-footnote, .idea-loading { margin: 10px 0; color: #4d5a52; font-size: 12px; text-align: center; }
 .idea-error { max-width: 600px; margin: 0 auto 14px; padding: 11px 14px; color: #8a3d35; background: #f8e9e6; font-size: 12px; }
 .idea-empty { display: grid; align-content: center; justify-items: center; gap: 15px; height: 100%; color: var(--muted); }
 .idea-primary-button { min-height: 42px; padding: 0 22px; border: 0; color: white; background: var(--forest); font-size: 12px; font-weight: 600; }
@@ -425,9 +468,9 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 520px) {
   .idea-deck-section { margin: 14px -2px; padding: 18px 12px; }
-  .idea-stage { height: 550px; }
-  .swipe-cover { height: 190px; }
-  .swipe-card-copy { padding: 19px 18px 15px; }
+  .idea-stage { height: 540px; }
+  .swipe-cover { margin: 12px 12px 0; }
+  .swipe-card-copy { padding: 14px 16px 12px; }
   .swipe-card-copy h3 { font-size: 21px; }
   .idea-itinerary { padding: 20px 16px; }
 }
