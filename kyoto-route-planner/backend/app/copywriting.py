@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +12,7 @@ from app.models import Place, Theme
 
 GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -127,6 +129,7 @@ async def generate_route_copywriting(
             detail="Gemini APIからJSON形式でない応答が返されました。",
         ) from error
     if response.status_code >= 400:
+        logger.warning("Gemini API returned an error response: status=%s", response.status_code)
         raise HTTPException(
             status_code=502,
             detail="Gemini APIでタイトルとストーリーを生成できませんでした。",

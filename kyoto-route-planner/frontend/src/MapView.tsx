@@ -26,6 +26,7 @@ type MarkerLocation = {
   longitude: number;
   latitude: number;
   category: string;
+  address?: string;
   themes: Place["themes"];
   order: number | null;
   isOrigin: boolean;
@@ -277,6 +278,7 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
         longitude: place.longitude,
         latitude: place.latitude,
         category: place.category,
+        address: place.address,
         themes: place.themes,
         order: index + 1,
         isOrigin: false,
@@ -287,7 +289,10 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
       const element = createSpotMarker(location);
       const popupText = location.isOrigin
         ? `出発地 · ${location.name}`
-        : `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`;
+        : [
+          `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`,
+          location.address,
+        ].filter(Boolean).join("\n");
       const marker = new Marker({ element, anchor: "bottom" })
         .setLngLat([location.longitude, location.latitude])
         .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
@@ -349,7 +354,7 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
   return (
     <div className="map-frame">
       <div className="map-canvas" ref={containerRef} aria-label="京都の候補地地図" />
-      <div className="map-disclaimer">線はスポット間を結ぶ目安です。実際の交通経路とは異なります。</div>
+      <div className="map-disclaimer">ピンは検索結果のスポット座標です。選択すると住所を確認できます。線はスポット間の目安で、実際の交通経路とは異なります。</div>
     </div>
   );
 }

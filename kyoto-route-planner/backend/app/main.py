@@ -584,8 +584,28 @@ async def _recommend_routes(
             raise transient_error
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
     for suggestion in suggestions:
-        copywriting = await generate_route_copywriting(suggestion.places, request.theme)
-        if copywriting is not None:
+        try:
+            copywriting = await generate_route_copywriting(suggestion.places, request.theme)
+        except HTTPException as error:
+            logger.warning(
+                "Gemini route copywriting failed; using fallback copy: status=%s",
+                error.status_code,
+            )
+            copywriting = None
+            suggestion.note += (
+                " Geminiを利用できなかったため、スポット名から簡易タイトルと説明を作成しました。"
+            )
+
+        if copywriting is None:
+            place_names = "と".join(place.name for place in suggestion.places)
+            theme_label = IDEA_THEME_LABELS[request.theme]
+            suggestion.title = f"{place_names}で楽しむ、{theme_label}"
+            suggestion.story = (
+                f"{theme_label}をテーマに、{place_names}を巡るルートです。"
+            )
+            if not os.getenv("GEMINI_API_KEY", "").strip():
+                suggestion.note += " GEMINI_API_KEY未設定のため、簡易タイトルと説明を使用しています。"
+        else:
             suggestion.title = copywriting.title
             suggestion.story = copywriting.story
     return RouteSuggestions(routes=suggestions)

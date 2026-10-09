@@ -18,6 +18,7 @@ export type RouteIdea = {
 type SwipeCardProps = {
   idea: RouteIdea;
   depth: number;
+  isProcessing: boolean;
   onSwipe: (direction: SwipeDirection) => void;
 };
 
@@ -31,7 +32,22 @@ const cardVariants = {
   }),
 };
 
-export function SwipeCard({ idea, depth, onSwipe }: SwipeCardProps) {
+function getApproximateDistanceKm(places: Place[]) {
+  const earthRadiusKm = 6371;
+  return places.slice(1).reduce((total, place, index) => {
+    const previous = places[index];
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+    const latitudeDelta = toRadians(place.latitude - previous.latitude);
+    const longitudeDelta = toRadians(place.longitude - previous.longitude);
+    const latitude1 = toRadians(previous.latitude);
+    const latitude2 = toRadians(place.latitude);
+    const haversine = Math.sin(latitudeDelta / 2) ** 2
+      + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
+    return total + 2 * earthRadiusKm * Math.asin(Math.sqrt(haversine));
+  }, 0);
+}
+
+export function SwipeCard({ idea, depth, isProcessing, onSwipe }: SwipeCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const x = useMotionValue(0);
@@ -39,8 +55,13 @@ export function SwipeCard({ idea, depth, onSwipe }: SwipeCardProps) {
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(idea.image_url) && !imageFailed;
+  const approximateDistanceKm = getApproximateDistanceKm(idea.places);
+  const distanceLabel = approximateDistanceKm >= 1
+    ? `${approximateDistanceKm.toFixed(1)} km`
+    : `${Math.round(approximateDistanceKm * 1000)} m`;
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
+    if (isProcessing) return;
     if (info.offset.x > SWIPE_THRESHOLD) {
       onSwipe("accept");
     } else if (info.offset.x < -SWIPE_THRESHOLD) {
@@ -50,19 +71,20 @@ export function SwipeCard({ idea, depth, onSwipe }: SwipeCardProps) {
 
   return (
     <motion.article
-      className="swipe-card"
+      className={`swipe-card${isProcessing ? " is-processing" : ""}`}
       variants={cardVariants}
       style={{ x, rotate, zIndex: 10 - depth }}
-      drag="x"
+      drag={isProcessing ? false : "x"}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.82}
-      whileTap={{ cursor: "grabbing" }}
+      whileTap={isProcessing ? undefined : { cursor: "grabbing" }}
       onDragEnd={handleDragEnd}
       initial={{ scale: 0.94, y: 22, opacity: 0 }}
       animate={{ scale: 1 - depth * 0.035, y: depth * 12, opacity: 1 }}
       exit="exit"
       transition={{ type: "spring", stiffness: 280, damping: 25 }}
       aria-label={idea.title}
+      aria-busy={isProcessing}
     >
       <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>SKIP</motion.div>
       <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>行きたい</motion.div>
@@ -85,11 +107,17 @@ export function SwipeCard({ idea, depth, onSwipe }: SwipeCardProps) {
             <span>{idea.places[0]?.name ?? "京都"}</span>
           </div>
         )}
+        {hasCoverImage && <span className="swipe-cover-image-label">イメージ画像</span>}
         <span className="swipe-cover-badge">{idea.places.length}か所</span>
       </div>
       <div className="swipe-card-copy">
         <h3 title={idea.title}>{idea.title}</h3>
         <p className="swipe-story">{idea.story}</p>
+        {idea.places.length > 1 && (
+          <p className="swipe-distance">
+            スポット間の直線距離（目安） 約{distanceLabel}
+          </p>
+        )}
         <ul className="swipe-spot-list">
           {idea.places.map((place) => (
             <li key={place.id}>

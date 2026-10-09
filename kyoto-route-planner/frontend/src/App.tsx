@@ -4,7 +4,7 @@ import { MapView } from "./MapView";
 import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, SwipeItinerary, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
 
@@ -142,7 +142,6 @@ async function readError(response: Response) {
 }
 
 function App() {
-  const [places, setPlaces] = useState<Place[]>([]);
   const [origins, setOrigins] = useState<Origin[]>([]);
   const [originName, setOriginName] = useState("京都駅");
   const [theme, setTheme] = useState<Theme>("all");
@@ -153,14 +152,13 @@ function App() {
   const [isOvernight, setIsOvernight] = useState(false);
   const [showIdeaDeck, setShowIdeaDeck] = useState(false);
   const [ideaMapPlaces, setIdeaMapPlaces] = useState<Place[]>([]);
+  const [swipeItinerary, setSwipeItinerary] = useState<SwipeItinerary | null>(null);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
-  const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "error" | "idle">("loading");
   const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
@@ -173,68 +171,19 @@ function App() {
 
   useEffect(() => {
     async function loadInitialData() {
-      const [placesResult, originsResult] = await Promise.allSettled([
-          fetchWithTimeout("/api/places", {}, INITIAL_DATA_TIMEOUT_MS),
-          fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS),
-      ]);
       try {
-        let originData: Origin[] = [];
-        let initialError: string | null = null;
-        let placeWarning: string | null = null;
-
-        if (originsResult.status === "fulfilled" && originsResult.value.ok) {
-          const originPayload: unknown = await originsResult.value.json();
-          if (Array.isArray(originPayload) && originPayload.every(isOrigin)) {
-            originData = originPayload;
-            setOrigins(originData);
-          } else {
-            initialError = "出発駅のデータ形式が不正です。";
-          }
-        } else {
-          initialError = "出発駅を読み込めませんでした。APIサーバーを確認してください。";
+        const response = await fetchWithTimeout("/api/origins", {}, INITIAL_DATA_TIMEOUT_MS);
+        if (!response.ok) {
+          throw new Error("出発駅を読み込めませんでした。APIサーバーを確認してください。");
         }
-
-        if (placesResult.status === "fulfilled" && placesResult.value.ok) {
-          const placePayload: unknown = await placesResult.value.json();
-          if (Array.isArray(placePayload) && placePayload.every(isPlace)) {
-            setPlaces(placePayload);
-          } else {
-            placeWarning = "候補地のデータ形式が不正です。";
-          }
-        } else if (placesResult.status === "fulfilled") {
-          placeWarning = await readError(placesResult.value);
-        } else {
-          placeWarning = "候補地を読み込めませんでした。APIサーバーを確認してください。";
+        const payload: unknown = await response.json();
+        if (!Array.isArray(payload) || !payload.every(isOrigin)) {
+          throw new Error("出発駅のデータ形式が不正です。");
         }
-
-        try {
-          setPlaceSourceState("loading");
-          const statusResponse = await fetchWithTimeout(
-            "/api/places/status",
-            {},
-            INITIAL_DATA_TIMEOUT_MS,
-          );
-          const placeSourceStatus = statusResponse.ok
-            ? await statusResponse.json() as { warning: string | null; state?: string }
-            : { warning: null };
-          setPlaceSourceWarning(placeSourceStatus.warning ?? placeWarning);
-          setPlaceSourceState(
-            placeSourceStatus.state === "success"
-              ? "success"
-              : placeSourceStatus.state === "error"
-                ? "error"
-                : "idle",
-          );
-        } catch {
-          setPlaceSourceWarning(placeWarning);
-          setPlaceSourceState("idle");
+        if (payload.length === 0) {
+          throw new Error("出発駅のデータがありません。");
         }
-        if (!originData.length) {
-          initialError ??= "出発駅のデータがありません。";
-        }
-        if (initialError) {
-          setError(initialError);
-        }
+        setOrigins(payload);
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "初期データを読み込めませんでした。");
       } finally {
@@ -254,8 +203,8 @@ function App() {
       const allPlaces = overnightSuggestion.days.flatMap(d => d.places);
       return [overnightSuggestion.hotel, ...allPlaces];
     }
-    return suggestions[0]?.places ?? places;
-  }, [isOvernight, overnightSuggestion, suggestions, places]);
+      return suggestions[0]?.places ?? [];
+    }, [isOvernight, overnightSuggestion, suggestions]);
 
     const mapCoordinates = useMemo(() => {
     if (isOvernight && overnightSuggestion) {
@@ -275,6 +224,28 @@ function App() {
       ? overnightSuggestion.days.flatMap((day) => day.legs)
       : suggestions[0]?.legs ?? []
   ), [isOvernight, overnightSuggestion, suggestions]);
+  const showSwipeRouteOnMap = swipeItinerary !== null
+    && (showIdeaDeck || (suggestions.length === 0 && !overnightSuggestion));
+  const swipeMapCoordinates = useMemo<[number, number][]>(() => (
+    swipeItinerary
+      ? [
+        [swipeItinerary.origin.latitude, swipeItinerary.origin.longitude],
+        ...swipeItinerary.places.map((place): [number, number] => [place.latitude, place.longitude]),
+      ]
+      : []
+  ), [swipeItinerary]);
+  const displayedMapPlaces = showSwipeRouteOnMap && swipeItinerary
+    ? swipeItinerary.places
+    : showIdeaDeck ? ideaMapPlaces : mapPlaces;
+  const displayedMapOrigin = showSwipeRouteOnMap && swipeItinerary
+    ? swipeItinerary.origin
+    : showIdeaDeck ? null : overnightSuggestion?.origin ?? suggestions[0]?.origin ?? null;
+  const displayedMapCoordinates = showSwipeRouteOnMap
+    ? swipeMapCoordinates
+    : showIdeaDeck ? [] : mapCoordinates;
+  const displayedMapLegs = showSwipeRouteOnMap && swipeItinerary
+    ? swipeItinerary.legs
+    : showIdeaDeck ? [] : mapLegs;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
@@ -542,6 +513,7 @@ function App() {
           departureDate={departureDate}
           departureTime={departureTime}
           onActivePlacesChange={setIdeaMapPlaces}
+          onItineraryChange={setSwipeItinerary}
           onClose={() => {
             setShowIdeaDeck(false);
             setIdeaMapPlaces([]);
@@ -665,44 +637,76 @@ function App() {
           </form>
 
           {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
-          {placeSourceState === "loading" && <p className="status-message" role="status">Yahoo! Local Searchから候補地を読み込んでいます…</p>}
-          {placeSourceWarning && <div className="error-panel" role="status"><strong>Yahoo! Local Searchの検索状況</strong><span>{placeSourceWarning}</span></div>}
-          {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
         </section>
 
                 <section className="map-card" aria-label="京都の候補地マップ">
           <div className="map-heading">
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{showIdeaDeck ? `${ideaMapPlaces.length} SPOTS` : suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
+            <span className="map-count">{displayedMapPlaces.length > 0 ? `${displayedMapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
           <MapView
-            places={showIdeaDeck ? ideaMapPlaces : mapPlaces}
-            origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
-            coordinates={showIdeaDeck ? [] : mapCoordinates}
-            legs={showIdeaDeck ? [] : mapLegs}
+            places={displayedMapPlaces}
+            origin={displayedMapOrigin}
+            coordinates={displayedMapCoordinates}
+            legs={displayedMapLegs}
           />
 
-          <div className="map-legend">
-            <span className="legend-origin">出</span> 出発地
-            <span className="legend-stop"><span>寺</span></span> カテゴリ別スポット
-            {mapLegs.length > 0 && <span className="map-legend-note">線上のアイコンは経路に含まれる移動手段</span>}
-          </div>
+          {displayedMapPlaces.length > 0 ? (
+            <div className="map-legend">
+              {displayedMapOrigin && <><span className="legend-origin">出</span> 出発地</>}
+              <span className="legend-stop"><span>寺</span></span> カテゴリ別スポット
+              {displayedMapLegs.length > 0 && <span className="map-legend-note">線上のアイコンは経路に含まれる移動手段</span>}
+            </div>
+          ) : (
+            <p className="map-legend">ルートを検索するか、スワイプ画面でアイデアを選ぶとスポットを表示します。</p>
+          )}
         </section>
 
       </div>
 
             <section className="results-section" aria-live="polite">
         <div className="section-heading results-heading">
-          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
-          {(suggestions.length > 0 || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
+                <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion || swipeItinerary ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
+                {(suggestions.length > 0 || overnightSuggestion || swipeItinerary) && <span className="result-date">{departureDate}</span>}
         </div>
 
-        {suggestions.length === 0 && !overnightSuggestion && !error && (
+              {suggestions.length === 0 && !overnightSuggestion && !swipeItinerary && !error && (
           <div className="empty-state">
             <span className="empty-icon">↗</span>
             <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
           </div>
         )}
+
+              {!showIdeaDeck && swipeItinerary && (
+                <div className="route-options">
+                  <article className="route-option">
+                    <h3>スワイプで採用したルート</h3>
+                    <p className="idea-itinerary-summary">
+                      {swipeItinerary.estimated_total_minutes === null
+                        ? "所要時間を取得できませんでした"
+                        : `移動と滞在の目安 ${Math.floor(swipeItinerary.estimated_total_minutes / 60)}時間${swipeItinerary.estimated_total_minutes % 60}分`}
+                      {swipeItinerary.estimated_return_at
+                        ? ` · 帰着 ${swipeItinerary.estimated_return_at.slice(11, 16)}`
+                        : ""}
+                    </p>
+                    <ol className="idea-itinerary-places">
+                      {swipeItinerary.places.map((place) => <li key={place.id}>{place.name}</li>)}
+                    </ol>
+                    {swipeItinerary.legs.length > 0 && (
+                      <ol className="idea-itinerary-legs">
+                        {swipeItinerary.legs.map((leg, index) => (
+                          <li key={`${leg.from_name}-${leg.to_name}-${index}`}>
+                            <span>{leg.from_name} → {leg.to_name}</span>
+                            <strong>{leg.line_name}</strong>
+                            {leg.duration_minutes !== null && <small>{leg.duration_minutes}分</small>}
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    <p className="idea-itinerary-note">{swipeItinerary.note}</p>
+                  </article>
+                </div>
+              )}
 
         {overnightSuggestion && (
           <div className="route-options">

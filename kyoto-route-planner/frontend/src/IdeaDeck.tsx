@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Origin, Place, RouteLeg, Theme } from "./types";
+import type { Origin, Place, SwipeItinerary, Theme } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import type { RouteIdea, SwipeDirection } from "./SwipeCard";
 
@@ -9,15 +9,8 @@ type IdeaDeckProps = {
   departureDate: string;
   departureTime: string;
   onActivePlacesChange: (places: Place[]) => void;
+  onItineraryChange: (itinerary: SwipeItinerary) => void;
   onClose: () => void;
-};
-
-type Itinerary = {
-  places: Place[];
-  legs: RouteLeg[];
-  estimated_total_minutes: number | null;
-  estimated_return_at: string | null;
-  note: string;
 };
 
 const BATCH_SIZE = 3;
@@ -58,11 +51,22 @@ function isIdea(value: unknown): value is RouteIdea {
     && typeof candidate.theme === "string";
 }
 
+function appendUniqueIdeas(current: RouteIdea[], additions: RouteIdea[]) {
+  const seen = new Set<string>();
+  return [...current, ...additions].filter((idea) => {
+    const key = idea.places.map((place) => place.id).sort().join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function IdeaDeck({
   origin,
   departureDate,
   departureTime,
   onActivePlacesChange,
+  onItineraryChange,
   onClose,
 }: IdeaDeckProps) {
   const [ideas, setIdeas] = useState<RouteIdea[]>([]);
@@ -70,8 +74,11 @@ export function IdeaDeck({
   const [adopting, setAdopting] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<SwipeDirection>("skip");
   const [error, setError] = useState<string | null>(null);
-  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
-  const activePlaces = itinerary?.places ?? ideas[0]?.places ?? [];
+  const [failedLoadCount, setFailedLoadCount] = useState(0);
+  const [retryIdeaId, setRetryIdeaId] = useState<string | null>(null);
+  const [itinerary, setItinerary] = useState<SwipeItinerary | null>(null);
+  const [showItinerary, setShowItinerary] = useState(false);
+  const activePlaces = showItinerary && itinerary ? itinerary.places : ideas[0]?.places ?? [];
   const lastAutoLoadCount = useRef<number | null>(null);
   const initialLoadStarted = useRef(false);
 
@@ -79,12 +86,14 @@ export function IdeaDeck({
     onActivePlacesChange(activePlaces);
   }, [activePlaces, onActivePlacesChange]);
 
-  const loadIdeas = useCallback(async (append: boolean) => {
+  const loadIdeas = useCallback(async (append: boolean, requestCount = BATCH_SIZE) => {
     setLoadingIdeas(true);
     setError(null);
+    setFailedLoadCount(0);
+    if (!append) setIdeas([]);
     try {
-      const responses = await Promise.all(
-        Array.from({ length: BATCH_SIZE }, async () => {
+      const results = await Promise.allSettled(
+        Array.from({ length: requestCount }, async () => {
           const theme = IDEA_THEMES[Math.floor(Math.random() * IDEA_THEMES.length)];
           const response = await fetch(
             `/api/ideas/random?theme=${encodeURIComponent(theme)}&spot_count=2`,
@@ -92,19 +101,23 @@ export function IdeaDeck({
           if (!response.ok) throw new Error(await readResponseError(response));
           const payload: unknown = await response.json();
           if (!isIdea(payload)) throw new Error("アイデアAPIから有効な候補が返されませんでした。");
+          setIdeas((current) => appendUniqueIdeas(current, [payload]));
           return payload;
         }),
       );
-      setIdeas((current) => {
-        const combined = append ? [...current, ...responses] : responses;
-        const seen = new Set<string>();
-        return combined.filter((idea) => {
-          const key = idea.places.map((place) => place.id).sort().join("|");
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
-      });
+      const failedCount = results.filter((result) => result.status === "rejected").length;
+      setFailedLoadCount(failedCount);
+      if (failedCount > 0) {
+        const firstFailure = results.find((result) => result.status === "rejected");
+        const detail = firstFailure?.status === "rejected" && firstFailure.reason instanceof Error
+          ? ` ${firstFailure.reason.message}`
+          : "";
+        setError(
+          failedCount === requestCount
+            ? `アイデアを読み込めませんでした。${detail}`
+            : `${failedCount}件のアイデア取得に失敗しました。取得できた候補を表示しています。${detail}`,
+        );
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "アイデアを読み込めませんでした。");
     } finally {
@@ -123,6 +136,7 @@ export function IdeaDeck({
       ideas.length > 0
       && ideas.length <= LOW_CARD_COUNT
       && !loadingIdeas
+      && failedLoadCount === 0
       && !itinerary
       && !adopting
       && lastAutoLoadCount.current !== ideas.length
@@ -130,17 +144,24 @@ export function IdeaDeck({
       lastAutoLoadCount.current = ideas.length;
       void loadIdeas(true);
     }
-  }, [adopting, ideas.length, itinerary, loadingIdeas, loadIdeas]);
+  }, [adopting, failedLoadCount, ideas.length, itinerary, loadingIdeas, loadIdeas]);
 
   async function handleSwipe(direction: SwipeDirection) {
     const idea = ideas[0];
     if (!idea || adopting) return;
-    setSwipeDirection(direction);
-    setIdeas((current) => current.slice(1));
-    if (direction === "skip") return;
+    if (direction === "skip") {
+      setSwipeDirection(direction);
+      setError(null);
+      setFailedLoadCount(0);
+      setRetryIdeaId(null);
+      setIdeas((current) => current.slice(1));
+      return;
+    }
 
     setAdopting(true);
     setError(null);
+    setFailedLoadCount(0);
+    setRetryIdeaId(null);
     try {
       const response = await fetch("/api/itineraries", {
         method: "POST",
@@ -164,9 +185,14 @@ export function IdeaDeck({
         }),
       });
       if (!response.ok) throw new Error(await readResponseError(response));
-      setItinerary(await response.json() as Itinerary);
+      const result = await response.json() as SwipeItinerary;
+      setItinerary(result);
+      setShowItinerary(true);
+      onItineraryChange(result);
+      setIdeas((current) => current.filter((candidate) => candidate !== idea));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "経路を取得できませんでした。");
+      setRetryIdeaId(idea.places.map((place) => place.id).join("-"));
     } finally {
       setAdopting(false);
     }
@@ -182,10 +208,34 @@ export function IdeaDeck({
         <button className="idea-close-button" type="button" onClick={onClose}>閉じる</button>
       </div>
 
-      {error && <p className="idea-error" role="alert">{error}</p>}
+      {error && (
+        <div className="idea-error" role="alert">
+          <span>{error}</span>
+          {failedLoadCount > 0 && (
+            <button
+              className="idea-primary-button"
+              type="button"
+              onClick={() => void loadIdeas(true, failedLoadCount)}
+              disabled={loadingIdeas}
+            >
+              失敗分を再取得
+            </button>
+          )}
+          {retryIdeaId === ideas[0]?.places.map((place) => place.id).join("-") && (
+            <button
+              className="idea-primary-button"
+              type="button"
+              onClick={() => void handleSwipe("accept")}
+              disabled={adopting}
+            >
+              このルートを再試行
+            </button>
+          )}
+        </div>
+      )}
       {loadingIdeas && ideas.length === 0 && <p className="idea-loading" role="status">アイデアを集めています…</p>}
 
-      {itinerary ? (
+      {showItinerary && itinerary ? (
         <motion.div className="idea-itinerary" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <p className="eyebrow">YOUR SELECTED ROUTE</p>
           <h3>選んだスポットの経路</h3>
@@ -210,10 +260,14 @@ export function IdeaDeck({
             </ol>
           )}
           <p className="idea-itinerary-note">{itinerary.note}</p>
-          <button className="idea-primary-button" type="button" onClick={() => setItinerary(null)}>ほかのアイデアを見る</button>
+          <button className="idea-primary-button" type="button" onClick={() => setShowItinerary(false)}>ほかのアイデアを見る</button>
         </motion.div>
       ) : (
         <>
+          <div className="idea-swipe-guide" aria-label="操作方法">
+            <span className="idea-swipe-guide-skip"><span aria-hidden="true">←</span> 左へスワイプ：スキップ</span>
+            <span className="idea-swipe-guide-accept">右へスワイプ：採用 <span aria-hidden="true">→</span></span>
+          </div>
           <div className="idea-stage" aria-live="polite">
             <AnimatePresence custom={swipeDirection}>
               {ideas.slice(0, 3).reverse().map((idea, index) => (
@@ -221,11 +275,12 @@ export function IdeaDeck({
                   key={idea.places.map((place) => place.id).join("-")}
                   idea={idea}
                   depth={2 - index}
+                  isProcessing={adopting}
                   onSwipe={(direction) => void handleSwipe(direction)}
                 />
               ))}
             </AnimatePresence>
-            {!loadingIdeas && ideas.length === 0 && (
+            {!loadingIdeas && ideas.length === 0 && failedLoadCount === 0 && (
               <div className="idea-empty">
                 <p>表示できるアイデアがありません。</p>
                 <button className="idea-primary-button" type="button" onClick={() => void loadIdeas(false)}>もう一度取得</button>
@@ -236,7 +291,11 @@ export function IdeaDeck({
             <button type="button" className="idea-action-button skip" onClick={() => void handleSwipe("skip")} disabled={!ideas.length || adopting} aria-label="スキップ">×</button>
             <button type="button" className="idea-action-button accept" onClick={() => void handleSwipe("accept")} disabled={!ideas.length || adopting} aria-label="このアイデアを採用">✓</button>
           </div>
-          {adopting && <p className="idea-loading" role="status">駅すぱあとAPIで選択したスポットの経路を計算しています…</p>}
+          {adopting && (
+            <p className="idea-loading" role="status">
+              「{ideas[0]?.title ?? "選択したルート"}」の経路を計算しています…
+            </p>
+          )}
           <p className="idea-deck-footnote">残り {ideas.length} 件</p>
           {!loadingIdeas && ideas.length <= LOW_CARD_COUNT && !adopting && (
             <button className="idea-reload-button" type="button" onClick={() => void loadIdeas(true)}>アイデアを追加で読み込む</button>
