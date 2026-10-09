@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-09T09:00:00+00:00",
+  "area": "kyoto",
+  "generator_version": "mock",
+  "routes": [
+    {
+      "id": "mock-higashiyama-half",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "temple",
+      "title": "清水寺から祇園へ、東山の寺社めぐり",
+      "estimated_minutes": 215,
+      "total_score": 61.2,
+      "center": [35.0, 135.7814],
+      "spots": [
+        { "place_id": "m-kiyomizu", "name": "清水寺", "category": "寺院", "lat": 34.9949, "lng": 135.785, "stay_minutes": 60, "score": 72.4, "role": "stop" },
+        { "place_id": "m-kodaiji", "name": "高台寺", "category": "寺院", "lat": 35.0008, "lng": 135.7807, "stay_minutes": 45, "score": 48.1, "role": "stop" },
+        { "place_id": "m-yasaka", "name": "八坂神社", "category": "神社", "lat": 35.0037, "lng": 135.7786, "stay_minutes": 45, "score": 63.0, "role": "stop" }
+      ],
+      "coordinates": [[34.9949, 135.785], [35.0008, 135.7807], [35.0037, 135.7786]]
+    },
+    {
+      "id": "mock-arashiyama-half",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "渡月橋から竹林へ、嵐山さんぽ",
+      "estimated_minutes": 190,
+      "total_score": 58.7,
+      "center": [35.0152, 135.6742],
+      "spots": [
+        { "place_id": "m-togetsukyo", "name": "渡月橋", "category": "名所", "lat": 35.0127, "lng": 135.6775, "stay_minutes": 30, "score": 55.0, "role": "stop" },
+        { "place_id": "m-tenryuji", "name": "天龍寺", "category": "寺院", "lat": 35.0158, "lng": 135.6738, "stay_minutes": 60, "score": 66.3, "role": "stop" },
+        { "place_id": "m-chikurin", "name": "竹林の小径", "category": "自然", "lat": 35.017, "lng": 135.6712, "stay_minutes": 40, "score": 54.8, "role": "stop" }
+      ],
+      "coordinates": [[35.0127, 135.6775], [35.0158, 135.6738], [35.017, 135.6712]]
+    },
+    {
+      "id": "mock-fushimi-half",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "千本鳥居から東福寺へ、伏見の歴史散歩",
+      "estimated_minutes": 205,
+      "total_score": 57.9,
+      "center": [34.9739, 135.7746],
+      "spots": [
+        { "place_id": "m-fushimiinari", "name": "伏見稲荷大社", "category": "神社", "lat": 34.9671, "lng": 135.7727, "stay_minutes": 75, "score": 78.9, "role": "stop" },
+        { "place_id": "m-tofukuji", "name": "東福寺", "category": "寺院", "lat": 34.9769, "lng": 135.774, "stay_minutes": 50, "score": 52.2, "role": "stop" },
+        { "place_id": "m-sennyuji", "name": "泉涌寺", "category": "寺院", "lat": 34.9778, "lng": 135.777, "stay_minutes": 40, "score": 38.4, "role": "stop" }
+      ],
+      "coordinates": [[34.9671, 135.7727], [34.9769, 135.774], [34.9778, 135.777]]
+    },
+    {
+      "id": "mock-kitayama-full",
+      "area": "kyoto",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "金閣寺・龍安寺・仁和寺、北山の名所を一日で",
+      "estimated_minutes": 420,
+      "total_score": 56.4,
+      "center": [35.0359, 135.7242],
+      "spots": [
+        { "place_id": "m-kinkakuji", "name": "金閣寺", "category": "寺院", "lat": 35.0394, "lng": 135.7292, "stay_minutes": 60, "score": 80.1, "role": "stop" },
+        { "place_id": "m-ryoanji", "name": "龍安寺", "category": "寺院", "lat": 35.0345, "lng": 135.7185, "stay_minutes": 60, "score": 60.5, "role": "stop" },
+        { "place_id": "m-ninnaji", "name": "仁和寺", "category": "寺院", "lat": 35.031, "lng": 135.7137, "stay_minutes": 60, "score": 50.2, "role": "stop" },
+        { "place_id": "m-kitano", "name": "北野天満宮", "category": "神社", "lat": 35.0316, "lng": 135.7355, "stay_minutes": 45, "score": 58.8, "role": "stop" },
+        { "place_id": "m-nishiki-lunch", "name": "錦市場", "category": "グルメ", "lat": 35.005, "lng": 135.7646, "stay_minutes": 60, "score": 51.0, "role": "lunch" }
+      ],
+      "coordinates": [[35.0394, 135.7292], [35.0345, 135.7185], [35.031, 135.7137], [35.0316, 135.7355], [35.005, 135.7646]]
+    },
+    {
+      "id": "mock-gion-food-half",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "food",
+      "title": "錦市場から先斗町へ、京の食べ歩き",
+      "estimated_minutes": 170,
+      "total_score": 49.6,
+      "center": [35.0051, 135.7694],
+      "spots": [
+        { "place_id": "m-nishiki", "name": "錦市場", "category": "グルメ", "lat": 35.005, "lng": 135.7646, "stay_minutes": 60, "score": 51.0, "role": "stop" },
+        { "place_id": "m-pontocho", "name": "先斗町", "category": "グルメ", "lat": 35.0058, "lng": 135.7708, "stay_minutes": 60, "score": 47.3, "role": "stop" },
+        { "place_id": "m-shirakawa", "name": "祇園白川", "category": "名所", "lat": 35.0045, "lng": 135.7757, "stay_minutes": 30, "score": 44.0, "role": "stop" }
+      ],
+      "coordinates": [[35.005, 135.7646], [35.0058, 135.7708], [35.0045, 135.7757]]
+    },
+    {
+      "id": "mock-philosopher-half",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "哲学の道を歩いて銀閣寺・南禅寺へ",
+      "estimated_minutes": 195,
+      "total_score": 55.3,
+      "center": [35.0217, 135.7954],
+      "spots": [
+        { "place_id": "m-ginkakuji", "name": "銀閣寺", "category": "寺院", "lat": 35.027, "lng": 135.7982, "stay_minutes": 50, "score": 68.0, "role": "stop" },
+        { "place_id": "m-tetsugaku", "name": "哲学の道", "category": "自然", "lat": 35.027, "lng": 135.7948, "stay_minutes": 40, "score": 49.9, "role": "stop" },
+        { "place_id": "m-nanzenji", "name": "南禅寺", "category": "寺院", "lat": 35.0112, "lng": 135.7937, "stay_minutes": 50, "score": 56.0, "role": "stop" }
+      ],
+      "coordinates": [[35.027, 135.7982], [35.027, 135.7948], [35.0112, 135.7937]]
+    }
+  ]
+}
