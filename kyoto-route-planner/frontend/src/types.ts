@@ -25,6 +25,29 @@ export type RouteLeg = {
   duration_minutes: number | null;
 };
 
+export type RouteTimelineSpot = {
+  type: "spot";
+  role: "start" | "stop" | "finish";
+  place_id: string | null;
+  name: string;
+  category: string;
+  time: string | null;
+  stay_minutes: number;
+};
+
+export type RouteTimelineTransit = {
+  type: "transit";
+  from_name: string;
+  to_name: string;
+  mode: "public_transport";
+  start_time: string | null;
+  end_time: string | null;
+  duration_minutes: number | null;
+  is_estimate: boolean;
+};
+
+export type RouteTimelineItem = RouteTimelineSpot | RouteTimelineTransit;
+
 export type RouteSuggestion = {
   places: Place[];
   origin: Origin;
@@ -34,6 +57,7 @@ export type RouteSuggestion = {
   total_minutes: number | null;
     departure_time: string | null;
   arrival_time: string | null;
+    timeline: RouteTimelineItem[];
   note: string;
   coordinates?: [number, number][];
 };

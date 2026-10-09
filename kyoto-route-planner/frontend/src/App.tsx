@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
+import { RouteTimeline } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
 
@@ -95,6 +96,30 @@ function isRouteLeg(value: unknown): value is RouteLeg {
   );
 }
 
+function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
+  if (!isRecord(value)) return false;
+  if (value.type === "spot") {
+    return (
+      (value.role === "start" || value.role === "stop" || value.role === "finish")
+      && (typeof value.place_id === "string" || value.place_id === null)
+      && typeof value.name === "string"
+      && typeof value.category === "string"
+      && (typeof value.time === "string" || value.time === null)
+      && typeof value.stay_minutes === "number"
+    );
+  }
+  return (
+    value.type === "transit"
+    && value.mode === "public_transport"
+    && typeof value.from_name === "string"
+    && typeof value.to_name === "string"
+    && (typeof value.start_time === "string" || value.start_time === null)
+    && (typeof value.end_time === "string" || value.end_time === null)
+    && (typeof value.duration_minutes === "number" || value.duration_minutes === null)
+    && typeof value.is_estimate === "boolean"
+  );
+}
+
 function isRouteSuggestions(value: unknown): value is RouteSuggestions {
   if (!isRecord(value) || !Array.isArray(value.routes) || value.routes.length === 0) {
     return false;
@@ -106,6 +131,8 @@ function isRouteSuggestions(value: unknown): value is RouteSuggestions {
     && route.places.every(isPlace)
     && Array.isArray(route.legs)
     && route.legs.every(isRouteLeg)
+    && Array.isArray(route.timeline)
+    && route.timeline.every(isRouteTimelineItem)
     && isOrigin(route.origin)
     && (route.title === null || typeof route.title === "string")
     && (route.story === null || typeof route.story === "string")
@@ -665,34 +692,15 @@ function App() {
               <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
                 <h3>ルート {index + 1}</h3>
                 {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
-                <div className="route-result">
-                  <div className="stop-list">
-                    <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
-                    {suggestion.places.map((place, index) => (
-                      <div className="suggested-place" key={place.id}>
-                        <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
-                        <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "説明はありません"}</p></div>
-                      </div>
-                    ))}
-                    <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
-                  </div>
-
-                  <div className="transit-card">
-                    <div className="transit-summary">
-                      <div><small>ESTIMATED TRANSIT TIME</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
-                      <div className="transit-clock"><span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>{suggestion.arrival_time && <><span>到着</span><strong>{suggestion.arrival_time}</strong></>}</div>
-                    </div>
-                    <h3>公共交通の経路</h3>
-                    {suggestion.legs.length > 0 ? (
-                      <ol className="leg-list">
-                        {suggestion.legs.map((leg, index) => <LegRow leg={leg} index={index} key={`${index}-${leg.line_name}`} />)}
-                      </ol>
-                    ) : (
-                      <p className="no-leg-detail">経路は検索されましたが、区間の詳細はAPIから返されませんでした。</p>
-                    )}
-                    <p className="result-note">{suggestion.note}</p>
+                <RouteTimeline items={suggestion.timeline} legs={suggestion.legs} />
+                <div className="transit-summary route-transit-summary">
+                  <div><small>公共交通の移動時間</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
+                  <div className="transit-clock">
+                    <span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>
+                    {suggestion.arrival_time && <><span>経路検索上の帰着</span><strong>{suggestion.arrival_time}</strong></>}
                   </div>
                 </div>
+                <p className="result-note">{suggestion.note}</p>
               </article>
             ))}
             <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>

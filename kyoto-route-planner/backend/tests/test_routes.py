@@ -8,7 +8,12 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from app.ekispert import _make_url, _parse_legs
-from app.main import ROUTE_GENRE_CODES, app, _route_candidates
+from app.main import (
+    ROUTE_GENRE_CODES,
+    _build_route_timeline,
+    _route_candidates,
+    app,
+)
 from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
@@ -18,7 +23,7 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import calculate_place_score, choose_place_sets, choose_places
+from app.places import calculate_place_score, choose_place_sets, choose_places, list_origins
 
 
 def sample_places() -> list[Place]:
@@ -122,6 +127,13 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["routes"][0]["places"][0]["id"], "yahoo-shrine-1")
         self.assertIn("Yahoo", response.json()["routes"][0]["note"])
+        timeline = response.json()["routes"][0]["timeline"]
+        self.assertEqual(
+            [item["type"] for item in timeline],
+            ["spot", "transit", "spot", "transit", "spot"],
+        )
+        self.assertEqual(timeline[2]["stay_minutes"], 90)
+        self.assertEqual(timeline[-1]["role"], "finish")
         self.assertEqual(
             poi_search.await_args_list,
             [
@@ -415,6 +427,38 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(len(places), 1)
         self.assertTrue(all("nature" in place.themes for place in places))
+
+    def test_route_timeline_interleaves_spots_and_transit_with_stay_times(self):
+        places = sample_places()[:2]
+        timeline = _build_route_timeline(
+            list_origins()[0],
+            places,
+            "09:00",
+            50,
+        )
+
+        self.assertEqual(
+            [item.type for item in timeline],
+            ["spot", "transit", "spot", "transit", "spot", "transit", "spot"],
+        )
+        transit = [item for item in timeline if item.type == "transit"]
+        self.assertEqual(sum(item.duration_minutes or 0 for item in transit), 50)
+        stops = [item for item in timeline if item.type == "spot" and item.role == "stop"]
+        self.assertEqual([item.stay_minutes for item in stops], [90, 90])
+        self.assertEqual(timeline[0].time, "09:00")
+        self.assertEqual(timeline[-1].time, "12:50")
+
+    def test_route_timeline_omits_arrival_times_when_total_is_unknown(self):
+        timeline = _build_route_timeline(
+            list_origins()[0],
+            sample_places()[:1],
+            "09:00",
+            None,
+        )
+
+        self.assertIsNone(timeline[1].duration_minutes)
+        self.assertIsNone(timeline[2].time)
+        self.assertIsNone(timeline[-1].time)
 
     def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={
