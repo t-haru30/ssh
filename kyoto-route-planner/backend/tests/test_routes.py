@@ -7,12 +7,13 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
-from app.ekispert import _make_url, _parse_legs
+from app.ekispert import _make_url, _parse_legs, _redact_access_key
 from app.main import (
     ROUTE_GENRE_CODES,
     _build_route_timeline,
     _route_candidates,
     app,
+    limiter,
 )
 from app.copywriting import RouteCopywriting
 from app.models import (
@@ -63,6 +64,7 @@ def sample_places() -> list[Place]:
 
 class RoutePlannerTests(unittest.TestCase):
     def setUp(self):
+        limiter.reset()
         self.search_places_patch = patch(
             "app.main.search_yahoo_catalog",
             new=AsyncMock(return_value=PlaceSearchResponse(
@@ -548,6 +550,12 @@ class RoutePlannerTests(unittest.TestCase):
         url = _make_url({"key": "safe-test-key", "viaList": "京都:稲荷:京都"})
 
         self.assertIn("viaList=%E4%BA%AC%E9%83%BD:%E7%A8%B2%E8%8D%B7:%E4%BA%AC%E9%83%BD", url)
+
+    def test_ekispert_access_key_is_redacted_from_loggable_url(self):
+        url = _make_url({"key": "secret-test-key", "viaList": "京都:稲荷:京都"})
+
+        self.assertNotIn("secret-test-key", _redact_access_key(url))
+        self.assertIn("key=[REDACTED]", _redact_access_key(url))
 
     def test_ekispert_course_is_normalized_to_segments(self):
         course = {

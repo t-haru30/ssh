@@ -3,13 +3,17 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, time as datetime_time
 from math import asin, cos, radians, sin, sqrt
+import os
 from pathlib import Path
 import random
 import time
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
@@ -170,7 +174,21 @@ async def lifespan(_app: FastAPI):
     yield
 
 
+RATE_LIMIT_STORAGE_URI = os.getenv("RATE_LIMIT_STORAGE_URI", "memory://").strip()
+if os.getenv("K_SERVICE") and not RATE_LIMIT_STORAGE_URI.startswith(("redis://", "rediss://")):
+    raise RuntimeError(
+        "Cloud Runでは共有レート制限ストレージが必要です。"
+        "RATE_LIMIT_STORAGE_URIにRedis接続URIを設定してください。"
+    )
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri=RATE_LIMIT_STORAGE_URI,
+    swallow_errors=False,
+)
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 ROUTE_STOP_STAY_MINUTES = 90
@@ -310,7 +328,9 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/places")
-async def places(keyword: str = "京都 観光", category: str | None = None):
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("20/minute")
+async def places(request: Request, keyword: str = "京都 観光", category: str | None = None):
     """Yahoo!ローカルサーチAPIの候補地のみを返す。"""
     query = f"{keyword} {category}" if category else keyword
     result = await search_yahoo_catalog(query, limit=60)
@@ -328,28 +348,50 @@ def places_status():
 
 
 @app.post("/api/search/places", response_model=PlaceSearchResponse)
-async def search_place_catalog(request: PlaceSearchRequest) -> PlaceSearchResponse:
-    return await search_yahoo_catalog(request.query)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("10/minute")
+async def search_place_catalog(
+    request: Request,
+    payload: PlaceSearchRequest,
+) -> PlaceSearchResponse:
+    return await search_yahoo_catalog(payload.query)
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
-async def recommend_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
-    return await plan_itinerary(request)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("5/minute")
+async def recommend_itinerary(
+    request: Request,
+    payload: ItineraryRequest,
+) -> ItinerarySuggestion:
+    return await plan_itinerary(payload)
 
 
 @app.post("/api/itineraries/overnight", response_model=OvernightItinerarySuggestion)
-async def recommend_overnight_itinerary(request: OvernightItineraryRequest) -> OvernightItinerarySuggestion:
-    return await plan_overnight_itinerary(request)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("2/minute")
+async def recommend_overnight_itinerary(
+    request: Request,
+    payload: OvernightItineraryRequest,
+) -> OvernightItinerarySuggestion:
+    return await plan_overnight_itinerary(payload)
 
 
 
 @app.post("/api/routes", response_model=RouteSuggestions)
-async def recommend_route(request: RouteSuggestionRequest) -> RouteSuggestions:
-    return await _recommend_routes(request)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("10/minute")
+async def recommend_route(
+    request: Request,
+    payload: RouteSuggestionRequest,
+) -> RouteSuggestions:
+    return await _recommend_routes(payload)
 
 
 @app.get("/api/routes/random", response_model=RouteSuggestions)
-async def recommend_random_route() -> RouteSuggestions:
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("5/minute")
+async def recommend_random_route(request: Request) -> RouteSuggestions:
     departure = datetime.now().replace(second=0, microsecond=0)
     request = RouteSuggestionRequest(
         origin=list_origins()[0].name,

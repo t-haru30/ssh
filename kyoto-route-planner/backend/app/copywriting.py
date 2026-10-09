@@ -103,7 +103,11 @@ async def generate_route_copywriting(
     }
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(url, params={"key": api_key}, json=body)
+            response = await client.post(
+                url,
+                headers={"x-goog-api-key": api_key},
+                json=body,
+            )
     except httpx.TimeoutException as error:
         raise HTTPException(
             status_code=504,

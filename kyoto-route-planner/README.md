@@ -33,6 +33,15 @@ GET /api/ideas/random?theme=nature&spot_count=2
 カバー画像を有効にする場合は[Pixabay API](https://pixabay.com/api/docs/)からAPIキーを取得し、バックエンドの`.env`へ`PIXABAY_API_KEY`として設定してください。キーはバックエンド内でのみ利用します。
 
 フロントエンドのスワイプ画面では`frontend`フォルダーで `npm install framer-motion` を実行してから開発サーバーまたは本番ビルドを実行します。右スワイプしたカードの選択済みスポットは`POST /api/itineraries`の`selected_places`へ渡され、Yahoo!へ再検索せずに駅すぱあと経路を計算します。
+
+### API呼び出しの保護
+
+外部APIを呼び出す公開エンドポイントはIP単位で制限します。候補検索は各10回/分、日帰り・ルート検索は各5〜10回/分、1泊2日検索は2回/分に加え、対象エンドポイント全体で20回/分の共有上限を適用します。上限超過はHTTP 429です。ローカル開発ではメモリストレージを使います。
+
+Cloud Runの複数インスタンス間で制限値を共有するには、Redisを用意し、到達可能な接続URIを`RATE_LIMIT_STORAGE_URI`としてSecret Managerから渡してください。Cloud RunではRedis URIがないと安全側に倒して起動を拒否します。`get_remote_address`はASGIが認識する接続元IPを使うため、プロキシ配下では信頼できるプロキシだけが転送元IPを設定するようにしてください。任意の`X-Forwarded-For`値を直接信用しないでください。
+
+駅すぱあとAPIは仕様上、アクセスキーを`key`クエリパラメータで送る必要があります。アプリケーションのデバッグログでは値をマスクしますが、プロキシ・APM・HTTPクライアントの詳細ログでもURLクエリを記録しない設定にしてください。Gemini APIキーはURLに含めず、`x-goog-api-key`ヘッダーで送信します。
+
 ### ルートのタイムライン
 
 ルート提案APIは出発地、各スポット、帰着地と、その間の移動を `timeline` 配列で時系列順に返します。各スポットの滞在時間は90分として到着時刻を計算します。駅すぱあとAPIは周遊全体の移動時間を返すため、区間ごとの時間は経路上の直線距離比で按分した目安です。実際の区間別発着時刻ではありません。駅すぱあとが返す路線・駅ごとの詳細はタイムライン内の折りたたみ欄に表示します。
@@ -178,11 +187,11 @@ gcloud run deploy kyoto-route-planner `
   --source . `
   --region asia-northeast1 `
   --allow-unauthenticated `
-  --set-secrets "EKISPERT_API_KEY=ekispert-api-key:latest,YAHOO_APP_ID=yahoo-app-id:latest" `
+  --set-secrets "EKISPERT_API_KEY=ekispert-api-key:latest,YAHOO_APP_ID=yahoo-app-id:latest,RATE_LIMIT_STORAGE_URI=rate-limit-storage-uri:latest" `
   --set-env-vars "EKISPERT_APPLICATION_URL=https://your-registered-domain.example"
 ```
 
-事前に `ekispert-api-key` と `yahoo-app-id` をSecret Managerへ登録し、Cloud Run実行サービスアカウントに参照権限を付与してください。`your-registered-domain.example` は、駅すぱあとAPIに登録した実際のアプリドメインに置き換えてください。Cloud RunのURLまたは独自ドメインが駅すぱあとAPIの登録条件に合うか、公開前に提供元へ確認してください。アプリのドメイン登録要件を満たさない場合はAPI認証に失敗します。
+事前に `ekispert-api-key`、`yahoo-app-id`、Redis接続URIを含む `rate-limit-storage-uri` をSecret Managerへ登録し、Cloud Run実行サービスアカウントに参照権限を付与してください。RedisがCloud Runから到達可能であることも確認してください。`your-registered-domain.example` は、駅すぱあとAPIに登録した実際のアプリドメインに置き換えてください。Cloud RunのURLまたは独自ドメインが駅すぱあとAPIの登録条件に合うか、公開前に提供元へ確認してください。アプリのドメイン登録要件を満たさない場合はAPI認証に失敗します。
 
 ## 動作・制約
 
