@@ -1,7 +1,8 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, time as datetime_time
+from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 import random
 import time
@@ -18,6 +19,7 @@ from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
+    Origin,
     OvernightItineraryRequest,
     OvernightItinerarySuggestion,
     Place,
@@ -25,6 +27,9 @@ from app.models import (
     PlaceSearchRequest,
     PlaceSearchResponse,
     RouteSuggestion,
+    RouteTimelineItem,
+    RouteTimelineSpot,
+    RouteTimelineTransit,
     RouteSuggestions,
     RouteSuggestionRequest,
     Theme,
@@ -36,6 +41,127 @@ from app.places import choose_place_sets, list_origins, normalize_origin_name
 logger = logging.getLogger(__name__)
 
 
+def _format_timeline_time(total_minutes: int) -> str:
+    minutes_in_day = total_minutes % (24 * 60)
+    return f"{minutes_in_day // 60:02d}:{minutes_in_day % 60:02d}"
+
+
+def _distance_km(first: tuple[float, float], second: tuple[float, float]) -> float:
+    latitude_delta = radians(second[0] - first[0])
+    longitude_delta = radians(second[1] - first[1])
+    haversine = (
+        sin(latitude_delta / 2) ** 2
+        + cos(radians(first[0]))
+        * cos(radians(second[0]))
+        * sin(longitude_delta / 2) ** 2
+    )
+    return 6371.0 * 2 * asin(sqrt(haversine))
+
+
+def _build_route_timeline(
+    origin: Origin,
+    places: list[Place],
+    departure_time: str,
+    total_minutes: int | None,
+) -> list[RouteTimelineItem]:
+    departure = datetime_time.fromisoformat(departure_time)
+    current_minutes = departure.hour * 60 + departure.minute
+    timeline: list[RouteTimelineItem] = [
+        RouteTimelineSpot(
+            role="start",
+            name=origin.name,
+            category="出発地",
+            time=_format_timeline_time(current_minutes),
+        )
+    ]
+    points = [
+        (origin.latitude, origin.longitude),
+        *((place.latitude, place.longitude) for place in places),
+        (origin.latitude, origin.longitude),
+    ]
+    distances = [
+        _distance_km(start, end)
+        for start, end in zip(points, points[1:])
+    ]
+    duration_total = max(0, total_minutes or 0)
+    distance_total = sum(distances)
+    if distance_total > 0:
+        durations = [
+            int(duration_total * distance / distance_total)
+            for distance in distances
+        ]
+    else:
+        durations = [duration_total // len(distances)] * len(distances)
+    if durations:
+        durations[-1] += duration_total - sum(durations)
+
+    for index, place in enumerate(places):
+        duration = durations[index] if total_minutes is not None else None
+        transit_start = _format_timeline_time(current_minutes)
+        if duration is not None:
+            current_minutes += duration
+        transit_end = (
+            _format_timeline_time(current_minutes)
+            if duration is not None
+            else None
+        )
+        timeline.append(
+            RouteTimelineTransit(
+                from_name=origin.name if index == 0 else places[index - 1].name,
+                to_name=place.name,
+                start_time=transit_start if duration is not None else None,
+                end_time=transit_end,
+                duration_minutes=duration,
+            )
+        )
+        timeline.append(
+            RouteTimelineSpot(
+                role="stop",
+                place_id=place.id,
+                name=place.name,
+                category=place.category,
+                time=(
+                    _format_timeline_time(current_minutes)
+                    if total_minutes is not None
+                    else None
+                ),
+                stay_minutes=ROUTE_STOP_STAY_MINUTES,
+            )
+        )
+        current_minutes += ROUTE_STOP_STAY_MINUTES
+
+    return_duration = durations[-1] if total_minutes is not None else None
+    return_start = _format_timeline_time(current_minutes)
+    if return_duration is not None:
+        current_minutes += return_duration
+    timeline.append(
+        RouteTimelineTransit(
+            from_name=places[-1].name if places else origin.name,
+            to_name=origin.name,
+            start_time=return_start if return_duration is not None else None,
+            end_time=(
+                _format_timeline_time(current_minutes)
+                if return_duration is not None
+                else None
+            ),
+            duration_minutes=return_duration,
+        )
+    )
+    timeline.append(
+        RouteTimelineSpot(
+            role="finish",
+            name=origin.name,
+            category="帰着",
+            time=(
+                _format_timeline_time(current_minutes)
+                if total_minutes is not None
+                else None
+            ),
+        )
+    )
+    return timeline
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     initialize_database()
@@ -45,6 +171,8 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
+ROUTE_STOP_STAY_MINUTES = 90
+ROUTE_TIMELINE_VERSION = 1
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
     "all": "京都",
@@ -166,7 +294,10 @@ async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "route_timeline_version": str(ROUTE_TIMELINE_VERSION),
+    }
 
 
 @app.get("/api/places")
@@ -296,6 +427,12 @@ async def _recommend_routes(
                         total_minutes=total_minutes,
                         departure_time=departure_time or request.departure_time.strftime("%H:%M"),
                         arrival_time=arrival_time or None,
+                        timeline=_build_route_timeline(
+                            origin,
+                            chosen,
+                            departure_time or request.departure_time.strftime("%H:%M"),
+                            total_minutes,
+                        ),
                         coordinates=[
                             [origin.latitude, origin.longitude],
                             *[[p.latitude, p.longitude] for p in chosen],
@@ -303,6 +440,7 @@ async def _recommend_routes(
                         ],
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
+                            "タイムラインの区間別移動時間は総移動時間を直線距離で按分した目安で、滞在時間は各90分です。"
                             "地点から最寄り駅までのアクセス時間は直線距離からの概算で、実際の徒歩道順ではありません。"
                             f"{candidate_note}"
                         ),

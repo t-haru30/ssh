@@ -1,5 +1,5 @@
 from datetime import date, time
-from typing import Literal
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -37,6 +37,30 @@ class RouteLeg(BaseModel):
     mode: str
     duration_minutes: int | None = None
 
+class RouteTimelineSpot(BaseModel):
+    type: Literal["spot"] = "spot"
+    role: Literal["start", "stop", "finish"]
+    place_id: str | None = None
+    name: str
+    category: str = ""
+    time: str | None = None
+    stay_minutes: int = 0
+
+class RouteTimelineTransit(BaseModel):
+    type: Literal["transit"] = "transit"
+    from_name: str
+    to_name: str
+    mode: Literal["public_transport"] = "public_transport"
+    start_time: str | None = None
+    end_time: str | None = None
+    duration_minutes: int | None = None
+    is_estimate: bool = True
+
+RouteTimelineItem = Annotated[
+    Union[RouteTimelineSpot, RouteTimelineTransit],
+    Field(discriminator="type"),
+]
+
 class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
@@ -46,6 +70,7 @@ class RouteSuggestion(BaseModel):
     total_minutes: int | None = None
     departure_time: str | None = None
     arrival_time: str | None = None
+    timeline: list[RouteTimelineItem] = Field(default_factory=list)
     note: str
     coordinates: list[list[float]] = Field(default_factory=list)
 
