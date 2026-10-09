@@ -20,6 +20,18 @@ YAHOO_APP_ID=取得したAppID
 
 AppIDは[Yahoo!デベロッパーネットワーク](https://e.developer.yahoo.co.jp/)で取得してください。AppID未設定、通信エラー、不正応答、結果0件の場合はYahoo!由来の空結果と状態メッセージを返します。APIキーは`.env`へ保存し、Gitへコミットしないでください。
 
+### スワイプ用の軽量アイデアAPI
+
+`GET /api/ideas/random` はテーマに沿ってYahoo!から2〜3件のスポットを選び、タイトルと短いストーリーを返します。`theme`（`all`、`history`、`temple`、`nature`、`food`）と`spot_count`（2または3）は任意で指定できます。駅すぱあとAPIは呼び出しません。`GEMINI_API_KEY`が未設定またはGeminiを利用できない場合は、スポット名とテーマからローカルでタイトル・ストーリーを組み立てます。
+
+```text
+GET /api/ideas/random?theme=nature&spot_count=2
+```
+
+応答には`theme`、`title`、`story`、`places`、`copywriting_source`、`note`が含まれます。Gemini利用時は`copywriting_source`が`gemini`、フォールバック時は`fallback`です。
+
+フロントエンドのスワイプ画面では`frontend`フォルダーで `npm install framer-motion` を実行してから開発サーバーまたは本番ビルドを実行します。右スワイプしたカードの選択済みスポットは`POST /api/itineraries`の`selected_places`へ渡され、Yahoo!へ再検索せずに駅すぱあと経路を計算します。
+
 ### 気分から作る1泊2日プラン
 
 画面で「1泊2日」を選び、「今日の気分」に「温泉でのんびりしたい」などを入力して提案します。`POST /api/itineraries/overnight` はYahoo!ローカルサーチAPIで宿泊先・観光地を探し、結果が不足または利用できない場合は空結果と状態メッセージを返します。経路は駅すぱあとAPIで検索し、日ごとの観光地、宿泊先、移動・滞在時間の目安を返します。区間別所要時間は総所要時間を均等配分した推定値で、営業時間・空室・料金・天気は保証しません。Yahoo! APIキーはバックエンドの`.env`で管理し、ブラウザーへ渡しません。

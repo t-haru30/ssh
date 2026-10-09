@@ -52,6 +52,14 @@ class RouteSuggestion(BaseModel):
 class RouteSuggestions(BaseModel):
     routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
 
+class RouteIdeaResponse(BaseModel):
+    theme: Theme
+    title: str = Field(min_length=1)
+    story: str = Field(min_length=1)
+    places: list[Place] = Field(min_length=2, max_length=3)
+    copywriting_source: Literal["gemini", "fallback"]
+    note: str
+
 class LabelPreference(BaseModel):
     label_type: Literal["atmosphere", "target_audience", "activity_type"]
     label: str
@@ -99,6 +107,7 @@ class ItineraryRequest(BaseModel):
     departure_date: date
     departure_time: time
     stop_count: int = Field(default=3, ge=1, le=3)
+    selected_places: list[CatalogPlace] | None = Field(default=None, min_length=1, max_length=3)
     return_by: time = time(18, 0)
     stay_minutes_per_place: int = Field(default=90, ge=0, le=360)
 

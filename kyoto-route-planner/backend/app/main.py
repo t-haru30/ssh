@@ -6,7 +6,7 @@ from pathlib import Path
 import random
 import time
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -27,6 +27,7 @@ from app.models import (
     RouteSuggestion,
     RouteSuggestions,
     RouteSuggestionRequest,
+    RouteIdeaResponse,
     Theme,
 )
 
@@ -66,6 +67,13 @@ ROUTE_GENRE_CODES: dict[Theme, tuple[str, ...]] = {
 ROUTE_PRIORITY_LANDMARKS = {
     "清水寺": "0424001",
     "平安神宮": "0424002",
+}
+IDEA_THEME_LABELS: dict[Theme, str] = {
+    "all": "気ままな京都",
+    "history": "歴史と文化",
+    "temple": "神社と寺院",
+    "nature": "自然と景色",
+    "food": "食と街歩き",
 }
 
 
@@ -220,6 +228,57 @@ async def recommend_random_route() -> RouteSuggestions:
         variation=random.randint(1, 2_147_483_647),
     )
     return await _recommend_routes(request, max_routes=1)
+
+
+@app.get("/api/ideas/random", response_model=RouteIdeaResponse)
+async def recommend_random_idea(
+    theme: Theme | None = None,
+    spot_count: int | None = Query(default=None, ge=2, le=3),
+) -> RouteIdeaResponse:
+    """Yahoo! POIと任意のGeminiコピーのみを使う軽量なスワイプ候補。"""
+    selected_theme = theme or random.choice(RANDOM_ROUTE_THEMES)
+    candidates, candidate_note = await _route_candidates(selected_theme)
+    if len(candidates) < 2:
+        raise HTTPException(
+            status_code=404,
+            detail="アイデア提案には2件以上のスポットが必要です。テーマを変更してください。",
+        )
+
+    requested_count = spot_count or random.randint(2, 3)
+    places = random.sample(candidates, min(requested_count, len(candidates)))
+    copywriting_source = "fallback"
+    copywriting_note = "GEMINI_API_KEY未設定のため、簡易タイトルとストーリーを使用しています。"
+    try:
+        copywriting = await generate_route_copywriting(places, selected_theme)
+    except HTTPException as error:
+        logger.warning(
+            "Gemini idea copywriting failed; using fallback copy: status=%s",
+            error.status_code,
+        )
+        copywriting = None
+        copywriting_note = "Geminiを利用できなかったため、簡易タイトルとストーリーを使用しています。"
+
+    if copywriting is None:
+        place_names = "と".join(place.name for place in places)
+        title = f"{place_names}で楽しむ、{IDEA_THEME_LABELS[selected_theme]}"
+        story = (
+            f"{IDEA_THEME_LABELS[selected_theme]}をテーマに、"
+            f"{place_names}を巡る寄り道アイデアです。"
+        )
+    else:
+        title = copywriting.title
+        story = copywriting.story
+        copywriting_source = "gemini"
+        copywriting_note = "Geminiがタイトルとストーリーを生成しました。"
+
+    return RouteIdeaResponse(
+        theme=selected_theme,
+        title=title,
+        story=story,
+        places=places,
+        copywriting_source=copywriting_source,
+        note=f"{candidate_note} {copywriting_note}",
+    )
 
 
 async def _recommend_routes(

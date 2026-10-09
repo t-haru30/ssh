@@ -317,3 +317,117 @@ a { color: inherit; text-decoration: none; }
   .results-section { margin-top: 30px; }
   .transit-card { padding: 17px 15px; }
 }
+
+.swipe-launch-button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  margin: 18px 0;
+  padding: 19px 24px 18px 64px;
+  border: 1px solid #dce6db;
+  color: var(--forest);
+  background: linear-gradient(110deg, #eff5ec, var(--paper));
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+}
+.swipe-launch-button > span {
+  position: absolute;
+  left: 24px;
+  top: 20px;
+  font-size: 27px;
+  line-height: 1;
+}
+.swipe-launch-button small { color: var(--muted); font-size: 10px; font-weight: 400; }
+.swipe-launch-button:hover:not(:disabled) { border-color: #9db19f; transform: translateY(-1px); }
+.swipe-launch-button:disabled { opacity: .6; cursor: wait; }
+
+.idea-deck-section {
+  margin: 18px 0;
+  padding: clamp(20px, 4vw, 38px);
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at 50% 37%, #f0f4ec 0, var(--canvas) 56%);
+}
+.idea-deck-heading { display: flex; justify-content: space-between; align-items: center; max-width: 760px; margin: 0 auto 20px; }
+.idea-deck-heading h2 { margin: 0; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(22px, 4vw, 30px); color: var(--forest); }
+.idea-close-button, .idea-reload-button { border: 1px solid var(--line); padding: 9px 15px; background: var(--paper); color: var(--control-text); font-size: 11px; }
+.idea-stage { position: relative; width: min(100%, 440px); height: 580px; margin: 0 auto; }
+.swipe-card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgba(31, 54, 42, .12);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 22px 55px rgba(32, 44, 36, .18);
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.swipe-card:active { cursor: grabbing; }
+.swipe-cover {
+  position: relative;
+  display: flex;
+  height: 220px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, #597961, #b2a87c);
+}
+.swipe-cover::before, .swipe-cover::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; }
+.swipe-cover::before { width: 280px; height: 280px; }
+.swipe-cover::after { width: 360px; height: 360px; }
+.swipe-cover.theme-temple { background: linear-gradient(135deg, #76624b, #b88d6e); }
+.swipe-cover.theme-food { background: linear-gradient(135deg, #9d6045, #d1a56e); }
+.swipe-cover.theme-history { background: linear-gradient(135deg, #4f5d58, #9b9878); }
+.swipe-cover.theme-all { background: linear-gradient(135deg, #426b58, #bd9f70); }
+.swipe-cover-index, .swipe-cover-count { position: absolute; z-index: 1; top: 17px; font-size: 9px; font-weight: 600; letter-spacing: .17em; }
+.swipe-cover-index { left: 19px; }
+.swipe-cover-count { right: 19px; }
+.swipe-cover-kanji { position: relative; z-index: 1; font-family: "Yu Mincho", serif; font-size: 110px; font-weight: 300; line-height: 1; text-shadow: 0 6px 22px rgba(0,0,0,.16); }
+.swipe-card-copy { padding: 23px 25px 18px; }
+.swipe-card-copy h3 { margin: 0; color: var(--forest-deep); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 24px; line-height: 1.4; }
+.swipe-story { min-height: 42px; margin: 9px 0 15px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.swipe-spot-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.swipe-spot-list li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 0; border-top: 1px solid var(--line); }
+.swipe-spot-number { color: #8fa18e; font-family: Georgia, serif; font-size: 12px; }
+.swipe-spot-copy { display: grid; gap: 4px; min-width: 0; }
+.swipe-spot-copy strong { color: var(--ink); font-size: 13px; }
+.swipe-spot-copy small { overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.swipe-hint { margin: 14px 0 0; color: #92968e; font-size: 9px; text-align: center; }
+.swipe-stamp { position: absolute; z-index: 3; top: 30px; padding: 6px 12px; border: 3px solid currentColor; border-radius: 4px; font-size: 22px; font-weight: 800; letter-spacing: .1em; }
+.swipe-stamp.skip { left: 22px; color: #b85e56; transform: rotate(-12deg); }
+.swipe-stamp.accept { right: 22px; color: #39745a; transform: rotate(12deg); }
+.idea-actions { display: flex; justify-content: center; gap: 30px; margin: 20px 0 8px; }
+.idea-action-button { display: grid; width: 56px; height: 56px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); box-shadow: 0 4px 14px rgba(32,44,36,.1); font-size: 28px; transition: transform .15s ease; }
+.idea-action-button:hover:not(:disabled) { transform: scale(1.08); }
+.idea-action-button.skip { color: #b85e56; }
+.idea-action-button.accept { color: #39745a; }
+.idea-action-button:disabled { cursor: not-allowed; opacity: .4; }
+.idea-deck-footnote, .idea-loading { margin: 10px 0; color: var(--muted); font-size: 10px; text-align: center; }
+.idea-error { max-width: 600px; margin: 0 auto 14px; padding: 11px 14px; color: #8a3d35; background: #f8e9e6; font-size: 12px; }
+.idea-empty { display: grid; align-content: center; justify-items: center; gap: 15px; height: 100%; color: var(--muted); }
+.idea-primary-button { min-height: 42px; padding: 0 22px; border: 0; color: white; background: var(--forest); font-size: 12px; font-weight: 600; }
+.idea-reload-button { display: block; margin: 14px auto 0; }
+.idea-itinerary { max-width: 620px; margin: 0 auto; padding: 28px; border: 1px solid var(--line); background: var(--paper); }
+.idea-itinerary h3 { margin: 0; color: var(--forest); font-family: "Yu Mincho", serif; font-size: 23px; }
+.idea-itinerary-summary, .idea-itinerary-note { color: var(--muted); font-size: 11px; line-height: 1.8; }
+.idea-itinerary-places, .idea-itinerary-legs { display: grid; gap: 10px; padding-left: 22px; }
+.idea-itinerary-places li { padding: 5px; font-weight: 600; }
+.idea-itinerary-legs li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 11px; }
+.idea-itinerary-legs strong { color: var(--forest); }
+.idea-itinerary-legs small { color: var(--muted); }
+.idea-itinerary .idea-primary-button { width: 100%; margin-top: 10px; }
+
+@media (max-width: 520px) {
+  .idea-deck-section { margin: 14px -2px; padding: 18px 12px; }
+  .idea-stage { height: 550px; }
+  .swipe-cover { height: 190px; }
+  .swipe-card-copy { padding: 19px 18px 15px; }
+  .swipe-card-copy h3 { font-size: 21px; }
+  .idea-itinerary { padding: 20px 16px; }
+}

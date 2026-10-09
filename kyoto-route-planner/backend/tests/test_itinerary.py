@@ -34,6 +34,35 @@ def catalog_place(
 
 
 class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
+    async def test_selected_idea_places_are_routed_without_researching_yahoo(self):
+        selected_places = [
+            catalog_place("swipe-a", "清水寺", 34.9949, 135.7850),
+            catalog_place("swipe-b", "円山公園", 35.0037, 135.7820),
+        ]
+        request = ItineraryRequest(
+            query="清水寺 円山公園",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 9),
+            departure_time=time(9, 0),
+            stop_count=2,
+            selected_places=selected_places,
+        )
+        route_search = AsyncMock(return_value=([], 40, "09:00", "09:40"))
+
+        with (
+            patch("app.itinerary.search_yahoo_catalog", new=AsyncMock()) as yahoo_search,
+            patch("app.itinerary.search_route", route_search),
+        ):
+            result = await plan_itinerary(request)
+
+        yahoo_search.assert_not_awaited()
+        self.assertEqual([place.id for place in result.places], ["swipe-a", "swipe-b"])
+        actual_coordinates = route_search.await_args.kwargs["via_points"][1:3]
+        self.assertEqual(
+            set(actual_coordinates),
+            {"34.9949,135.785", "35.0037,135.782"},
+        )
+
     async def test_times_out_when_place_search_exceeds_request_budget(self):
         request = ItineraryRequest(
             query="京都府の観光地",

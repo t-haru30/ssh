@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "5.0.2",
+    "framer-motion": "^14.0.0",
     "maplibre-gl": "6.12.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "typescript": "5.9.2",
-    "vite": "7.2.2"
+    "vite": "7.3.7"
   },
   "devDependencies": {
     "@types/react": "19.1.12",

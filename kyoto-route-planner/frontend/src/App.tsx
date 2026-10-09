@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
+import { IdeaDeck } from "./IdeaDeck";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
@@ -135,6 +136,7 @@ function App() {
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
   const [isOvernight, setIsOvernight] = useState(false);
+  const [showIdeaDeck, setShowIdeaDeck] = useState(false);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -461,6 +463,26 @@ function App() {
         </div>
         <div className="hero-stamp" aria-hidden="true"><span>京</span><small>WANDER<br />WITH CARE</small></div>
       </section>
+
+      {!showIdeaDeck ? (
+        <button
+          className="swipe-launch-button"
+          type="button"
+          onClick={() => setShowIdeaDeck(true)}
+          disabled={loading || !origin}
+        >
+          <span aria-hidden="true">♡</span>
+          スワイプで寄り道を見つける
+          <small>経路検索の前に、気になるアイデアを選ぼう</small>
+        </button>
+      ) : origin ? (
+        <IdeaDeck
+          origin={origin}
+          departureDate={departureDate}
+          departureTime={departureTime}
+          onClose={() => setShowIdeaDeck(false)}
+        />
+      ) : null}
 
       <section className={`route-copy-banner${suggestions.length > 0 ? " visible" : ""}`} aria-live="polite">
         {suggestions[0]?.title ? (

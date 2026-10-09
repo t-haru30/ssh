@@ -9,6 +9,8 @@ export type Place = {
   latitude: number;
   longitude: number;
   themes: Theme[];
+  address?: string;
+  tags?: Record<string, string>;
 };
 
 export type Origin = {

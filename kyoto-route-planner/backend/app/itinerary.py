@@ -17,10 +17,14 @@ from app.models import (
     OvernightItinerarySuggestion,
     DailyItinerary,
     ItineraryScheduleItem,
+    ParsedPlaceQuery,
+    PlaceSearchHit,
+    PlaceSearchResponse,
     RouteLeg,
 )
 from app.poi_search import search_yahoo_catalog
 from app.places import list_origins, normalize_origin_name
+from app.search import parse_place_query
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
 
@@ -374,16 +378,26 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             status_code=504,
             detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
         )
-    try:
-        search_result = await asyncio.wait_for(
-            search_yahoo_catalog(request.query, limit=20),
-            timeout=remaining_seconds,
+    if request.selected_places is not None:
+        search_result = PlaceSearchResponse(
+            query=parse_place_query(request.query),
+            results=[
+                PlaceSearchHit(place=place, score=1.0)
+                for place in request.selected_places
+            ],
+            note="スワイプで選択したスポットです。",
         )
-    except asyncio.TimeoutError as error:
-        raise HTTPException(
-            status_code=504,
-            detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
-        ) from error
+    else:
+        try:
+            search_result = await asyncio.wait_for(
+                search_yahoo_catalog(request.query, limit=20),
+                timeout=remaining_seconds,
+            )
+        except asyncio.TimeoutError as error:
+            raise HTTPException(
+                status_code=504,
+                detail="旅程候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
+            ) from error
     if not search_result.results:
         detail = " ".join(
             [search_result.note, *search_result.query.warnings]
