@@ -625,7 +625,7 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertIn("EKISPERT_API_KEY", response.json()["detail"])
 
-    def test_route_suggestion_returns_up_to_three_route_options(self):
+    def test_route_suggestion_returns_only_top_scored_route(self):
         client = TestClient(app)
         request = {
             "origin": "京都駅",
@@ -656,10 +656,10 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(len(body["routes"]), 3)
+        self.assertEqual(len(body["routes"]), 1)
         self.assertEqual(body["routes"][0]["legs"][0]["line_name"], "JR奈良線")
         self.assertEqual(body["routes"][0]["total_minutes"], 35)
-        self.assertEqual(search.await_count, 3)
+        search.assert_awaited_once()
         self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
 
     def test_random_route_selects_backend_conditions_and_returns_one_route(self):
@@ -726,8 +726,6 @@ class RoutePlannerTests(unittest.TestCase):
         search = AsyncMock(side_effect=[
             HTTPException(404, "no route for three points"),
             success,
-            success,
-            success,
         ])
 
         with patch("app.main.search_route", search), patch(
@@ -737,11 +735,11 @@ class RoutePlannerTests(unittest.TestCase):
             response = client.post("/api/routes", json=request)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()["routes"]), 3)
+        self.assertEqual(len(response.json()["routes"]), 1)
         self.assertEqual(len(response.json()["routes"][0]["places"]), 2)
-        self.assertEqual(search.await_count, 4)
+        self.assertEqual(search.await_count, 2)
 
-    def test_route_suggestion_returns_partial_results_when_some_variants_have_no_route(self):
+    def test_route_suggestion_does_not_search_other_variants_after_success(self):
         client = TestClient(app)
         request = {
             "origin": "京都駅",
@@ -762,48 +760,7 @@ class RoutePlannerTests(unittest.TestCase):
             "09:00",
             "09:20",
         )
-        search = AsyncMock(side_effect=[
-            success,
-            success,
-            HTTPException(404, "no route for this variant"),
-            HTTPException(404, "no route for this variant"),
-            HTTPException(404, "no route for this variant"),
-        ])
-
-        with patch("app.main.search_route", search), patch(
-            "app.main._route_candidates",
-            new=AsyncMock(return_value=(sample_places(), "test candidates")),
-        ):
-            response = client.post("/api/routes", json=request)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()["routes"]), 2)
-
-    def test_route_suggestion_keeps_successful_routes_after_temporary_provider_failure(self):
-        client = TestClient(app)
-        request = {
-            "origin": "京都駅",
-            "theme": "all",
-            "stop_count": 1,
-            "departure_date": "2026-10-05",
-            "departure_time": "09:00",
-        }
-        success = (
-            [RouteLeg(
-                from_name="京都",
-                to_name="稲荷",
-                line_name="JR奈良線",
-                mode="train",
-                duration_minutes=5,
-            )],
-            20,
-            "09:00",
-            "09:20",
-        )
-        search = AsyncMock(side_effect=[
-            success,
-            HTTPException(504, "temporary outage"),
-        ])
+        search = AsyncMock(return_value=success)
 
         with patch("app.main.search_route", search), patch(
             "app.main._route_candidates",
@@ -813,7 +770,39 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["routes"]), 1)
-        self.assertEqual(search.await_count, 2)
+        search.assert_awaited_once()
+
+    def test_route_suggestion_reports_temporary_failure_for_selected_route(self):
+        client = TestClient(app)
+        request = {
+            "origin": "京都駅",
+            "theme": "all",
+            "stop_count": 1,
+            "departure_date": "2026-10-05",
+            "departure_time": "09:00",
+        }
+        success = (
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            20,
+            "09:00",
+            "09:20",
+        )
+        search = AsyncMock(side_effect=HTTPException(504, "temporary outage"))
+
+        with patch("app.main.search_route", search), patch(
+            "app.main._route_candidates",
+            new=AsyncMock(return_value=(sample_places(), "test candidates")),
+        ):
+            response = client.post("/api/routes", json=request)
+
+        self.assertEqual(response.status_code, 504)
+        search.assert_awaited_once()
 
     def test_route_suggestion_returns_timeout_when_no_route_finishes_in_budget(self):
         client = TestClient(app)
