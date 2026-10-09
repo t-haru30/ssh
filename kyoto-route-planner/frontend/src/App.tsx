@@ -300,7 +300,24 @@ function App() {
         }, REQUEST_TIMEOUT_MS);
         if (!response.ok) throw new Error(await readError(response));
 
-        const payload = await response.json() as OvernightItinerarySuggestion;
+        const rawPayload = await response.json() as Partial<OvernightItinerarySuggestion> & {
+          days?: Array<OvernightItinerarySuggestion["days"][number] & {
+            lunch?: OvernightItinerarySuggestion["days"][number]["lunch"];
+          }>;
+        };
+        const payload: OvernightItinerarySuggestion = {
+          ...rawPayload,
+          days: (rawPayload.days ?? []).map((day) => ({
+            ...day,
+            lunch: day.lunch ?? {
+              type: "lunch",
+              place: null,
+              start_time: "12:00",
+              end_time: "13:00",
+              reason: "昼食情報を取得できなかったため、昼食は要検討です。",
+            },
+          })),
+        } as OvernightItinerarySuggestion;
         if (requestId === requestIdRef.current) {
           setOvernightSuggestion(payload);
         }

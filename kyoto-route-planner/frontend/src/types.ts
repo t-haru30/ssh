@@ -9,6 +9,9 @@ export type Place = {
   latitude: number;
   longitude: number;
   themes: Theme[];
+  address?: string;
+  genre_code?: string;
+  tags?: Record<string, string>;
 };
 
 export type Origin = {
@@ -91,6 +94,7 @@ export type DailyItinerary = {
   places: Place[];
   legs: RouteLeg[];
   schedule: ItineraryScheduleItem[];
+  lunch: LunchPlan;
   transit_minutes: number | null;
   stay_minutes: number;
   estimated_arrival_at: string | null;
@@ -102,7 +106,15 @@ export type ItineraryScheduleItem = {
   end_time: string | null;
   title: string;
   detail: string;
-  kind: "travel" | "visit" | "hotel";
+  kind: "travel" | "visit" | "hotel" | "lunch";
+};
+
+export type LunchPlan = {
+  type: "lunch";
+  place: Place | null;
+  start_time: string;
+  end_time: string;
+  reason: string;
 };
 
 export type OvernightItinerarySuggestion = {

@@ -248,6 +248,7 @@ export function buildDayTimeline(
 
     const isHotelDeparture = scheduleItem.title === "ホテルを出発";
     const place = day.places.find((candidate) => candidate.name === scheduleItem.title)
+      ?? (scheduleItem.kind === "lunch" ? day.lunch.place ?? undefined : undefined)
       ?? (scheduleItem.kind === "hotel" && scheduleItem.title === hotel.name ? hotel : undefined);
     const stayMinutes = durationBetween(scheduleItem.start_time, scheduleItem.end_time) ?? 0;
     const spot: TimelineSpot = {
@@ -255,14 +256,22 @@ export function buildDayTimeline(
       role: isHotelDeparture ? "start" : "stop",
       place_id: place?.id ?? null,
       name: scheduleItem.title,
-      category: scheduleItem.kind === "hotel" ? "宿泊・到着" : place?.category ?? "立ち寄り",
+      category: scheduleItem.kind === "hotel"
+        ? "宿泊・到着"
+        : scheduleItem.kind === "lunch"
+          ? place?.category ?? "要検討"
+          : place?.category ?? "立ち寄り",
       time: scheduleItem.start_time,
       stay_minutes: scheduleItem.kind === "visit" ? stayMinutes : 0,
-      detail: scheduleItem.detail,
+      detail: scheduleItem.kind === "lunch" && place?.address
+        ? `${scheduleItem.detail} · ${place.address}`
+        : scheduleItem.detail,
       label: isHotelDeparture
         ? "ホテルを出発"
         : scheduleItem.kind === "hotel"
           ? "宿泊・到着"
+          : scheduleItem.kind === "lunch"
+            ? `昼食 · ${place?.category ?? "要検討"}`
           : undefined,
     };
     currentLocation = isHotelDeparture ? hotel.name : scheduleItem.title;

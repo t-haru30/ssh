@@ -34,6 +34,20 @@ def catalog_place(place_id: str, name: str, category: str) -> CatalogPlace:
     )
 
 
+def lunch_place(place_id: str = "lunch-1") -> CatalogPlace:
+    return CatalogPlace(
+        id=place_id,
+        name="京の昼食処",
+        category="カフェ",
+        region="京都府",
+        address="京都市",
+        latitude=35.0,
+        longitude=135.7,
+        description="京料理とおばんざい",
+        genre_code="01",
+    )
+
+
 class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
     async def test_mood_generates_hotel_spots_and_timed_two_day_schedule(self):
         hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")
@@ -77,8 +91,48 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.days[0].schedule[-1].kind, "hotel")
         self.assertEqual(result.days[1].schedule[0].title, "ホテルを出発")
         self.assertEqual(result.days[1].schedule[0].start_time, "10:00")
+        self.assertIsNone(result.days[0].lunch.place)
+        self.assertIn("要検討", result.days[0].lunch.reason)
         self.assertIn("温泉でのんびり", search.await_args_list[0].args[0])
         self.assertEqual(search.await_args_list[1].args[0], request.query)
+
+    async def test_each_day_includes_a_lunch_plan_between_sightseeing(self):
+        hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")
+        morning = catalog_place("place-1", "静かな庭園", "庭園")
+        afternoon = catalog_place("place-2", "歴史資料館", "博物館")
+        lunch = lunch_place()
+        search = AsyncMock(side_effect=[
+            search_response(hotel),
+            search_response(hotel, morning, afternoon),
+            search_response(lunch),
+            search_response(lunch),
+        ])
+        route_search = AsyncMock(return_value=(
+            [],
+            60,
+            "09:00",
+            datetime(2026, 10, 9, 12, 0),
+        ))
+        request = OvernightItineraryRequest(
+            query="京都の歴史を楽しみたい",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 9),
+            stops_per_day=1,
+        )
+
+        with (
+            patch("app.itinerary.search_yahoo_catalog", new=search),
+            patch("app.itinerary.search_route", new=route_search),
+        ):
+            result = await plan_overnight_itinerary(request)
+
+        self.assertEqual(len(result.days), 2)
+        for day in result.days:
+            self.assertEqual(day.lunch.type, "lunch")
+            self.assertIsNotNone(day.lunch.place)
+            self.assertEqual(day.lunch.place.category, "カフェ")
+            self.assertEqual((day.lunch.start_time, day.lunch.end_time), ("12:00", "13:00"))
+            self.assertTrue(any(item.kind == "lunch" for item in day.schedule))
 
 
 if __name__ == "__main__":
