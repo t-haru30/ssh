@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
-import { buildRouteTimeline, RouteTimeline } from "./RouteTimeline";
+import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
@@ -19,20 +19,6 @@ function localDateInputValue() {
   const now = new Date();
   const offset = now.getTimezoneOffset();
   return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
-}
-
-function formatDuration(minutes: number | null) {
-  if (minutes === null) return "時間情報なし";
-  const hours = Math.floor(minutes / 60);
-  const remainder = minutes % 60;
-  return hours > 0 ? `${hours}時間${remainder}分` : `${remainder}分`;
-}
-
-function modeLabel(mode: string) {
-  if (mode.toLowerCase().includes("train")) return "電車";
-  if (mode.toLowerCase().includes("bus")) return "バス";
-  if (mode.toLowerCase().includes("walk")) return "徒歩";
-  return "乗換・移動";
 }
 
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -645,54 +631,14 @@ function App() {
                 {overnightSuggestion.days.map((day) => (
                   <div key={day.day} className="overnight-day-section">
                     <h4>【Day {day.day}】 {day.date}</h4>
-                    <div className="itinerary-timeline-panel">
-                      <ol className="itinerary-timeline">
-                        {day.day === 1 && (
-                          <li className="itinerary-timeline-row itinerary-timeline-spot">
-                            <time>{departureTime}</time>
-                            <span className="itinerary-timeline-marker" aria-hidden="true">出</span>
-                            <div className="itinerary-timeline-content">
-                              <small>出発</small>
-                              <strong>{overnightSuggestion.origin.name}</strong>
-                            </div>
-                          </li>
-                        )}
-                        {day.schedule.map((item, index) => (
-                          <li
-                            className={`itinerary-timeline-row itinerary-timeline-${item.kind}`}
-                            key={`${day.day}-${index}`}
-                          >
-                            <time>
-                              {item.start_time && item.end_time
-                                ? `${item.start_time}–${item.end_time}`
-                                : item.start_time ?? "時刻未確定"}
-                            </time>
-                            <span className="itinerary-timeline-marker" aria-hidden="true">
-                              {item.kind === "travel" ? "›" : item.kind === "hotel" ? "宿" : "訪"}
-                            </span>
-                            <div className="itinerary-timeline-content">
-                              <small>{item.kind === "travel" ? "移動" : item.kind === "hotel" ? "宿泊・到着" : "立ち寄り"}</small>
-                              <strong>{item.title}</strong>
-                              <span>{item.detail}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ol>
-                      <div className="transit-summary">
-                        <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
-                        {day.estimated_arrival_at && (
-                          <div className="transit-clock"><span>到着予定</span><strong>{new Date(day.estimated_arrival_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></div>
-                        )}
-                      </div>
-                      {day.legs.length > 0 && (
-                        <details className="itinerary-route-details">
-                          <summary>駅すぱあと経路の詳細（{day.legs.length}区間）</summary>
-                          <ol className="leg-list">
-                            {day.legs.map((leg, i) => <LegRow leg={leg} index={i} key={`${day.day}-${i}`} />)}
-                          </ol>
-                        </details>
+                    <RouteTimeline
+                      items={buildDayTimeline(
+                        day,
+                        overnightSuggestion.origin,
+                        overnightSuggestion.hotel,
+                        day.day === 1 ? departureTime : "10:00",
                       )}
-                    </div>
+                    />
                   </div>
                 ))}
               </div>
@@ -708,18 +654,18 @@ function App() {
                 <h3>ルート {index + 1}</h3>
                 {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
                 <RouteTimeline
-                  items={suggestion.timeline?.length
-                    ? suggestion.timeline
-                    : buildRouteTimeline(suggestion.origin, suggestion.places, suggestion.departure_time, suggestion.total_minutes)}
-                  legs={suggestion.legs}
+                  items={withRouteLegs(
+                    suggestion.timeline?.length
+                      ? suggestion.timeline
+                      : buildRouteTimeline(
+                      suggestion.origin,
+                      suggestion.places,
+                      suggestion.departure_time,
+                      suggestion.total_minutes,
+                      ),
+                    suggestion.legs,
+                  )}
                 />
-                <div className="transit-summary route-transit-summary">
-                  <div><small>公共交通の移動時間</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
-                  <div className="transit-clock">
-                    <span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>
-                    {suggestion.arrival_time && <><span>経路検索上の帰着</span><strong>{suggestion.arrival_time}</strong></>}
-                  </div>
-                </div>
                 <p className="result-note">{suggestion.note}</p>
               </article>
             ))}
@@ -737,20 +683,6 @@ function App() {
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>
-  );
-}
-
-function LegRow({ leg, index }: { leg: RouteLeg; index: number }) {
-  return (
-    <li className="leg-row">
-      <span className={`leg-icon leg-${leg.mode.toLowerCase()}`}>{modeLabel(leg.mode) === "電車" ? "電" : modeLabel(leg.mode) === "バス" ? "バ" : modeLabel(leg.mode) === "徒歩" ? "歩" : "›"}</span>
-      <div className="leg-copy">
-        <span>{leg.from_name} <b>→</b> {leg.to_name}</span>
-        <strong>{leg.line_name}</strong>
-      </div>
-      <span className="leg-duration">{leg.duration_minutes === null ? modeLabel(leg.mode) : `${leg.duration_minutes}分`}</span>
-      {index === 0 && <span className="sr-only">最初の経路区間</span>}
-    </li>
   );
 }
 
