@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { MapView } from "./MapView";
 import { IdeaDeck } from "./IdeaDeck";
+import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
 
@@ -19,20 +20,6 @@ function localDateInputValue() {
   const now = new Date();
   const offset = now.getTimezoneOffset();
   return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
-}
-
-function formatDuration(minutes: number | null) {
-  if (minutes === null) return "時間情報なし";
-  const hours = Math.floor(minutes / 60);
-  const remainder = minutes % 60;
-  return hours > 0 ? `${hours}時間${remainder}分` : `${remainder}分`;
-}
-
-function modeLabel(mode: string) {
-  if (mode.toLowerCase().includes("train")) return "電車";
-  if (mode.toLowerCase().includes("bus")) return "バス";
-  if (mode.toLowerCase().includes("walk")) return "徒歩";
-  return "乗換・移動";
 }
 
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -96,6 +83,30 @@ function isRouteLeg(value: unknown): value is RouteLeg {
   );
 }
 
+function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
+  if (!isRecord(value)) return false;
+  if (value.type === "spot") {
+    return (
+      (value.role === "start" || value.role === "stop" || value.role === "finish")
+      && (typeof value.place_id === "string" || value.place_id === null)
+      && typeof value.name === "string"
+      && typeof value.category === "string"
+      && (typeof value.time === "string" || value.time === null)
+      && typeof value.stay_minutes === "number"
+    );
+  }
+  return (
+    value.type === "transit"
+    && value.mode === "public_transport"
+    && typeof value.from_name === "string"
+    && typeof value.to_name === "string"
+    && (typeof value.start_time === "string" || value.start_time === null)
+    && (typeof value.end_time === "string" || value.end_time === null)
+    && (typeof value.duration_minutes === "number" || value.duration_minutes === null)
+    && typeof value.is_estimate === "boolean"
+  );
+}
+
 function isRouteSuggestions(value: unknown): value is RouteSuggestions {
   if (!isRecord(value) || !Array.isArray(value.routes) || value.routes.length === 0) {
     return false;
@@ -107,6 +118,10 @@ function isRouteSuggestions(value: unknown): value is RouteSuggestions {
     && route.places.every(isPlace)
     && Array.isArray(route.legs)
     && route.legs.every(isRouteLeg)
+    && (
+      route.timeline === undefined
+      || (Array.isArray(route.timeline) && route.timeline.every(isRouteTimelineItem))
+    )
     && isOrigin(route.origin)
     && (route.title === null || typeof route.title === "string")
     && (route.story === null || typeof route.story === "string")
@@ -149,6 +164,7 @@ function App() {
   const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
+  const routeSwipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
 
   useEffect(() => () => {
     requestIdRef.current += 1;
@@ -288,7 +304,24 @@ function App() {
         }, REQUEST_TIMEOUT_MS);
         if (!response.ok) throw new Error(await readError(response));
 
-        const payload = await response.json() as OvernightItinerarySuggestion;
+        const rawPayload = await response.json() as Partial<OvernightItinerarySuggestion> & {
+          days?: Array<OvernightItinerarySuggestion["days"][number] & {
+            lunch?: OvernightItinerarySuggestion["days"][number]["lunch"];
+          }>;
+        };
+        const payload: OvernightItinerarySuggestion = {
+          ...rawPayload,
+          days: (rawPayload.days ?? []).map((day) => ({
+            ...day,
+            lunch: day.lunch ?? {
+              type: "lunch",
+              place: null,
+              start_time: "12:00",
+              end_time: "13:00",
+              reason: "昼食情報を取得できなかったため、昼食は要検討です。",
+            },
+          })),
+        } as OvernightItinerarySuggestion;
         if (requestId === requestIdRef.current) {
           setOvernightSuggestion(payload);
         }
@@ -438,6 +471,27 @@ function App() {
         setSearching(false);
       }
     }
+  }
+
+  function handleRoutePointerDown(event: ReactPointerEvent<HTMLElement>) {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    routeSwipeStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      pointerId: event.pointerId,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleRoutePointerUp(event: ReactPointerEvent<HTMLElement>) {
+    const start = routeSwipeStartRef.current;
+    routeSwipeStartRef.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < 80 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return;
+    void handleRegenerate();
   }
 
   return (
@@ -647,41 +701,14 @@ function App() {
                 {overnightSuggestion.days.map((day) => (
                   <div key={day.day} className="overnight-day-section">
                     <h4>【Day {day.day}】 {day.date}</h4>
-                    <div className="stop-list">
-                      <div className="route-endpoint"><span className="endpoint-dot" /><div><small>{day.day === 1 ? "START" : "HOTEL"}</small><strong>{day.day === 1 ? overnightSuggestion.origin.name : overnightSuggestion.hotel.name}</strong></div></div>
-                      {day.places.map((place, idx) => (
-                        <div className="suggested-place" key={place.id}>
-                          <span className="place-number">{String(idx + 1).padStart(2, "0")}</span>
-                          <div><small>{place.category}</small><strong>{place.name}</strong></div>
-                        </div>
-                      ))}
-                      <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>{day.day === 1 ? "HOTEL" : "FINISH"}</small><strong>{day.day === 1 ? overnightSuggestion.hotel.name : overnightSuggestion.origin.name}</strong></div></div>
-                    </div>
-                    
-                    <div className="transit-card">
-                      {day.schedule.length > 0 && (
-                        <ol className="itinerary-schedule">
-                          {day.schedule.map((item, index) => (
-                            <li key={`${day.day}-${index}`}>
-                              <time>{item.start_time && item.end_time ? `${item.start_time}–${item.end_time}` : "時刻未確定"}</time>
-                              <strong>{item.title}</strong>
-                              <span>{item.detail}</span>
-                            </li>
-                          ))}
-                        </ol>
+                    <RouteTimeline
+                      items={buildDayTimeline(
+                        day,
+                        overnightSuggestion.origin,
+                        overnightSuggestion.hotel,
+                        day.day === 1 ? departureTime : "10:00",
                       )}
-                      <div className="transit-summary">
-                        <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
-                        {day.estimated_arrival_at && (
-                          <div className="transit-clock"><span>到着予定</span><strong>{new Date(day.estimated_arrival_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></div>
-                        )}
-                      </div>
-                      {day.legs.length > 0 && (
-                        <ol className="leg-list">
-                          {day.legs.map((leg, i) => <LegRow leg={leg} index={i} key={`${day.day}-${i}`} />)}
-                        </ol>
-                      )}
-                    </div>
+                    />
                   </div>
                 ))}
               </div>
@@ -690,45 +717,38 @@ function App() {
           </div>
         )}
 
-        {suggestions.length > 0 && (
+        {suggestions[0] && (
           <div className="route-options">
-            {suggestions.map((suggestion, index) => (
-              <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
-                <h3>ルート {index + 1}</h3>
-                {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
-                <div className="route-result">
-                  <div className="stop-list">
-                    <div className="route-endpoint"><span className="endpoint-dot" /><div><small>START · RETURN</small><strong>{suggestion.origin.name}</strong></div></div>
-                    {suggestion.places.map((place, index) => (
-                      <div className="suggested-place" key={place.id}>
-                        <span className="place-number">{String(index + 1).padStart(2, "0")}</span>
-                        <div><small>{place.category} · 座標から公共交通を検索</small><strong>{place.name}</strong><p>{place.description || "説明はありません"}</p></div>
-                      </div>
-                    ))}
-                    <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>FINISH</small><strong>{suggestion.origin.name}</strong></div></div>
-                  </div>
-
-                  <div className="transit-card">
-                    <div className="transit-summary">
-                      <div><small>ESTIMATED TRANSIT TIME</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
-                      <div className="transit-clock"><span>出発</span><strong>{suggestion.departure_time ?? departureTime}</strong>{suggestion.arrival_time && <><span>到着</span><strong>{suggestion.arrival_time}</strong></>}</div>
-                    </div>
-                    <h3>公共交通の経路</h3>
-                    {suggestion.legs.length > 0 ? (
-                      <ol className="leg-list">
-                        {suggestion.legs.map((leg, index) => <LegRow leg={leg} index={index} key={`${index}-${leg.line_name}`} />)}
-                      </ol>
-                    ) : (
-                      <p className="no-leg-detail">経路は検索されましたが、区間の詳細はAPIから返されませんでした。</p>
-                    )}
-                    <p className="result-note">{suggestion.note}</p>
-                  </div>
-                </div>
-              </article>
-            ))}
-            <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
-              {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
-            </button>
+            <article
+              className="route-option route-swipe-card"
+              key={suggestions[0].places.map((place) => place.id).join("-")}
+              onPointerDown={handleRoutePointerDown}
+              onPointerUp={handleRoutePointerUp}
+              onPointerCancel={() => { routeSwipeStartRef.current = null; }}
+            >
+              <h3>おすすめルート</h3>
+              {suggestions[0].title && <div className="route-copy"><h4>{suggestions[0].title}</h4>{suggestions[0].story && <p>{suggestions[0].story}</p>}</div>}
+              <RouteTimeline
+                items={withRouteLegs(
+                  suggestions[0].timeline?.length
+                    ? suggestions[0].timeline
+                    : buildRouteTimeline(
+                    suggestions[0].origin,
+                    suggestions[0].places,
+                    suggestions[0].departure_time,
+                    suggestions[0].total_minutes,
+                    ),
+                  suggestions[0].legs,
+                )}
+              />
+              <p className="result-note">{suggestions[0].note}</p>
+            </article>
+            <div className="route-swipe-controls">
+              <p className="route-swipe-hint">カードを左右にスワイプして、次のルートを探せます</p>
+              <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
+                {searching ? <><span className="button-spinner" /> 別のルートを探しています</> : <>別のルートを探す <span>↻</span></>}
+              </button>
+            </div>
           </div>
         )}
       </section>
@@ -740,20 +760,6 @@ function App() {
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>
-  );
-}
-
-function LegRow({ leg, index }: { leg: RouteLeg; index: number }) {
-  return (
-    <li className="leg-row">
-      <span className={`leg-icon leg-${leg.mode.toLowerCase()}`}>{modeLabel(leg.mode) === "電車" ? "電" : modeLabel(leg.mode) === "バス" ? "バ" : modeLabel(leg.mode) === "徒歩" ? "歩" : "›"}</span>
-      <div className="leg-copy">
-        <span>{leg.from_name} <b>→</b> {leg.to_name}</span>
-        <strong>{leg.line_name}</strong>
-      </div>
-      <span className="leg-duration">{leg.duration_minutes === null ? modeLabel(leg.mode) : `${leg.duration_minutes}分`}</span>
-      {index === 0 && <span className="sr-only">最初の経路区間</span>}
-    </li>
   );
 }
 

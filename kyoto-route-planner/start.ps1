@@ -48,18 +48,22 @@ if (-not (Test-Path (Join-Path $backend ".env"))) {
     throw "backend\.env is missing. Copy backend\.env.example and configure the API key."
 }
 
+$health = $null
 try {
     $health = Invoke-RestMethod -Uri $healthUrl -TimeoutSec 2
-    if ($health.status -ne "ok") {
-        throw "An unexpected service is already using port 8000."
+}
+catch {
+}
+if ($health -and $health.status -eq "ok") {
+    if ($health.route_timeline_version -ne "1") {
+        throw "An outdated API server is already using port 8000. Close its server window and run this shortcut again."
     }
     Write-Host "The Kyoto route planner is already running."
 }
-catch {
-    if ($_.Exception.Message -like "An unexpected service*") {
-        throw
-    }
-
+elseif ($health) {
+    throw "An unexpected service is already using port 8000."
+}
+else {
     $backendLiteral = $backend.Replace("'", "''")
     $pythonLiteral = $python.Replace("'", "''")
     $command = "Set-Location -LiteralPath '$backendLiteral'; & '$pythonLiteral' -m uvicorn app.main:app --host 127.0.0.1 --port 8000"
@@ -71,14 +75,18 @@ catch {
     $ready = $false
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
         Start-Sleep -Seconds 1
+        $health = $null
         try {
             $health = Invoke-RestMethod -Uri $healthUrl -TimeoutSec 2
-            if ($health.status -eq "ok") {
-                $ready = $true
-                break
-            }
         }
         catch {
+        }
+        if ($health -and $health.status -eq "ok") {
+            if ($health.route_timeline_version -ne "1") {
+                throw "An outdated API server is responding on port 8000. Close its server window and run this shortcut again."
+            }
+            $ready = $true
+            break
         }
     }
     if (-not $ready) {

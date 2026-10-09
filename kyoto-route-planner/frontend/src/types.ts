@@ -10,6 +10,7 @@ export type Place = {
   longitude: number;
   themes: Theme[];
   address?: string;
+  genre_code?: string;
   tags?: Record<string, string>;
 };
 
@@ -27,6 +28,29 @@ export type RouteLeg = {
   duration_minutes: number | null;
 };
 
+export type RouteTimelineSpot = {
+  type: "spot";
+  role: "start" | "stop" | "finish";
+  place_id: string | null;
+  name: string;
+  category: string;
+  time: string | null;
+  stay_minutes: number;
+};
+
+export type RouteTimelineTransit = {
+  type: "transit";
+  from_name: string;
+  to_name: string;
+  mode: "public_transport";
+  start_time: string | null;
+  end_time: string | null;
+  duration_minutes: number | null;
+  is_estimate: boolean;
+};
+
+export type RouteTimelineItem = RouteTimelineSpot | RouteTimelineTransit;
+
 export type RouteSuggestion = {
   places: Place[];
   origin: Origin;
@@ -34,8 +58,9 @@ export type RouteSuggestion = {
   title: string | null;
   story: string | null;
   total_minutes: number | null;
-    departure_time: string | null;
+  departure_time: string | null;
   arrival_time: string | null;
+  timeline?: RouteTimelineItem[];
   note: string;
   coordinates?: [number, number][];
 };
@@ -69,6 +94,7 @@ export type DailyItinerary = {
   places: Place[];
   legs: RouteLeg[];
   schedule: ItineraryScheduleItem[];
+  lunch: LunchPlan;
   transit_minutes: number | null;
   stay_minutes: number;
   estimated_arrival_at: string | null;
@@ -80,7 +106,15 @@ export type ItineraryScheduleItem = {
   end_time: string | null;
   title: string;
   detail: string;
-  kind: "travel" | "visit" | "hotel";
+  kind: "travel" | "visit" | "hotel" | "lunch";
+};
+
+export type LunchPlan = {
+  type: "lunch";
+  place: Place | null;
+  start_time: string;
+  end_time: string;
+  reason: string;
 };
 
 export type OvernightItinerarySuggestion = {

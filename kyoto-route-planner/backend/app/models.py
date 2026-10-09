@@ -1,5 +1,5 @@
 from datetime import date, time
-from typing import Literal
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -37,6 +37,30 @@ class RouteLeg(BaseModel):
     mode: str
     duration_minutes: int | None = None
 
+class RouteTimelineSpot(BaseModel):
+    type: Literal["spot"] = "spot"
+    role: Literal["start", "stop", "finish"]
+    place_id: str | None = None
+    name: str
+    category: str = ""
+    time: str | None = None
+    stay_minutes: int = 0
+
+class RouteTimelineTransit(BaseModel):
+    type: Literal["transit"] = "transit"
+    from_name: str
+    to_name: str
+    mode: Literal["public_transport"] = "public_transport"
+    start_time: str | None = None
+    end_time: str | None = None
+    duration_minutes: int | None = None
+    is_estimate: bool = True
+
+RouteTimelineItem = Annotated[
+    Union[RouteTimelineSpot, RouteTimelineTransit],
+    Field(discriminator="type"),
+]
+
 class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
@@ -46,6 +70,7 @@ class RouteSuggestion(BaseModel):
     total_minutes: int | None = None
     departure_time: str | None = None
     arrival_time: str | None = None
+    timeline: list[RouteTimelineItem] = Field(default_factory=list)
     note: str
     coordinates: list[list[float]] = Field(default_factory=list)
 
@@ -91,6 +116,7 @@ class CatalogPlace(BaseModel):
     description: str
     source_record_id: str | None = None
     genre_code: str = ""
+    tags: dict[str, str] = Field(default_factory=dict)
 
 class PlaceSearchHit(BaseModel):
     place: CatalogPlace
@@ -142,6 +168,7 @@ class DailyItinerary(BaseModel):
     places: list[CatalogPlace]
     legs: list[RouteLeg]
     schedule: list["ItineraryScheduleItem"] = Field(default_factory=list)
+    lunch: "LunchPlan"
     transit_minutes: int | None = None
     stay_minutes: int
     estimated_arrival_at: str | None = None
@@ -152,7 +179,14 @@ class ItineraryScheduleItem(BaseModel):
     end_time: str | None = None
     title: str
     detail: str
-    kind: Literal["travel", "visit", "hotel"]
+    kind: Literal["travel", "visit", "hotel", "lunch"]
+
+class LunchPlan(BaseModel):
+    type: Literal["lunch"] = "lunch"
+    place: CatalogPlace | None = None
+    start_time: str = "12:00"
+    end_time: str = "13:00"
+    reason: str
 
 class OvernightItinerarySuggestion(BaseModel):
     query: ParsedPlaceQuery

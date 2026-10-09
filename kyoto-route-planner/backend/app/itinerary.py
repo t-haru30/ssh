@@ -20,6 +20,7 @@ from app.models import (
     ParsedPlaceQuery,
     PlaceSearchHit,
     PlaceSearchResponse,
+    LunchPlan,
     RouteLeg,
 )
 from app.poi_search import search_yahoo_catalog
@@ -31,6 +32,24 @@ ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
 
 LODGING_CATEGORIES = {
     "hotel", "hostel", "guest_house", "motel", "apartment", "lodging", "ryokan",
+}
+
+LUNCH_CATEGORIES = (
+    "レストラン", "食堂", "カフェ", "飲食", "料理", "グルメ", "restaurant",
+    "cafe", "dining", "food",
+)
+LUNCH_GENRE_PREFIX = "01"
+LUNCH_DISTANCE_KM = 1.0
+LUNCH_STAY_MINUTES = 60
+LUNCH_SCORE_WEIGHTS = {
+    "midday_hours": 20.0,
+    "address": 5.0,
+    "description": 5.0,
+    "rating": 20.0,
+    "proximity": 20.0,
+    "theme": 20.0,
+    "local_specialty": 15.0,
+    "duplicate_category": -10.0,
 }
 
 
@@ -45,6 +64,114 @@ def _is_lodging(place: CatalogPlace) -> bool:
     )
 
 
+def _is_lunch(place: CatalogPlace) -> bool:
+    text = f"{place.category} {place.name}".casefold()
+    return place.genre_code.startswith(LUNCH_GENRE_PREFIX) or any(
+        term.casefold() in text for term in LUNCH_CATEGORIES
+    )
+
+
+def _distance_km(first: CatalogPlace | Origin, second: CatalogPlace | Origin) -> float:
+    from math import asin, cos, radians, sin, sqrt
+
+    latitude_delta = radians(second.latitude - first.latitude)
+    longitude_delta = radians(second.longitude - first.longitude)
+    value = (
+        sin(latitude_delta / 2) ** 2
+        + cos(radians(first.latitude))
+        * cos(radians(second.latitude))
+        * sin(longitude_delta / 2) ** 2
+    )
+    return 6371.0 * 2 * asin(sqrt(value))
+
+
+def _lunch_score(
+        place: CatalogPlace,
+        anchors: tuple[CatalogPlace, CatalogPlace | Origin],
+        query: str,
+        used_categories: set[str],
+) -> float:
+    tags = place.tags
+    score = 0.0
+    if tags.get("hours_lunch") == "true":
+        score += LUNCH_SCORE_WEIGHTS["midday_hours"]
+    if place.address.strip():
+        score += LUNCH_SCORE_WEIGHTS["address"]
+    if place.description.strip() or tags.get("review"):
+        score += LUNCH_SCORE_WEIGHTS["description"]
+    try:
+        rating = float(tags.get("rating", "0"))
+    except ValueError:
+        rating = 0.0
+    score += min(max(rating / 5.0, 0.0), 1.0) * LUNCH_SCORE_WEIGHTS["rating"]
+    nearest_distance = min(_distance_km(place, anchor) for anchor in anchors)
+    score += max(0.0, 1.0 - nearest_distance / LUNCH_DISTANCE_KM) * LUNCH_SCORE_WEIGHTS["proximity"]
+    query_text = query.casefold()
+    if any(term in query_text for term in ("グルメ", "和食", "食", "料理", "ランチ")):
+        score += LUNCH_SCORE_WEIGHTS["theme"]
+    if any(term in f"{place.name} {place.category} {place.description}" for term in ("京料理", "湯豆腐", "おばんざい", "抹茶")):
+        score += LUNCH_SCORE_WEIGHTS["local_specialty"]
+    if place.category in used_categories:
+        score += LUNCH_SCORE_WEIGHTS["duplicate_category"]
+    return score
+
+
+async def _select_lunch(
+        query: str,
+        morning_last: CatalogPlace,
+        afternoon_first: CatalogPlace | Origin,
+        deadline: float,
+) -> LunchPlan:
+    search_queries = (
+        f"{morning_last.name} ランチ レストラン",
+        f"{afternoon_first.name} ランチ レストラン",
+        "京都 ランチ レストラン",
+    )
+    candidates: list[CatalogPlace] = []
+    for search_query in search_queries:
+        remaining = deadline - time_module.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            result = await asyncio.wait_for(
+                search_yahoo_catalog(search_query, limit=30),
+                timeout=min(10.0, remaining),
+            )
+        except (asyncio.TimeoutError, HTTPException, StopAsyncIteration):
+            continue
+        candidates.extend(hit.place for hit in result.results if _is_lunch(hit.place))
+        nearby = [
+            place for place in candidates
+            if min(_distance_km(place, morning_last), _distance_km(place, afternoon_first))
+            <= LUNCH_DISTANCE_KM
+        ]
+        if nearby:
+            break
+
+    nearby = {
+        place.id: place
+        for place in candidates
+        if min(_distance_km(place, morning_last), _distance_km(place, afternoon_first))
+        <= LUNCH_DISTANCE_KM
+    }
+    if not nearby:
+        return LunchPlan(reason="徒歩10分・1km以内の飲食店候補が見つからないため、昼食は要検討です。")
+    selected = max(
+        nearby.values(),
+        key=lambda place: _lunch_score(
+            place, (morning_last, afternoon_first), query, set()
+        ),
+    )
+    distance = min(_distance_km(selected, morning_last), _distance_km(selected, afternoon_first))
+    return LunchPlan(
+        place=selected,
+        reason=(
+            f"午前・午後のスポットから最短約{distance * 1000:.0f}mの飲食店で、"
+            "昼食時間帯と店舗情報を考慮して選定しました。"
+        ),
+    )
+
+
 def _clock(value: datetime) -> str:
     return value.strftime("%H:%M")
 
@@ -56,6 +183,7 @@ def _build_day_schedule(
     transit_minutes: int | None,
     stay_minutes: int,
     hotel_start: bool = False,
+    lunch: LunchPlan | None = None,
 ) -> list[ItineraryScheduleItem]:
     schedule: list[ItineraryScheduleItem] = []
     current = start_at
@@ -71,6 +199,7 @@ def _build_day_schedule(
     segment_count = len(places) + 1
     base_minutes = transit_minutes // segment_count if transit_minutes is not None else None
     remainder = transit_minutes % segment_count if transit_minutes is not None else 0
+    lunch_index = max(1, len(places) // 2)
     for index, place in enumerate(places):
         segment_minutes = (
             base_minutes + (1 if index < remainder else 0)
@@ -99,6 +228,22 @@ def _build_day_schedule(
             kind="visit",
         ))
         current = visit_end
+        if lunch is not None and index + 1 == lunch_index:
+            schedule.append(ItineraryScheduleItem(
+                start_time=lunch.start_time,
+                end_time=lunch.start_time,
+                title=f"{lunch.place.name if lunch.place else '昼食'}へ移動",
+                detail="昼食候補への移動時間は前後の経路に含まれる目安です。",
+                kind="travel",
+            ))
+            schedule.append(ItineraryScheduleItem(
+                start_time=lunch.start_time,
+                end_time=lunch.end_time,
+                title=lunch.place.name if lunch.place else "昼食: 要検討",
+                detail=lunch.reason,
+                kind="lunch",
+            ))
+            current = datetime.combine(current.date(), time(13, 0))
 
     segment_minutes = (
         base_minutes + (1 if len(places) < remainder else 0)
@@ -228,6 +373,33 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         deadline=deadline,
     )
 
+    day1_split = max(1, len(best_day1["places"]) // 2)
+    day2_split = max(1, len(best_day2["places"]) // 2)
+    day1_lunch = await _select_lunch(
+        request.query,
+        best_day1["places"][day1_split - 1],
+        best_day1["places"][day1_split] if day1_split < len(best_day1["places"]) else selected_hotel,
+        deadline,
+    )
+    day2_lunch = await _select_lunch(
+        request.query,
+        best_day2["places"][day2_split - 1],
+        best_day2["places"][day2_split] if day2_split < len(best_day2["places"]) else origin,
+        deadline,
+    )
+    best_day1 = await _add_lunch_to_route(
+        best_day1, list(best_day1["places"]), day1_lunch,
+        origin.latitude, origin.longitude,
+        selected_hotel.latitude, selected_hotel.longitude,
+        request.departure_date, request.departure_time, deadline,
+    )
+    best_day2 = await _add_lunch_to_route(
+        best_day2, list(best_day2["places"]), day2_lunch,
+        selected_hotel.latitude, selected_hotel.longitude,
+        origin.latitude, origin.longitude,
+        day2_date, checkout_time, deadline,
+    )
+
     days = [
         DailyItinerary(
             day=1,
@@ -240,13 +412,17 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
                 destination=selected_hotel.name,
                 transit_minutes=best_day1["transit_minutes"],
                 stay_minutes=90,
+                lunch=day1_lunch,
             ),
+            lunch=day1_lunch,
             transit_minutes=best_day1["transit_minutes"],
-            stay_minutes=len(best_day1["places"]) * 90,
+            stay_minutes=len(best_day1["places"]) * 90 + LUNCH_STAY_MINUTES,
             estimated_arrival_at=best_day1["arrival_at"],
             coordinates=[
                 [origin.latitude, origin.longitude],
-                *[[place.latitude, place.longitude] for place in best_day1["places"]],
+                *[[place.latitude, place.longitude] for place in best_day1["places"][:day1_split]],
+                *([[day1_lunch.place.latitude, day1_lunch.place.longitude]] if day1_lunch.place else []),
+                *[[place.latitude, place.longitude] for place in best_day1["places"][day1_split:]],
                 [selected_hotel.latitude, selected_hotel.longitude],
             ],
         ),
@@ -262,13 +438,17 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
                 transit_minutes=best_day2["transit_minutes"],
                 stay_minutes=90,
                 hotel_start=True,
+                lunch=day2_lunch,
             ),
+            lunch=day2_lunch,
             transit_minutes=best_day2["transit_minutes"],
-            stay_minutes=len(best_day2["places"]) * 90,
+            stay_minutes=len(best_day2["places"]) * 90 + LUNCH_STAY_MINUTES,
             estimated_arrival_at=best_day2["arrival_at"],
             coordinates=[
                 [selected_hotel.latitude, selected_hotel.longitude],
-                *[[place.latitude, place.longitude] for place in best_day2["places"]],
+                *[[place.latitude, place.longitude] for place in best_day2["places"][:day2_split]],
+                *([[day2_lunch.place.latitude, day2_lunch.place.longitude]] if day2_lunch.place else []),
+                *[[place.latitude, place.longitude] for place in best_day2["places"][day2_split:]],
                 [origin.latitude, origin.longitude],
             ],
         )
@@ -335,7 +515,7 @@ async def _find_best_route(
                     "total_minutes": total_min,
                     "arrival_at": arrival_dt.isoformat() if arrival_dt else None
                 }
-        except (asyncio.TimeoutError, HTTPException):
+        except (asyncio.TimeoutError, HTTPException, StopAsyncIteration):
             calls += 1
             continue
 
@@ -351,6 +531,53 @@ async def _find_best_route(
         }
     best["calls"] = calls
     return best
+
+
+async def _add_lunch_to_route(
+    route: dict,
+    places: list[CatalogPlace],
+    lunch: LunchPlan,
+    origin_lat: float,
+    origin_lon: float,
+    dest_lat: float,
+    dest_lon: float,
+    dep_date: date,
+    dep_time: time,
+    deadline: float,
+) -> dict:
+    if lunch.place is None:
+        return route
+    lunch_index = max(1, len(places) // 2)
+    ordered = list(places)
+    via_places = ordered[:lunch_index] + [lunch.place] + ordered[lunch_index:]
+    via_points = [
+        f"{origin_lat},{origin_lon}",
+        *(f"{place.latitude},{place.longitude}" for place in via_places),
+        f"{dest_lat},{dest_lon}",
+    ]
+    remaining = deadline - time_module.monotonic()
+    if remaining <= 0:
+        return route
+    try:
+        legs, transit_min, _departure, arrival_dt = await asyncio.wait_for(
+            search_route(
+                via_points=via_points,
+                departure_date=dep_date.isoformat(),
+                departure_time=dep_time.strftime("%H:%M"),
+            ),
+            timeout=min(15.0, remaining),
+        )
+    except (asyncio.TimeoutError, HTTPException):
+        return route
+    if transit_min is not None:
+        route.update({
+            "legs": legs,
+            "transit_minutes": transit_min,
+            "total_minutes": (transit_min or 0) + len(places) * 90 + LUNCH_STAY_MINUTES,
+            "arrival_at": arrival_dt.isoformat() if arrival_dt else None,
+            "calls": route.get("calls", 0) + 1,
+        })
+    return route
 
 async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     origin = next(
