@@ -82,6 +82,7 @@ class CatalogPlace(BaseModel):
     description: str
     source_record_id: str | None = None
     genre_code: str = ""
+    tags: dict[str, str] = Field(default_factory=dict)
 
 class PlaceSearchHit(BaseModel):
     place: CatalogPlace
@@ -132,6 +133,7 @@ class DailyItinerary(BaseModel):
     places: list[CatalogPlace]
     legs: list[RouteLeg]
     schedule: list["ItineraryScheduleItem"] = Field(default_factory=list)
+    lunch: "LunchPlan"
     transit_minutes: int | None = None
     stay_minutes: int
     estimated_arrival_at: str | None = None
@@ -142,7 +144,14 @@ class ItineraryScheduleItem(BaseModel):
     end_time: str | None = None
     title: str
     detail: str
-    kind: Literal["travel", "visit", "hotel"]
+    kind: Literal["travel", "visit", "hotel", "lunch"]
+
+class LunchPlan(BaseModel):
+    type: Literal["lunch"] = "lunch"
+    place: CatalogPlace | None = None
+    start_time: str = "12:00"
+    end_time: str = "13:00"
+    reason: str
 
 class OvernightItinerarySuggestion(BaseModel):
     query: ParsedPlaceQuery

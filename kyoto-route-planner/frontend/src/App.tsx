@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { MapView } from "./MapView";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
@@ -285,7 +285,24 @@ function App() {
         }, REQUEST_TIMEOUT_MS);
         if (!response.ok) throw new Error(await readError(response));
 
-        const payload = await response.json() as OvernightItinerarySuggestion;
+        const rawPayload = await response.json() as Partial<OvernightItinerarySuggestion> & {
+          days?: Array<OvernightItinerarySuggestion["days"][number] & {
+            lunch?: OvernightItinerarySuggestion["days"][number]["lunch"];
+          }>;
+        };
+        const payload: OvernightItinerarySuggestion = {
+          ...rawPayload,
+          days: (rawPayload.days ?? []).map((day) => ({
+            ...day,
+            lunch: day.lunch ?? {
+              type: "lunch",
+              place: null,
+              start_time: "12:00",
+              end_time: "13:00",
+              reason: "昼食情報を取得できなかったため、昼食は要検討です。",
+            },
+          })),
+        } as OvernightItinerarySuggestion;
         if (requestId === requestIdRef.current) {
           setOvernightSuggestion(payload);
         }
@@ -618,12 +635,29 @@ function App() {
                     <h4>【Day {day.day}】 {day.date}</h4>
                     <div className="stop-list">
                       <div className="route-endpoint"><span className="endpoint-dot" /><div><small>{day.day === 1 ? "START" : "HOTEL"}</small><strong>{day.day === 1 ? overnightSuggestion.origin.name : overnightSuggestion.hotel.name}</strong></div></div>
-                      {day.places.map((place, idx) => (
-                        <div className="suggested-place" key={place.id}>
-                          <span className="place-number">{String(idx + 1).padStart(2, "0")}</span>
-                          <div><small>{place.category}</small><strong>{place.name}</strong></div>
-                        </div>
-                      ))}
+                      {day.places.flatMap((place, idx) => {
+                        const items: ReactNode[] = [
+                          <div className="suggested-place" key={place.id}>
+                            <span className="place-number">{String(idx + 1).padStart(2, "0")}</span>
+                            <div><small>{place.category}</small><strong>{place.name}</strong></div>
+                          </div>,
+                        ];
+                        const lunchIndex = Math.max(0, Math.ceil(day.places.length / 2) - 1);
+                        if (idx === lunchIndex) {
+                          items.push(
+                            <div className="suggested-lunch" key={`${day.day}-lunch`}>
+                              <span className="lunch-icon" aria-hidden="true">昼</span>
+                              <div>
+                                <small>昼食 · {day.lunch?.place?.category ?? "要検討"}</small>
+                                <strong>{day.lunch?.place?.name ?? "昼食: 要検討"}</strong>
+                                {day.lunch?.place?.address && <p>{day.lunch.place.address}</p>}
+                                <p>{day.lunch?.start_time ?? "12:00"}–{day.lunch?.end_time ?? "13:00"} · {day.lunch?.reason ?? "昼食は要検討です。"}</p>
+                              </div>
+                            </div>,
+                          );
+                        }
+                        return items;
+                      })}
                       <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>{day.day === 1 ? "HOTEL" : "FINISH"}</small><strong>{day.day === 1 ? overnightSuggestion.hotel.name : overnightSuggestion.origin.name}</strong></div></div>
                     </div>
                     
