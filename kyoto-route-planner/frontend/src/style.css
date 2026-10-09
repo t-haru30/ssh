@@ -131,7 +131,7 @@ a { color: inherit; text-decoration: none; }
 .route-copy { margin: -3px 0 18px; padding: 13px 15px; border-left: 3px solid #7e9a7f; background: #f1f5ee; }
 .route-copy h4 { margin: 0; color: #2f503e; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 16px; font-weight: 600; }
 .route-copy p { margin: 6px 0 0; color: #68766b; font-size: 11px; line-height: 1.7; }
-.route-result { display: grid; grid-template-columns: minmax(240px, .82fr) minmax(0, 1.18fr); gap: 18px; align-items: start; }
+.route-result { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
 .route-timeline { --timeline-axis-position: 97px; padding: 5px 0 0; }
 .timeline-list { position: relative; display: grid; gap: 0; padding: 0; margin: 0; list-style: none; }
 .timeline-list::before { position: absolute; top: 21px; bottom: 21px; left: var(--timeline-axis-position); width: 1px; content: ""; background: #d9e0d7; }
@@ -173,6 +173,20 @@ a { color: inherit; text-decoration: none; }
 .itinerary-schedule time { grid-row: span 2; color: #53785d; font-size: 10px; font-weight: 600; }
 .itinerary-schedule strong { color: var(--ink); font-size: 11px; }
 .itinerary-schedule span { color: #858b84; font-size: 9px; line-height: 1.6; }
+.itinerary-timeline-panel { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); background: var(--paper); }
+.itinerary-timeline { position: relative; display: grid; padding: 0; margin: 0; list-style: none; }
+.itinerary-timeline::before { position: absolute; top: 20px; bottom: 20px; left: 117px; width: 1px; content: ""; background: var(--line); }
+.itinerary-timeline-row { position: relative; display: grid; grid-template-columns: 88px 34px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 76px; padding: 9px 0; }
+.itinerary-timeline-row > time { color: var(--forest); font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.itinerary-timeline-marker { z-index: 1; display: grid; place-items: center; justify-self: center; width: 25px; height: 25px; border: 2px solid var(--paper); border-radius: 50%; color: #fff; background: #bd795f; box-shadow: 0 0 0 1px #bd795f; font-size: 9px; font-weight: 700; }
+.itinerary-timeline-spot .itinerary-timeline-marker, .itinerary-timeline-hotel .itinerary-timeline-marker { color: #fff; background: var(--forest); box-shadow: 0 0 0 1px var(--forest); }
+.itinerary-timeline-travel .itinerary-timeline-marker { width: 19px; height: 19px; color: var(--forest); background: var(--paper); box-shadow: 0 0 0 1px var(--line); font-size: 13px; }
+.itinerary-timeline-content { display: grid; gap: 4px; min-width: 0; padding: 11px 14px; border: 1px solid var(--line); background: var(--canvas); }
+.itinerary-timeline-content > small { color: var(--muted); font-size: 8px; letter-spacing: .08em; }
+.itinerary-timeline-content > strong { color: var(--ink); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 13px; }
+.itinerary-timeline-content > span { color: var(--muted); font-size: 9px; line-height: 1.6; }
+.itinerary-route-details { margin: 12px 0 0 134px; border-top: 1px solid var(--line); }
+.itinerary-route-details summary { padding: 11px 0; color: var(--muted); cursor: pointer; font-size: 10px; }
 .transit-summary { display: flex; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #eeeee8; }
 .transit-summary small { display: block; margin-bottom: 4px; color: #93988f; font-size: 8px; letter-spacing: .12em; }
 .transit-summary > div:first-child strong { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 22px; }
@@ -319,7 +333,6 @@ a { color: inherit; text-decoration: none; }
   .content-grid { grid-template-columns: 1fr; }
   .planner-card { padding: 24px; }
   .map-frame { height: 320px; }
-  .route-result { grid-template-columns: 1fr; }
   .footer { flex-direction: column; gap: 5px; }
 }
 
@@ -348,4 +361,10 @@ a { color: inherit; text-decoration: none; }
   .timeline-time { font-size: 10px; }
   .timeline-spot-card { padding: 11px 12px; }
   .timeline-route-details, .route-transit-summary { margin-left: 86px; }
+  .itinerary-timeline-panel { padding: 13px 10px; }
+  .itinerary-timeline::before { left: 82px; }
+  .itinerary-timeline-row { grid-template-columns: 62px 24px minmax(0, 1fr); gap: 8px; }
+  .itinerary-timeline-row > time { font-size: 9px; }
+  .itinerary-timeline-content { padding: 10px; }
+  .itinerary-route-details { margin-left: 102px; }
 }
