@@ -127,6 +127,9 @@ a { color: inherit; text-decoration: none; }
 .regenerate-button:disabled { cursor: wait; opacity: .65; }
 .regenerate-button > span:last-child { font-size: 19px; }
 .route-option { padding: 18px; border: 1px solid #e9e9e3; background: rgba(255, 254, 250, .72); }
+.route-swipe-card { touch-action: pan-y; }
+.route-swipe-controls { display: grid; justify-items: center; }
+.route-swipe-hint { margin: 4px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
 .route-option > h3 { margin: 0 0 14px; color: #33463a; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17px; }
 .route-copy { margin: -3px 0 18px; padding: 13px 15px; border-left: 3px solid #7e9a7f; background: #f1f5ee; }
 .route-copy h4 { margin: 0; color: #2f503e; font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 16px; font-weight: 600; }
