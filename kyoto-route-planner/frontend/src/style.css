@@ -108,8 +108,10 @@ a { color: inherit; text-decoration: none; }
 .map-legend { display: flex; gap: 7px; align-items: center; margin-top: 12px; color: #777e78; font-size: 9px; }
 .legend-origin, .legend-stop { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; color: white; background: #557e61; font-size: 8px; font-weight: 700; }
 .legend-stop { margin-left: 8px; background: #bf765e; }
-.map-marker { display: grid; place-items: center; width: 27px; height: 27px; border: 2px solid #fffefa; border-radius: 50%; color: white; background: #bf765e; box-shadow: 0 2px 8px rgba(32, 44, 36, .25); font-size: 10px; font-weight: 700; }
-.map-marker-origin { background: #557e61; }
+.map-marker { display: grid; place-items: center; width: 40px; height: 40px; border: 2px solid #fffefa; border-radius: 50%; background: #fffefa; box-shadow: 0 3px 10px rgba(32, 44, 36, .28); font-size: 23px; }
+.map-marker-origin { background: #e8eee5; }
+.map-marker-spot { background: #f5e8e2; }
+.map-transit-marker { display: grid; place-items: center; width: 30px; height: 30px; border: 2px solid #fffefa; border-radius: 50%; background: #fffefa; box-shadow: 0 2px 8px rgba(32, 44, 36, .25); font-size: 17px; }
 .maplibregl-marker { cursor: pointer; }
 .maplibregl-popup-content { border-radius: 2px; padding: 8px 10px; font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; font-size: 10px; }
 

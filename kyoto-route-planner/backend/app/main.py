@@ -355,7 +355,7 @@ async def recommend_random_route() -> RouteSuggestions:
 
 async def _recommend_routes(
     request: RouteSuggestionRequest,
-    max_routes: int = 3,
+    max_routes: int = 1,
 ) -> RouteSuggestions:
     deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
     try:
@@ -470,7 +470,7 @@ async def _recommend_routes(
         if timed_out:
             raise HTTPException(
                 status_code=504,
-                detail="複数ルートの検索がタイムアウトしました。時間をおいて再度お試しください。",
+                detail="ルート検索がタイムアウトしました。時間をおいて再度お試しください。",
             )
         if transient_error is not None:
             raise transient_error

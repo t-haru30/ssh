@@ -150,7 +150,7 @@ function App() {
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
   const [isOvernight, setIsOvernight] = useState(false);
-  const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
+  const [suggestion, setSuggestion] = useState<RouteSuggestion | null>(null);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -158,7 +158,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
   const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "error" | "idle">("loading");
-  const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
 
@@ -250,8 +249,8 @@ function App() {
       const allPlaces = overnightSuggestion.days.flatMap(d => d.places);
       return [overnightSuggestion.hotel, ...allPlaces];
     }
-    return suggestions[0]?.places ?? places;
-  }, [isOvernight, overnightSuggestion, suggestions, places]);
+    return suggestion?.places ?? places;
+  }, [isOvernight, overnightSuggestion, suggestion, places]);
 
     const mapCoordinates = useMemo(() => {
     if (isOvernight && overnightSuggestion) {
@@ -263,8 +262,14 @@ function App() {
       });
       return coords;
     }
-    return suggestions[0]?.coordinates ?? [];
-  }, [isOvernight, overnightSuggestion, suggestions]);
+    return suggestion?.coordinates ?? [];
+  }, [isOvernight, overnightSuggestion, suggestion]);
+
+  const mapLegs = useMemo(() => (
+    isOvernight && overnightSuggestion
+      ? overnightSuggestion.days.flatMap((day) => day.legs)
+      : suggestion?.legs ?? []
+  ), [isOvernight, overnightSuggestion, suggestion]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
@@ -276,7 +281,7 @@ function App() {
     const controller = new AbortController();
     activeRequestRef.current = controller;
     setError(null);
-    setSuggestions([]);
+    setSuggestion(null);
     setOvernightSuggestion(null);
     setSearching(true);
 
@@ -340,7 +345,7 @@ function App() {
         }
 
         if (requestId === requestIdRef.current) {
-          setSuggestions(payload.routes);
+          setSuggestion(payload.routes[0]);
         }
       } catch (cause) {
         if (requestId !== requestIdRef.current) return;
@@ -357,61 +362,6 @@ function App() {
       }
     }
   }
-
-
-  async function handleRegenerate() {
-    if (searching || loading || suggestions.length === 0) return;
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    activeRequestRef.current?.abort();
-    const controller = new AbortController();
-    activeRequestRef.current = controller;
-    setError(null);
-    setSearching(true);
-    const nextRegenerationCount = regenerationCount + 1;
-    setRegenerationCount(nextRegenerationCount);
-
-    const request: RouteSuggestionRequest = {
-      origin: originName,
-      theme,
-      stop_count: stopCount,
-      departure_date: departureDate,
-      departure_time: departureTime,
-      variation: nextRegenerationCount,
-    };
-    try {
-      const response = await fetchWithTimeout("/api/routes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(request),
-        signal: controller.signal,
-      }, REQUEST_TIMEOUT_MS);
-      if (!response.ok) throw new Error(await readError(response));
-      const payload: unknown = await response.json();
-      if (!isRouteSuggestions(payload)) {
-        throw new Error("ルートAPIから有効な候補が返されませんでした。");
-      }
-      if (requestId === requestIdRef.current) {
-        setSuggestions(payload.routes);
-        window.requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-      }
-    } catch (cause) {
-      if (requestId !== requestIdRef.current) return;
-      if (cause instanceof DOMException && cause.name === "AbortError") {
-        setError("再提案がタイムアウトしました。時間をおいて再度お試しください。");
-      } else {
-        setError(cause instanceof Error ? cause.message : "別のルートを取得できませんでした。");
-      }
-    } finally {
-      if (requestId === requestIdRef.current) {
-        activeRequestRef.current = null;
-        setSearching(false);
-      }
-    }
-  }
-
   async function handleRandomRoute() {
     if (searching || loading) return;
     const requestId = requestIdRef.current + 1;
@@ -420,7 +370,8 @@ function App() {
     const controller = new AbortController();
     activeRequestRef.current = controller;
     setError(null);
-    setSuggestions([]);
+    setSuggestion(null);
+    setOvernightSuggestion(null);
     setSearching(true);
 
     try {
@@ -435,7 +386,7 @@ function App() {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
       if (requestId === requestIdRef.current) {
-        setSuggestions(payload.routes);
+        setSuggestion(payload.routes[0]);
       }
     } catch (cause) {
       if (requestId !== requestIdRef.current) return;
@@ -477,12 +428,12 @@ function App() {
         <div className="hero-stamp" aria-hidden="true"><span>京</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
-      <section className={`route-copy-banner${suggestions.length > 0 ? " visible" : ""}`} aria-live="polite">
-        {suggestions[0]?.title ? (
+      <section className={`route-copy-banner${suggestion ? " visible" : ""}`} aria-live="polite">
+        {suggestion?.title ? (
           <>
             <p className="eyebrow">YOUR KYOTO STORY</p>
-            <h2>{suggestions[0].title}</h2>
-            {suggestions[0].story && <p>{suggestions[0].story}</p>}
+            <h2>{suggestion.title}</h2>
+            {suggestion.story && <p>{suggestion.story}</p>}
           </>
         ) : (
           <>
@@ -601,22 +552,22 @@ function App() {
                 <section className="map-card" aria-label="京都の候補地マップ">
           <div className="map-heading">
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
+            <span className="map-count">{suggestion || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} coordinates={mapCoordinates} />
+          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestion?.origin ?? origin} coordinates={mapCoordinates} legs={mapLegs} />
 
-          <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
+          <div className="map-legend"><span className="legend-origin">🚉</span> 出発駅 <span className="legend-stop">✳</span> カテゴリ別スポット</div>
         </section>
 
       </div>
 
             <section className="results-section" aria-live="polite">
         <div className="section-heading results-heading">
-          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
-          {(suggestions.length > 0 || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
+          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestion || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
+          {(suggestion || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
         </div>
 
-        {suggestions.length === 0 && !overnightSuggestion && !error && (
+        {!suggestion && !overnightSuggestion && !error && (
           <div className="empty-state">
             <span className="empty-icon">↗</span>
             <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
@@ -647,12 +598,10 @@ function App() {
           </div>
         )}
 
-        {suggestions.length > 0 && (
+        {suggestion && (
           <div className="route-options">
-            {suggestions.map((suggestion, index) => (
-              <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
-                <h3>ルート {index + 1}</h3>
-                {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
+            <article className="route-option" key={suggestion.places.map((place) => place.id).join("-")}>
+                {suggestion.title && <div className="route-copy"><h3>{suggestion.title}</h3>{suggestion.story && <p>{suggestion.story}</p>}</div>}
                 <RouteTimeline
                   items={withRouteLegs(
                     suggestion.timeline?.length
@@ -667,11 +616,7 @@ function App() {
                   )}
                 />
                 <p className="result-note">{suggestion.note}</p>
-              </article>
-            ))}
-            <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
-              {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
-            </button>
+            </article>
           </div>
         )}
       </section>
