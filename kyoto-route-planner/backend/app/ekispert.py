@@ -1,6 +1,8 @@
 import json
+import logging
 import os
 from pathlib import Path
+import re
 from urllib.parse import urlencode
 
 import httpx
@@ -10,6 +12,12 @@ from fastapi import HTTPException
 from app.models import RouteLeg
 
 API_BASE_URL = "https://api.ekispert.jp/v1/json"
+logger = logging.getLogger(__name__)
+_QUERY_KEY_PATTERN = re.compile(r"([?&]key=)[^&\s]+", re.IGNORECASE)
+
+
+def _redact_access_key(url: str) -> str:
+    return _QUERY_KEY_PATTERN.sub(r"\1[REDACTED]", url)
 
 
 def _as_list(value: object) -> list[dict]:
@@ -131,6 +139,7 @@ async def search_route(
         "answerCount": "1",
         "gcs": "wgs84",
     }
+    logger.debug("Requesting Ekispert route: %s", _redact_access_key(_make_url(params)))
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
