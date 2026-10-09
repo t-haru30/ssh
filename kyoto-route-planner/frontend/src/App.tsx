@@ -280,6 +280,12 @@ function App() {
     return suggestions[0]?.coordinates ?? [];
   }, [isOvernight, overnightSuggestion, suggestions]);
 
+  const mapLegs = useMemo(() => (
+    isOvernight && overnightSuggestion
+      ? overnightSuggestion.days.flatMap((day) => day.legs)
+      : suggestions[0]?.legs ?? []
+  ), [isOvernight, overnightSuggestion, suggestions]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
     event.preventDefault();
@@ -617,9 +623,18 @@ function App() {
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
             <span className="map-count">{suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView places={mapPlaces} origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin} coordinates={mapCoordinates} />
+          <MapView
+            places={mapPlaces}
+            origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
+            coordinates={mapCoordinates}
+            legs={mapLegs}
+          />
 
-          <div className="map-legend"><span className="legend-origin">出</span> 出発駅 <span className="legend-stop">1</span> 立ち寄り先</div>
+          <div className="map-legend">
+            <span className="legend-origin">出</span> 出発地
+            <span className="legend-stop"><span>寺</span></span> カテゴリ別スポット
+            {mapLegs.length > 0 && <span className="map-legend-note">線上のアイコンは経路に含まれる移動手段</span>}
+          </div>
         </section>
 
       </div>
