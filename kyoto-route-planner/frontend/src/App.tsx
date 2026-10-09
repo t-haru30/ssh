@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { MapView } from "./MapView";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -161,6 +161,7 @@ function App() {
   const [regenerationCount, setRegenerationCount] = useState(0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
+  const routeSwipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
 
   useEffect(() => () => {
     requestIdRef.current += 1;
@@ -452,6 +453,27 @@ function App() {
     }
   }
 
+  function handleRoutePointerDown(event: ReactPointerEvent<HTMLElement>) {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    routeSwipeStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      pointerId: event.pointerId,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleRoutePointerUp(event: ReactPointerEvent<HTMLElement>) {
+    const start = routeSwipeStartRef.current;
+    routeSwipeStartRef.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < 80 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return;
+    void handleRegenerate();
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -647,31 +669,38 @@ function App() {
           </div>
         )}
 
-        {suggestions.length > 0 && (
+        {suggestions[0] && (
           <div className="route-options">
-            {suggestions.map((suggestion, index) => (
-              <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
-                <h3>ルート {index + 1}</h3>
-                {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
-                <RouteTimeline
-                  items={withRouteLegs(
-                    suggestion.timeline?.length
-                      ? suggestion.timeline
-                      : buildRouteTimeline(
-                      suggestion.origin,
-                      suggestion.places,
-                      suggestion.departure_time,
-                      suggestion.total_minutes,
-                      ),
-                    suggestion.legs,
-                  )}
-                />
-                <p className="result-note">{suggestion.note}</p>
-              </article>
-            ))}
-            <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
-              {searching ? <><span className="button-spinner" /> 別のプランを探しています</> : <>他のプランを生成する（再提案） <span>↻</span></>}
-            </button>
+            <article
+              className="route-option route-swipe-card"
+              key={suggestions[0].places.map((place) => place.id).join("-")}
+              onPointerDown={handleRoutePointerDown}
+              onPointerUp={handleRoutePointerUp}
+              onPointerCancel={() => { routeSwipeStartRef.current = null; }}
+            >
+              <h3>おすすめルート</h3>
+              {suggestions[0].title && <div className="route-copy"><h4>{suggestions[0].title}</h4>{suggestions[0].story && <p>{suggestions[0].story}</p>}</div>}
+              <RouteTimeline
+                items={withRouteLegs(
+                  suggestions[0].timeline?.length
+                    ? suggestions[0].timeline
+                    : buildRouteTimeline(
+                    suggestions[0].origin,
+                    suggestions[0].places,
+                    suggestions[0].departure_time,
+                    suggestions[0].total_minutes,
+                    ),
+                  suggestions[0].legs,
+                )}
+              />
+              <p className="result-note">{suggestions[0].note}</p>
+            </article>
+            <div className="route-swipe-controls">
+              <p className="route-swipe-hint">カードを左右にスワイプして、次のルートを探せます</p>
+              <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading}>
+                {searching ? <><span className="button-spinner" /> 別のルートを探しています</> : <>別のルートを探す <span>↻</span></>}
+              </button>
+            </div>
           </div>
         )}
       </section>
