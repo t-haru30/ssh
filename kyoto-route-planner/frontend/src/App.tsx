@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { MapView } from "./MapView";
-import { RouteTimeline } from "./RouteTimeline";
+import { buildRouteTimeline, RouteTimeline } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
@@ -131,8 +131,10 @@ function isRouteSuggestions(value: unknown): value is RouteSuggestions {
     && route.places.every(isPlace)
     && Array.isArray(route.legs)
     && route.legs.every(isRouteLeg)
-    && Array.isArray(route.timeline)
-    && route.timeline.every(isRouteTimelineItem)
+    && (
+      route.timeline === undefined
+      || (Array.isArray(route.timeline) && route.timeline.every(isRouteTimelineItem))
+    )
     && isOrigin(route.origin)
     && (route.title === null || typeof route.title === "string")
     && (route.story === null || typeof route.story === "string")
@@ -643,29 +645,39 @@ function App() {
                 {overnightSuggestion.days.map((day) => (
                   <div key={day.day} className="overnight-day-section">
                     <h4>【Day {day.day}】 {day.date}</h4>
-                    <div className="stop-list">
-                      <div className="route-endpoint"><span className="endpoint-dot" /><div><small>{day.day === 1 ? "START" : "HOTEL"}</small><strong>{day.day === 1 ? overnightSuggestion.origin.name : overnightSuggestion.hotel.name}</strong></div></div>
-                      {day.places.map((place, idx) => (
-                        <div className="suggested-place" key={place.id}>
-                          <span className="place-number">{String(idx + 1).padStart(2, "0")}</span>
-                          <div><small>{place.category}</small><strong>{place.name}</strong></div>
-                        </div>
-                      ))}
-                      <div className="route-endpoint"><span className="endpoint-dot finish" /><div><small>{day.day === 1 ? "HOTEL" : "FINISH"}</small><strong>{day.day === 1 ? overnightSuggestion.hotel.name : overnightSuggestion.origin.name}</strong></div></div>
-                    </div>
-                    
-                    <div className="transit-card">
-                      {day.schedule.length > 0 && (
-                        <ol className="itinerary-schedule">
-                          {day.schedule.map((item, index) => (
-                            <li key={`${day.day}-${index}`}>
-                              <time>{item.start_time && item.end_time ? `${item.start_time}–${item.end_time}` : "時刻未確定"}</time>
+                    <div className="itinerary-timeline-panel">
+                      <ol className="itinerary-timeline">
+                        {day.day === 1 && (
+                          <li className="itinerary-timeline-row itinerary-timeline-spot">
+                            <time>{departureTime}</time>
+                            <span className="itinerary-timeline-marker" aria-hidden="true">出</span>
+                            <div className="itinerary-timeline-content">
+                              <small>出発</small>
+                              <strong>{overnightSuggestion.origin.name}</strong>
+                            </div>
+                          </li>
+                        )}
+                        {day.schedule.map((item, index) => (
+                          <li
+                            className={`itinerary-timeline-row itinerary-timeline-${item.kind}`}
+                            key={`${day.day}-${index}`}
+                          >
+                            <time>
+                              {item.start_time && item.end_time
+                                ? `${item.start_time}–${item.end_time}`
+                                : item.start_time ?? "時刻未確定"}
+                            </time>
+                            <span className="itinerary-timeline-marker" aria-hidden="true">
+                              {item.kind === "travel" ? "›" : item.kind === "hotel" ? "宿" : "訪"}
+                            </span>
+                            <div className="itinerary-timeline-content">
+                              <small>{item.kind === "travel" ? "移動" : item.kind === "hotel" ? "宿泊・到着" : "立ち寄り"}</small>
                               <strong>{item.title}</strong>
                               <span>{item.detail}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      )}
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
                       <div className="transit-summary">
                         <div><small>移動時間計</small><strong>{formatDuration(day.transit_minutes)}</strong></div>
                         {day.estimated_arrival_at && (
@@ -673,9 +685,12 @@ function App() {
                         )}
                       </div>
                       {day.legs.length > 0 && (
-                        <ol className="leg-list">
-                          {day.legs.map((leg, i) => <LegRow leg={leg} index={i} key={`${day.day}-${i}`} />)}
-                        </ol>
+                        <details className="itinerary-route-details">
+                          <summary>駅すぱあと経路の詳細（{day.legs.length}区間）</summary>
+                          <ol className="leg-list">
+                            {day.legs.map((leg, i) => <LegRow leg={leg} index={i} key={`${day.day}-${i}`} />)}
+                          </ol>
+                        </details>
                       )}
                     </div>
                   </div>
@@ -692,7 +707,12 @@ function App() {
               <article className="route-option" key={`${suggestion.places.map((place) => place.id).join("-")}-${index}`}>
                 <h3>ルート {index + 1}</h3>
                 {suggestion.title && <div className="route-copy"><h4>{suggestion.title}</h4>{suggestion.story && <p>{suggestion.story}</p>}</div>}
-                <RouteTimeline items={suggestion.timeline} legs={suggestion.legs} />
+                <RouteTimeline
+                  items={suggestion.timeline?.length
+                    ? suggestion.timeline
+                    : buildRouteTimeline(suggestion.origin, suggestion.places, suggestion.departure_time, suggestion.total_minutes)}
+                  legs={suggestion.legs}
+                />
                 <div className="transit-summary route-transit-summary">
                   <div><small>公共交通の移動時間</small><strong>{formatDuration(suggestion.total_minutes)}</strong></div>
                   <div className="transit-clock">

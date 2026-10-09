@@ -357,7 +357,10 @@ class RoutePlannerTests(unittest.TestCase):
     def test_health_origins_and_place_status_are_available(self):
         client = TestClient(app)
 
-        self.assertEqual(client.get("/api/health").json(), {"status": "ok"})
+        self.assertEqual(
+            client.get("/api/health").json(),
+            {"status": "ok", "route_timeline_version": "1"},
+        )
         self.assertEqual(
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],

@@ -1,9 +1,116 @@
-import type { RouteLeg, RouteTimelineItem } from "./types";
+import type { Origin, Place, RouteLeg, RouteTimelineItem } from "./types";
 
 type RouteTimelineProps = {
   items: RouteTimelineItem[];
   legs: RouteLeg[];
 };
+
+export function buildRouteTimeline(
+  origin: Origin,
+  places: Place[],
+  departureTime: string | null,
+  totalMinutes: number | null,
+): RouteTimelineItem[] {
+  const departureParts = departureTime?.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  let currentMinutes = departureParts
+    ? Number(departureParts[1]) * 60 + Number(departureParts[2])
+    : null;
+  const points = [
+    [origin.latitude, origin.longitude] as const,
+    ...places.map((place) => [place.latitude, place.longitude] as const),
+    [origin.latitude, origin.longitude] as const,
+  ];
+  const distances = points.slice(1).map((point, index) => {
+    const [latitude1, longitude1] = points[index];
+    const [latitude2, longitude2] = point;
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+    const latitudeDelta = toRadians(latitude2 - latitude1);
+    const longitudeDelta = toRadians(longitude2 - longitude1);
+    const haversine = Math.sin(latitudeDelta / 2) ** 2
+      + Math.cos(toRadians(latitude1))
+      * Math.cos(toRadians(latitude2))
+      * Math.sin(longitudeDelta / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(haversine));
+  });
+  const distanceTotal = distances.reduce((sum, distance) => sum + distance, 0);
+  const durationTotal = totalMinutes !== null && Number.isFinite(totalMinutes)
+    ? Math.max(0, Math.round(totalMinutes))
+    : null;
+  const durations = distances.map((distance) => (
+    durationTotal === null
+      ? null
+      : distanceTotal === 0
+        ? Math.floor(durationTotal / distances.length)
+        : Math.floor(durationTotal * distance / distanceTotal)
+  ));
+  if (durationTotal !== null && durations.length > 0 && durations.every((duration) => duration !== null)) {
+    const assigned = durations.reduce((sum, duration) => sum + (duration ?? 0), 0);
+    durations[durations.length - 1] = (durations[durations.length - 1] ?? 0) + durationTotal - assigned;
+  }
+
+  const formatTime = (minutes: number | null) => (
+    minutes === null ? null : `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
+  );
+  const items: RouteTimelineItem[] = [{
+    type: "spot",
+    role: "start",
+    place_id: null,
+    name: origin.name,
+    category: "出発地",
+    time: formatTime(currentMinutes),
+    stay_minutes: 0,
+  }];
+
+  places.forEach((place, index) => {
+    const duration = durations[index];
+    const startTime = formatTime(currentMinutes);
+    if (currentMinutes !== null && duration !== null) currentMinutes += duration;
+    items.push({
+      type: "transit",
+      from_name: index === 0 ? origin.name : places[index - 1].name,
+      to_name: place.name,
+      mode: "public_transport",
+      start_time: duration === null ? null : startTime,
+      end_time: duration === null ? null : formatTime(currentMinutes),
+      duration_minutes: duration,
+      is_estimate: true,
+    });
+    items.push({
+      type: "spot",
+      role: "stop",
+      place_id: place.id,
+      name: place.name,
+      category: place.category,
+      time: formatTime(currentMinutes),
+      stay_minutes: 90,
+    });
+    if (currentMinutes !== null) currentMinutes += 90;
+  });
+
+  const returnDuration = durations[durations.length - 1] ?? null;
+  const returnStartTime = formatTime(currentMinutes);
+  if (currentMinutes !== null && returnDuration !== null) currentMinutes += returnDuration;
+  items.push({
+    type: "transit",
+    from_name: places.length > 0 ? places[places.length - 1].name : origin.name,
+    to_name: origin.name,
+    mode: "public_transport",
+    start_time: returnDuration === null ? null : returnStartTime,
+    end_time: returnDuration === null ? null : formatTime(currentMinutes),
+    duration_minutes: returnDuration,
+    is_estimate: true,
+  });
+  items.push({
+    type: "spot",
+    role: "finish",
+    place_id: null,
+    name: origin.name,
+    category: "帰着地",
+    time: formatTime(currentMinutes),
+    stay_minutes: 0,
+  });
+  return items;
+}
 
 function modeLabel(mode: string) {
   if (mode.toLowerCase().includes("train")) return "電車";

@@ -55,9 +55,9 @@ export type RouteSuggestion = {
   title: string | null;
   story: string | null;
   total_minutes: number | null;
-    departure_time: string | null;
+  departure_time: string | null;
   arrival_time: string | null;
-    timeline: RouteTimelineItem[];
+  timeline?: RouteTimelineItem[];
   note: string;
   coordinates?: [number, number][];
 };

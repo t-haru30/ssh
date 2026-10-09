@@ -172,6 +172,7 @@ app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lif
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 ROUTE_STOP_STAY_MINUTES = 90
+ROUTE_TIMELINE_VERSION = 1
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
     "all": "京都",
@@ -293,7 +294,10 @@ async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "route_timeline_version": str(ROUTE_TIMELINE_VERSION),
+    }
 
 
 @app.get("/api/places")
