@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { isRouteIdeaBatch } from "../apiValidation";
 import type { RouteIdea } from "../SwipeCard";
+import { usePrefecture } from "../PrefectureContext";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DiscoverDirection } from "./DiscoverCard";
 import { RouteDetailModal } from "./RouteDetailModal";
@@ -14,6 +15,7 @@ type DiscoverModeProps = {
 };
 
 export function DiscoverMode({ active }: DiscoverModeProps) {
+  const { prefecture } = usePrefecture();
   const [routes, setRoutes] = useState<RouteIdea[]>([]);
   const [index, setIndex] = useState(0);
   const [exitDirection, setExitDirection] = useState<DiscoverDirection>("pass");
@@ -39,6 +41,7 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
           count: "5",
           spot_count: "2",
           use_fallback: "true",
+          prefecture_code: prefecture.code,
         });
         const response = await fetch(`/api/ideas?${params.toString()}`, {
           signal: controller.signal,
@@ -73,7 +76,7 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
 
     void loadFallbackIdeas();
     return () => controller.abort();
-  }, [active, loadAttempt]);
+  }, [active, loadAttempt, prefecture.code]);
 
   function swipe(direction: DiscoverDirection) {
     const current = routes[index];
