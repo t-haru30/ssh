@@ -173,10 +173,9 @@ function findTransitMarkers(
     const modes = [...new Set(segmentLegs
       .map((leg) => getModeIcon(leg.mode)?.icon)
       .filter((mode): mode is keyof typeof modeIcons => mode !== undefined))];
-    return modes.map((mode, modeIndex) => ({
+    return modes.map((mode) => ({
       mode,
       midpoint,
-      offset: (modeIndex - (modes.length - 1) / 2) * 26,
       fromName: start.name,
       toName: destination.name,
     }));
@@ -365,11 +364,7 @@ export function MapView({
         element.setAttribute("role", "img");
         element.setAttribute("aria-label", `${transit.fromName}から${transit.toName}への移動手段: ${modeIcon.label}`);
         element.innerHTML = iconSvg(modeIcon.svg);
-        const marker = new Marker({
-          element,
-          anchor: "center",
-          offset: [transit.offset, 0],
-        })
+        const marker = new Marker({ element, anchor: "center" })
           .setLngLat([transit.midpoint[1], transit.midpoint[0]])
           .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
             `${transit.fromName} → ${transit.toName}: ${modeIcon.label}`,

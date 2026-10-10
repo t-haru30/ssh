@@ -175,6 +175,8 @@ describe("MapView", () => {
         "symbol-placement": "line",
         "symbol-spacing": 80,
         "icon-rotation-alignment": "map",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
       }),
     }));
   });
@@ -199,6 +201,28 @@ describe("MapView", () => {
     expect(mapTestState.transitMarkers).toEqual([
       { label: "京都駅から清水寺への移動手段: 電車", position: [135.01, 35] },
       { label: "清水寺から高台寺への移動手段: バス", position: [135.03, 35] },
+    ]);
+  });
+
+  it("keeps multiple transit icons on the exact same segment midpoint", () => {
+    const stop = makePlace("清水寺", 35, 135.02);
+    render(
+      <MapView
+        places={[stop]}
+        origin={makeOrigin("京都駅", 35, 135)}
+        legs={[
+          { from_name: "京都駅", to_name: "清水寺", line_name: "電車", mode: "train", duration_minutes: 10 },
+          { from_name: "京都駅", to_name: "清水寺", line_name: "バス", mode: "bus", duration_minutes: 15 },
+        ]}
+      />,
+    );
+    act(() => {
+      mapTestState.loadHandler?.();
+    });
+
+    expect(mapTestState.transitMarkers.map((marker) => marker.position)).toEqual([
+      [135.01, 35],
+      [135.01, 35],
     ]);
   });
 });
