@@ -14,7 +14,7 @@ import type { GeoJSONSource } from "maplibre-gl";
 const mapStyle = "https://tiles.openfreemap.org/styles/positron";
 const kyotoCenter: [number, number] = [135.7681, 35.004];
 
-type MapViewProps = {
+export type MapViewProps = {
   places: Place[];
   origin: Origin | null;
   coordinates?: [number, number][];
@@ -191,8 +191,10 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
   const markersRef = useRef<Marker[]>([]);
-  const coordinatesRef = useRef(coordinates);
-  coordinatesRef.current = coordinates;
+  const mapLoadedRef = useRef(false);
+  const propsRef = useRef({ places, origin, coordinates, legs });
+  propsRef.current = { places, origin, coordinates, legs };
+  const syncMapRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -225,10 +227,6 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
           "line-opacity": 0.92,
         },
       });
-      const routeSource = map.getSource("route");
-      if (routeSource?.type === "geojson") {
-        (routeSource as GeoJSONSource).setData(routeFeature(coordinatesRef.current));
-      }
       map.addLayer({
         id: "route-line",
         type: "line",
@@ -244,10 +242,14 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
           "line-dasharray": [1.2, 1.6],
         },
       });
+      mapLoadedRef.current = true;
+      syncMapRef.current();
     });
     mapRef.current = map;
 
     return () => {
+      mapLoadedRef.current = false;
+      syncMapRef.current = () => {};
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
       map.remove();
@@ -256,98 +258,106 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
+    syncMapRef.current = () => {
+      const map = mapRef.current;
+      if (!map || !mapLoadedRef.current) return;
+      const current = propsRef.current;
+      const currentPlaces = current.places;
+      const currentOrigin = current.origin;
+      const currentCoordinates = current.coordinates;
+      const currentLegs = current.legs;
 
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
-    const locations: MarkerLocation[] = [
-      ...(origin
-        ? [{
-          name: origin.name,
-          longitude: origin.longitude,
-          latitude: origin.latitude,
-          category: "station",
-          themes: [],
-          order: null,
-          isOrigin: true,
-        }]
-        : []),
-      ...places.map((place, index) => ({
-        name: place.name,
-        longitude: place.longitude,
-        latitude: place.latitude,
-        category: place.category,
-        address: place.address,
-        themes: place.themes,
-        order: index + 1,
-        isOrigin: false,
-      })),
-    ];
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
+      const locations: MarkerLocation[] = [
+        ...(currentOrigin
+          ? [{
+            name: currentOrigin.name,
+            longitude: currentOrigin.longitude,
+            latitude: currentOrigin.latitude,
+            category: "station",
+            themes: [],
+            order: null,
+            isOrigin: true,
+          }]
+          : []),
+        ...currentPlaces.map((place, index) => ({
+          name: place.name,
+          longitude: place.longitude,
+          latitude: place.latitude,
+          category: place.category,
+          address: place.address,
+          themes: place.themes,
+          order: index + 1,
+          isOrigin: false,
+        })),
+      ];
 
-    for (const location of locations) {
-      const element = createSpotMarker(location);
-      const popupText = location.isOrigin
-        ? `出発地 · ${location.name}`
-        : [
-          `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`,
-          location.address,
-        ].filter(Boolean).join("\n");
-      const marker = new Marker({ element, anchor: "bottom" })
-        .setLngLat([location.longitude, location.latitude])
-        .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
-        .addTo(map);
-      markersRef.current.push(marker);
-    }
-
-    const midpoint = findPathMidpoint(coordinates);
-    const uniqueModes = [...new Set(legs.map((leg) => getModeIcon(leg.mode)?.icon).filter(
-      (mode): mode is keyof typeof modeIcons => mode !== undefined && mode !== null,
-    ))];
-    if (midpoint && uniqueModes.length > 0) {
-      uniqueModes.forEach((mode, index) => {
-        const modeIcon = modeIcons[mode];
-        const element = document.createElement("div");
-        element.className = `map-transit-marker map-transit-${mode}`;
-        element.setAttribute("role", "img");
-        element.setAttribute("aria-label", `ルート上の移動手段: ${modeIcon.label}`);
-        element.innerHTML = iconSvg(modeIcon.svg);
-        const offset = (index - (uniqueModes.length - 1) / 2) * 28;
-        const marker = new Marker({
-          element,
-          anchor: "center",
-          offset: [offset, 0],
-        })
-          .setLngLat([midpoint[1], midpoint[0]])
-          .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
-            `このルートに含まれる移動手段: ${modeIcon.label}`,
-          ))
+      for (const location of locations) {
+        const element = createSpotMarker(location);
+        const popupText = location.isOrigin
+          ? `出発地 · ${location.name}`
+          : [
+            `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`,
+            location.address,
+          ].filter(Boolean).join("\n");
+        const marker = new Marker({ element, anchor: "bottom" })
+          .setLngLat([location.longitude, location.latitude])
+          .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
           .addTo(map);
         markersRef.current.push(marker);
-      });
-    }
+      }
 
-    if (locations.length > 1) {
-      const bounds = new LngLatBounds();
-      locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
-      map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: 350 });
-    } else if (locations.length === 1) {
-      map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: 350 });
-    } else {
-      map.flyTo({ center: kyotoCenter, zoom: 11, duration: 350 });
-    }
+      const midpoint = findPathMidpoint(currentCoordinates);
+      const uniqueModes = [...new Set(currentLegs.map((leg) => getModeIcon(leg.mode)?.icon).filter(
+        (mode): mode is keyof typeof modeIcons => mode !== undefined && mode !== null,
+      ))];
+      if (midpoint && uniqueModes.length > 0) {
+        uniqueModes.forEach((mode, index) => {
+          const modeIcon = modeIcons[mode];
+          const element = document.createElement("div");
+          element.className = `map-transit-marker map-transit-${mode}`;
+          element.setAttribute("role", "img");
+          element.setAttribute("aria-label", `ルート上の移動手段: ${modeIcon.label}`);
+          element.innerHTML = iconSvg(modeIcon.svg);
+          const offset = (index - (uniqueModes.length - 1) / 2) * 28;
+          const marker = new Marker({
+            element,
+            anchor: "center",
+            offset: [offset, 0],
+          })
+            .setLngLat([midpoint[1], midpoint[0]])
+            .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
+              `このルートに含まれる移動手段: ${modeIcon.label}`,
+            ))
+            .addTo(map);
+          markersRef.current.push(marker);
+        });
+      }
 
-    const source = map.getSource("route");
-    if (source?.type === "geojson") {
-      (source as GeoJSONSource).setData({
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "LineString",
-          coordinates: routeFeature(coordinates).geometry.coordinates,
-        },
-      });
-    }
+      if (locations.length > 1) {
+        const bounds = new LngLatBounds();
+        locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
+        map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: 350 });
+      } else if (locations.length === 1) {
+        map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: 350 });
+      } else {
+        map.flyTo({ center: kyotoCenter, zoom: 11, duration: 350 });
+      }
+
+      const source = map.getSource("route");
+      if (source?.type === "geojson") {
+        (source as GeoJSONSource).setData({
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: routeFeature(currentCoordinates).geometry.coordinates,
+          },
+        });
+      }
+    };
+    syncMapRef.current();
 
   }, [origin, places, coordinates, legs]);
 

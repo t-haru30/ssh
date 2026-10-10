@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Origin, Place, SwipeItinerary, Theme } from "./types";
+import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
-import type { RouteIdea, SwipeDirection } from "./SwipeCard";
+import { useSwipeDeck } from "./useSwipeDeck";
+
+const LOW_CARD_COUNT = 1;
 
 type IdeaDeckProps = {
   origin: Origin;
@@ -13,54 +15,6 @@ type IdeaDeckProps = {
   onClose: () => void;
 };
 
-const BATCH_SIZE = 3;
-const LOW_CARD_COUNT = 1;
-const IDEA_THEMES: Theme[] = ["all", "history", "temple", "nature", "food"];
-
-async function readResponseError(response: Response) {
-  const payload: unknown = await response.json().catch(() => null);
-  if (
-    typeof payload === "object"
-    && payload !== null
-    && "detail" in payload
-    && typeof payload.detail === "string"
-  ) {
-    return payload.detail;
-  }
-  return "リクエストに失敗しました。時間をおいて再度お試しください。";
-}
-
-function isPlace(value: unknown): value is Place {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Record<string, unknown>;
-  return typeof candidate.id === "string"
-    && typeof candidate.name === "string"
-    && typeof candidate.latitude === "number"
-    && typeof candidate.longitude === "number";
-}
-
-function isIdea(value: unknown): value is RouteIdea {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Record<string, unknown>;
-  return typeof candidate.title === "string"
-    && typeof candidate.story === "string"
-    && (candidate.image_url === undefined || candidate.image_url === null || typeof candidate.image_url === "string")
-    && Array.isArray(candidate.places)
-    && candidate.places.length >= 2
-    && candidate.places.every(isPlace)
-    && typeof candidate.theme === "string";
-}
-
-function appendUniqueIdeas(current: RouteIdea[], additions: RouteIdea[]) {
-  const seen = new Set<string>();
-  return [...current, ...additions].filter((idea) => {
-    const key = idea.places.map((place) => place.id).sort().join("|");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
 export function IdeaDeck({
   origin,
   departureDate,
@@ -69,134 +23,25 @@ export function IdeaDeck({
   onItineraryChange,
   onClose,
 }: IdeaDeckProps) {
-  const [ideas, setIdeas] = useState<RouteIdea[]>([]);
-  const [loadingIdeas, setLoadingIdeas] = useState(false);
-  const [adopting, setAdopting] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState<SwipeDirection>("skip");
-  const [error, setError] = useState<string | null>(null);
-  const [failedLoadCount, setFailedLoadCount] = useState(0);
-  const [retryIdeaId, setRetryIdeaId] = useState<string | null>(null);
-  const [itinerary, setItinerary] = useState<SwipeItinerary | null>(null);
-  const [showItinerary, setShowItinerary] = useState(false);
-  const activePlaces = showItinerary && itinerary ? itinerary.places : ideas[0]?.places ?? [];
-  const lastAutoLoadCount = useRef<number | null>(null);
-  const initialLoadStarted = useRef(false);
+  const {
+    ideas,
+    loadingIdeas,
+    adopting,
+    swipeDirection,
+    error,
+    failedLoadCount,
+    retryIdeaId,
+    itinerary,
+    showItinerary,
+    setShowItinerary,
+    activePlaces,
+    loadIdeas,
+    handleSwipe,
+  } = useSwipeDeck({ origin, departureDate, departureTime, onItineraryChange });
 
   useEffect(() => {
     onActivePlacesChange(activePlaces);
   }, [activePlaces, onActivePlacesChange]);
-
-  const loadIdeas = useCallback(async (append: boolean, requestCount = BATCH_SIZE) => {
-    setLoadingIdeas(true);
-    setError(null);
-    setFailedLoadCount(0);
-    if (!append) setIdeas([]);
-    try {
-      const results = await Promise.allSettled(
-        Array.from({ length: requestCount }, async () => {
-          const theme = IDEA_THEMES[Math.floor(Math.random() * IDEA_THEMES.length)];
-          const response = await fetch(
-            `/api/ideas/random?theme=${encodeURIComponent(theme)}&spot_count=2`,
-          );
-          if (!response.ok) throw new Error(await readResponseError(response));
-          const payload: unknown = await response.json();
-          if (!isIdea(payload)) throw new Error("アイデアAPIから有効な候補が返されませんでした。");
-          setIdeas((current) => appendUniqueIdeas(current, [payload]));
-          return payload;
-        }),
-      );
-      const failedCount = results.filter((result) => result.status === "rejected").length;
-      setFailedLoadCount(failedCount);
-      if (failedCount > 0) {
-        const firstFailure = results.find((result) => result.status === "rejected");
-        const detail = firstFailure?.status === "rejected" && firstFailure.reason instanceof Error
-          ? ` ${firstFailure.reason.message}`
-          : "";
-        setError(
-          failedCount === requestCount
-            ? `アイデアを読み込めませんでした。${detail}`
-            : `${failedCount}件のアイデア取得に失敗しました。取得できた候補を表示しています。${detail}`,
-        );
-      }
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "アイデアを読み込めませんでした。");
-    } finally {
-      setLoadingIdeas(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (initialLoadStarted.current) return;
-    initialLoadStarted.current = true;
-    void loadIdeas(false);
-  }, [loadIdeas]);
-
-  useEffect(() => {
-    if (
-      ideas.length > 0
-      && ideas.length <= LOW_CARD_COUNT
-      && !loadingIdeas
-      && failedLoadCount === 0
-      && !itinerary
-      && !adopting
-      && lastAutoLoadCount.current !== ideas.length
-    ) {
-      lastAutoLoadCount.current = ideas.length;
-      void loadIdeas(true);
-    }
-  }, [adopting, failedLoadCount, ideas.length, itinerary, loadingIdeas, loadIdeas]);
-
-  async function handleSwipe(direction: SwipeDirection) {
-    const idea = ideas[0];
-    if (!idea || adopting) return;
-    if (direction === "skip") {
-      setSwipeDirection(direction);
-      setError(null);
-      setFailedLoadCount(0);
-      setRetryIdeaId(null);
-      setIdeas((current) => current.slice(1));
-      return;
-    }
-
-    setAdopting(true);
-    setError(null);
-    setFailedLoadCount(0);
-    setRetryIdeaId(null);
-    try {
-      const response = await fetch("/api/itineraries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: idea.places.map((place) => place.name).join(" "),
-          departure_station: origin.name,
-          departure_date: departureDate,
-          departure_time: departureTime,
-          stop_count: idea.places.length,
-          selected_places: idea.places.map((place) => ({
-            id: place.id,
-            name: place.name,
-            category: place.category,
-            region: (place.address ?? "").slice(0, 3),
-            address: place.address ?? "",
-            latitude: place.latitude,
-            longitude: place.longitude,
-            description: place.description,
-          })),
-        }),
-      });
-      if (!response.ok) throw new Error(await readResponseError(response));
-      const result = await response.json() as SwipeItinerary;
-      setItinerary(result);
-      setShowItinerary(true);
-      onItineraryChange(result);
-      setIdeas((current) => current.filter((candidate) => candidate !== idea));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "経路を取得できませんでした。");
-      setRetryIdeaId(idea.places.map((place) => place.id).join("-"));
-    } finally {
-      setAdopting(false);
-    }
-  }
 
   return (
     <section className="idea-deck-section" aria-labelledby="idea-deck-title">

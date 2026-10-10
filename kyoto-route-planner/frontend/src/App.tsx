@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
-import { MapView } from "./MapView";
+import { LazyMapView } from "./LazyMapView";
 import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import type { Origin, Place, RouteLeg, RouteSuggestion, RouteSuggestions, RouteSuggestionRequest, RouteTimelineItem, SwipeItinerary, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+import { isOrigin, isOvernightItinerary, isRecord, isRouteSuggestions } from "./apiValidation";
+import type { Origin, Place, RouteSuggestion, RouteSuggestionRequest, SwipeItinerary, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
 
@@ -46,87 +47,6 @@ async function fetchWithTimeout(
     timeout.signal.removeEventListener("abort", abortCombined);
     init.signal?.removeEventListener("abort", abortCombined);
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function isPlace(value: unknown): value is Place {
-  return (
-    isRecord(value)
-    && typeof value.id === "string"
-    && typeof value.name === "string"
-    && typeof value.category === "string"
-    && typeof value.description === "string"
-    && typeof value.latitude === "number"
-    && typeof value.longitude === "number"
-  );
-}
-
-function isOrigin(value: unknown): value is Origin {
-  return (
-    isRecord(value)
-    && typeof value.name === "string"
-    && typeof value.latitude === "number"
-    && typeof value.longitude === "number"
-  );
-}
-
-function isRouteLeg(value: unknown): value is RouteLeg {
-  return (
-    isRecord(value)
-    && typeof value.from_name === "string"
-    && typeof value.to_name === "string"
-    && typeof value.line_name === "string"
-    && typeof value.mode === "string"
-  );
-}
-
-function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
-  if (!isRecord(value)) return false;
-  if (value.type === "spot") {
-    return (
-      (value.role === "start" || value.role === "stop" || value.role === "finish")
-      && (typeof value.place_id === "string" || value.place_id === null)
-      && typeof value.name === "string"
-      && typeof value.category === "string"
-      && (typeof value.time === "string" || value.time === null)
-      && typeof value.stay_minutes === "number"
-    );
-  }
-  return (
-    value.type === "transit"
-    && value.mode === "public_transport"
-    && typeof value.from_name === "string"
-    && typeof value.to_name === "string"
-    && (typeof value.start_time === "string" || value.start_time === null)
-    && (typeof value.end_time === "string" || value.end_time === null)
-    && (typeof value.duration_minutes === "number" || value.duration_minutes === null)
-    && typeof value.is_estimate === "boolean"
-  );
-}
-
-function isRouteSuggestions(value: unknown): value is RouteSuggestions {
-  if (!isRecord(value) || !Array.isArray(value.routes) || value.routes.length === 0) {
-    return false;
-  }
-  return value.routes.every((route) => (
-    isRecord(route)
-    && Array.isArray(route.places)
-    && route.places.length > 0
-    && route.places.every(isPlace)
-    && Array.isArray(route.legs)
-    && route.legs.every(isRouteLeg)
-    && (
-      route.timeline === undefined
-      || (Array.isArray(route.timeline) && route.timeline.every(isRouteTimelineItem))
-    )
-    && isOrigin(route.origin)
-    && (route.title === null || typeof route.title === "string")
-    && (route.story === null || typeof route.story === "string")
-    && typeof route.note === "string"
-  ));
 }
 
 async function readError(response: Response) {
@@ -281,24 +201,31 @@ function App() {
         }, REQUEST_TIMEOUT_MS);
         if (!response.ok) throw new Error(await readError(response));
 
-        const rawPayload = await response.json() as Partial<OvernightItinerarySuggestion> & {
-          days?: Array<OvernightItinerarySuggestion["days"][number] & {
-            lunch?: OvernightItinerarySuggestion["days"][number]["lunch"];
-          }>;
-        };
-        const payload: OvernightItinerarySuggestion = {
+        const rawPayload: unknown = await response.json();
+        if (!isRecord(rawPayload) || !Array.isArray(rawPayload.days)) {
+          throw new Error("宿泊ルートAPIから有効な旅程が返されませんでした。");
+        }
+        const normalizedPayload = {
           ...rawPayload,
-          days: (rawPayload.days ?? []).map((day) => ({
-            ...day,
-            lunch: day.lunch ?? {
-              type: "lunch",
-              place: null,
-              start_time: "12:00",
-              end_time: "13:00",
-              reason: "昼食情報を取得できなかったため、昼食は要検討です。",
-            },
-          })),
-        } as OvernightItinerarySuggestion;
+          days: rawPayload.days.map((day) => (
+            isRecord(day) && day.lunch == null
+              ? {
+                ...day,
+                lunch: {
+                  type: "lunch",
+                  place: null,
+                  start_time: "12:00",
+                  end_time: "13:00",
+                  reason: "昼食情報を取得できなかったため、昼食は要検討です。",
+                },
+              }
+              : day
+          )),
+        };
+        if (!isOvernightItinerary(normalizedPayload)) {
+          throw new Error("宿泊ルートAPIから有効な旅程が返されませんでした。");
+        }
+        const payload: OvernightItinerarySuggestion = normalizedPayload;
         if (requestId === requestIdRef.current) {
           setOvernightSuggestion(payload);
         }
@@ -644,7 +571,7 @@ function App() {
             <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
             <span className="map-count">{displayedMapPlaces.length > 0 ? `${displayedMapPlaces.length} SPOTS` : "KYOTO"}</span>
           </div>
-          <MapView
+          <LazyMapView
             places={displayedMapPlaces}
             origin={displayedMapOrigin}
             coordinates={displayedMapCoordinates}

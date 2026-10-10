@@ -8,6 +8,7 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
+from app.http_client import provider_timeout, request_with_retry
 from app.models import Place, Theme
 
 GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
@@ -104,8 +105,10 @@ async def generate_route_copywriting(
         },
     }
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
+        async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
+            response = await request_with_retry(
+                client,
+                "POST",
                 url,
                 headers={"x-goog-api-key": api_key},
                 json=body,
