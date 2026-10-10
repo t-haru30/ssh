@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T00:00:00+00:00",
+  "ideas": [
+    {
+      "theme": "temple",
+      "title": "清水寺から高台寺へ、東山の寺院めぐり",
+      "story": "清水寺と高台寺を訪ね、東山の歴史ある景色を楽しむルートです。",
+      "places": [
+        {
+          "id": "seed-kiyomizu",
+          "name": "清水寺",
+          "category": "寺院",
+          "description": "京都を代表する寺院のひとつです。",
+          "access_point": "座標から経路検索",
+          "latitude": 34.9949,
+          "longitude": 135.785,
+          "themes": ["temple", "history"],
+          "address": "京都市東山区",
+          "tags": {}
+        },
+        {
+          "id": "seed-kodaiji",
+          "name": "高台寺",
+          "category": "寺院",
+          "description": "東山エリアにある寺院です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.0008,
+          "longitude": 135.7807,
+          "themes": ["temple", "history"],
+          "address": "京都市東山区",
+          "tags": {}
+        }
+      ],
+      "image_url": null,
+      "author_name": null,
+      "source_url": null,
+      "license_name": null,
+      "license_url": null,
+      "copywriting_source": "fallback",
+      "note": "アプリ同梱の初期オフラインデータです。"
+    },
+    {
+      "theme": "history",
+      "title": "伏見稲荷大社から東福寺へ、伏見の歴史散歩",
+      "story": "伏見稲荷大社と東福寺を巡り、京都の歴史に触れるルートです。",
+      "places": [
+        {
+          "id": "seed-fushimi-inari",
+          "name": "伏見稲荷大社",
+          "category": "神社",
+          "description": "伏見エリアにある神社です。",
+          "access_point": "座標から経路検索",
+          "latitude": 34.9671,
+          "longitude": 135.7727,
+          "themes": ["temple", "history"],
+          "address": "京都市伏見区",
+          "tags": {}
+        },
+        {
+          "id": "seed-tofukuji",
+          "name": "東福寺",
+          "category": "寺院",
+          "description": "京都市内にある寺院です。",
+          "access_point": "座標から経路検索",
+          "latitude": 34.9769,
+          "longitude": 135.774,
+          "themes": ["temple", "history"],
+          "address": "京都市東山区",
+          "tags": {}
+        }
+      ],
+      "image_url": null,
+      "author_name": null,
+      "source_url": null,
+      "license_name": null,
+      "license_url": null,
+      "copywriting_source": "fallback",
+      "note": "アプリ同梱の初期オフラインデータです。"
+    },
+    {
+      "theme": "nature",
+      "title": "渡月橋から竹林の小径へ、嵐山さんぽ",
+      "story": "渡月橋と竹林の小径を訪れ、嵐山の景色を楽しむルートです。",
+      "places": [
+        {
+          "id": "seed-togetsukyo",
+          "name": "渡月橋",
+          "category": "名所",
+          "description": "嵐山エリアを流れる桂川に架かる橋です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.0127,
+          "longitude": 135.6775,
+          "themes": ["nature"],
+          "address": "京都市右京区",
+          "tags": {}
+        },
+        {
+          "id": "seed-chikurin",
+          "name": "竹林の小径",
+          "category": "自然",
+          "description": "嵐山エリアの竹林を通る散策路です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.017,
+          "longitude": 135.6712,
+          "themes": ["nature"],
+          "address": "京都市右京区",
+          "tags": {}
+        }
+      ],
+      "image_url": null,
+      "author_name": null,
+      "source_url": null,
+      "license_name": null,
+      "license_url": null,
+      "copywriting_source": "fallback",
+      "note": "アプリ同梱の初期オフラインデータです。"
+    },
+    {
+      "theme": "food",
+      "title": "錦市場から先斗町へ、京の食べ歩き",
+      "story": "錦市場と先斗町を巡り、京都の街なかを楽しむルートです。",
+      "places": [
+        {
+          "id": "seed-nishiki",
+          "name": "錦市場",
+          "category": "グルメ",
+          "description": "京都市中心部にある市場です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.005,
+          "longitude": 135.7646,
+          "themes": ["food"],
+          "address": "京都市中京区",
+          "tags": {}
+        },
+        {
+          "id": "seed-pontocho",
+          "name": "先斗町",
+          "category": "グルメ",
+          "description": "鴨川沿いにある京都の街並みです。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.0058,
+          "longitude": 135.7708,
+          "themes": ["food"],
+          "address": "京都市中京区",
+          "tags": {}
+        }
+      ],
+      "image_url": null,
+      "author_name": null,
+      "source_url": null,
+      "license_name": null,
+      "license_url": null,
+      "copywriting_source": "fallback",
+      "note": "アプリ同梱の初期オフラインデータです。"
+    },
+    {
+      "theme": "nature",
+      "title": "銀閣寺から哲学の道へ、東山の散策",
+      "story": "銀閣寺と哲学の道を巡り、東山の散策を楽しむルートです。",
+      "places": [
+        {
+          "id": "seed-ginkakuji",
+          "name": "銀閣寺",
+          "category": "寺院",
+          "description": "東山エリアにある寺院です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.027,
+          "longitude": 135.7982,
+          "themes": ["temple", "history"],
+          "address": "京都市左京区",
+          "tags": {}
+        },
+        {
+          "id": "seed-tetsugaku",
+          "name": "哲学の道",
+          "category": "自然",
+          "description": "東山エリアの散策路です。",
+          "access_point": "座標から経路検索",
+          "latitude": 35.027,
+          "longitude": 135.7948,
+          "themes": ["nature"],
+          "address": "京都市左京区",
+          "tags": {}
+        }
+      ],
+      "image_url": null,
+      "author_name": null,
+      "source_url": null,
+      "license_name": null,
+      "license_url": null,
+      "copywriting_source": "fallback",
+      "note": "アプリ同梱の初期オフラインデータです。"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { isRouteIdea, isSwipeItinerary } from "./apiValidation";
-import type { Origin, Place, SwipeItinerary, Theme } from "./types";
+import { isRouteIdeaBatch, isSwipeItinerary } from "./apiValidation";
+import type { Origin, Place, SwipeItinerary } from "./types";
 import type { RouteIdea, SwipeDirection } from "./SwipeCard";
 
 type UseSwipeDeckOptions = {
@@ -10,9 +10,9 @@ type UseSwipeDeckOptions = {
   onItineraryChange: (itinerary: SwipeItinerary) => void;
 };
 
-const BATCH_SIZE = 3;
-const LOW_CARD_COUNT = 1;
-const IDEA_THEMES: Theme[] = ["all", "history", "temple", "nature", "food"];
+const INITIAL_BATCH_SIZE = 5;
+const PREFETCH_BATCH_SIZE = 5;
+const PREFETCH_THRESHOLD = 3;
 
 async function readResponseError(response: Response) {
   const payload: unknown = await response.json().catch(() => null);
@@ -28,13 +28,18 @@ async function readResponseError(response: Response) {
 }
 
 function appendUniqueIdeas(current: RouteIdea[], additions: RouteIdea[]) {
-  const seen = new Set<string>();
-  return [...current, ...additions].filter((idea) => {
+  const seen = new Set(current.map((idea) => idea.places.map((place) => place.id).sort().join("|")));
+  const uniqueAdditions = additions.filter((idea) => {
     const key = idea.places.map((place) => place.id).sort().join("|");
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+  return [...current, ...uniqueAdditions];
+}
+
+function ideaSignature(idea: RouteIdea) {
+  return idea.places.map((place) => place.id).sort().join("|");
 }
 
 export function useSwipeDeck({
@@ -44,7 +49,7 @@ export function useSwipeDeck({
   onItineraryChange,
 }: UseSwipeDeckOptions) {
   const [ideas, setIdeas] = useState<RouteIdea[]>([]);
-  const [loadingIdeas, setLoadingIdeas] = useState(false);
+  const [loadingIdeas, setLoadingIdeas] = useState(true);
   const [adopting, setAdopting] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<SwipeDirection>("skip");
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +61,7 @@ export function useSwipeDeck({
   const loadGeneration = useRef(0);
   const loadAbortController = useRef<AbortController | null>(null);
   const adoptionAbortController = useRef<AbortController | null>(null);
+  const seenIdeaSignatures = useRef(new Set<string>());
 
   const activePlaces: Place[] = showItinerary && itinerary
     ? itinerary.places
@@ -69,7 +75,7 @@ export function useSwipeDeck({
     adoptionAbortController.current = null;
   }, []);
 
-  const loadIdeas = useCallback(async (append: boolean, requestCount = BATCH_SIZE) => {
+  const loadIdeas = useCallback(async (append: boolean, requestCount = INITIAL_BATCH_SIZE) => {
     loadAbortController.current?.abort();
     const controller = new AbortController();
     const generation = loadGeneration.current + 1;
@@ -78,40 +84,38 @@ export function useSwipeDeck({
     setLoadingIdeas(true);
     setError(null);
     setFailedLoadCount(0);
-    if (!append) setIdeas([]);
+    if (!append) {
+      setIdeas([]);
+      lastAutoLoadCount.current = null;
+      seenIdeaSignatures.current.clear();
+    }
     try {
-      const results = await Promise.allSettled(
-        Array.from({ length: requestCount }, async () => {
-          const theme = IDEA_THEMES[Math.floor(Math.random() * IDEA_THEMES.length)];
-          const response = await fetch(
-            `/api/ideas/random?theme=${encodeURIComponent(theme)}&spot_count=2`,
-            { signal: controller.signal },
-          );
-          if (!response.ok) throw new Error(await readResponseError(response));
-          const payload: unknown = await response.json();
-          if (!isRouteIdea(payload)) throw new Error("アイデアAPIから有効な候補が返されませんでした。");
-          if (generation === loadGeneration.current && !controller.signal.aborted) {
-            setIdeas((current) => appendUniqueIdeas(current, [payload]));
-          }
-          return payload;
-        }),
-      );
+      const params = new URLSearchParams({
+        theme: "all",
+        count: String(requestCount),
+        spot_count: "2",
+      });
+      [...seenIdeaSignatures.current]
+        .slice(-50)
+        .forEach((signature) => params.append("exclude", signature));
+      const response = await fetch(`/api/ideas?${params.toString()}`, { signal: controller.signal });
+      if (!response.ok) throw new Error(await readResponseError(response));
+      const payload: unknown = await response.json();
+      if (!isRouteIdeaBatch(payload)) {
+        throw new Error("アイデアAPIから有効な候補一覧が返されませんでした。");
+      }
       if (generation !== loadGeneration.current || controller.signal.aborted) return;
-      const failedCount = results.filter((result) => result.status === "rejected").length;
-      setFailedLoadCount(failedCount);
-      if (failedCount > 0) {
-        const firstFailure = results.find((result) => result.status === "rejected");
-        const detail = firstFailure?.status === "rejected" && firstFailure.reason instanceof Error
-          ? ` ${firstFailure.reason.message}`
-          : "";
+      setIdeas((current) => appendUniqueIdeas(current, payload.ideas));
+      payload.ideas.forEach((idea) => seenIdeaSignatures.current.add(ideaSignature(idea)));
+      setFailedLoadCount(payload.shortfall);
+      if (payload.shortfall > 0) {
         setError(
-          failedCount === requestCount
-            ? `アイデアを読み込めませんでした。${detail}`
-            : `${failedCount}件のアイデア取得に失敗しました。取得できた候補を表示しています。${detail}`,
+          `候補を${payload.ideas.length}件取得しました。データ不足のため${payload.shortfall}件は補充できませんでした。`,
         );
       }
     } catch (cause) {
       if (generation === loadGeneration.current && !controller.signal.aborted) {
+        setFailedLoadCount(requestCount);
         setError(cause instanceof Error ? cause.message : "アイデアを読み込めませんでした。");
       }
     } finally {
@@ -129,7 +133,7 @@ export function useSwipeDeck({
   useEffect(() => {
     if (
       ideas.length > 0
-      && ideas.length <= LOW_CARD_COUNT
+      && ideas.length <= PREFETCH_THRESHOLD
       && !loadingIdeas
       && failedLoadCount === 0
       && !itinerary
@@ -137,7 +141,7 @@ export function useSwipeDeck({
       && lastAutoLoadCount.current !== ideas.length
     ) {
       lastAutoLoadCount.current = ideas.length;
-      void loadIdeas(true);
+      void loadIdeas(true, PREFETCH_BATCH_SIZE);
     }
   }, [adopting, failedLoadCount, ideas.length, itinerary, loadingIdeas, loadIdeas]);
 

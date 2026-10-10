@@ -115,6 +115,13 @@ class RouteIdeaResponse(BaseModel):
             raise ValueError("commercial images require author, source, and license attribution")
         return self
 
+class RouteIdeaBatchResponse(BaseModel):
+    ideas: list[RouteIdeaResponse] = Field(min_length=1, max_length=10)
+    requested_count: int = Field(ge=1, le=10)
+    shortfall: int = Field(ge=0, le=10)
+    used_fallback: bool
+    fallback_count: int = Field(ge=0, le=10)
+
 class LabelPreference(BaseModel):
     label_type: Literal["atmosphere", "target_audience", "activity_type"]
     label: str

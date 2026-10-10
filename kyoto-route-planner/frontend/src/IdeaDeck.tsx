@@ -4,7 +4,7 @@ import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import { useSwipeDeck } from "./useSwipeDeck";
 
-const LOW_CARD_COUNT = 1;
+const LOW_CARD_COUNT = 3;
 
 type IdeaDeckProps = {
   origin: Origin;
