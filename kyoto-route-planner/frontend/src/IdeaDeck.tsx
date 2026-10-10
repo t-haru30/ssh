@@ -121,6 +121,7 @@ export function IdeaDeck({
                   idea={idea}
                   depth={2 - index}
                   isProcessing={adopting}
+                  exitDirection={swipeDirection}
                   onSwipe={(direction) => void handleSwipe(direction)}
                 />
               ))}

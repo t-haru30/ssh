@@ -59,7 +59,7 @@ describe("SwipeCard image attribution", () => {
   });
 
   it("keeps the themed placeholder when image_url is null", () => {
-    render(
+    const { container } = render(
       <SwipeCard
         idea={makeIdea(null)}
         depth={0}
@@ -68,7 +68,9 @@ describe("SwipeCard image attribution", () => {
       />,
     );
 
-    expect(screen.getAllByText("庭園")).toHaveLength(2);
+    expect(container.querySelector(".swipe-cover-placeholder")).toBeTruthy();
+    expect(screen.getByText("庭園", { selector: "strong" })).toBeTruthy();
+    expect(screen.getByText("庭園", { selector: ".swipe-spot-category" })).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });
 });
