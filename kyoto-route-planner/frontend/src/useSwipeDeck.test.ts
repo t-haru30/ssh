@@ -40,6 +40,16 @@ function makeResponse(payload: unknown, ok = true): Response {
   } as Response;
 }
 
+function makeBatch(ideas: RouteIdea[], requestedCount = ideas.length, shortfall = 0) {
+  return {
+    ideas,
+    requested_count: requestedCount,
+    shortfall,
+    used_fallback: false,
+    fallback_count: 0,
+  };
+}
+
 function renderSwipeDeck() {
   return renderHook(() => useSwipeDeck({
     origin: {
@@ -58,17 +68,18 @@ afterEach(() => {
 });
 
 describe("useSwipeDeck", () => {
-  it("keeps successful ideas when part of a batch fails", async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(makeResponse(makeIdea(0)))
-      .mockRejectedValueOnce(new Error("network unavailable"))
-      .mockResolvedValueOnce(makeResponse(makeIdea(2)));
+  it("keeps cards returned with a reported shortfall and exposes retry", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      makeResponse(makeBatch([makeIdea(0), makeIdea(2)], 5, 3)),
+    );
     vi.stubGlobal("fetch", fetchMock);
     const { result } = renderSwipeDeck();
 
     await waitFor(() => expect(result.current.ideas).toHaveLength(2));
-    expect(result.current.failedLoadCount).toBe(1);
-    expect(result.current.error).toContain("1件のアイデア取得に失敗しました");
+    expect(result.current.failedLoadCount).toBe(3);
+    expect(result.current.error).toContain("3件は補充できませんでした");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toContain("/api/ideas?theme=all&count=5");
   });
 
   it("ignores stale batch responses after a newer load starts", async () => {
@@ -82,24 +93,22 @@ describe("useSwipeDeck", () => {
       })
     )));
     const { result } = renderSwipeDeck();
-    await waitFor(() => expect(pending).toHaveLength(3));
+    await waitFor(() => expect(pending).toHaveLength(1));
 
     let refresh: Promise<void> = Promise.resolve();
     act(() => {
       refresh = result.current.loadIdeas(false, 1);
     });
-    expect(pending).toHaveLength(4);
-    expect(pending.slice(0, 3).every((request) => request.signal?.aborted)).toBe(true);
+    expect(pending).toHaveLength(2);
+    expect(pending[0].signal?.aborted).toBe(true);
 
     await act(async () => {
-      pending.slice(0, 3).forEach((request, index) => {
-        request.resolve(makeResponse(makeIdea(index)));
-      });
+      pending[0].resolve(makeResponse(makeBatch([makeIdea(0), makeIdea(1), makeIdea(2)])));
       await Promise.resolve();
       await Promise.resolve();
     });
     await act(async () => {
-      pending[3].resolve(makeResponse(makeIdea(9)));
+      pending[1].resolve(makeResponse(makeBatch([makeIdea(9)])));
       await refresh;
     });
 
@@ -108,23 +117,27 @@ describe("useSwipeDeck", () => {
 
   it("keeps the selected idea and exposes retry after itinerary failure", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(makeResponse(makeIdea(0)))
-      .mockResolvedValueOnce(makeResponse(makeIdea(1)))
-      .mockResolvedValueOnce(makeResponse(makeIdea(2)))
+      .mockResolvedValueOnce(makeResponse(makeBatch([
+        makeIdea(0),
+        makeIdea(1),
+        makeIdea(2),
+        makeIdea(3),
+        makeIdea(4),
+      ])))
       .mockResolvedValueOnce(makeResponse({ detail: "経路が見つかりません" }, false));
     vi.stubGlobal("fetch", fetchMock);
     const { result } = renderSwipeDeck();
 
-    await waitFor(() => expect(result.current.ideas).toHaveLength(3));
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
     const selectedId = result.current.ideas[0].places.map((place) => place.id).join("-");
     await act(async () => {
       await result.current.handleSwipe("accept");
     });
 
-    expect(result.current.ideas).toHaveLength(3);
+    expect(result.current.ideas).toHaveLength(5);
     expect(result.current.retryIdeaId).toBe(selectedId);
     expect(result.current.error).toBe("経路が見つかりません");
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("aborts an in-flight itinerary request when the hook unmounts", async () => {
@@ -132,9 +145,13 @@ describe("useSwipeDeck", () => {
     let resolveAdoption: ((response: Response) => void) | null = null;
     const selectedIdea = makeIdea(0);
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(makeResponse(selectedIdea))
-      .mockResolvedValueOnce(makeResponse(makeIdea(1)))
-      .mockResolvedValueOnce(makeResponse(makeIdea(2)))
+      .mockResolvedValueOnce(makeResponse(makeBatch([
+        selectedIdea,
+        makeIdea(1),
+        makeIdea(2),
+        makeIdea(3),
+        makeIdea(4),
+      ])))
       .mockImplementationOnce((_input: RequestInfo | URL, init?: RequestInit) => {
         adoptionSignal.current = init?.signal ?? null;
         return new Promise<Response>((resolve) => {
@@ -144,7 +161,7 @@ describe("useSwipeDeck", () => {
     vi.stubGlobal("fetch", fetchMock);
     const { result, unmount } = renderSwipeDeck();
 
-    await waitFor(() => expect(result.current.ideas).toHaveLength(3));
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
     let adoption: Promise<void> = Promise.resolve();
     act(() => {
       adoption = result.current.handleSwipe("accept");
@@ -164,5 +181,40 @@ describe("useSwipeDeck", () => {
       }));
       await adoption;
     });
+  });
+
+  it("prefetches a new batch when three cards remain", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(makeResponse(makeBatch([
+        makeIdea(0),
+        makeIdea(1),
+        makeIdea(2),
+        makeIdea(3),
+        makeIdea(4),
+      ])))
+      .mockResolvedValueOnce(makeResponse(makeBatch([
+        makeIdea(5),
+        makeIdea(6),
+      ], 5, 3)));
+    vi.stubGlobal("fetch", fetchMock);
+    const { result } = renderSwipeDeck();
+
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
+    await act(async () => {
+      await result.current.handleSwipe("skip");
+      await result.current.handleSwipe("skip");
+    });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[1][0]).toContain("count=5");
+    expect(fetchMock.mock.calls[1][0]).toContain("exclude=");
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
+    expect(result.current.ideas.map((idea) => idea.title)).toEqual([
+      "候補2",
+      "候補3",
+      "候補4",
+      "候補5",
+      "候補6",
+    ]);
   });
 });

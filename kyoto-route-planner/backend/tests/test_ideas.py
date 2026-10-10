@@ -38,6 +38,15 @@ def sample_places() -> list[Place]:
 
 
 class RandomRouteIdeaTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls._limiter_patch = patch("app.main.limiter.enabled", False)
+        cls._limiter_patch.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._limiter_patch.stop()
+
     def test_random_idea_returns_two_spots_and_fallback_copy_without_route_search(self):
         client = TestClient(app)
         candidates = sample_places()
@@ -106,14 +115,15 @@ class RandomRouteIdeaTests(unittest.TestCase):
         response = TestClient(app).get("/api/ideas/random?spot_count=1")
         self.assertEqual(response.status_code, 422)
 
-    def test_random_idea_requires_at_least_two_candidates(self):
+    def test_random_idea_uses_local_cards_when_live_candidates_are_insufficient(self):
         with patch(
             "app.main._route_candidates",
             new=AsyncMock(return_value=(sample_places()[:1], "Yahoo result")),
         ):
             response = TestClient(app).get("/api/ideas/random?theme=nature")
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("ローカルデータ", response.json()["note"])
 
     def test_gemini_failure_uses_local_copy_fallback(self):
         with (

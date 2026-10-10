@@ -24,6 +24,20 @@ async def generate_random_idea(
         )
 
     places = random.sample(candidates, min(requested_count or random.randint(2, 3), len(candidates)))
+    return await generate_idea_from_places(
+        places=places,
+        theme=theme,
+        theme_label=theme_label,
+        candidate_note=candidate_note,
+    )
+
+
+async def generate_idea_from_places(
+    places: list[Place],
+    theme: Theme,
+    theme_label: str,
+    candidate_note: str,
+) -> RouteIdeaResponse:
     image = await search_commercial_image(places[0].name)
 
     copywriting_source = "fallback"

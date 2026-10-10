@@ -7,10 +7,12 @@ import os
 from pathlib import Path
 import random
 import time
+from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -18,7 +20,8 @@ from slowapi.util import get_remote_address
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
-from app.idea_service import generate_random_idea
+from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
+from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.models import (
@@ -38,6 +41,7 @@ from app.models import (
     RouteSuggestions,
     RouteSuggestionRequest,
     RouteIdeaResponse,
+    RouteIdeaBatchResponse,
     Theme,
 )
 
@@ -171,6 +175,7 @@ def _build_route_timeline(
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     initialize_database()
+    _app.state.fallback_ideas = load_fallback_ideas()
     yield
 
 
@@ -193,6 +198,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 ROUTE_STOP_STAY_MINUTES = 90
 ROUTE_TIMELINE_VERSION = 1
+MAX_REALTIME_IDEAS_PER_REQUEST = 2
+REALTIME_IDEA_TIMEOUT_SECONDS = 8.0
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
     "all": "京都",
@@ -411,16 +418,142 @@ async def recommend_random_idea(
     request: Request,
     theme: Theme | None = None,
     spot_count: int | None = Query(default=None, ge=2, le=3),
+    use_fallback: bool = False,
+    exclude: list[Annotated[str, Field(min_length=1, max_length=600)]] = Query(
+        default=[],
+        max_length=50,
+    ),
 ) -> RouteIdeaResponse:
-    """Yahoo! POIと任意のGeminiコピーのみを使う軽量なスワイプ候補。"""
+    """Return one live idea when available, falling back to the local dataset."""
     selected_theme = theme or random.choice(RANDOM_ROUTE_THEMES)
-    candidates, candidate_note = await _route_candidates(selected_theme)
-    return await generate_random_idea(
+    batch = await _provide_idea_batch(
+        request=request,
         theme=selected_theme,
-        theme_label=IDEA_THEME_LABELS[selected_theme],
-        requested_count=spot_count,
-        candidates=candidates,
-        candidate_note=candidate_note,
+        count=1,
+        spot_count=spot_count,
+        use_fallback=use_fallback,
+        exclude=exclude,
+    )
+    return batch.ideas[0]
+
+
+@app.get("/api/ideas", response_model=RouteIdeaBatchResponse)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("5/minute")
+async def recommend_ideas(
+    request: Request,
+    theme: Theme | None = None,
+    count: int = Query(default=5, ge=1, le=10),
+    spot_count: int | None = Query(default=None, ge=2, le=3),
+    use_fallback: bool = False,
+    exclude: list[Annotated[str, Field(min_length=1, max_length=600)]] = Query(
+        default=[],
+        max_length=50,
+    ),
+) -> RouteIdeaBatchResponse:
+    """Return a batch of ideas and use local cards to fill any live-generation gaps."""
+    selected_theme = theme or random.choice(RANDOM_ROUTE_THEMES)
+    return await _provide_idea_batch(
+        request=request,
+        theme=selected_theme,
+        count=count,
+        spot_count=spot_count,
+        use_fallback=use_fallback,
+        exclude=exclude,
+    )
+
+
+async def _provide_idea_batch(
+    request: Request,
+    theme: Theme,
+    count: int,
+    spot_count: int | None,
+    use_fallback: bool,
+    exclude: list[str],
+) -> RouteIdeaBatchResponse:
+    live_ideas: list[RouteIdeaResponse] = []
+    excluded_signatures = {
+        tuple(sorted(signature.split("|")))
+        for signature in exclude
+        if 2 <= len(signature.split("|")) <= 3
+        and all(signature_part for signature_part in signature.split("|"))
+    }
+    fallback_pool = getattr(request.app.state, "fallback_ideas", [])
+    if not use_fallback:
+        deadline = time.monotonic() + REALTIME_IDEA_TIMEOUT_SECONDS
+        try:
+            candidates, candidate_note = await asyncio.wait_for(
+                _route_candidates(theme),
+                timeout=max(0.001, deadline - time.monotonic()),
+            )
+            if len(candidates) < 2:
+                raise HTTPException(
+                    status_code=404,
+                    detail="アイデア提案には2件以上のスポットが必要です。",
+                )
+            realtime_count = min(count, MAX_REALTIME_IDEAS_PER_REQUEST)
+            attempted: set[tuple[str, ...]] = set()
+            for _ in range(realtime_count * 3):
+                if len(live_ideas) >= realtime_count:
+                    break
+                places = random.sample(
+                    candidates,
+                    min(spot_count or random.randint(2, 3), len(candidates)),
+                )
+                signature = tuple(sorted(place.id for place in places))
+                if signature in attempted or signature in excluded_signatures:
+                    continue
+                attempted.add(signature)
+                remaining_seconds = deadline - time.monotonic()
+                if remaining_seconds <= 0:
+                    raise asyncio.TimeoutError
+                idea = await asyncio.wait_for(
+                    generate_idea_from_places(
+                        places=places,
+                        theme=theme,
+                        theme_label=IDEA_THEME_LABELS[theme],
+                        candidate_note=candidate_note,
+                    ),
+                    timeout=remaining_seconds,
+                )
+                live_ideas.append(idea)
+                excluded_signatures.add(signature)
+        except asyncio.TimeoutError:
+            logger.warning("Live swipe idea generation timed out; using local fallback cards")
+        except HTTPException as error:
+            logger.warning(
+                "Live swipe idea generation failed; using local fallback cards: status=%d",
+                error.status_code,
+            )
+
+    fallback_ideas = select_fallback_ideas(
+        fallback_pool,
+        count - len(live_ideas),
+        theme,
+        excluded_signatures,
+    )
+    for idea in fallback_ideas:
+        live_ideas.append(idea.model_copy(update={
+            "note": f"{idea.note} 事前生成済みのローカルデータから提案しています。".strip(),
+        }))
+
+    if not live_ideas:
+        raise HTTPException(
+            status_code=503,
+            detail="利用できる提案がありません。事前データセットを生成するか、時間をおいて再度お試しください。",
+        )
+    if len(live_ideas) < count:
+        logger.warning(
+            "Only %d of %d requested swipe ideas are available; the fallback pool is exhausted",
+            len(live_ideas),
+            count,
+        )
+    return RouteIdeaBatchResponse(
+        ideas=live_ideas,
+        requested_count=count,
+        shortfall=count - len(live_ideas),
+        used_fallback=bool(fallback_ideas),
+        fallback_count=len(fallback_ideas),
     )
 
 

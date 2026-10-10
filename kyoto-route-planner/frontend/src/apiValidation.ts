@@ -145,6 +145,31 @@ export function isRouteIdea(value: unknown): value is RouteIdea {
     && typeof value.note === "string";
 }
 
+export function isRouteIdeaBatch(
+  value: unknown,
+): value is {
+  ideas: RouteIdea[];
+  requested_count: number;
+  shortfall: number;
+  used_fallback: boolean;
+  fallback_count: number;
+} {
+  return isRecord(value)
+    && Array.isArray(value.ideas)
+    && value.ideas.length > 0
+    && value.ideas.every(isRouteIdea)
+    && typeof value.requested_count === "number"
+    && Number.isInteger(value.requested_count)
+    && value.requested_count >= 1
+    && typeof value.shortfall === "number"
+    && Number.isInteger(value.shortfall)
+    && value.shortfall >= 0
+    && typeof value.used_fallback === "boolean"
+    && typeof value.fallback_count === "number"
+    && Number.isInteger(value.fallback_count)
+    && value.fallback_count >= 0;
+}
+
 function isRouteSuggestion(value: unknown): value is RouteSuggestion {
   return isRecord(value)
     && Array.isArray(value.places)
