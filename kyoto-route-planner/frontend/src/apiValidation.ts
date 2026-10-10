@@ -115,6 +115,14 @@ export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
 export function isRouteIdea(value: unknown): value is RouteIdea {
   return isRecord(value)
     && isTheme(value.theme)
+    && (value.prefecture_code === undefined
+      || value.prefecture_code === null
+      || (typeof value.prefecture_code === "string" && /^(0[1-9]|[1-3][0-9]|4[0-7])$/.test(value.prefecture_code)))
+    && (value.prefecture_name === undefined
+      || value.prefecture_name === null
+      || (typeof value.prefecture_name === "string" && value.prefecture_name.length > 0))
+    && ((value.prefecture_code == null && value.prefecture_name == null)
+      || (typeof value.prefecture_code === "string" && typeof value.prefecture_name === "string"))
     && typeof value.title === "string"
     && value.title.length > 0
     && typeof value.story === "string"

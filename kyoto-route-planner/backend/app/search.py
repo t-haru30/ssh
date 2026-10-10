@@ -103,6 +103,7 @@ def parse_place_query(text: str) -> ParsedPlaceQuery:
         (prefecture for prefecture in PREFECTURE_NAMES if prefecture in query),
         None,
     )
+    search_query = query.replace(requested_prefecture, " ") if requested_prefecture else query
     region = requested_prefecture or (
         "京都府" if any(term in query for term in ("京都", "Kyoto")) else None
     )
@@ -111,16 +112,16 @@ def parse_place_query(text: str) -> ParsedPlaceQuery:
     consumed_terms: list[str] = []
 
     for pattern, label_type, label, keyword in PREFERENCE_RULES:
-        if pattern.search(query):
+        if pattern.search(search_query):
             preferences.append(LabelPreference(label_type=label_type, label=label))
             keywords.append(keyword)
-            consumed_terms.extend(pattern.findall(query))
+            consumed_terms.extend(pattern.findall(search_query))
 
     category = next(
-        (category for pattern, category in CATEGORY_RULES if pattern.search(query)),
+        (category for pattern, category in CATEGORY_RULES if pattern.search(search_query)),
         None,
     )
-    keywords.extend(term for term in CATEGORY_KEYWORDS if term in query)
+    keywords.extend(term for term in CATEGORY_KEYWORDS if term in search_query)
     distance_match = DISTANCE_PATTERN.search(query)
     max_distance_m: int | None = None
     if distance_match:
@@ -137,7 +138,12 @@ def parse_place_query(text: str) -> ParsedPlaceQuery:
 
     residual = query
     for term in sorted(
-        set((*STOP_WORDS, *consumed_terms, *(origin.name for origin in list_origins()))),
+        set((
+            *STOP_WORDS,
+            *PREFECTURE_NAMES,
+            *consumed_terms,
+            *(origin.name for origin in list_origins()),
+        )),
         key=len,
         reverse=True,
     ):

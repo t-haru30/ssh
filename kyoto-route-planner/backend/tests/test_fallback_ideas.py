@@ -33,6 +33,8 @@ class FallbackIdeaTests(unittest.TestCase):
     def test_bundled_dataset_loads_valid_cards(self):
         ideas = load_fallback_ideas()
         self.assertGreaterEqual(len(ideas), 5)
+        self.assertTrue(all(idea.prefecture_code == "26" for idea in ideas))
+        self.assertTrue(all(idea.prefecture_name == "京都府" for idea in ideas))
 
     def test_selection_filters_theme_and_does_not_repeat_cards(self):
         ideas = load_fallback_ideas()
@@ -56,6 +58,25 @@ class FallbackIdeaTests(unittest.TestCase):
         self.assertTrue(payload["used_fallback"])
         self.assertTrue(all("ローカルデータ" in idea["note"] for idea in payload["ideas"]))
         live_search.assert_not_awaited()
+
+    def test_prefecture_code_filters_fallback_cards_without_live_search(self):
+        with TestClient(app) as client, patch("app.main._route_candidates", new=AsyncMock()) as live_search:
+            response = client.get(
+                "/api/ideas?theme=all&count=5&prefecture_code=26",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(len(payload["ideas"]), 5)
+        self.assertTrue(all(idea["prefecture_code"] == "26" for idea in payload["ideas"]))
+        self.assertTrue(payload["used_fallback"])
+        live_search.assert_not_awaited()
+
+    def test_invalid_prefecture_code_is_rejected(self):
+        with TestClient(app) as client:
+            response = client.get("/api/ideas?prefecture_code=48&use_fallback=true")
+
+        self.assertEqual(response.status_code, 422)
 
     def test_provider_failure_is_filled_from_fallback_dataset(self):
         with (
