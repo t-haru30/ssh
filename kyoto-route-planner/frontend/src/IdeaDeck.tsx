@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import { useSwipeDeck } from "./useSwipeDeck";
+import { usePrefecture } from "./PrefectureContext";
 
 const LOW_CARD_COUNT = 3;
 
@@ -24,6 +25,7 @@ export function IdeaDeck({
   onClose,
 }: IdeaDeckProps) {
   const [fallbackOnly, setFallbackOnly] = useState(false);
+  const { prefecture } = usePrefecture();
   const {
     ideas,
     loadingIdeas,
@@ -38,7 +40,14 @@ export function IdeaDeck({
     activePlaces,
     loadIdeas,
     handleSwipe,
-  } = useSwipeDeck({ origin, departureDate, departureTime, onItineraryChange, fallbackOnly });
+  } = useSwipeDeck({
+    origin,
+    departureDate,
+    departureTime,
+    onItineraryChange,
+    fallbackOnly,
+    prefectureCode: prefecture.code,
+  });
 
   useEffect(() => {
     onActivePlacesChange(activePlaces);

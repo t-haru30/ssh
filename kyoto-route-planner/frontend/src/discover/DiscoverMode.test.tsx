@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import { PrefectureProvider } from "../PrefectureContext";
 import { DiscoverMode } from "./DiscoverMode";
 
 function makePlace(id: string) {
@@ -49,13 +50,17 @@ describe("DiscoverMode", () => {
     }));
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<DiscoverMode active />);
+    render(
+      <PrefectureProvider>
+        <DiscoverMode active />
+      </PrefectureProvider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "候補ルート" })).toBeTruthy();
     });
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/ideas?theme=all&count=5&spot_count=2&use_fallback=true",
+      "/api/ideas?theme=all&count=5&spot_count=2&use_fallback=true&prefecture_code=26",
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(screen.getByText("外部APIを使わない事前サンプル（1件）")).toBeTruthy();
@@ -67,7 +72,11 @@ describe("DiscoverMode", () => {
     }, false));
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<DiscoverMode active />);
+    render(
+      <PrefectureProvider>
+        <DiscoverMode active />
+      </PrefectureProvider>,
+    );
 
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.getByText("サンプルデータを取得できません")).toBeTruthy();

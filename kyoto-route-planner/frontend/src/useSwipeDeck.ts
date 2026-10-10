@@ -9,6 +9,7 @@ type UseSwipeDeckOptions = {
   departureTime: string;
   onItineraryChange: (itinerary: SwipeItinerary) => void;
   fallbackOnly: boolean;
+  prefectureCode: string;
 };
 
 const INITIAL_BATCH_SIZE = 5;
@@ -50,6 +51,7 @@ export function useSwipeDeck({
   departureTime,
   onItineraryChange,
   fallbackOnly,
+  prefectureCode,
 }: UseSwipeDeckOptions) {
   const [ideas, setIdeas] = useState<RouteIdea[]>([]);
   const [loadingIdeas, setLoadingIdeas] = useState(true);
@@ -97,6 +99,7 @@ export function useSwipeDeck({
         theme: "all",
         count: String(requestCount),
         spot_count: "2",
+        prefecture_code: prefectureCode,
       });
       if (fallbackOnly) params.set("use_fallback", "true");
       [...seenIdeaSignatures.current]
@@ -128,7 +131,7 @@ export function useSwipeDeck({
         setLoadingIdeas(false);
       }
     }
-  }, [fallbackOnly]);
+  }, [fallbackOnly, prefectureCode]);
 
   useEffect(() => {
     void loadIdeas(false);
