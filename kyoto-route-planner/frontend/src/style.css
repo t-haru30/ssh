@@ -191,6 +191,10 @@ a { color: inherit; text-decoration: none; }
 .leg-duration { color: #899087; font-size: 9px; white-space: nowrap; }
 .no-leg-detail { color: #737b74; font-size: 10px; line-height: 1.6; }
 .result-note { margin: 13px 0 0; color: #858b84; font-size: 9px; line-height: 1.7; }
+.fare-estimate { display: grid; gap: 4px; margin: 14px 0 0; padding: 13px 15px; border: 1px solid var(--line); background: #f7f6f0; }
+.fare-estimate strong { color: var(--forest); font-size: 11px; }
+.fare-estimate span { color: var(--forest); font-size: 19px; font-weight: 700; }
+.fare-estimate small { color: var(--muted); font-size: 9px; line-height: 1.6; }
 .footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 34px; padding-top: 14px; border-top: 1px solid #e7e6df; color: #91968f; font-size: 8px; line-height: 1.6; }
 .footer p { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

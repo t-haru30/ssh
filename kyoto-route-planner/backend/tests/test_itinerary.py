@@ -34,6 +34,15 @@ def catalog_place(
 
 
 class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.fare_estimate = AsyncMock(return_value=540)
+        self.fare_estimate_patch = patch(
+            "app.itinerary.estimate_route_fare",
+            new=self.fare_estimate,
+        )
+        self.fare_estimate_patch.start()
+        self.addCleanup(self.fare_estimate_patch.stop)
+
     async def test_selected_idea_places_are_routed_without_researching_yahoo(self):
         selected_places = [
             catalog_place("swipe-a", "清水寺", 34.9949, 135.7850),
@@ -62,6 +71,13 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
             set(actual_coordinates),
             {"34.9949,135.785", "35.0037,135.782"},
         )
+        self.assertEqual(result.fare_yen, 540)
+        self.fare_estimate.assert_awaited_once_with([
+            "34.98585,135.75877",
+            "34.9949,135.785",
+            "35.0037,135.782",
+            "34.98585,135.75877",
+        ])
 
     async def test_times_out_when_place_search_exceeds_request_budget(self):
         request = ItineraryRequest(

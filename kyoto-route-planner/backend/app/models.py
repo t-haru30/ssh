@@ -69,6 +69,7 @@ class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
     legs: list[RouteLeg]
+    fare_yen: int | None = Field(default=None, ge=0)
     title: str | None = None
     story: str | None = None
     total_minutes: int | None = None
@@ -187,6 +188,7 @@ class ItinerarySuggestion(BaseModel):
     origin: Origin
     places: list[CatalogPlace]
     legs: list[RouteLeg]
+    fare_yen: int | None = Field(default=None, ge=0)
     departure_at: str
     estimated_return_at: str | None = None
     return_by: str
@@ -211,6 +213,7 @@ class DailyItinerary(BaseModel):
     date: date
     places: list[CatalogPlace]
     legs: list[RouteLeg]
+    fare_yen: int | None = Field(default=None, ge=0)
     schedule: list["ItineraryScheduleItem"] = Field(default_factory=list)
     lunch: "LunchPlan"
     transit_minutes: int | None = None
@@ -237,6 +240,7 @@ class OvernightItinerarySuggestion(BaseModel):
     origin: Origin
     hotel: CatalogPlace
     days: list[DailyItinerary]
+    fare_yen: int | None = Field(default=None, ge=0)
     feasible: bool = True
     route_search_calls: int
     note: str

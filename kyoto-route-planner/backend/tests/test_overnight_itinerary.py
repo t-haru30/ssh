@@ -2,6 +2,7 @@ import unittest
 from datetime import date, datetime, time
 from unittest.mock import AsyncMock, patch
 
+from fastapi import HTTPException
 from app.itinerary import plan_overnight_itinerary
 from app.models import (
     CatalogPlace,
@@ -49,6 +50,15 @@ def lunch_place(place_id: str = "lunch-1") -> CatalogPlace:
 
 
 class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.fare_estimate = AsyncMock(side_effect=[500, 800])
+        fare_patch = patch(
+            "app.itinerary.estimate_route_fare",
+            new=self.fare_estimate,
+        )
+        fare_patch.start()
+        self.addCleanup(fare_patch.stop)
+
     async def test_mood_generates_hotel_spots_and_timed_two_day_schedule(self):
         hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")
         day_one = catalog_place("place-1", "静かな庭園", "庭園")
@@ -87,6 +97,14 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([day.places[0].name for day in result.days], ["静かな庭園", "京料理店"])
         self.assertEqual(len(result.days), 2)
         self.assertEqual(result.route_search_calls, 2)
+        self.assertEqual([day.fare_yen for day in result.days], [500, 800])
+        self.assertEqual(result.fare_yen, 1300)
+        self.assertEqual(self.fare_estimate.await_count, 2)
+        for index, day in enumerate(result.days):
+            self.assertEqual(
+                self.fare_estimate.await_args_list[index].args[0],
+                [f"{latitude},{longitude}" for latitude, longitude in day.coordinates],
+            )
         self.assertEqual(result.days[0].schedule[0].start_time, "09:00")
         self.assertEqual(result.days[0].schedule[-1].kind, "hotel")
         self.assertEqual(result.days[1].schedule[0].title, "ホテルを出発")
@@ -133,6 +151,45 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(day.lunch.place.category, "カフェ")
             self.assertEqual((day.lunch.start_time, day.lunch.end_time), ("12:00", "13:00"))
             self.assertTrue(any(item.kind == "lunch" for item in day.schedule))
+
+    async def test_overall_fare_is_unavailable_if_either_day_fails(self):
+        hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")
+        day_one = catalog_place("place-1", "静かな庭園", "庭園")
+        day_two = catalog_place("place-2", "京料理店", "飲食店")
+        self.fare_estimate.side_effect = [
+            500,
+            HTTPException(502, "fare unavailable"),
+        ]
+        search = AsyncMock(side_effect=[
+            search_response(hotel),
+            search_response(hotel, day_one, day_two),
+            search_response(),
+            search_response(),
+        ])
+        request = OvernightItineraryRequest(
+            query="京都の観光",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 9),
+            stops_per_day=1,
+        )
+
+        with (
+            patch("app.itinerary.search_yahoo_catalog", new=search),
+            patch(
+                "app.itinerary.search_route",
+                new=AsyncMock(return_value=(
+                    [],
+                    60,
+                    "09:00",
+                    datetime(2026, 10, 9, 12, 0),
+                )),
+            ),
+        ):
+            result = await plan_overnight_itinerary(request)
+
+        self.assertEqual(result.days[0].fare_yen, 500)
+        self.assertIsNone(result.days[1].fare_yen)
+        self.assertIsNone(result.fare_yen)
 
 
 if __name__ == "__main__":

@@ -125,6 +125,17 @@ export function IdeaDeck({
               : `移動と滞在の目安 ${Math.floor(itinerary.estimated_total_minutes / 60)}時間${itinerary.estimated_total_minutes % 60}分`}
             {itinerary.estimated_return_at ? ` · 帰着 ${itinerary.estimated_return_at.slice(11, 16)}` : ""}
           </p>
+          {itinerary.fare_yen !== undefined && (
+            <p className="fare-estimate" aria-live="polite">
+              <strong>交通費の概算（1人分・往復）</strong>
+              <span>
+                {itinerary.fare_yen === null
+                  ? "取得できませんでした"
+                  : `約${itinerary.fare_yen.toLocaleString("ja-JP")}円`}
+              </span>
+              <small>時刻表を使わない経路探索による目安です。実際の経路・運賃と異なる場合があります。</small>
+            </p>
+          )}
           <ol className="idea-itinerary-places">
             {itinerary.places.map((place) => <li key={place.id}>{place.name}</li>)}
           </ol>

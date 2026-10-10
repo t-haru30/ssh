@@ -107,6 +107,11 @@ export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
     && value.places.every(isPlace)
     && Array.isArray(value.legs)
     && value.legs.every(isRouteLeg)
+    && (value.fare_yen === undefined
+      || value.fare_yen === null
+      || (typeof value.fare_yen === "number"
+        && Number.isInteger(value.fare_yen)
+        && value.fare_yen >= 0))
     && (typeof value.estimated_total_minutes === "number" || value.estimated_total_minutes === null)
     && (typeof value.estimated_return_at === "string" || value.estimated_return_at === null)
     && typeof value.note === "string";
@@ -186,6 +191,11 @@ function isRouteSuggestion(value: unknown): value is RouteSuggestion {
     && isOrigin(value.origin)
     && Array.isArray(value.legs)
     && value.legs.every(isRouteLeg)
+    && (value.fare_yen === undefined
+      || value.fare_yen === null
+      || (typeof value.fare_yen === "number"
+        && Number.isInteger(value.fare_yen)
+        && value.fare_yen >= 0))
     && (value.title === null || typeof value.title === "string")
     && (value.story === null || typeof value.story === "string")
     && (typeof value.total_minutes === "number" || value.total_minutes === null)
@@ -242,6 +252,11 @@ function isDailyItinerary(value: unknown): value is DailyItinerary {
     && Array.isArray(value.schedule)
     && value.schedule.every(isScheduleItem)
     && isLunchPlan(value.lunch)
+    && (value.fare_yen === undefined
+      || value.fare_yen === null
+      || (typeof value.fare_yen === "number"
+        && Number.isInteger(value.fare_yen)
+        && value.fare_yen >= 0))
     && (typeof value.transit_minutes === "number" || value.transit_minutes === null)
     && typeof value.stay_minutes === "number"
     && (typeof value.estimated_arrival_at === "string" || value.estimated_arrival_at === null)
@@ -258,6 +273,11 @@ export function isOvernightItinerary(value: unknown): value is OvernightItinerar
     && "query" in value
     && isOrigin(value.origin)
     && isPlace(value.hotel)
+    && (value.fare_yen === undefined
+      || value.fare_yen === null
+      || (typeof value.fare_yen === "number"
+        && Number.isInteger(value.fare_yen)
+        && value.fare_yen >= 0))
     && Array.isArray(value.days)
     && value.days.every(isDailyItinerary)
     && typeof value.feasible === "boolean"

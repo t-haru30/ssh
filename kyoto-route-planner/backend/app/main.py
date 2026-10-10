@@ -19,7 +19,7 @@ from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
-from app.ekispert import search_route
+from app.ekispert import estimate_route_fare, search_route
 from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
@@ -692,6 +692,31 @@ async def _recommend_routes(
             raise transient_error
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
     for suggestion in suggestions:
+        fare_via_points = [
+            f"{suggestion.origin.latitude},{suggestion.origin.longitude}",
+            *(
+                f"{place.latitude},{place.longitude}"
+                for place in suggestion.places
+            ),
+            f"{suggestion.origin.latitude},{suggestion.origin.longitude}",
+        ]
+        remaining_seconds = deadline - time.monotonic()
+        if remaining_seconds > 0:
+            try:
+                suggestion.fare_yen = await asyncio.wait_for(
+                    estimate_route_fare(fare_via_points),
+                    timeout=remaining_seconds,
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Ekispert fare estimate timed out")
+            except HTTPException as error:
+                logger.warning(
+                    "Ekispert fare estimate failed: status=%d",
+                    error.status_code,
+                )
+        else:
+            logger.warning("Ekispert fare estimate skipped: request budget exhausted")
+
         try:
             copywriting = await generate_route_copywriting(suggestion.places, request.theme)
         except HTTPException as error:

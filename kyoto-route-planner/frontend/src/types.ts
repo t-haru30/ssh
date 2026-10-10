@@ -32,6 +32,7 @@ export type SwipeItinerary = {
   origin: Origin;
   places: Place[];
   legs: RouteLeg[];
+  fare_yen?: number | null;
   estimated_total_minutes: number | null;
   estimated_return_at: string | null;
   note: string;
@@ -64,6 +65,7 @@ export type RouteSuggestion = {
   places: Place[];
   origin: Origin;
   legs: RouteLeg[];
+  fare_yen?: number | null;
   title: string | null;
   story: string | null;
   total_minutes: number | null;
@@ -102,6 +104,7 @@ export type DailyItinerary = {
   date: string;
   places: Place[];
   legs: RouteLeg[];
+  fare_yen?: number | null;
   schedule: ItineraryScheduleItem[];
   lunch: LunchPlan;
   transit_minutes: number | null;
@@ -131,6 +134,7 @@ export type OvernightItinerarySuggestion = {
   origin: Origin;
   hotel: Place;
   days: DailyItinerary[];
+  fare_yen?: number | null;
   feasible: boolean;
   route_search_calls: number;
   note: string;
