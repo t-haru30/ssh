@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:54.307761+00:00",
+  "area": "ishikawa",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-ishikawa-01",
+      "area": "ishikawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "石川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 144,
+      "total_score": 40.0,
+      "center": [
+        37.393406,
+        136.903461
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13345672780",
+          "name": "輪島朝市",
+          "category": "史跡",
+          "lat": 37.3956712,
+          "lng": 136.9037354,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13313509100",
+          "name": "旧輪島駅モニュメント",
+          "category": "観光名所",
+          "lat": 37.3887896,
+          "lng": 136.906132,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13305686037",
+          "name": "龍峰山 蓮江寺",
+          "category": "史跡",
+          "lat": 37.3957575,
+          "lng": 136.9005158,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.3956712,
+          136.9037354
+        ],
+        [
+          37.3887896,
+          136.906132
+        ],
+        [
+          37.3957575,
+          136.9005158
+        ]
+      ]
+    },
+    {
+      "id": "osm-ishikawa-02",
+      "area": "ishikawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "石川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 50.0,
+      "center": [
+        36.58265,
+        136.639
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-14129059011",
+          "name": "大樋美術館",
+          "category": "博物館",
+          "lat": 36.5699055,
+          "lng": 136.66439,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420929245",
+          "name": "室生犀星記念館",
+          "category": "博物館",
+          "lat": 36.559048,
+          "lng": 136.648206,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420933583",
+          "name": "石川県金沢港大野からくり記念館",
+          "category": "博物館",
+          "lat": 36.618997,
+          "lng": 136.604405,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.5699055,
+          136.66439
+        ],
+        [
+          36.559048,
+          136.648206
+        ],
+        [
+          36.618997,
+          136.604405
+        ]
+      ]
+    },
+    {
+      "id": "osm-ishikawa-03",
+      "area": "ishikawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "石川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 209,
+      "total_score": 50.0,
+      "center": [
+        36.381523,
+        136.44487
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420929638",
+          "name": "小松市立博物館",
+          "category": "博物館",
+          "lat": 36.408847,
+          "lng": 136.448345,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3739836725",
+          "name": "日本自動車博物館",
+          "category": "博物館",
+          "lat": 36.3343457,
+          "lng": 136.4304537,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4789909217",
+          "name": "サイエンスヒルズこまつ",
+          "category": "博物館",
+          "lat": 36.4013769,
+          "lng": 136.4558115,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.408847,
+          136.448345
+        ],
+        [
+          36.3343457,
+          136.4304537
+        ],
+        [
+          36.4013769,
+          136.4558115
+        ]
+      ]
+    },
+    {
+      "id": "osm-ishikawa-04",
+      "area": "ishikawa",
+      "pattern": "full_day",
+      "theme": "nature",
+      "title": "石川県の自然スポットをめぐる一日ルート",
+      "estimated_minutes": 315,
+      "total_score": 34.0,
+      "center": [
+        37.126749,
+        136.876597
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420932149",
+          "name": "明治の館",
+          "category": "博物館",
+          "lat": 37.151184,
+          "lng": 136.877331,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420934384",
+          "name": "能登中島祭り会館",
+          "category": "博物館",
+          "lat": 37.129147,
+          "lng": 136.832401,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-900943509",
+          "name": "なかじまロマン峠",
+          "category": "飲食店",
+          "lat": 37.1304546,
+          "lng": 136.8631603,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4159216418",
+          "name": "パノラマ展望台",
+          "category": "展望地",
+          "lat": 37.1357324,
+          "lng": 136.8988767,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11321234767",
+          "name": "和みの鐘",
+          "category": "展望地",
+          "lat": 37.0872289,
+          "lng": 136.9112155,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.151184,
+          136.877331
+        ],
+        [
+          37.129147,
+          136.832401
+        ],
+        [
+          37.1304546,
+          136.8631603
+        ],
+        [
+          37.1357324,
+          136.8988767
+        ],
+        [
+          37.0872289,
+          136.9112155
+        ]
+      ]
+    },
+    {
+      "id": "osm-ishikawa-05",
+      "area": "ishikawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "石川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 303,
+      "total_score": 34.0,
+      "center": [
+        36.408554,
+        136.45769
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11914762813",
+          "name": "小松空港展望デッキ",
+          "category": "展望地",
+          "lat": 36.4018528,
+          "lng": 136.4133357,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420929646",
+          "name": "小松市立宮本三郎美術館",
+          "category": "博物館",
+          "lat": 36.408039,
+          "lng": 136.448284,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5265393330",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 36.3950611,
+          "lng": 136.465508,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420929651",
+          "name": "小松市立本陣記念美術館",
+          "category": "博物館",
+          "lat": 36.409067,
+          "lng": 136.449201,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5009143148",
+          "name": "狭野神社",
+          "category": "観光名所",
+          "lat": 36.4287503,
+          "lng": 136.5121226,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.4018528,
+          136.4133357
+        ],
+        [
+          36.408039,
+          136.448284
+        ],
+        [
+          36.3950611,
+          136.465508
+        ],
+        [
+          36.409067,
+          136.449201
+        ],
+        [
+          36.4287503,
+          136.5121226
+        ]
+      ]
+    }
+  ]
+}

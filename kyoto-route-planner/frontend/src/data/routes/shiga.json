@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:58.990439+00:00",
+  "area": "shiga",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-shiga-01",
+      "area": "shiga",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "滋賀県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 66.7,
+      "center": [
+        35.068562,
+        135.856367
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4249920476",
+          "name": "第廿五番 新清水寺",
+          "category": "史跡",
+          "lat": 35.096139,
+          "lng": 135.8513984,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4252323120",
+          "name": "第十六番　清水寺",
+          "category": "史跡",
+          "lat": 35.0974536,
+          "lng": 135.8534372,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5668338286",
+          "name": "大津城跡",
+          "category": "史跡",
+          "lat": 35.0120935,
+          "lng": 135.8642644,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.096139,
+          135.8513984
+        ],
+        [
+          35.0974536,
+          135.8534372
+        ],
+        [
+          35.0120935,
+          135.8642644
+        ]
+      ]
+    },
+    {
+      "id": "osm-shiga-02",
+      "area": "shiga",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "滋賀県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 137,
+      "total_score": 50.0,
+      "center": [
+        35.380146,
+        136.267875
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12599843621",
+          "name": "長浜タワービル",
+          "category": "展望地",
+          "lat": 35.3796778,
+          "lng": 136.267369,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-411308398",
+          "name": "長浜市曳山博物館",
+          "category": "博物館",
+          "lat": 35.3813046,
+          "lng": 136.2689049,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5502988829",
+          "name": "長浜旧開知学校",
+          "category": "展望地",
+          "lat": 35.3794553,
+          "lng": 136.2673518,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.3796778,
+          136.267369
+        ],
+        [
+          35.3813046,
+          136.2689049
+        ],
+        [
+          35.3794553,
+          136.2673518
+        ]
+      ]
+    },
+    {
+      "id": "osm-shiga-03",
+      "area": "shiga",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "滋賀県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 174,
+      "total_score": 50.0,
+      "center": [
+        34.967759,
+        135.989028
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1422943544",
+          "name": "栗東歴史民俗博物館",
+          "category": "博物館",
+          "lat": 35.017867,
+          "lng": 136.008833,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1422943892",
+          "name": "滋賀県立美術館",
+          "category": "博物館",
+          "lat": 34.970511,
+          "lng": 135.942119,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1422945982",
+          "name": "ミホミュージアム",
+          "category": "博物館",
+          "lat": 34.9149,
+          "lng": 136.0161311,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.017867,
+          136.008833
+        ],
+        [
+          34.970511,
+          135.942119
+        ],
+        [
+          34.9149,
+          136.0161311
+        ]
+      ]
+    },
+    {
+      "id": "osm-shiga-04",
+      "area": "shiga",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "滋賀県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 297,
+      "total_score": 44.0,
+      "center": [
+        35.073342,
+        135.918759
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1422942186",
+          "name": "守山市立埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 35.108006,
+          "lng": 135.992575,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1939506407",
+          "name": "伊豆神社",
+          "category": "観光名所",
+          "lat": 35.1110706,
+          "lng": 135.9207501,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4213227089",
+          "name": "道の駅草津",
+          "category": "飲食店",
+          "lat": 35.0700349,
+          "lng": 135.9393437,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-3646873309",
+          "name": "滋賀院",
+          "category": "観光名所",
+          "lat": 35.0694651,
+          "lng": 135.8672138,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6197760387",
+          "name": "滋賀県立琵琶湖文化館",
+          "category": "博物館",
+          "lat": 35.0081313,
+          "lng": 135.8739144,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.108006,
+          135.992575
+        ],
+        [
+          35.1110706,
+          135.9207501
+        ],
+        [
+          35.0700349,
+          135.9393437
+        ],
+        [
+          35.0694651,
+          135.8672138
+        ],
+        [
+          35.0081313,
+          135.8739144
+        ]
+      ]
+    },
+    {
+      "id": "osm-shiga-05",
+      "area": "shiga",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "滋賀県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 287,
+      "total_score": 42.0,
+      "center": [
+        35.060894,
+        135.885185
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4796151838",
+          "name": "唐崎神社",
+          "category": "観光名所",
+          "lat": 35.0473676,
+          "lng": 135.8743203,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5828934099",
+          "name": "生源寺",
+          "category": "観光名所",
+          "lat": 35.0715014,
+          "lng": 135.8704013,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4213227089",
+          "name": "道の駅草津",
+          "category": "飲食店",
+          "lat": 35.0700349,
+          "lng": 135.9393437,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5835795704",
+          "name": "那波加神社",
+          "category": "観光名所",
+          "lat": 35.0837097,
+          "lng": 135.8897288,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1422944907",
+          "name": "近江神宮時計博物館",
+          "category": "博物館",
+          "lat": 35.0318549,
+          "lng": 135.8521302,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0473676,
+          135.8743203
+        ],
+        [
+          35.0715014,
+          135.8704013
+        ],
+        [
+          35.0700349,
+          135.9393437
+        ],
+        [
+          35.0837097,
+          135.8897288
+        ],
+        [
+          35.0318549,
+          135.8521302
+        ]
+      ]
+    }
+  ]
+}

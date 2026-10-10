@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:54.922602+00:00",
+  "area": "fukui",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-fukui-01",
+      "area": "fukui",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "福井県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 159,
+      "total_score": 43.3,
+      "center": [
+        35.669968,
+        136.057488
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11237652437",
+          "name": "紙わらべ資料館",
+          "category": "博物館",
+          "lat": 35.6562486,
+          "lng": 136.067004,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10755005401",
+          "name": "常宮神社",
+          "category": "観光名所",
+          "lat": 35.6904365,
+          "lng": 136.0297034,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11250220361",
+          "name": "旧敦賀港駅ランプ小屋",
+          "category": "博物館",
+          "lat": 35.6632189,
+          "lng": 136.0757556,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6562486,
+          136.067004
+        ],
+        [
+          35.6904365,
+          136.0297034
+        ],
+        [
+          35.6632189,
+          136.0757556
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukui-02",
+      "area": "fukui",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "福井県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 43.3,
+      "center": [
+        35.509959,
+        135.814067
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12099560849",
+          "name": "後瀬山城",
+          "category": "史跡",
+          "lat": 35.4882833,
+          "lng": 135.739073,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12099972799",
+          "name": "若狭国分寺跡",
+          "category": "史跡",
+          "lat": 35.4798386,
+          "lng": 135.7885758,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11211378864",
+          "name": "三方石観世音",
+          "category": "観光名所",
+          "lat": 35.5617549,
+          "lng": 135.9145508,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4882833,
+          135.739073
+        ],
+        [
+          35.4798386,
+          135.7885758
+        ],
+        [
+          35.5617549,
+          135.9145508
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukui-03",
+      "area": "fukui",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "福井県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 168,
+      "total_score": 46.7,
+      "center": [
+        36.220144,
+        136.196506
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12416004739",
+          "name": "旧森田銀行本店",
+          "category": "博物館",
+          "lat": 36.2136,
+          "lng": 136.1495629,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2077129029",
+          "name": "芝政ワールド",
+          "category": "テーマパーク",
+          "lat": 36.250529,
+          "lng": 136.1784762,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11581857616",
+          "name": "龍沢寺",
+          "category": "観光名所",
+          "lat": 36.1963043,
+          "lng": 136.2614801,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2136,
+          136.1495629
+        ],
+        [
+          36.250529,
+          136.1784762
+        ],
+        [
+          36.1963043,
+          136.2614801
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukui-04",
+      "area": "fukui",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "福井県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 274,
+      "total_score": 40.0,
+      "center": [
+        36.043321,
+        136.501446
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420949543",
+          "name": "福井県立恐竜博物館",
+          "category": "博物館",
+          "lat": 36.0823042,
+          "lng": 136.5065708,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12073471551",
+          "name": "開善寺",
+          "category": "観光名所",
+          "lat": 36.0630838,
+          "lng": 136.4986726,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10296210741",
+          "name": "みどり亭",
+          "category": "飲食店",
+          "lat": 36.0568453,
+          "lng": 136.4923898,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420945298",
+          "name": "勝山城博物館",
+          "category": "博物館",
+          "lat": 36.042756,
+          "lng": 136.52068,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12093447801",
+          "name": "篠座神社",
+          "category": "観光名所",
+          "lat": 35.971617,
+          "lng": 136.4889169,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0823042,
+          136.5065708
+        ],
+        [
+          36.0630838,
+          136.4986726
+        ],
+        [
+          36.0568453,
+          136.4923898
+        ],
+        [
+          36.042756,
+          136.52068
+        ],
+        [
+          35.971617,
+          136.4889169
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukui-05",
+      "area": "fukui",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "福井県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 271,
+      "total_score": 30.0,
+      "center": [
+        36.038843,
+        136.503213
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10296210742",
+          "name": "テキ6形6号電気機関車",
+          "category": "史跡",
+          "lat": 36.0566277,
+          "lng": 136.4918584,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10296210743",
+          "name": "ト61形68号無蓋貨車",
+          "category": "史跡",
+          "lat": 36.0566946,
+          "lng": 136.4918136,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10296210741",
+          "name": "みどり亭",
+          "category": "飲食店",
+          "lat": 36.0568453,
+          "lng": 136.4923898,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10910949206",
+          "name": "若宮大杉",
+          "category": "展望地",
+          "lat": 36.040793,
+          "lng": 136.5432218,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10298863213",
+          "name": "JR金沢支社 最後の腕木式信号機",
+          "category": "史跡",
+          "lat": 35.9832564,
+          "lng": 136.4967805,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0566277,
+          136.4918584
+        ],
+        [
+          36.0566946,
+          136.4918136
+        ],
+        [
+          36.0568453,
+          136.4923898
+        ],
+        [
+          36.040793,
+          136.5432218
+        ],
+        [
+          35.9832564,
+          136.4967805
+        ]
+      ]
+    }
+  ]
+}

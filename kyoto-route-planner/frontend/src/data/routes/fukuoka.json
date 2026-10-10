@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:07.633859+00:00",
+  "area": "fukuoka",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-fukuoka-01",
+      "area": "fukuoka",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "福岡県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 51.7,
+      "center": [
+        33.142503,
+        130.480328
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-9665066065",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 33.1510535,
+          "lng": 130.5254128,
+          "stay_minutes": 45,
+          "score": 85.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423777054",
+          "name": "瀬高町歴史資料館",
+          "category": "博物館",
+          "lat": 33.153788,
+          "lng": 130.476382,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3777576305",
+          "name": "八剣神社",
+          "category": "史跡",
+          "lat": 33.1226663,
+          "lng": 130.4391889,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.1510535,
+          130.5254128
+        ],
+        [
+          33.153788,
+          130.476382
+        ],
+        [
+          33.1226663,
+          130.4391889
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukuoka-02",
+      "area": "fukuoka",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "福岡県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 159,
+      "total_score": 55.0,
+      "center": [
+        33.877184,
+        130.860172
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6477394999",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 33.8716666,
+          "lng": 130.8593869,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12709928505",
+          "name": "乃木希典居住宅の趾",
+          "category": "史跡",
+          "lat": 33.8856324,
+          "lng": 130.8747169,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423757231",
+          "name": "到津の森公園",
+          "category": "動物園",
+          "lat": 33.874253,
+          "lng": 130.846413,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.8716666,
+          130.8593869
+        ],
+        [
+          33.8856324,
+          130.8747169
+        ],
+        [
+          33.874253,
+          130.846413
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukuoka-03",
+      "area": "fukuoka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "福岡県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 163,
+      "total_score": 50.0,
+      "center": [
+        33.57565,
+        130.379978
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11660012201",
+          "name": "福岡東洋陶磁美術館",
+          "category": "博物館",
+          "lat": 33.552331,
+          "lng": 130.3632734,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5264951969",
+          "name": "福岡市科学館",
+          "category": "博物館",
+          "lat": 33.5773528,
+          "lng": 130.3779288,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423781545",
+          "name": "福岡県立美術館",
+          "category": "博物館",
+          "lat": 33.597265,
+          "lng": 130.398732,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.552331,
+          130.3632734
+        ],
+        [
+          33.5773528,
+          130.3779288
+        ],
+        [
+          33.597265,
+          130.398732
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukuoka-04",
+      "area": "fukuoka",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "福岡県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 287,
+      "total_score": 46.0,
+      "center": [
+        33.597657,
+        130.413159
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4293172389",
+          "name": "博多町家鄉土館",
+          "category": "博物館",
+          "lat": 33.5936544,
+          "lng": 130.4115066,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8364973977",
+          "name": "九州大学総合研究博物館",
+          "category": "博物館",
+          "lat": 33.622784,
+          "lng": 130.4253513,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5073073021",
+          "name": "博多一幸舎 総本店",
+          "category": "飲食店",
+          "lat": 33.5882444,
+          "lng": 130.4170779,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10225513748",
+          "name": "九州鉄道発祥の碑",
+          "category": "史跡",
+          "lat": 33.5932773,
+          "lng": 130.4170311,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11802791275",
+          "name": "カトリック大名町教会",
+          "category": "観光名所",
+          "lat": 33.590326,
+          "lng": 130.3948297,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.5936544,
+          130.4115066
+        ],
+        [
+          33.622784,
+          130.4253513
+        ],
+        [
+          33.5882444,
+          130.4170779
+        ],
+        [
+          33.5932773,
+          130.4170311
+        ],
+        [
+          33.590326,
+          130.3948297
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukuoka-05",
+      "area": "fukuoka",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "福岡県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 275,
+      "total_score": 42.0,
+      "center": [
+        33.585714,
+        130.407779
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423779941",
+          "name": "福岡アジア美術館",
+          "category": "博物館",
+          "lat": 33.594969,
+          "lng": 130.405817,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3210271732",
+          "name": "勝立寺",
+          "category": "観光名所",
+          "lat": 33.593461,
+          "lng": 130.4008729,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5073073021",
+          "name": "博多一幸舎 総本店",
+          "category": "飲食店",
+          "lat": 33.5882444,
+          "lng": 130.4170779,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-3957980515",
+          "name": "龍宮寺",
+          "category": "観光名所",
+          "lat": 33.5945042,
+          "lng": 130.4134048,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4898641798",
+          "name": "穴観音 (興宗寺)",
+          "category": "観光名所",
+          "lat": 33.557391,
+          "lng": 130.4017232,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.594969,
+          130.405817
+        ],
+        [
+          33.593461,
+          130.4008729
+        ],
+        [
+          33.5882444,
+          130.4170779
+        ],
+        [
+          33.5945042,
+          130.4134048
+        ],
+        [
+          33.557391,
+          130.4017232
+        ]
+      ]
+    }
+  ]
+}

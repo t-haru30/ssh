@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:44.236493+00:00",
+  "area": "iwate",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-iwate-01",
+      "area": "iwate",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岩手県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 200,
+      "total_score": 46.7,
+      "center": [
+        39.338263,
+        141.920846
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10631028437",
+          "name": "風の電話",
+          "category": "史跡",
+          "lat": 39.3861142,
+          "lng": 141.9319051,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1127676921",
+          "name": "釜石市立鉄の歴史館",
+          "category": "博物館",
+          "lat": 39.2554974,
+          "lng": 141.8940577,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1224964207",
+          "name": "吉祥寺",
+          "category": "観光名所",
+          "lat": 39.3731781,
+          "lng": 141.9365749,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.3861142,
+          141.9319051
+        ],
+        [
+          39.2554974,
+          141.8940577
+        ],
+        [
+          39.3731781,
+          141.9365749
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-02",
+      "area": "iwate",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岩手県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 211,
+      "total_score": 50.0,
+      "center": [
+        38.893573,
+        141.206302
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11338712063",
+          "name": "国鉄バス 鬼死骸停留所",
+          "category": "史跡",
+          "lat": 38.8914725,
+          "lng": 141.1209276,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4601402442",
+          "name": "岩手サファリパーク",
+          "category": "動物園",
+          "lat": 38.810509,
+          "lng": 141.2594353,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4833663292",
+          "name": "石と賢治のミュージアム",
+          "category": "博物館",
+          "lat": 38.9787383,
+          "lng": 141.238544,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.8914725,
+          141.1209276
+        ],
+        [
+          38.810509,
+          141.2594353
+        ],
+        [
+          38.9787383,
+          141.238544
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-03",
+      "area": "iwate",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岩手県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 139,
+      "total_score": 46.7,
+      "center": [
+        39.697134,
+        141.154166
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1945044787",
+          "name": "盛岡城",
+          "category": "史跡",
+          "lat": 39.7001247,
+          "lng": 141.1502054,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8853823349",
+          "name": "盛岡てがみ館",
+          "category": "博物館",
+          "lat": 39.7000854,
+          "lng": 141.1546811,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10740679918",
+          "name": "もりおか町家物語館",
+          "category": "博物館",
+          "lat": 39.6911912,
+          "lng": 141.1576109,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.7001247,
+          141.1502054
+        ],
+        [
+          39.7000854,
+          141.1546811
+        ],
+        [
+          39.6911912,
+          141.1576109
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-04",
+      "area": "iwate",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "岩手県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 322,
+      "total_score": 36.0,
+      "center": [
+        39.398123,
+        141.939087
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6681136897",
+          "name": "鯨と海の科学館",
+          "category": "博物館",
+          "lat": 39.4365907,
+          "lng": 141.9756505,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-14122649635",
+          "name": "吉里吉里坂",
+          "category": "史跡",
+          "lat": 39.3656884,
+          "lng": 141.9271848,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10092281887",
+          "name": "きりきり善兵衛",
+          "category": "飲食店",
+          "lat": 39.3913791,
+          "lng": 141.9439121,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1759628003",
+          "name": "慰霊の鐘",
+          "category": "史跡",
+          "lat": 39.3288786,
+          "lng": 141.9005415,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3810807183",
+          "name": "山田八幡宮",
+          "category": "観光名所",
+          "lat": 39.4680759,
+          "lng": 141.9481442,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.4365907,
+          141.9756505
+        ],
+        [
+          39.3656884,
+          141.9271848
+        ],
+        [
+          39.3913791,
+          141.9439121
+        ],
+        [
+          39.3288786,
+          141.9005415
+        ],
+        [
+          39.4680759,
+          141.9481442
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-05",
+      "area": "iwate",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "岩手県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 281,
+      "total_score": 30.0,
+      "center": [
+        39.368881,
+        141.893342
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6370088213",
+          "name": "寄附",
+          "category": "史跡",
+          "lat": 39.3577415,
+          "lng": 141.8973099,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6370088214",
+          "name": "参宮記念碑",
+          "category": "史跡",
+          "lat": 39.357727,
+          "lng": 141.8973126,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10092281887",
+          "name": "きりきり善兵衛",
+          "category": "飲食店",
+          "lat": 39.3913791,
+          "lng": 141.9439121,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6370088215",
+          "name": "東日本大震災　鎮魂之碑",
+          "category": "史跡",
+          "lat": 39.3577104,
+          "lng": 141.8973126,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13897173874",
+          "name": "大槌町立小鎚小学校閉校記念碑",
+          "category": "史跡",
+          "lat": 39.3798468,
+          "lng": 141.8308624,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.3577415,
+          141.8973099
+        ],
+        [
+          39.357727,
+          141.8973126
+        ],
+        [
+          39.3913791,
+          141.9439121
+        ],
+        [
+          39.3577104,
+          141.8973126
+        ],
+        [
+          39.3798468,
+          141.8308624
+        ]
+      ]
+    }
+  ]
+}

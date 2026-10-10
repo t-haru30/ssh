@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:50.162864+00:00",
+  "area": "chiba",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-chiba-01",
+      "area": "chiba",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "千葉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 185,
+      "total_score": 61.7,
+      "center": [
+        35.325144,
+        140.365295
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2474914296",
+          "name": "坂東32番 音羽山 清水寺",
+          "category": "観光名所",
+          "lat": 35.2901839,
+          "lng": 140.3563617,
+          "stay_minutes": 45,
+          "score": 85.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420743963",
+          "name": "麻雀博物館",
+          "category": "博物館",
+          "lat": 35.330591,
+          "lng": 140.393922,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9573093193",
+          "name": "高藤山城址",
+          "category": "史跡",
+          "lat": 35.3546582,
+          "lng": 140.3456016,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.2901839,
+          140.3563617
+        ],
+        [
+          35.330591,
+          140.393922
+        ],
+        [
+          35.3546582,
+          140.3456016
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-02",
+      "area": "chiba",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "千葉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 168,
+      "total_score": 53.3,
+      "center": [
+        35.61697,
+        140.106131
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-8559495517",
+          "name": "ハップス東寺山店",
+          "category": "観光名所",
+          "lat": 35.6238518,
+          "lng": 140.1291279,
+          "stay_minutes": 45,
+          "score": 60.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420728819",
+          "name": "千葉市美術館",
+          "category": "博物館",
+          "lat": 35.6089582,
+          "lng": 140.1246375,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420728822",
+          "name": "三陽メディアフラワーミュージアム",
+          "category": "博物館",
+          "lat": 35.6180985,
+          "lng": 140.0646279,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6238518,
+          140.1291279
+        ],
+        [
+          35.6089582,
+          140.1246375
+        ],
+        [
+          35.6180985,
+          140.0646279
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-03",
+      "area": "chiba",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "千葉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 144,
+      "total_score": 50.0,
+      "center": [
+        35.821768,
+        140.271845
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10694157416",
+          "name": "旧学習院初等科正堂",
+          "category": "博物館",
+          "lat": 35.8195401,
+          "lng": 140.2755538,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7769169185",
+          "name": "龍角寺古墳群",
+          "category": "史跡",
+          "lat": 35.8242065,
+          "lng": 140.2665717,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7769183485",
+          "name": "旧御子神家住宅",
+          "category": "博物館",
+          "lat": 35.8215582,
+          "lng": 140.2734089,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.8195401,
+          140.2755538
+        ],
+        [
+          35.8242065,
+          140.2665717
+        ],
+        [
+          35.8215582,
+          140.2734089
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-04",
+      "area": "chiba",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "千葉県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 298,
+      "total_score": 54.0,
+      "center": [
+        35.61267,
+        140.114713
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420729453",
+          "name": "千葉県立中央博物館",
+          "category": "博物館",
+          "lat": 35.599867,
+          "lng": 140.138489,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4437117898",
+          "name": "お茶の水",
+          "category": "史跡",
+          "lat": 35.6059113,
+          "lng": 140.1256605,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6997014174",
+          "name": "とんでん東寺山店",
+          "category": "飲食店",
+          "lat": 35.6292803,
+          "lng": 140.1270765,
+          "stay_minutes": 60,
+          "score": 70.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6886812265",
+          "name": "千葉市科学館",
+          "category": "博物館",
+          "lat": 35.6074473,
+          "lng": 140.1223175,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420742259",
+          "name": "稲毛民間航空記念館",
+          "category": "博物館",
+          "lat": 35.6208451,
+          "lng": 140.0600196,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.599867,
+          140.138489
+        ],
+        [
+          35.6059113,
+          140.1256605
+        ],
+        [
+          35.6292803,
+          140.1270765
+        ],
+        [
+          35.6074473,
+          140.1223175
+        ],
+        [
+          35.6208451,
+          140.0600196
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-05",
+      "area": "chiba",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "千葉県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 318,
+      "total_score": 48.0,
+      "center": [
+        35.615947,
+        140.1213
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10113440540",
+          "name": "高徳寺",
+          "category": "観光名所",
+          "lat": 35.6023241,
+          "lng": 140.1261924,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420728764",
+          "name": "千葉市立 加曽利貝塚博物館",
+          "category": "博物館",
+          "lat": 35.6237112,
+          "lng": 140.1653348,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6997014174",
+          "name": "とんでん東寺山店",
+          "category": "飲食店",
+          "lat": 35.6292803,
+          "lng": 140.1270765,
+          "stay_minutes": 60,
+          "score": 70.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420728788",
+          "name": "千葉市立郷土博物館（千葉城）",
+          "category": "博物館",
+          "lat": 35.60456,
+          "lng": 140.127101,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1566648053",
+          "name": "稲毛記念館",
+          "category": "史跡",
+          "lat": 35.6198607,
+          "lng": 140.0607929,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6023241,
+          140.1261924
+        ],
+        [
+          35.6237112,
+          140.1653348
+        ],
+        [
+          35.6292803,
+          140.1270765
+        ],
+        [
+          35.60456,
+          140.127101
+        ],
+        [
+          35.6198607,
+          140.0607929
+        ]
+      ]
+    }
+  ]
+}

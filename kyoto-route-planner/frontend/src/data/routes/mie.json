@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:58.385208+00:00",
+  "area": "mie",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-mie-01",
+      "area": "mie",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "三重県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 43.3,
+      "center": [
+        34.342583,
+        136.731386
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12543833746",
+          "name": "横山展望台",
+          "category": "展望地",
+          "lat": 34.3318666,
+          "lng": 136.7990173,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420977064",
+          "name": "伊勢現代美術館",
+          "category": "博物館",
+          "lat": 34.340491,
+          "lng": 136.6930334,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420988871",
+          "name": "愛洲の館",
+          "category": "博物館",
+          "lat": 34.355392,
+          "lng": 136.702108,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3318666,
+          136.7990173
+        ],
+        [
+          34.340491,
+          136.6930334
+        ],
+        [
+          34.355392,
+          136.702108
+        ]
+      ]
+    },
+    {
+      "id": "osm-mie-02",
+      "area": "mie",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "三重県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 196,
+      "total_score": 50.0,
+      "center": [
+        34.954202,
+        136.544511
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420975611",
+          "name": "パラミタミュージアム",
+          "category": "博物館",
+          "lat": 35.012766,
+          "lng": 136.489875,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420988278",
+          "name": "庄野宿資料館",
+          "category": "博物館",
+          "lat": 34.8845837,
+          "lng": 136.5256316,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420993937",
+          "name": "澄懐堂美術館",
+          "category": "博物館",
+          "lat": 34.9652568,
+          "lng": 136.6180274,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.012766,
+          136.489875
+        ],
+        [
+          34.8845837,
+          136.5256316
+        ],
+        [
+          34.9652568,
+          136.6180274
+        ]
+      ]
+    },
+    {
+      "id": "osm-mie-03",
+      "area": "mie",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "三重県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 157,
+      "total_score": 46.7,
+      "center": [
+        34.695884,
+        136.508704
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420989697",
+          "name": "松浦武四郎記念館",
+          "category": "博物館",
+          "lat": 34.642628,
+          "lng": 136.509111,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2501599131",
+          "name": "津城",
+          "category": "史跡",
+          "lat": 34.7173096,
+          "lng": 136.5072127,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420978964",
+          "name": "四天王寺",
+          "category": "観光名所",
+          "lat": 34.727713,
+          "lng": 136.509788,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.642628,
+          136.509111
+        ],
+        [
+          34.7173096,
+          136.5072127
+        ],
+        [
+          34.727713,
+          136.509788
+        ]
+      ]
+    },
+    {
+      "id": "osm-mie-04",
+      "area": "mie",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "三重県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 276,
+      "total_score": 46.0,
+      "center": [
+        34.493175,
+        136.703847
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2028461919",
+          "name": "伊勢河崎商人館",
+          "category": "博物館",
+          "lat": 34.4969394,
+          "lng": 136.7175261,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420988340",
+          "name": "式年遷宮記念神宮美術館",
+          "category": "博物館",
+          "lat": 34.486637,
+          "lng": 136.723526,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2019311979",
+          "name": "マクドナルド",
+          "category": "飲食店",
+          "lat": 34.5075857,
+          "lng": 136.7241009,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420997772",
+          "name": "皇學館大学佐川記念神道博物館",
+          "category": "博物館",
+          "lat": 34.4841168,
+          "lng": 136.7260283,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5311844750",
+          "name": "田丸城跡",
+          "category": "史跡",
+          "lat": 34.4905956,
+          "lng": 136.6280537,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.4969394,
+          136.7175261
+        ],
+        [
+          34.486637,
+          136.723526
+        ],
+        [
+          34.5075857,
+          136.7241009
+        ],
+        [
+          34.4841168,
+          136.7260283
+        ],
+        [
+          34.4905956,
+          136.6280537
+        ]
+      ]
+    },
+    {
+      "id": "osm-mie-05",
+      "area": "mie",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "三重県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 295,
+      "total_score": 42.0,
+      "center": [
+        34.495444,
+        136.753563
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1878709373",
+          "name": "光明寺",
+          "category": "観光名所",
+          "lat": 34.488839,
+          "lng": 136.7170558,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3921515661",
+          "name": "太江寺",
+          "category": "観光名所",
+          "lat": 34.5048364,
+          "lng": 136.7916793,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2019311979",
+          "name": "マクドナルド",
+          "category": "飲食店",
+          "lat": 34.5075857,
+          "lng": 136.7241009,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6470496188",
+          "name": "倭姬宮",
+          "category": "観光名所",
+          "lat": 34.4852112,
+          "lng": 136.7233418,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420975633",
+          "name": "マコンデ美術館",
+          "category": "博物館",
+          "lat": 34.490748,
+          "lng": 136.811637,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.488839,
+          136.7170558
+        ],
+        [
+          34.5048364,
+          136.7916793
+        ],
+        [
+          34.5075857,
+          136.7241009
+        ],
+        [
+          34.4852112,
+          136.7233418
+        ],
+        [
+          34.490748,
+          136.811637
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:01.973411+00:00",
+  "area": "hyogo",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-hyogo-01",
+      "area": "hyogo",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "兵庫県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 137,
+      "total_score": 71.7,
+      "center": [
+        34.97385,
+        135.083199
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6817133325",
+          "name": "西國二十五番清水寺",
+          "category": "史跡",
+          "lat": 34.9740652,
+          "lng": 135.0834013,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6817133345",
+          "name": "御嶽山 清水寺",
+          "category": "史跡",
+          "lat": 34.9747312,
+          "lng": 135.0838874,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6903123985",
+          "name": "西国25番 御嶽山 播州清水寺（banshu kiyomizu dera)",
+          "category": "観光名所",
+          "lat": 34.9727541,
+          "lng": 135.0823071,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.9740652,
+          135.0834013
+        ],
+        [
+          34.9747312,
+          135.0838874
+        ],
+        [
+          34.9727541,
+          135.0823071
+        ]
+      ]
+    },
+    {
+      "id": "osm-hyogo-02",
+      "area": "hyogo",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "兵庫県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 167,
+      "total_score": 43.3,
+      "center": [
+        34.985435,
+        135.264018
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10310260009",
+          "name": "八上城跡",
+          "category": "史跡",
+          "lat": 35.0618787,
+          "lng": 135.2552792,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6370181006",
+          "name": "高売布神社",
+          "category": "観光名所",
+          "lat": 34.9587453,
+          "lng": 135.2673418,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11111386419",
+          "name": "蓮花寺",
+          "category": "観光名所",
+          "lat": 34.9356821,
+          "lng": 135.2694336,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0618787,
+          135.2552792
+        ],
+        [
+          34.9587453,
+          135.2673418
+        ],
+        [
+          34.9356821,
+          135.2694336
+        ]
+      ]
+    },
+    {
+      "id": "osm-hyogo-03",
+      "area": "hyogo",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "兵庫県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 50.0,
+      "center": [
+        34.699554,
+        135.266512
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12531844564",
+          "name": "戦没した船と海員の資料館",
+          "category": "博物館",
+          "lat": 34.6858896,
+          "lng": 135.1866147,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12541374174",
+          "name": "神戸市立小磯記念美術館",
+          "category": "博物館",
+          "lat": 34.6928224,
+          "lng": 135.2672258,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12811830431",
+          "name": "今津海岸砲台記念石",
+          "category": "史跡",
+          "lat": 34.7199497,
+          "lng": 135.345695,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6858896,
+          135.1866147
+        ],
+        [
+          34.6928224,
+          135.2672258
+        ],
+        [
+          34.7199497,
+          135.345695
+        ]
+      ]
+    },
+    {
+      "id": "osm-hyogo-04",
+      "area": "hyogo",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "兵庫県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 281,
+      "total_score": 48.0,
+      "center": [
+        34.736161,
+        135.419559
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423061021",
+          "name": "世界の貯金箱博物館",
+          "category": "博物館",
+          "lat": 34.7162548,
+          "lng": 135.4134125,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4314988139",
+          "name": "遊女塚",
+          "category": "史跡",
+          "lat": 34.7394828,
+          "lng": 135.449502,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10138925425",
+          "name": "ホリーズカフェ",
+          "category": "飲食店",
+          "lat": 34.7188328,
+          "lng": 135.4191494,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4441763434",
+          "name": "尼崎市立歴史博物館",
+          "category": "博物館",
+          "lat": 34.7149245,
+          "lng": 135.4208108,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423052008",
+          "name": "伊丹市昆虫館",
+          "category": "博物館",
+          "lat": 34.7913093,
+          "lng": 135.3949205,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7162548,
+          135.4134125
+        ],
+        [
+          34.7394828,
+          135.449502
+        ],
+        [
+          34.7188328,
+          135.4191494
+        ],
+        [
+          34.7149245,
+          135.4208108
+        ],
+        [
+          34.7913093,
+          135.3949205
+        ]
+      ]
+    },
+    {
+      "id": "osm-hyogo-05",
+      "area": "hyogo",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "兵庫県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 280,
+      "total_score": 48.0,
+      "center": [
+        34.724779,
+        135.37131
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4726202079",
+          "name": "甲子園歴史館",
+          "category": "博物館",
+          "lat": 34.720559,
+          "lng": 135.3622255,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5915558992",
+          "name": "村山実銅像",
+          "category": "史跡",
+          "lat": 34.7296517,
+          "lng": 135.4125978,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10138925425",
+          "name": "ホリーズカフェ",
+          "category": "飲食店",
+          "lat": 34.7188328,
+          "lng": 135.4191494,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-9690847709",
+          "name": "甲子園歴史館",
+          "category": "博物館",
+          "lat": 34.7199394,
+          "lng": 135.3620365,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423053101",
+          "name": "俵美術館",
+          "category": "博物館",
+          "lat": 34.734912,
+          "lng": 135.30054,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.720559,
+          135.3622255
+        ],
+        [
+          34.7296517,
+          135.4125978
+        ],
+        [
+          34.7188328,
+          135.4191494
+        ],
+        [
+          34.7199394,
+          135.3620365
+        ],
+        [
+          34.734912,
+          135.30054
+        ]
+      ]
+    }
+  ]
+}

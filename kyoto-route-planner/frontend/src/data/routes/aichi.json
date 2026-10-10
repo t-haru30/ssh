@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:57.887304+00:00",
+  "area": "aichi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-aichi-01",
+      "area": "aichi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "愛知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 185,
+      "total_score": 50.0,
+      "center": [
+        35.227635,
+        136.90321
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10680703855",
+          "name": "昭和日常博物館",
+          "category": "博物館",
+          "lat": 35.2502003,
+          "lng": 136.8854428,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11949696957",
+          "name": "あいち航空ミュージアム",
+          "category": "博物館",
+          "lat": 35.2473865,
+          "lng": 136.9250115,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12818799098",
+          "name": "名古屋城",
+          "category": "史跡",
+          "lat": 35.1853191,
+          "lng": 136.899177,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.2502003,
+          136.8854428
+        ],
+        [
+          35.2473865,
+          136.9250115
+        ],
+        [
+          35.1853191,
+          136.899177
+        ]
+      ]
+    },
+    {
+      "id": "osm-aichi-02",
+      "area": "aichi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "愛知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 175,
+      "total_score": 50.0,
+      "center": [
+        35.164471,
+        137.05993
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12193590953",
+          "name": "ジブリパーク",
+          "category": "テーマパーク",
+          "lat": 35.1751206,
+          "lng": 137.0887745,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1313804250",
+          "name": "岩崎城",
+          "category": "史跡",
+          "lat": 35.1450554,
+          "lng": 137.04255,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1319911990",
+          "name": "長久手市郷土資料室",
+          "category": "博物館",
+          "lat": 35.1732378,
+          "lng": 137.0484666,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.1751206,
+          137.0887745
+        ],
+        [
+          35.1450554,
+          137.04255
+        ],
+        [
+          35.1732378,
+          137.0484666
+        ]
+      ]
+    },
+    {
+      "id": "osm-aichi-03",
+      "area": "aichi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "愛知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 187,
+      "total_score": 50.0,
+      "center": [
+        35.051039,
+        136.931703
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13928609298",
+          "name": "大正天皇東宮殿下御時行啓",
+          "category": "史跡",
+          "lat": 35.0594208,
+          "lng": 136.9798908,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423947027",
+          "name": "ガスエネルギー館",
+          "category": "博物館",
+          "lat": 35.06222,
+          "lng": 136.897283,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423988291",
+          "name": "東海市立平洲記念館・東海市立郷土資料館",
+          "category": "博物館",
+          "lat": 35.031476,
+          "lng": 136.917935,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0594208,
+          136.9798908
+        ],
+        [
+          35.06222,
+          136.897283
+        ],
+        [
+          35.031476,
+          136.917935
+        ]
+      ]
+    },
+    {
+      "id": "osm-aichi-04",
+      "area": "aichi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "愛知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 301,
+      "total_score": 50.0,
+      "center": [
+        35.148202,
+        136.943491
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423949280",
+          "name": "南山大学人類学博物館",
+          "category": "博物館",
+          "lat": 35.149844,
+          "lng": 136.962819,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423989216",
+          "name": "桑山美術館",
+          "category": "博物館",
+          "lat": 35.1483804,
+          "lng": 136.9536004,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1293327558",
+          "name": "喫茶マウンテン",
+          "category": "飲食店",
+          "lat": 35.1446887,
+          "lng": 136.9606364,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5285745536",
+          "name": "藤原師長謫居跡",
+          "category": "史跡",
+          "lat": 35.1168726,
+          "lng": 136.9300782,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423950532",
+          "name": "名古屋市市政資料館",
+          "category": "博物館",
+          "lat": 35.181226,
+          "lng": 136.910322,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.149844,
+          136.962819
+        ],
+        [
+          35.1483804,
+          136.9536004
+        ],
+        [
+          35.1446887,
+          136.9606364
+        ],
+        [
+          35.1168726,
+          136.9300782
+        ],
+        [
+          35.181226,
+          136.910322
+        ]
+      ]
+    },
+    {
+      "id": "osm-aichi-05",
+      "area": "aichi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "愛知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 304,
+      "total_score": 48.0,
+      "center": [
+        35.168018,
+        136.924114
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5296408386",
+          "name": "ヤマザキマザック美術館",
+          "category": "博物館",
+          "lat": 35.1710573,
+          "lng": 136.9198961,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9817775117",
+          "name": "あいち銭湯資料館",
+          "category": "博物館",
+          "lat": 35.1552551,
+          "lng": 136.9141123,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1293327558",
+          "name": "喫茶マウンテン",
+          "category": "飲食店",
+          "lat": 35.1446887,
+          "lng": 136.9606364,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10250677040",
+          "name": "日本基督教団 金城教会",
+          "category": "観光名所",
+          "lat": 35.1769743,
+          "lng": 136.923041,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423948145",
+          "name": "下水道科学館",
+          "category": "博物館",
+          "lat": 35.192116,
+          "lng": 136.902882,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.1710573,
+          136.9198961
+        ],
+        [
+          35.1552551,
+          136.9141123
+        ],
+        [
+          35.1446887,
+          136.9606364
+        ],
+        [
+          35.1769743,
+          136.923041
+        ],
+        [
+          35.192116,
+          136.902882
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:10.571396+00:00",
+  "area": "kagoshima",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-kagoshima-01",
+      "area": "kagoshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "鹿児島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 180,
+      "total_score": 50.0,
+      "center": [
+        31.578975,
+        130.401203
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10588217416",
+          "name": "皇徳寺跡",
+          "category": "史跡",
+          "lat": 31.555331,
+          "lng": 130.4988468,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12206934836",
+          "name": "上日置駅",
+          "category": "史跡",
+          "lat": 31.6137924,
+          "lng": 130.3636852,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8209645947",
+          "name": "吉利駅",
+          "category": "史跡",
+          "lat": 31.5678002,
+          "lng": 130.3410759,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.555331,
+          130.4988468
+        ],
+        [
+          31.6137924,
+          130.3636852
+        ],
+        [
+          31.5678002,
+          130.3410759
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagoshima-02",
+      "area": "kagoshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "鹿児島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 164,
+      "total_score": 50.0,
+      "center": [
+        31.213517,
+        130.628274
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1068357078",
+          "name": "長崎鼻",
+          "category": "展望地",
+          "lat": 31.1557675,
+          "lng": 130.5866623,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423930347",
+          "name": "考古博物館・時遊館CoCCoはしむれ",
+          "category": "博物館",
+          "lat": 31.2318505,
+          "lng": 130.6443203,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5661669624",
+          "name": "薩摩伝承館",
+          "category": "博物館",
+          "lat": 31.252933,
+          "lng": 130.6538397,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.1557675,
+          130.5866623
+        ],
+        [
+          31.2318505,
+          130.6443203
+        ],
+        [
+          31.252933,
+          130.6538397
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagoshima-03",
+      "area": "kagoshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "鹿児島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 173,
+      "total_score": 50.0,
+      "center": [
+        31.596911,
+        130.614403
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12811428701",
+          "name": "松原小学校跡",
+          "category": "史跡",
+          "lat": 31.5877911,
+          "lng": 130.5566217,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1309677433",
+          "name": "仙巌園",
+          "category": "博物館",
+          "lat": 31.6183873,
+          "lng": 130.5803724,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4489035414",
+          "name": "黒神埋没鳥居",
+          "category": "史跡",
+          "lat": 31.5845539,
+          "lng": 130.7062136,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.5877911,
+          130.5566217
+        ],
+        [
+          31.6183873,
+          130.5803724
+        ],
+        [
+          31.5845539,
+          130.7062136
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagoshima-04",
+      "area": "kagoshima",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "鹿児島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 289,
+      "total_score": 46.0,
+      "center": [
+        31.584078,
+        130.550069
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-8463045862",
+          "name": "8・6豪雨災害之碑",
+          "category": "史跡",
+          "lat": 31.5890478,
+          "lng": 130.5452798,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12702264504",
+          "name": "がんがら橋",
+          "category": "史跡",
+          "lat": 31.5845757,
+          "lng": 130.5584243,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3467448909",
+          "name": "ふぁみり庵はいから亭",
+          "category": "飲食店",
+          "lat": 31.6347782,
+          "lng": 130.5712381,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1336277135",
+          "name": "不断光院",
+          "category": "観光名所",
+          "lat": 31.5973028,
+          "lng": 130.5586406,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6751630758",
+          "name": "潮見橋",
+          "category": "史跡",
+          "lat": 31.5146865,
+          "lng": 130.51676,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.5890478,
+          130.5452798
+        ],
+        [
+          31.5845757,
+          130.5584243
+        ],
+        [
+          31.6347782,
+          130.5712381
+        ],
+        [
+          31.5973028,
+          130.5586406
+        ],
+        [
+          31.5146865,
+          130.51676
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagoshima-05",
+      "area": "kagoshima",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "鹿児島県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 265,
+      "total_score": 42.0,
+      "center": [
+        31.610273,
+        130.556108
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3089086539",
+          "name": "鹿児島城",
+          "category": "史跡",
+          "lat": 31.5988311,
+          "lng": 130.5551261,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3089086547",
+          "name": "南洲翁終焉之地之碑",
+          "category": "史跡",
+          "lat": 31.60154,
+          "lng": 130.555722,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3467448909",
+          "name": "ふぁみり庵はいから亭",
+          "category": "飲食店",
+          "lat": 31.6347782,
+          "lng": 130.5712381,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4364196467",
+          "name": "鹿児島神社",
+          "category": "観光名所",
+          "lat": 31.6097637,
+          "lng": 130.5395796,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6126128982",
+          "name": "南洲神社",
+          "category": "観光名所",
+          "lat": 31.6064499,
+          "lng": 130.5588767,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.5988311,
+          130.5551261
+        ],
+        [
+          31.60154,
+          130.555722
+        ],
+        [
+          31.6347782,
+          130.5712381
+        ],
+        [
+          31.6097637,
+          130.5395796
+        ],
+        [
+          31.6064499,
+          130.5588767
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:07.897495+00:00",
+  "area": "saga",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-saga-01",
+      "area": "saga",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "佐賀県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 171,
+      "total_score": 50.0,
+      "center": [
+        33.307228,
+        130.037783
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10786992396",
+          "name": "梶峰城跡",
+          "category": "史跡",
+          "lat": 33.2532638,
+          "lng": 130.0931454,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12148146793",
+          "name": "獅子ケ城跡",
+          "category": "史跡",
+          "lat": 33.3116819,
+          "lng": 130.0416293,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9049943487",
+          "name": "岸岳城跡",
+          "category": "史跡",
+          "lat": 33.3567376,
+          "lng": 129.9785748,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.2532638,
+          130.0931454
+        ],
+        [
+          33.3116819,
+          130.0416293
+        ],
+        [
+          33.3567376,
+          129.9785748
+        ]
+      ]
+    },
+    {
+      "id": "osm-saga-02",
+      "area": "saga",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "佐賀県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 153,
+      "total_score": 50.0,
+      "center": [
+        33.256847,
+        130.324405
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10994993451",
+          "name": "直鳥城跡",
+          "category": "史跡",
+          "lat": 33.2727265,
+          "lng": 130.3699869,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12902924455",
+          "name": "佐賀城",
+          "category": "史跡",
+          "lat": 33.2453451,
+          "lng": 130.3028388,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5211905043",
+          "name": "佐賀バルーンミュージアム",
+          "category": "博物館",
+          "lat": 33.2524694,
+          "lng": 130.3003905,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.2727265,
+          130.3699869
+        ],
+        [
+          33.2453451,
+          130.3028388
+        ],
+        [
+          33.2524694,
+          130.3003905
+        ]
+      ]
+    },
+    {
+      "id": "osm-saga-03",
+      "area": "saga",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "佐賀県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 46.7,
+      "center": [
+        33.414779,
+        130.496608
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11807694369",
+          "name": "勝尾城跡",
+          "category": "史跡",
+          "lat": 33.4015487,
+          "lng": 130.4654494,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-839501989",
+          "name": "基肄城跡",
+          "category": "史跡",
+          "lat": 33.4449826,
+          "lng": 130.5136221,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423797860",
+          "name": "中冨記念くすり博物館",
+          "category": "博物館",
+          "lat": 33.397805,
+          "lng": 130.510751,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.4015487,
+          130.4654494
+        ],
+        [
+          33.4449826,
+          130.5136221
+        ],
+        [
+          33.397805,
+          130.510751
+        ]
+      ]
+    },
+    {
+      "id": "osm-saga-04",
+      "area": "saga",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "佐賀県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 297,
+      "total_score": 34.0,
+      "center": [
+        33.171244,
+        130.012926
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12871663879",
+          "name": "おつぼ山神籠石",
+          "category": "史跡",
+          "lat": 33.1781208,
+          "lng": 130.0564633,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11083936835",
+          "name": "嬉野市歴史民俗資料館",
+          "category": "博物館",
+          "lat": 33.1280008,
+          "lng": 130.0604627,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10115384646",
+          "name": "ミスタードーナツ",
+          "category": "飲食店",
+          "lat": 33.1885976,
+          "lng": 130.0245574,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-12193973713",
+          "name": "廣福寺",
+          "category": "史跡",
+          "lat": 33.1968622,
+          "lng": 130.0149038,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423805631",
+          "name": "有田ポーセリンパーク",
+          "category": "博物館",
+          "lat": 33.164637,
+          "lng": 129.908242,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.1781208,
+          130.0564633
+        ],
+        [
+          33.1280008,
+          130.0604627
+        ],
+        [
+          33.1885976,
+          130.0245574
+        ],
+        [
+          33.1968622,
+          130.0149038
+        ],
+        [
+          33.164637,
+          129.908242
+        ]
+      ]
+    },
+    {
+      "id": "osm-saga-05",
+      "area": "saga",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "佐賀県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 275,
+      "total_score": 34.0,
+      "center": [
+        33.170563,
+        130.04881
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12194829970",
+          "name": "松原の松の記念碑",
+          "category": "史跡",
+          "lat": 33.1938665,
+          "lng": 130.0166328,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12216481630",
+          "name": "筈町河畔公園",
+          "category": "史跡",
+          "lat": 33.1919167,
+          "lng": 130.0238502,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10115384646",
+          "name": "ミスタードーナツ",
+          "category": "飲食店",
+          "lat": 33.1885976,
+          "lng": 130.0245574,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-12353960542",
+          "name": "宝塔",
+          "category": "史跡",
+          "lat": 33.1750094,
+          "lng": 130.0860523,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-14025330002",
+          "name": "鹿島城跡",
+          "category": "史跡",
+          "lat": 33.1034228,
+          "lng": 130.0929556,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.1938665,
+          130.0166328
+        ],
+        [
+          33.1919167,
+          130.0238502
+        ],
+        [
+          33.1885976,
+          130.0245574
+        ],
+        [
+          33.1750094,
+          130.0860523
+        ],
+        [
+          33.1034228,
+          130.0929556
+        ]
+      ]
+    }
+  ]
+}

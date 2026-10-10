@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:11.229583+00:00",
+  "area": "okinawa",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-okinawa-01",
+      "area": "okinawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "沖縄県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 156,
+      "total_score": 50.0,
+      "center": [
+        26.208168,
+        127.693552
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10024731022",
+          "name": "沖縄県立第二高等女学校跡;白梅の乙女たち",
+          "category": "史跡",
+          "lat": 26.217912,
+          "lng": 127.676573,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4828423125",
+          "name": "首里城",
+          "category": "史跡",
+          "lat": 26.2170014,
+          "lng": 127.7193727,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9092914111",
+          "name": "豊見城グスク",
+          "category": "史跡",
+          "lat": 26.1895915,
+          "lng": 127.6847104,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          26.217912,
+          127.676573
+        ],
+        [
+          26.2170014,
+          127.7193727
+        ],
+        [
+          26.1895915,
+          127.6847104
+        ]
+      ]
+    },
+    {
+      "id": "osm-okinawa-02",
+      "area": "okinawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "沖縄県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 147,
+      "total_score": 46.7,
+      "center": [
+        26.329566,
+        127.786707
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12357446756",
+          "name": "北谷町立博物館",
+          "category": "博物館",
+          "lat": 26.3238647,
+          "lng": 127.7594552,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5325219237",
+          "name": "沖縄市戦後文化資料展示室 ヒストリート",
+          "category": "博物館",
+          "lat": 26.3371363,
+          "lng": 127.7971641,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2484725838",
+          "name": "沖縄こどもの国",
+          "category": "動物園",
+          "lat": 26.3276961,
+          "lng": 127.8035022,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          26.3238647,
+          127.7594552
+        ],
+        [
+          26.3371363,
+          127.7971641
+        ],
+        [
+          26.3276961,
+          127.8035022
+        ]
+      ]
+    },
+    {
+      "id": "osm-okinawa-03",
+      "area": "okinawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "沖縄県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 143,
+      "total_score": 46.7,
+      "center": [
+        25.94628,
+        131.292999
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12825214275",
+          "name": "開拓主故玉置半右衛門君之碑",
+          "category": "史跡",
+          "lat": 25.9535382,
+          "lng": 131.2873654,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12825312900",
+          "name": "開拓主故玉置半右衛門君之碑",
+          "category": "史跡",
+          "lat": 25.9410747,
+          "lng": 131.2890374,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4268164880",
+          "name": "大東宮",
+          "category": "観光名所",
+          "lat": 25.9442258,
+          "lng": 131.3025931,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          25.9535382,
+          131.2873654
+        ],
+        [
+          25.9410747,
+          131.2890374
+        ],
+        [
+          25.9442258,
+          131.3025931
+        ]
+      ]
+    },
+    {
+      "id": "osm-okinawa-04",
+      "area": "okinawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "沖縄県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 267,
+      "total_score": 42.0,
+      "center": [
+        26.232395,
+        127.698692
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-9872290152",
+          "name": "玉城朝薫の墓",
+          "category": "史跡",
+          "lat": 26.2379639,
+          "lng": 127.7296686,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1068031771",
+          "name": "浦添市美術館",
+          "category": "博物館",
+          "lat": 26.250251,
+          "lng": 127.719498,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10294991544",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 26.2113045,
+          "lng": 127.6762016,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5214886031",
+          "name": "琉球新報 新聞博物館",
+          "category": "博物館",
+          "lat": 26.2341976,
+          "lng": 127.6855621,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5344518822",
+          "name": "天久宮",
+          "category": "観光名所",
+          "lat": 26.2282565,
+          "lng": 127.6825308,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          26.2379639,
+          127.7296686
+        ],
+        [
+          26.250251,
+          127.719498
+        ],
+        [
+          26.2113045,
+          127.6762016
+        ],
+        [
+          26.2341976,
+          127.6855621
+        ],
+        [
+          26.2282565,
+          127.6825308
+        ]
+      ]
+    },
+    {
+      "id": "osm-okinawa-05",
+      "area": "okinawa",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "沖縄県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 265,
+      "total_score": 40.0,
+      "center": [
+        26.226358,
+        127.690283
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5435676730",
+          "name": "出雲大社 沖縄分社",
+          "category": "観光名所",
+          "lat": 26.2300931,
+          "lng": 127.7035543,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5593697123",
+          "name": "臨海寺",
+          "category": "観光名所",
+          "lat": 26.2385624,
+          "lng": 127.6822771,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10294991544",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 26.2113045,
+          "lng": 127.6762016,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-7683363814",
+          "name": "不屈館",
+          "category": "博物館",
+          "lat": 26.2224751,
+          "lng": 127.67492,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7861269661",
+          "name": "末吉宮",
+          "category": "観光名所",
+          "lat": 26.229356,
+          "lng": 127.7144617,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          26.2300931,
+          127.7035543
+        ],
+        [
+          26.2385624,
+          127.6822771
+        ],
+        [
+          26.2113045,
+          127.6762016
+        ],
+        [
+          26.2224751,
+          127.67492
+        ],
+        [
+          26.229356,
+          127.7144617
+        ]
+      ]
+    }
+  ]
+}

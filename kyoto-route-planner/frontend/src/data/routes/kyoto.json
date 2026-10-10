@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:59.795088+00:00",
+  "area": "kyoto",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-kyoto-01",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "京都府の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 159,
+      "total_score": 75.0,
+      "center": [
+        34.99772,
+        135.755039
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11174591021",
+          "name": "伏見稲荷大社",
+          "category": "史跡",
+          "lat": 34.968937,
+          "lng": 135.7630093,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13006284568",
+          "name": "南東から見た二条城東南隅櫓の眺め",
+          "category": "展望地",
+          "lat": 35.011972,
+          "lng": 135.7512038,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13006284569",
+          "name": "西から見た二条城東南隅櫓の眺め",
+          "category": "展望地",
+          "lat": 35.0122506,
+          "lng": 135.7509042,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.968937,
+          135.7630093
+        ],
+        [
+          35.011972,
+          135.7512038
+        ],
+        [
+          35.0122506,
+          135.7509042
+        ]
+      ]
+    },
+    {
+      "id": "osm-kyoto-02",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "京都府の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 152,
+      "total_score": 75.0,
+      "center": [
+        35.014083,
+        135.759518
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13006284571",
+          "name": "北東から見た二条城本丸の城壁と内堀の眺望",
+          "category": "展望地",
+          "lat": 35.0149266,
+          "lng": 135.7489168,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1978980326",
+          "name": "西から見た二条城東南隅櫓の眺め",
+          "category": "展望地",
+          "lat": 35.0134787,
+          "lng": 135.7469344,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2959430035",
+          "name": "平安神宮社号標",
+          "category": "史跡",
+          "lat": 35.0138448,
+          "lng": 135.7827032,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0149266,
+          135.7489168
+        ],
+        [
+          35.0134787,
+          135.7469344
+        ],
+        [
+          35.0138448,
+          135.7827032
+        ]
+      ]
+    },
+    {
+      "id": "osm-kyoto-03",
+      "area": "kyoto",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "京都府の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 173,
+      "total_score": 75.0,
+      "center": [
+        35.026559,
+        135.759574
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3521123251",
+          "name": "世界遺産　金閣鹿苑寺",
+          "category": "史跡",
+          "lat": 35.0391373,
+          "lng": 135.7302249,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3740796912",
+          "name": "二条城二ﾉ丸御殿",
+          "category": "史跡",
+          "lat": 35.0135345,
+          "lng": 135.7497214,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3608483139",
+          "name": "史蹟 慈照寺銀閣寺奮境内",
+          "category": "史跡",
+          "lat": 35.0270065,
+          "lng": 135.7987755,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0391373,
+          135.7302249
+        ],
+        [
+          35.0135345,
+          135.7497214
+        ],
+        [
+          35.0270065,
+          135.7987755
+        ]
+      ]
+    },
+    {
+      "id": "osm-kyoto-04",
+      "area": "kyoto",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "京都府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 298,
+      "total_score": 72.0,
+      "center": [
+        35.010009,
+        135.764887
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3608486269",
+          "name": "史蹟及名勝 銀閣寺慈照寺庭園",
+          "category": "史跡",
+          "lat": 35.0266892,
+          "lng": 135.7977882,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4271849912",
+          "name": "平安神宮神苑",
+          "category": "史跡",
+          "lat": 35.016282,
+          "lng": 135.7818932,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7327234757",
+          "name": "茶乃逢 二条城店",
+          "category": "飲食店",
+          "lat": 35.0135784,
+          "lng": 135.7508721,
+          "stay_minutes": 60,
+          "score": 75.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-3650874837",
+          "name": "眞言宗総本山 東寺",
+          "category": "史跡",
+          "lat": 34.9794812,
+          "lng": 135.7478695,
+          "stay_minutes": 45,
+          "score": 70.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3770110188",
+          "name": "旧二条城の石垣",
+          "category": "史跡",
+          "lat": 35.0140154,
+          "lng": 135.7460106,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0266892,
+          135.7977882
+        ],
+        [
+          35.016282,
+          135.7818932
+        ],
+        [
+          35.0135784,
+          135.7508721
+        ],
+        [
+          34.9794812,
+          135.7478695
+        ],
+        [
+          35.0140154,
+          135.7460106
+        ]
+      ]
+    },
+    {
+      "id": "osm-kyoto-05",
+      "area": "kyoto",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "京都府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 276,
+      "total_score": 61.0,
+      "center": [
+        35.018652,
+        135.757729
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6126022593",
+          "name": "京都御所",
+          "category": "展望地",
+          "lat": 35.0231604,
+          "lng": 135.7614492,
+          "stay_minutes": 45,
+          "score": 70.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5679163221",
+          "name": "京都御所入口",
+          "category": "観光名所",
+          "lat": 35.0258134,
+          "lng": 135.7609261,
+          "stay_minutes": 45,
+          "score": 60.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7327234757",
+          "name": "茶乃逢 二条城店",
+          "category": "飲食店",
+          "lat": 35.0135784,
+          "lng": 135.7508721,
+          "stay_minutes": 60,
+          "score": 75.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1422961100",
+          "name": "京都市学校歴史博物館",
+          "category": "博物館",
+          "lat": 35.0007007,
+          "lng": 135.7657254,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1422961323",
+          "name": "京都市考古資料館",
+          "category": "博物館",
+          "lat": 35.030006,
+          "lng": 135.749673,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0231604,
+          135.7614492
+        ],
+        [
+          35.0258134,
+          135.7609261
+        ],
+        [
+          35.0135784,
+          135.7508721
+        ],
+        [
+          35.0007007,
+          135.7657254
+        ],
+        [
+          35.030006,
+          135.749673
+        ]
+      ]
+    }
+  ]
+}

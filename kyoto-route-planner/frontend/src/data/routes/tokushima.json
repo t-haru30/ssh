@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:05.847952+00:00",
+  "area": "tokushima",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-tokushima-01",
+      "area": "tokushima",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "徳島県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 171,
+      "total_score": 43.3,
+      "center": [
+        33.615301,
+        134.364591
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11860265409",
+          "name": "牟岐城跡",
+          "category": "史跡",
+          "lat": 33.6692922,
+          "lng": 134.4243523,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11834599480",
+          "name": "大里松原海岸",
+          "category": "観光名所",
+          "lat": 33.6067921,
+          "lng": 134.3664783,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11828526720",
+          "name": "宍喰八幡神社",
+          "category": "観光名所",
+          "lat": 33.5698183,
+          "lng": 134.3029415,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.6692922,
+          134.4243523
+        ],
+        [
+          33.6067921,
+          134.3664783
+        ],
+        [
+          33.5698183,
+          134.3029415
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokushima-02",
+      "area": "tokushima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "徳島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 149,
+      "total_score": 50.0,
+      "center": [
+        34.071482,
+        134.528372
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12285186670",
+          "name": "徳島城跡",
+          "category": "史跡",
+          "lat": 34.0750636,
+          "lng": 134.5545709,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423653755",
+          "name": "モラエス館",
+          "category": "博物館",
+          "lat": 34.067114,
+          "lng": 134.5377515,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423657888",
+          "name": "徳島市天狗久資料館",
+          "category": "博物館",
+          "lat": 34.0722672,
+          "lng": 134.492794,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.0750636,
+          134.5545709
+        ],
+        [
+          34.067114,
+          134.5377515
+        ],
+        [
+          34.0722672,
+          134.492794
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokushima-03",
+      "area": "tokushima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "徳島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 176,
+      "total_score": 43.3,
+      "center": [
+        33.949875,
+        133.781013
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423657546",
+          "name": "平家屋敷民俗資料館",
+          "category": "博物館",
+          "lat": 33.8827888,
+          "lng": 133.7808864,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13329557501",
+          "name": "Oboke Village Viewpoint",
+          "category": "展望地",
+          "lat": 33.9373687,
+          "lng": 133.7531605,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423661439",
+          "name": "阿波池田うだつの家・阿波池田たばこ資料館",
+          "category": "博物館",
+          "lat": 34.0294665,
+          "lng": 133.8089918,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.8827888,
+          133.7808864
+        ],
+        [
+          33.9373687,
+          133.7531605
+        ],
+        [
+          34.0294665,
+          133.8089918
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokushima-04",
+      "area": "tokushima",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "徳島県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 294,
+      "total_score": 42.0,
+      "center": [
+        33.883903,
+        134.640471
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12012595665",
+          "name": "千福寺",
+          "category": "観光名所",
+          "lat": 33.9032923,
+          "lng": 134.6719581,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-294063123",
+          "name": "第22番札所 平等寺",
+          "category": "観光名所",
+          "lat": 33.8521418,
+          "lng": 134.5823363,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3783232849",
+          "name": "大菩薩峠",
+          "category": "飲食店",
+          "lat": 33.8509109,
+          "lng": 134.6257341,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4503370182",
+          "name": "津峯神社",
+          "category": "観光名所",
+          "lat": 33.8947325,
+          "lng": 134.6436111,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12012592617",
+          "name": "皇子神社",
+          "category": "観光名所",
+          "lat": 33.9184381,
+          "lng": 134.678717,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.9032923,
+          134.6719581
+        ],
+        [
+          33.8521418,
+          134.5823363
+        ],
+        [
+          33.8509109,
+          134.6257341
+        ],
+        [
+          33.8947325,
+          134.6436111
+        ],
+        [
+          33.9184381,
+          134.678717
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokushima-05",
+      "area": "tokushima",
+      "pattern": "full_day",
+      "theme": "nature",
+      "title": "徳島県の自然スポットをめぐる一日ルート",
+      "estimated_minutes": 305,
+      "total_score": 36.0,
+      "center": [
+        33.854379,
+        134.608096
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11774835569",
+          "name": "潮吹休憩所",
+          "category": "展望地",
+          "lat": 33.7837206,
+          "lng": 134.6150951,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-388198935",
+          "name": "たちばな観音",
+          "category": "史跡",
+          "lat": 33.8773335,
+          "lng": 134.638889,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3783232849",
+          "name": "大菩薩峠",
+          "category": "飲食店",
+          "lat": 33.8509109,
+          "lng": 134.6257341,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-388198936",
+          "name": "橘湾展望地",
+          "category": "展望地",
+          "lat": 33.8774221,
+          "lng": 134.6389719,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13478796431",
+          "name": "第21番札所 太龍寺",
+          "category": "観光名所",
+          "lat": 33.8825075,
+          "lng": 134.5217889,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.7837206,
+          134.6150951
+        ],
+        [
+          33.8773335,
+          134.638889
+        ],
+        [
+          33.8509109,
+          134.6257341
+        ],
+        [
+          33.8774221,
+          134.6389719
+        ],
+        [
+          33.8825075,
+          134.5217889
+        ]
+      ]
+    }
+  ]
+}

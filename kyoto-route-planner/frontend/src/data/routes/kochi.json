@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:07.080751+00:00",
+  "area": "kochi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-kochi-01",
+      "area": "kochi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "高知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 46.7,
+      "center": [
+        33.174746,
+        133.073019
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10814207005",
+          "name": "海洋堂かっぱ館",
+          "category": "博物館",
+          "lat": 33.1625581,
+          "lng": 133.0380991,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1746665094",
+          "name": "海洋堂ホビー館四万十",
+          "category": "博物館",
+          "lat": 33.1530096,
+          "lng": 133.0449105,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12190170104",
+          "name": "旧都築半平邸",
+          "category": "観光名所",
+          "lat": 33.2086704,
+          "lng": 133.1360471,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.1625581,
+          133.0380991
+        ],
+        [
+          33.1530096,
+          133.0449105
+        ],
+        [
+          33.2086704,
+          133.1360471
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-02",
+      "area": "kochi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "高知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 189,
+      "total_score": 46.7,
+      "center": [
+        33.521876,
+        133.409846
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423730636",
+          "name": "佐川町立青山文庫",
+          "category": "博物館",
+          "lat": 33.4977846,
+          "lng": 133.2887416,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3919866480",
+          "name": "第35番札所 清滝寺",
+          "category": "観光名所",
+          "lat": 33.5124748,
+          "lng": 133.409532,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423732303",
+          "name": "土佐山内家宝物資料館",
+          "category": "博物館",
+          "lat": 33.5553684,
+          "lng": 133.5312644,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.4977846,
+          133.2887416
+        ],
+        [
+          33.5124748,
+          133.409532
+        ],
+        [
+          33.5553684,
+          133.5312644
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-03",
+      "area": "kochi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "高知県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 185,
+      "total_score": 46.7,
+      "center": [
+        33.715635,
+        133.803005
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423745458",
+          "name": "香美市立やなせたかし記念館・アンパンマンミュージアム",
+          "category": "博物館",
+          "lat": 33.64756,
+          "lng": 133.783432,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423745469",
+          "name": "香美市立吉井勇記念館",
+          "category": "博物館",
+          "lat": 33.706263,
+          "lng": 133.856334,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9672058059",
+          "name": "定福寺",
+          "category": "観光名所",
+          "lat": 33.7930811,
+          "lng": 133.7692502,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.64756,
+          133.783432
+        ],
+        [
+          33.706263,
+          133.856334
+        ],
+        [
+          33.7930811,
+          133.7692502
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-04",
+      "area": "kochi",
+      "pattern": "full_day",
+      "theme": "nature",
+      "title": "高知県の自然スポットをめぐる一日ルート",
+      "estimated_minutes": 280,
+      "total_score": 34.0,
+      "center": [
+        32.937853,
+        132.716909
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423734251",
+          "name": "宿毛市立宿毛歴史館",
+          "category": "博物館",
+          "lat": 32.938777,
+          "lng": 132.730371,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4434097289",
+          "name": "第39番札所 延光寺",
+          "category": "観光名所",
+          "lat": 32.9613141,
+          "lng": 132.7740727,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10179718977",
+          "name": "宿毛の海鮮小屋",
+          "category": "飲食店",
+          "lat": 32.9286608,
+          "lng": 132.7136202,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10251688490",
+          "name": "元気盛森展望台",
+          "category": "展望地",
+          "lat": 32.9170198,
+          "lng": 132.6898128,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10858037378",
+          "name": "茶偓跡",
+          "category": "展望地",
+          "lat": 32.9434934,
+          "lng": 132.6766667,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.938777,
+          132.730371
+        ],
+        [
+          32.9613141,
+          132.7740727
+        ],
+        [
+          32.9286608,
+          132.7136202
+        ],
+        [
+          32.9170198,
+          132.6898128
+        ],
+        [
+          32.9434934,
+          132.6766667
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-05",
+      "area": "kochi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "高知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 270,
+      "total_score": 38.0,
+      "center": [
+        33.552625,
+        133.547796
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12713046129",
+          "name": "中山高陽先生誕生地碑",
+          "category": "史跡",
+          "lat": 33.559524,
+          "lng": 133.541236,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12727124046",
+          "name": "槇村浩生誕の地碑",
+          "category": "史跡",
+          "lat": 33.563714,
+          "lng": 133.5431773,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10221647513",
+          "name": "銀龍閣",
+          "category": "飲食店",
+          "lat": 33.5567703,
+          "lng": 133.5185855,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423747784",
+          "name": "高知市立龍馬の生まれたまち記念館",
+          "category": "博物館",
+          "lat": 33.556407,
+          "lng": 133.524589,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1078632741",
+          "name": "第32番札所 禅師峰寺",
+          "category": "観光名所",
+          "lat": 33.5267092,
+          "lng": 133.6113941,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.559524,
+          133.541236
+        ],
+        [
+          33.563714,
+          133.5431773
+        ],
+        [
+          33.5567703,
+          133.5185855
+        ],
+        [
+          33.556407,
+          133.524589
+        ],
+        [
+          33.5267092,
+          133.6113941
+        ]
+      ]
+    }
+  ]
+}

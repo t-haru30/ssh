@@ -11,3 +11,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 **/*.tsbuildinfo
+backend/data/pbf/
+backend/data/osm_cache/
+backend/data/boundaries/
+backend/data/osm_extract/

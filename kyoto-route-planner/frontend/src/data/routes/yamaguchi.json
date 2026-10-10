@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:05.469248+00:00",
+  "area": "yamaguchi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-yamaguchi-01",
+      "area": "yamaguchi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山口県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 141,
+      "total_score": 43.3,
+      "center": [
+        34.414586,
+        131.386242
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11630385962",
+          "name": "萩城",
+          "category": "史跡",
+          "lat": 34.4175201,
+          "lng": 131.3837761,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423660226",
+          "name": "石井茶碗美術館",
+          "category": "博物館",
+          "lat": 34.410612,
+          "lng": 131.393191,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423660799",
+          "name": "萩史料館",
+          "category": "博物館",
+          "lat": 34.415627,
+          "lng": 131.381759,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.4175201,
+          131.3837761
+        ],
+        [
+          34.410612,
+          131.393191
+        ],
+        [
+          34.415627,
+          131.381759
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamaguchi-02",
+      "area": "yamaguchi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山口県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 155,
+      "total_score": 50.0,
+      "center": [
+        33.972738,
+        130.93304
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423653972",
+          "name": "下関市立考古博物館",
+          "category": "博物館",
+          "lat": 34.011478,
+          "lng": 130.926201,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2749353920",
+          "name": "海峡ゆめタワー",
+          "category": "展望地",
+          "lat": 33.9497968,
+          "lng": 130.929736,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5514642022",
+          "name": "旧下関英国領事館",
+          "category": "博物館",
+          "lat": 33.9569379,
+          "lng": 130.9431845,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.011478,
+          130.926201
+        ],
+        [
+          33.9497968,
+          130.929736
+        ],
+        [
+          33.9569379,
+          130.9431845
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamaguchi-03",
+      "area": "yamaguchi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山口県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 150,
+      "total_score": 43.3,
+      "center": [
+        34.180683,
+        131.473776
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423654032",
+          "name": "中原中也記念館",
+          "category": "博物館",
+          "lat": 34.164779,
+          "lng": 131.457879,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12071751458",
+          "name": "仁壁神社",
+          "category": "観光名所",
+          "lat": 34.1891819,
+          "lng": 131.4918303,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423653582",
+          "name": "のむら美術館",
+          "category": "博物館",
+          "lat": 34.1880872,
+          "lng": 131.4716177,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.164779,
+          131.457879
+        ],
+        [
+          34.1891819,
+          131.4918303
+        ],
+        [
+          34.1880872,
+          131.4716177
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamaguchi-04",
+      "area": "yamaguchi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "山口県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 301,
+      "total_score": 30.0,
+      "center": [
+        33.980164,
+        131.204884
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3822129157",
+          "name": "宇宙",
+          "category": "史跡",
+          "lat": 33.95146,
+          "lng": 131.246533,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4297914514",
+          "name": "若さ",
+          "category": "史跡",
+          "lat": 33.9570023,
+          "lng": 131.187964,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10038289417",
+          "name": "ろくの家　宇部店",
+          "category": "飲食店",
+          "lat": 33.9586084,
+          "lng": 131.246747,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4562060191",
+          "name": "テストピース",
+          "category": "史跡",
+          "lat": 33.9794705,
+          "lng": 131.1823453,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2578247926",
+          "name": "寝太郎之像",
+          "category": "史跡",
+          "lat": 34.0542795,
+          "lng": 131.1608313,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.95146,
+          131.246533
+        ],
+        [
+          33.9570023,
+          131.187964
+        ],
+        [
+          33.9586084,
+          131.246747
+        ],
+        [
+          33.9794705,
+          131.1823453
+        ],
+        [
+          34.0542795,
+          131.1608313
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamaguchi-05",
+      "area": "yamaguchi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "山口県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 290,
+      "total_score": 30.0,
+      "center": [
+        33.990047,
+        131.191152
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4562060192",
+          "name": "小野田セメント100周年記念セメント樽",
+          "category": "史跡",
+          "lat": 33.9794683,
+          "lng": 131.1823172,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4562078869",
+          "name": "笠井順八翁像",
+          "category": "史跡",
+          "lat": 33.9799231,
+          "lng": 131.1829147,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10038289417",
+          "name": "ろくの家　宇部店",
+          "category": "飲食店",
+          "lat": 33.9586084,
+          "lng": 131.246747,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4871936799",
+          "name": "碑文",
+          "category": "史跡",
+          "lat": 33.9779293,
+          "lng": 131.1831468,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2578247932",
+          "name": "慈眼",
+          "category": "史跡",
+          "lat": 34.0543047,
+          "lng": 131.1606361,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.9794683,
+          131.1823172
+        ],
+        [
+          33.9799231,
+          131.1829147
+        ],
+        [
+          33.9586084,
+          131.246747
+        ],
+        [
+          33.9779293,
+          131.1831468
+        ],
+        [
+          34.0543047,
+          131.1606361
+        ]
+      ]
+    }
+  ]
+}

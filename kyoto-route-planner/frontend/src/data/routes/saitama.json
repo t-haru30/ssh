@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:49.534581+00:00",
+  "area": "saitama",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-saitama-01",
+      "area": "saitama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "埼玉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 180,
+      "total_score": 50.0,
+      "center": [
+        35.905043,
+        139.675017
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13166811555",
+          "name": "寿能城跡",
+          "category": "史跡",
+          "lat": 35.921664,
+          "lng": 139.6385686,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13166815985",
+          "name": "代山城跡",
+          "category": "史跡",
+          "lat": 35.9029573,
+          "lng": 139.7088981,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420166450",
+          "name": "さいたま市立浦和博物館",
+          "category": "博物館",
+          "lat": 35.8905077,
+          "lng": 139.6775853,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.921664,
+          139.6385686
+        ],
+        [
+          35.9029573,
+          139.7088981
+        ],
+        [
+          35.8905077,
+          139.6775853
+        ]
+      ]
+    },
+    {
+      "id": "osm-saitama-02",
+      "area": "saitama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "埼玉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 174,
+      "total_score": 50.0,
+      "center": [
+        35.889193,
+        139.646469
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420166452",
+          "name": "さいたま市立漫画会館",
+          "category": "博物館",
+          "lat": 35.925637,
+          "lng": 139.63181,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420166469",
+          "name": "さいたま市青少年宇宙科学館",
+          "category": "博物館",
+          "lat": 35.872345,
+          "lng": 139.664578,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420170558",
+          "name": "埼玉県立近代美術館",
+          "category": "博物館",
+          "lat": 35.869598,
+          "lng": 139.643019,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.925637,
+          139.63181
+        ],
+        [
+          35.872345,
+          139.664578
+        ],
+        [
+          35.869598,
+          139.643019
+        ]
+      ]
+    },
+    {
+      "id": "osm-saitama-03",
+      "area": "saitama",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "埼玉県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 184,
+      "total_score": 43.3,
+      "center": [
+        35.995972,
+        139.551087
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420166470",
+          "name": "さいたま文学館",
+          "category": "博物館",
+          "lat": 35.996112,
+          "lng": 139.560588,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1072963802",
+          "name": "氷川神社",
+          "category": "観光名所",
+          "lat": 36.0269086,
+          "lng": 139.545069,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10833064954",
+          "name": "諏訪神社",
+          "category": "観光名所",
+          "lat": 35.9648949,
+          "lng": 139.5476049,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.996112,
+          139.560588
+        ],
+        [
+          36.0269086,
+          139.545069
+        ],
+        [
+          35.9648949,
+          139.5476049
+        ]
+      ]
+    },
+    {
+      "id": "osm-saitama-04",
+      "area": "saitama",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "埼玉県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 314,
+      "total_score": 50.0,
+      "center": [
+        36.117594,
+        139.455513
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420192352",
+          "name": "埼玉県立さきたま史跡の博物館",
+          "category": "博物館",
+          "lat": 36.125121,
+          "lng": 139.4756819,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420203385",
+          "name": "行田市郷土博物館",
+          "category": "博物館",
+          "lat": 36.137865,
+          "lng": 139.453279,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12873701507",
+          "name": "馬車道",
+          "category": "飲食店",
+          "lat": 36.1079586,
+          "lng": 139.4573858,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-257072641",
+          "name": "忍城御三階櫓",
+          "category": "史跡",
+          "lat": 36.1377719,
+          "lng": 139.4540666,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5762464155",
+          "name": "長島記念館",
+          "category": "博物館",
+          "lat": 36.0792548,
+          "lng": 139.4371511,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.125121,
+          139.4756819
+        ],
+        [
+          36.137865,
+          139.453279
+        ],
+        [
+          36.1079586,
+          139.4573858
+        ],
+        [
+          36.1377719,
+          139.4540666
+        ],
+        [
+          36.0792548,
+          139.4371511
+        ]
+      ]
+    },
+    {
+      "id": "osm-saitama-05",
+      "area": "saitama",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "埼玉県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 286,
+      "total_score": 42.0,
+      "center": [
+        36.094287,
+        139.456633
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12869909234",
+          "name": "袋神社",
+          "category": "観光名所",
+          "lat": 36.0991902,
+          "lng": 139.4692082,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12876838402",
+          "name": "吹上神社",
+          "category": "観光名所",
+          "lat": 36.1055645,
+          "lng": 139.4499438,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12873701507",
+          "name": "馬車道",
+          "category": "飲食店",
+          "lat": 36.1079586,
+          "lng": 139.4573858,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-12879363203",
+          "name": "宝養寺",
+          "category": "観光名所",
+          "lat": 36.1043476,
+          "lng": 139.4683691,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1948257546",
+          "name": "吉見観音",
+          "category": "観光名所",
+          "lat": 36.0543752,
+          "lng": 139.43826,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0991902,
+          139.4692082
+        ],
+        [
+          36.1055645,
+          139.4499438
+        ],
+        [
+          36.1079586,
+          139.4573858
+        ],
+        [
+          36.1043476,
+          139.4683691
+        ],
+        [
+          36.0543752,
+          139.43826
+        ]
+      ]
+    }
+  ]
+}

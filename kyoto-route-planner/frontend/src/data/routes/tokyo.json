@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:51.666804+00:00",
+  "area": "tokyo",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-tokyo-01",
+      "area": "tokyo",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "東京都の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 56.7,
+      "center": [
+        35.695394,
+        139.816434
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5873042601",
+          "name": "五徳山江東寺",
+          "category": "観光名所",
+          "lat": 35.6943469,
+          "lng": 139.8143806,
+          "stay_minutes": 45,
+          "score": 70.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11663522219",
+          "name": "郵政博物館",
+          "category": "博物館",
+          "lat": 35.7100908,
+          "lng": 139.8126581,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420783697",
+          "name": "東京大空襲・戦災資料センター",
+          "category": "博物館",
+          "lat": 35.681744,
+          "lng": 139.822264,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6943469,
+          139.8143806
+        ],
+        [
+          35.7100908,
+          139.8126581
+        ],
+        [
+          35.681744,
+          139.822264
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokyo-02",
+      "area": "tokyo",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "東京都の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 139,
+      "total_score": 43.3,
+      "center": [
+        35.803383,
+        139.788643
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10056104166",
+          "name": "伊興遺跡公園展示館",
+          "category": "博物館",
+          "lat": 35.8044147,
+          "lng": 139.7863726,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10056104165",
+          "name": "伊興遺跡",
+          "category": "史跡",
+          "lat": 35.8044625,
+          "lng": 139.7868889,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10056137474",
+          "name": "白旗塚古墳",
+          "category": "史跡",
+          "lat": 35.8012724,
+          "lng": 139.7926685,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.8044147,
+          139.7863726
+        ],
+        [
+          35.8044625,
+          139.7868889
+        ],
+        [
+          35.8012724,
+          139.7926685
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokyo-03",
+      "area": "tokyo",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "東京都の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 167,
+      "total_score": 50.0,
+      "center": [
+        35.661416,
+        139.734441
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10271111779",
+          "name": "アートアクアリウム美術館 GINZA",
+          "category": "博物館",
+          "lat": 35.67138,
+          "lng": 139.7657079,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11262093573",
+          "name": "在日韓人歴史資料館",
+          "category": "博物館",
+          "lat": 35.6514755,
+          "lng": 139.737046,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10289966935",
+          "name": "東京アニメセンター",
+          "category": "博物館",
+          "lat": 35.6613939,
+          "lng": 139.7005702,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.67138,
+          139.7657079
+        ],
+        [
+          35.6514755,
+          139.737046
+        ],
+        [
+          35.6613939,
+          139.7005702
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokyo-04",
+      "area": "tokyo",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "東京都の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 286,
+      "total_score": 50.0,
+      "center": [
+        35.612176,
+        139.712876
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420766554",
+          "name": "久米美術館",
+          "category": "博物館",
+          "lat": 35.634545,
+          "lng": 139.714759,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420789431",
+          "name": "物流博物館",
+          "category": "博物館",
+          "lat": 35.629097,
+          "lng": 139.732315,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10873319012",
+          "name": "日高屋",
+          "category": "飲食店",
+          "lat": 35.6019232,
+          "lng": 139.7218399,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420774303",
+          "name": "大田区立郷土博物館",
+          "category": "博物館",
+          "lat": 35.5885312,
+          "lng": 139.7106663,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1993056420",
+          "name": "東京科学大学博物館",
+          "category": "博物館",
+          "lat": 35.6067834,
+          "lng": 139.6847988,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.634545,
+          139.714759
+        ],
+        [
+          35.629097,
+          139.732315
+        ],
+        [
+          35.6019232,
+          139.7218399
+        ],
+        [
+          35.5885312,
+          139.7106663
+        ],
+        [
+          35.6067834,
+          139.6847988
+        ]
+      ]
+    },
+    {
+      "id": "osm-tokyo-05",
+      "area": "tokyo",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "東京都の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 296,
+      "total_score": 48.0,
+      "center": [
+        35.624141,
+        139.710022
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420790339",
+          "name": "荏原 畠山美術館",
+          "category": "博物館",
+          "lat": 35.632242,
+          "lng": 139.726938,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420790484",
+          "name": "目黒寄生虫館",
+          "category": "博物館",
+          "lat": 35.6317,
+          "lng": 139.706666,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10873319012",
+          "name": "日高屋",
+          "category": "飲食店",
+          "lat": 35.6019232,
+          "lng": 139.7218399,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1733357504",
+          "name": "目黒区美術館",
+          "category": "博物館",
+          "lat": 35.6349252,
+          "lng": 139.7076759,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1045010436",
+          "name": "サレジオ教会",
+          "category": "観光名所",
+          "lat": 35.6199167,
+          "lng": 139.6869902,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.632242,
+          139.726938
+        ],
+        [
+          35.6317,
+          139.706666
+        ],
+        [
+          35.6019232,
+          139.7218399
+        ],
+        [
+          35.6349252,
+          139.7076759
+        ],
+        [
+          35.6199167,
+          139.6869902
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:56.040868+00:00",
+  "area": "nagano",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-nagano-01",
+      "area": "nagano",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "長野県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 151,
+      "total_score": 66.7,
+      "center": [
+        36.600958,
+        138.253307
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5802830697",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 36.5865521,
+          "lng": 138.2720165,
+          "stay_minutes": 45,
+          "score": 85.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5802830702",
+          "name": "清水寺観音堂",
+          "category": "観光名所",
+          "lat": 36.5901374,
+          "lng": 138.2734624,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2440416250",
+          "name": "長野飛行場跡地",
+          "category": "史跡",
+          "lat": 36.6261844,
+          "lng": 138.2144412,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.5865521,
+          138.2720165
+        ],
+        [
+          36.5901374,
+          138.2734624
+        ],
+        [
+          36.6261844,
+          138.2144412
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagano-02",
+      "area": "nagano",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "長野県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 188,
+      "total_score": 50.0,
+      "center": [
+        36.335729,
+        138.502479
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10679580355",
+          "name": "浅間縄文ミュージアム",
+          "category": "博物館",
+          "lat": 36.3215781,
+          "lng": 138.5064337,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1948692341",
+          "name": "小諸城",
+          "category": "史跡",
+          "lat": 36.3271237,
+          "lng": 138.4174412,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5861593127",
+          "name": "田崎美術館",
+          "category": "博物館",
+          "lat": 36.3584841,
+          "lng": 138.5835634,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.3215781,
+          138.5064337
+        ],
+        [
+          36.3271237,
+          138.4174412
+        ],
+        [
+          36.3584841,
+          138.5835634
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagano-03",
+      "area": "nagano",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "長野県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 169,
+      "total_score": 50.0,
+      "center": [
+        36.305207,
+        137.921737
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10801004187",
+          "name": "松本市立博物館",
+          "category": "博物館",
+          "lat": 36.2352771,
+          "lng": 137.9690178,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2191766495",
+          "name": "田淵行男記念館",
+          "category": "博物館",
+          "lat": 36.3257429,
+          "lng": 137.9047039,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3711755125",
+          "name": "安曇野高橋節郎記念美術館",
+          "category": "博物館",
+          "lat": 36.3546016,
+          "lng": 137.8914885,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2352771,
+          137.9690178
+        ],
+        [
+          36.3257429,
+          137.9047039
+        ],
+        [
+          36.3546016,
+          137.8914885
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagano-04",
+      "area": "nagano",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "長野県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 316,
+      "total_score": 44.0,
+      "center": [
+        36.626277,
+        138.190282
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5217915021",
+          "name": "松代城",
+          "category": "史跡",
+          "lat": 36.5659201,
+          "lng": 138.196048,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6392271236",
+          "name": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
+          "category": "史跡",
+          "lat": 36.6755876,
+          "lng": 138.1769393,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10017070437",
+          "name": "澤正",
+          "category": "飲食店",
+          "lat": 36.615555,
+          "lng": 138.1361488,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5788960550",
+          "name": "武井神社",
+          "category": "観光名所",
+          "lat": 36.6565136,
+          "lng": 138.1895432,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6130355236",
+          "name": "北野美術館",
+          "category": "博物館",
+          "lat": 36.6178096,
+          "lng": 138.2527288,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.5659201,
+          138.196048
+        ],
+        [
+          36.6755876,
+          138.1769393
+        ],
+        [
+          36.615555,
+          138.1361488
+        ],
+        [
+          36.6565136,
+          138.1895432
+        ],
+        [
+          36.6178096,
+          138.2527288
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagano-05",
+      "area": "nagano",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "長野県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 316,
+      "total_score": 40.0,
+      "center": [
+        36.604653,
+        138.173809
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5788962093",
+          "name": "西宮神社",
+          "category": "観光名所",
+          "lat": 36.6573294,
+          "lng": 138.1898783,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5794909151",
+          "name": "南向塚古墳",
+          "category": "史跡",
+          "lat": 36.6406039,
+          "lng": 138.2124725,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10017070437",
+          "name": "澤正",
+          "category": "飲食店",
+          "lat": 36.615555,
+          "lng": 138.1361488,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5822472911",
+          "name": "市村神社",
+          "category": "観光名所",
+          "lat": 36.6300283,
+          "lng": 138.1941308,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2501633997",
+          "name": "荒砥城",
+          "category": "史跡",
+          "lat": 36.479746,
+          "lng": 138.1364161,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.6573294,
+          138.1898783
+        ],
+        [
+          36.6406039,
+          138.2124725
+        ],
+        [
+          36.615555,
+          138.1361488
+        ],
+        [
+          36.6300283,
+          138.1941308
+        ],
+        [
+          36.479746,
+          138.1364161
+        ]
+      ]
+    }
+  ]
+}

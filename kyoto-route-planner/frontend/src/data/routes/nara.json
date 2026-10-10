@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:02.597436+00:00",
+  "area": "nara",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-nara-01",
+      "area": "nara",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "奈良県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 50.0,
+      "center": [
+        34.68086,
+        135.755529
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423050127",
+          "name": "中野美術館",
+          "category": "博物館",
+          "lat": 34.694202,
+          "lng": 135.755751,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423057512",
+          "name": "大和文華館",
+          "category": "博物館",
+          "lat": 34.695396,
+          "lng": 135.756723,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423058478",
+          "name": "奈良県立民俗博物館",
+          "category": "博物館",
+          "lat": 34.652983,
+          "lng": 135.754113,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.694202,
+          135.755751
+        ],
+        [
+          34.695396,
+          135.756723
+        ],
+        [
+          34.652983,
+          135.754113
+        ]
+      ]
+    },
+    {
+      "id": "osm-nara-02",
+      "area": "nara",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "奈良県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 171,
+      "total_score": 50.0,
+      "center": [
+        34.602125,
+        135.78612
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423058084",
+          "name": "天理大学附属天理参考館",
+          "category": "博物館",
+          "lat": 34.5973524,
+          "lng": 135.8424831,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423059220",
+          "name": "安堵町歴史民俗資料館",
+          "category": "博物館",
+          "lat": 34.604829,
+          "lng": 135.758396,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423060360",
+          "name": "富本憲吉記念館",
+          "category": "博物館",
+          "lat": 34.604193,
+          "lng": 135.757481,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.5973524,
+          135.8424831
+        ],
+        [
+          34.604829,
+          135.758396
+        ],
+        [
+          34.604193,
+          135.757481
+        ]
+      ]
+    },
+    {
+      "id": "osm-nara-03",
+      "area": "nara",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "奈良県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 185,
+      "total_score": 43.3,
+      "center": [
+        34.416243,
+        135.712391
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423062585",
+          "name": "市立五條文化博物館",
+          "category": "博物館",
+          "lat": 34.379541,
+          "lng": 135.685291,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1158659430",
+          "name": "高天彦神社",
+          "category": "観光名所",
+          "lat": 34.4181138,
+          "lng": 135.6959341,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11197262772",
+          "name": "掖上鑵子塚古墳",
+          "category": "史跡",
+          "lat": 34.4510734,
+          "lng": 135.7559477,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.379541,
+          135.685291
+        ],
+        [
+          34.4181138,
+          135.6959341
+        ],
+        [
+          34.4510734,
+          135.7559477
+        ]
+      ]
+    },
+    {
+      "id": "osm-nara-04",
+      "area": "nara",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "奈良県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 307,
+      "total_score": 48.0,
+      "center": [
+        34.683688,
+        135.723585
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423067189",
+          "name": "帝塚山大学 附属博物館",
+          "category": "博物館",
+          "lat": 34.6860913,
+          "lng": 135.7239175,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423069654",
+          "name": "松伯美術館",
+          "category": "博物館",
+          "lat": 34.7102,
+          "lng": 135.747168,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1495040828",
+          "name": "百楽荘",
+          "category": "飲食店",
+          "lat": 34.6958527,
+          "lng": 135.7389692,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-2863583647",
+          "name": "生駒ふるさとミュージアム",
+          "category": "博物館",
+          "lat": 34.6906016,
+          "lng": 135.7043733,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12455454542",
+          "name": "平群坐紀氏神社",
+          "category": "観光名所",
+          "lat": 34.6356958,
+          "lng": 135.7034986,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6860913,
+          135.7239175
+        ],
+        [
+          34.7102,
+          135.747168
+        ],
+        [
+          34.6958527,
+          135.7389692
+        ],
+        [
+          34.6906016,
+          135.7043733
+        ],
+        [
+          34.6356958,
+          135.7034986
+        ]
+      ]
+    },
+    {
+      "id": "osm-nara-05",
+      "area": "nara",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "奈良県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 296,
+      "total_score": 44.0,
+      "center": [
+        34.681824,
+        135.751611
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423069493",
+          "name": "東洋民俗博物館",
+          "category": "博物館",
+          "lat": 34.699735,
+          "lng": 135.756845,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1460596999",
+          "name": "霊山寺",
+          "category": "観光名所",
+          "lat": 34.6741025,
+          "lng": 135.7437426,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1495040828",
+          "name": "百楽荘",
+          "category": "飲食店",
+          "lat": 34.6958527,
+          "lng": 135.7389692,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1497275221",
+          "name": "添御県坐 神社",
+          "category": "観光名所",
+          "lat": 34.6875457,
+          "lng": 135.7394746,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1497143083",
+          "name": "郡山城跡",
+          "category": "史跡",
+          "lat": 34.6518829,
+          "lng": 135.7790224,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.699735,
+          135.756845
+        ],
+        [
+          34.6741025,
+          135.7437426
+        ],
+        [
+          34.6958527,
+          135.7389692
+        ],
+        [
+          34.6875457,
+          135.7394746
+        ],
+        [
+          34.6518829,
+          135.7790224
+        ]
+      ]
+    }
+  ]
+}

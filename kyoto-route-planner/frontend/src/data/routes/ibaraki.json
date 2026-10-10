@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:47.789947+00:00",
+  "area": "ibaraki",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-ibaraki-01",
+      "area": "ibaraki",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "茨城県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 171,
+      "total_score": 48.3,
+      "center": [
+        36.600581,
+        140.599914
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-7737515688",
+          "name": "松倉山大聖院清水寺",
+          "category": "観光名所",
+          "lat": 36.5752256,
+          "lng": 140.5551934,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4548913897",
+          "name": "御岩神社",
+          "category": "観光名所",
+          "lat": 36.6361366,
+          "lng": 140.5851586,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6052536889",
+          "name": "日立シビックセンター科学館",
+          "category": "博物館",
+          "lat": 36.5903819,
+          "lng": 140.659391,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.5752256,
+          140.5551934
+        ],
+        [
+          36.6361366,
+          140.5851586
+        ],
+        [
+          36.5903819,
+          140.659391
+        ]
+      ]
+    },
+    {
+      "id": "osm-ibaraki-02",
+      "area": "ibaraki",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "茨城県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 187,
+      "total_score": 43.3,
+      "center": [
+        36.004209,
+        139.955571
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1166402855",
+          "name": "茨城自然博物館",
+          "category": "博物館",
+          "lat": 36.0052666,
+          "lng": 139.9162248,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2722750108",
+          "name": "八坂神社",
+          "category": "観光名所",
+          "lat": 35.9466933,
+          "lng": 139.997808,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4936514405",
+          "name": "大生郷天満宮",
+          "category": "観光名所",
+          "lat": 36.0606685,
+          "lng": 139.9526789,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0052666,
+          139.9162248
+        ],
+        [
+          35.9466933,
+          139.997808
+        ],
+        [
+          36.0606685,
+          139.9526789
+        ]
+      ]
+    },
+    {
+      "id": "osm-ibaraki-03",
+      "area": "ibaraki",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "茨城県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 180,
+      "total_score": 50.0,
+      "center": [
+        36.344178,
+        140.194127
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2488166217",
+          "name": "真壁城",
+          "category": "史跡",
+          "lat": 36.2750532,
+          "lng": 140.109679,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8108770617",
+          "name": "石切山脈",
+          "category": "展望地",
+          "lat": 36.3748702,
+          "lng": 140.2052541,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2501439830",
+          "name": "笠間城",
+          "category": "史跡",
+          "lat": 36.3826112,
+          "lng": 140.2674489,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2750532,
+          140.109679
+        ],
+        [
+          36.3748702,
+          140.2052541
+        ],
+        [
+          36.3826112,
+          140.2674489
+        ]
+      ]
+    },
+    {
+      "id": "osm-ibaraki-04",
+      "area": "ibaraki",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "茨城県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 270,
+      "total_score": 38.0,
+      "center": [
+        35.950199,
+        140.629665
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13325551140",
+          "name": "根本寺",
+          "category": "観光名所",
+          "lat": 35.9659,
+          "lng": 140.6198348,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2090595610",
+          "name": "鹿島神宮",
+          "category": "観光名所",
+          "lat": 35.9687708,
+          "lng": 140.6315435,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1962590577",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 35.9622318,
+          "lng": 140.6422578,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-11865592062",
+          "name": "鹿島神宮",
+          "category": "史跡",
+          "lat": 35.9682766,
+          "lng": 140.6295812,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3241897688",
+          "name": "息栖神社",
+          "category": "観光名所",
+          "lat": 35.8858155,
+          "lng": 140.6251097,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.9659,
+          140.6198348
+        ],
+        [
+          35.9687708,
+          140.6315435
+        ],
+        [
+          35.9622318,
+          140.6422578
+        ],
+        [
+          35.9682766,
+          140.6295812
+        ],
+        [
+          35.8858155,
+          140.6251097
+        ]
+      ]
+    },
+    {
+      "id": "osm-ibaraki-05",
+      "area": "ibaraki",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "茨城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 301,
+      "total_score": 32.0,
+      "center": [
+        35.969777,
+        140.63135
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13325551142",
+          "name": "坂戸神社",
+          "category": "観光名所",
+          "lat": 35.9868455,
+          "lng": 140.6256658,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2706600960",
+          "name": "神栖民俗資料館",
+          "category": "博物館",
+          "lat": 35.8971261,
+          "lng": 140.6364894,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1962590577",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 35.9622318,
+          "lng": 140.6422578,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4353347387",
+          "name": "剣聖塚原卜傳先生像",
+          "category": "史跡",
+          "lat": 35.9685525,
+          "lng": 140.6256522,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13516137591",
+          "name": "郷土資料館",
+          "category": "博物館",
+          "lat": 36.0341276,
+          "lng": 140.6266864,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.9868455,
+          140.6256658
+        ],
+        [
+          35.8971261,
+          140.6364894
+        ],
+        [
+          35.9622318,
+          140.6422578
+        ],
+        [
+          35.9685525,
+          140.6256522
+        ],
+        [
+          36.0341276,
+          140.6266864
+        ]
+      ]
+    }
+  ]
+}

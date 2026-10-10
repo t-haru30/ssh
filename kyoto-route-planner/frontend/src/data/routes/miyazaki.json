@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:09.871507+00:00",
+  "area": "miyazaki",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-miyazaki-01",
+      "area": "miyazaki",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "宮崎県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 183,
+      "total_score": 46.7,
+      "center": [
+        32.12915,
+        131.428925
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423866927",
+          "name": "宮崎県立西都原考古博物館",
+          "category": "博物館",
+          "lat": 32.125282,
+          "lng": 131.3824211,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423885510",
+          "name": "高鍋町歴史総合資料館",
+          "category": "博物館",
+          "lat": 32.122303,
+          "lng": 131.50241,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11811553589",
+          "name": "千畑古墳",
+          "category": "史跡",
+          "lat": 32.1398661,
+          "lng": 131.4019436,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.125282,
+          131.3824211
+        ],
+        [
+          32.122303,
+          131.50241
+        ],
+        [
+          32.1398661,
+          131.4019436
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyazaki-02",
+      "area": "miyazaki",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "宮崎県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 181,
+      "total_score": 40.0,
+      "center": [
+        31.977933,
+        131.329351
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1944976357",
+          "name": "綾城",
+          "category": "史跡",
+          "lat": 32.0033744,
+          "lng": 131.2489698,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423866225",
+          "name": "天ケ城歴史民俗資料館",
+          "category": "博物館",
+          "lat": 31.962126,
+          "lng": 131.293786,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7887207621",
+          "name": "蓮ヶ池横穴群",
+          "category": "史跡",
+          "lat": 31.9682974,
+          "lng": 131.4452965,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.0033744,
+          131.2489698
+        ],
+        [
+          31.962126,
+          131.293786
+        ],
+        [
+          31.9682974,
+          131.4452965
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyazaki-03",
+      "area": "miyazaki",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "宮崎県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 189,
+      "total_score": 40.0,
+      "center": [
+        31.728136,
+        131.38444
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1143976898",
+          "name": "飫肥城",
+          "category": "史跡",
+          "lat": 31.6290146,
+          "lng": 131.3503762,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13978438973",
+          "name": "猪八重渓谷",
+          "category": "観光名所",
+          "lat": 31.7276527,
+          "lng": 131.370404,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7068427934",
+          "name": "木花神社",
+          "category": "観光名所",
+          "lat": 31.8277399,
+          "lng": 131.4325384,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          31.6290146,
+          131.3503762
+        ],
+        [
+          31.7276527,
+          131.370404
+        ],
+        [
+          31.8277399,
+          131.4325384
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyazaki-04",
+      "area": "miyazaki",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "宮崎県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 272,
+      "total_score": 32.0,
+      "center": [
+        32.597488,
+        131.658
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3777522186",
+          "name": "三福寺",
+          "category": "観光名所",
+          "lat": 32.5828767,
+          "lng": 131.6657124,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10111740264",
+          "name": "戦没者記念碑",
+          "category": "史跡",
+          "lat": 32.6144846,
+          "lng": 131.6264329,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10130130859",
+          "name": "桝元",
+          "category": "飲食店",
+          "lat": 32.5873912,
+          "lng": 131.6772638,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10188743769",
+          "name": "道路開通記念碑など",
+          "category": "史跡",
+          "lat": 32.601199,
+          "lng": 131.6633022,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10235138659",
+          "name": "堤防記念碑",
+          "category": "史跡",
+          "lat": 32.6014881,
+          "lng": 131.6572884,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.5828767,
+          131.6657124
+        ],
+        [
+          32.6144846,
+          131.6264329
+        ],
+        [
+          32.5873912,
+          131.6772638
+        ],
+        [
+          32.601199,
+          131.6633022
+        ],
+        [
+          32.6014881,
+          131.6572884
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyazaki-05",
+      "area": "miyazaki",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "宮崎県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 303,
+      "total_score": 30.0,
+      "center": [
+        32.589457,
+        131.66552
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10269109889",
+          "name": "高平山牧場開発10周年記念ベンチ",
+          "category": "史跡",
+          "lat": 32.6015563,
+          "lng": 131.6263931,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423869593",
+          "name": "延岡市市民会館内藤記念館",
+          "category": "博物館",
+          "lat": 32.581665,
+          "lng": 131.658671,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10130130859",
+          "name": "桝元",
+          "category": "飲食店",
+          "lat": 32.5873912,
+          "lng": 131.6772638,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423883763",
+          "name": "西郷隆盛宿陣跡資料館（西郷南洲翁寓居跡）",
+          "category": "博物館",
+          "lat": 32.6526439,
+          "lng": 131.6885463,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4659517089",
+          "name": "一ケ岡中央公園展望台",
+          "category": "展望地",
+          "lat": 32.5240275,
+          "lng": 131.6767261,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.6015563,
+          131.6263931
+        ],
+        [
+          32.581665,
+          131.658671
+        ],
+        [
+          32.5873912,
+          131.6772638
+        ],
+        [
+          32.6526439,
+          131.6885463
+        ],
+        [
+          32.5240275,
+          131.6767261
+        ]
+      ]
+    }
+  ]
+}

@@ -5,7 +5,14 @@ import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
 import { formatMinutes } from "./DiscoverCard";
 
-const START: Origin = { name: "京都駅", latitude: 34.985849, longitude: 135.758766 };
+const AREA_STARTS: Record<string, Origin> = {
+  hokkaido: { name: "札幌中心", latitude: 43.0642, longitude: 141.3469 },
+  tokyo: { name: "東京中心", latitude: 35.6762, longitude: 139.6503 },
+  kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 },
+  osaka: { name: "大阪中心", latitude: 34.6937, longitude: 135.5023 },
+  fukuoka: { name: "福岡中心", latitude: 33.5904, longitude: 130.4017 },
+  okinawa: { name: "那覇中心", latitude: 26.2124, longitude: 127.6809 },
+};
 const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) => ({
   default: Component,
 })));
@@ -40,7 +47,10 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
       : route.places,
     [isStaticRoute, route],
   );
-  const items = useMemo(() => buildRouteTimeline(START, places, "09:00", null), [places]);
+  const start = isStaticRoute
+    ? AREA_STARTS[route.area] ?? { name: "エリア中心", latitude: route.center[0], longitude: route.center[1] }
+    : AREA_STARTS.kyoto;
+  const items = useMemo(() => buildRouteTimeline(start, places, "09:00", null), [places, start]);
   const coordinates: [number, number][] = isStaticRoute
     ? route.coordinates
     : route.places.map((place) => [place.latitude, place.longitude]);
@@ -86,8 +96,8 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
           >
             <MapView
               places={places}
-              origin={START}
-              coordinates={[[START.latitude, START.longitude], ...coordinates]}
+              origin={start}
+              coordinates={[[start.latitude, start.longitude], ...coordinates]}
               legs={[]}
             />
           </Suspense>
