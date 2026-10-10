@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { FavoriteRoutesPanel } from "./FavoriteRoutesPanel";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useFavorites } from "./useFavorites";
 
 type AppTab = "discover" | "search";
 
@@ -12,6 +14,8 @@ const tabs: { id: AppTab; label: string; caption: string }[] = [
 
 function App() {
   const [activeTab, setActiveTab] = useState<AppTab>("discover");
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { favorites, error } = useFavorites();
 
   return (
     <main className="app-shell">
@@ -21,10 +25,19 @@ function App() {
           <span>よりみち<span className="brand-light"> / KYOTO</span></span>
         </a>
         <div className="topbar-tools">
+          <button
+            className="favorites-open-button"
+            type="button"
+            onClick={() => setShowFavorites(true)}
+            aria-haspopup="dialog"
+          >
+            保存済み <span>{favorites.length}</span>
+          </button>
           <span className="sample-label"><span /> 駅すぱあと経路検索</span>
           <ThemeSwitcher />
         </div>
       </header>
+      {error && <p className="favorites-global-error" role="alert">保存機能: {error}</p>}
 
       <div className="mode-tabs" role="tablist" aria-label="表示モード">
         {tabs.map((tab) => (
@@ -45,6 +58,7 @@ function App() {
 
       <DiscoverMode active={activeTab === "discover"} />
       <SearchMode active={activeTab === "search"} />
+      {showFavorites && <FavoriteRoutesPanel onClose={() => setShowFavorites(false)} />}
 
       <footer className="footer">
         <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>

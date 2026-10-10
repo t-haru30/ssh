@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { PrefectureProvider } from "../PrefectureContext";
+import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
+
+vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 
 function makePlace(id: string) {
   return {
@@ -25,6 +28,7 @@ function makeResponse(payload: unknown, ok = true): Response {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  window.localStorage.clear();
 });
 
 describe("DiscoverMode", () => {
@@ -52,7 +56,9 @@ describe("DiscoverMode", () => {
 
     render(
       <PrefectureProvider>
-        <DiscoverMode active />
+        <FavoritesProvider>
+          <DiscoverMode active />
+        </FavoritesProvider>
       </PrefectureProvider>,
     );
 
@@ -64,6 +70,14 @@ describe("DiscoverMode", () => {
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(screen.getByText("外部APIを使わない事前サンプル（1件）")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "行きたい" }));
+    const favorites = JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]");
+    expect(favorites).toHaveLength(1);
+    expect(favorites[0]).toMatchObject({
+      title: "候補ルート",
+      prefecture_code: "26",
+      prefecture_name: "京都府",
+    });
   });
 
   it("shows API errors and allows the user to retry", async () => {
@@ -74,7 +88,9 @@ describe("DiscoverMode", () => {
 
     render(
       <PrefectureProvider>
-        <DiscoverMode active />
+        <FavoritesProvider>
+          <DiscoverMode active />
+        </FavoritesProvider>
       </PrefectureProvider>,
     );
 

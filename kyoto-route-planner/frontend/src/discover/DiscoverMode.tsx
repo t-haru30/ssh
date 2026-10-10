@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { isRouteIdeaBatch } from "../apiValidation";
 import type { RouteIdea } from "../SwipeCard";
 import { usePrefecture } from "../PrefectureContext";
+import { useFavorites } from "../useFavorites";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DiscoverDirection } from "./DiscoverCard";
 import { RouteDetailModal } from "./RouteDetailModal";
@@ -16,6 +17,7 @@ type DiscoverModeProps = {
 
 export function DiscoverMode({ active }: DiscoverModeProps) {
   const { prefecture } = usePrefecture();
+  const { saveFavorite } = useFavorites();
   const [routes, setRoutes] = useState<RouteIdea[]>([]);
   const [index, setIndex] = useState(0);
   const [exitDirection, setExitDirection] = useState<DiscoverDirection>("pass");
@@ -83,7 +85,10 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
     if (!current) return;
     setExitDirection(direction);
     setIndex((value) => value + 1);
-    if (direction === "like") setSelected(current);
+    if (direction === "like") {
+      saveFavorite(current);
+      setSelected(current);
+    }
   }
 
   return (
