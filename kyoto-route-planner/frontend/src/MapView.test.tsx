@@ -1,5 +1,5 @@
 import { act, cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MapView } from "./MapView";
 import type { Origin, Place } from "./types";
 
@@ -8,6 +8,8 @@ const mapTestState = vi.hoisted(() => ({
   markerPositions: [] as number[][],
   routeData: null as unknown,
   fitBoundsCalls: 0,
+  layers: [] as Array<Record<string, unknown>>,
+  transitMarkers: [] as Array<{ label: string | null; position: number[] }>,
 }));
 
 vi.mock("maplibre-gl", () => {
@@ -27,7 +29,10 @@ vi.mock("maplibre-gl", () => {
         },
       };
     }
-    addLayer() {}
+    addLayer(layer: Record<string, unknown>) {
+      mapTestState.layers.push(layer);
+    }
+    addImage() {}
     getSource() {
       return this.source;
     }
@@ -39,9 +44,16 @@ vi.mock("maplibre-gl", () => {
   }
 
   class MockMarker {
-    constructor() {}
+    private label: string | null;
+
+    constructor(options?: { element?: HTMLElement }) {
+      this.label = options?.element?.getAttribute("aria-label") ?? null;
+    }
     setLngLat(position: number[]) {
       mapTestState.markerPositions.push(position);
+      if (this.label?.includes("への移動手段")) {
+        mapTestState.transitMarkers.push({ label: this.label, position });
+      }
       return this;
     }
     setPopup() {
@@ -99,10 +111,23 @@ function makeOrigin(name: string, latitude: number, longitude: number): Origin {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   mapTestState.loadHandler = null;
   mapTestState.markerPositions = [];
   mapTestState.routeData = null;
   mapTestState.fitBoundsCalls = 0;
+  mapTestState.layers = [];
+  mapTestState.transitMarkers = [];
+});
+
+beforeEach(() => {
+  vi.stubGlobal("ImageData", class {
+    constructor(
+      public data: Uint8ClampedArray,
+      public width: number,
+      public height: number,
+    ) {}
+  });
 });
 
 describe("MapView", () => {
@@ -134,5 +159,46 @@ describe("MapView", () => {
         coordinates: [[135.5, 35.5], [135.7588, 34.9858]],
       },
     });
+  });
+
+  it("adds regularly spaced arrows following the route direction", () => {
+    render(<MapView places={[]} origin={null} coordinates={[]} />);
+    act(() => {
+      mapTestState.loadHandler?.();
+    });
+
+    expect(mapTestState.layers).toContainEqual(expect.objectContaining({
+      id: "route-direction-arrows",
+      type: "symbol",
+      source: "route",
+      layout: expect.objectContaining({
+        "symbol-placement": "line",
+        "symbol-spacing": 80,
+        "icon-rotation-alignment": "map",
+      }),
+    }));
+  });
+
+  it("places each transit icon at the midpoint of its stop segment", () => {
+    const firstStop = makePlace("清水寺", 35, 135.02);
+    const secondStop = makePlace("高台寺", 35, 135.04);
+    render(
+      <MapView
+        places={[firstStop, secondStop]}
+        origin={makeOrigin("京都駅", 35, 135)}
+        legs={[
+          { from_name: "京都駅", to_name: "清水寺", line_name: "電車", mode: "train", duration_minutes: 10 },
+          { from_name: "清水寺", to_name: "高台寺", line_name: "バス", mode: "bus", duration_minutes: 5 },
+        ]}
+      />,
+    );
+    act(() => {
+      mapTestState.loadHandler?.();
+    });
+
+    expect(mapTestState.transitMarkers).toEqual([
+      { label: "京都駅から清水寺への移動手段: 電車", position: [135.01, 35] },
+      { label: "清水寺から高台寺への移動手段: バス", position: [135.03, 35] },
+    ]);
   });
 });
