@@ -122,6 +122,21 @@ export function isRouteIdea(value: unknown): value is RouteIdea {
     && (value.image_url === null
       || value.image_url === undefined
       || (typeof value.image_url === "string" && value.image_url.startsWith("https://")))
+    && (value.author_name === null || typeof value.author_name === "string")
+    && (value.source_url === null
+      || (typeof value.source_url === "string" && value.source_url.startsWith("https://")))
+    && (value.license_name === null || typeof value.license_name === "string")
+    && (value.license_url === null
+      || (typeof value.license_url === "string" && value.license_url.startsWith("https://")))
+    && (value.image_url === null
+      || (
+        typeof value.author_name === "string"
+        && value.author_name.length > 0
+        && typeof value.source_url === "string"
+        && typeof value.license_name === "string"
+        && value.license_name.length > 0
+        && typeof value.license_url === "string"
+      ))
     && Array.isArray(value.places)
     && value.places.length >= 2
     && value.places.length <= 3

@@ -28,9 +28,11 @@ AppIDは[Yahoo!デベロッパーネットワーク](https://e.developer.yahoo.c
 GET /api/ideas/random?theme=nature&spot_count=2
 ```
 
-応答には`theme`、`title`、`story`、`places`、`image_url`、`copywriting_source`、`note`が含まれます。Pixabay APIキーを設定するとメインスポット名でカバー画像を検索します。画像が見つからない場合やAPIキー未設定・通信失敗時の`image_url`は`null`で、スワイプカードはテーマ別グラデーションを表示します。Gemini利用時は`copywriting_source`が`gemini`、フォールバック時は`fallback`です。
+応答には`theme`、`title`、`story`、`places`、`image_url`、画像クレジット（`author_name`、`source_url`、`license_name`、`license_url`）、`copywriting_source`、`note`が含まれます。画像はまず日本語Wikipedia API経由でWikimedia Commonsの商用利用可能なCC BY・CC BY-SA・パブリックドメイン画像を検索し、見つからない場合は`FLICKR_API_KEY`が設定されていればFlickrの商用利用可能ライセンス（4〜10）の写真を検索します。ライセンス情報または著作者情報を確認できない画像は返しません。画像未発見・キー未設定・通信失敗時は画像とクレジットを`null`にし、スワイプカードはテーマ別グラデーションを表示します。Gemini利用時は`copywriting_source`が`gemini`、フォールバック時は`fallback`です。
 
-カバー画像を有効にする場合は[Pixabay API](https://pixabay.com/api/docs/)からAPIキーを取得し、バックエンドの`.env`へ`PIXABAY_API_KEY`として設定してください。キーはバックエンド内でのみ利用します。
+Flickrをフォールバックとして有効にする場合は[Flickr API](https://www.flickr.com/services/api/)のAPIキーを取得し、バックエンドの`.env`へ`FLICKR_API_KEY`として設定してください。Wikipediaの画像検索は追加キーなしで利用できます。キーはバックエンド内でのみ利用します。カードのクレジットから著作者・元画像ページ・ライセンスを確認できます。
+
+Wikimedia APIがHTTP 403を返す場合、APIキー不足ではなく、Wikimediaのロボットポリシーまたは実行環境の送信ネットワークによる拒否の可能性があります。本アプリは連絡先情報を含むUser-Agent、`maxlag`、画像メタデータ要求の一括化、検索結果キャッシュで不要なアクセスを抑えます。それでも403が続く場合は、サーバーログのHTTPステータスと`server`ヘッダーを確認し、ネットワーク管理者にWikimedia APIへの許可設定を依頼してください。Wikimedia側の制限であれば、[ロボットポリシー](https://w.wiki/4wJS)を確認のうえ、必要な利用量について`bot-traffic@wikimedia.org`へ問い合わせてください。制限を迂回するための別プロキシやブラウザー経由取得は行いません。画像が取得できない間はカードのグラデーション背景を使用します。
 
 フロントエンドのスワイプ画面では`frontend`フォルダーで `npm install framer-motion` を実行してから開発サーバーまたは本番ビルドを実行します。右スワイプしたカードの選択済みスポットは`POST /api/itineraries`の`selected_places`へ渡され、Yahoo!へ再検索せずに駅すぱあと経路を計算します。
 

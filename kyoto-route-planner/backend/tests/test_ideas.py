@@ -8,9 +8,17 @@ import httpx
 from fastapi.testclient import TestClient
 
 from app.copywriting import RouteCopywriting
-from app.image_search import _image_cache, search_pixabay_image
+from app.image_search import (
+    FLICKR_COMMERCIAL_LICENSES,
+    FLICKR_API_URL,
+    WIKIPEDIA_API_URL,
+    WIKIMEDIA_USER_AGENT,
+    CommercialImage,
+    _image_cache,
+    search_commercial_image,
+)
 from app.main import app
-from app.models import Place
+from app.models import Place, RouteIdeaResponse
 
 
 def sample_places() -> list[Place]:
@@ -39,7 +47,7 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 new=AsyncMock(return_value=(candidates, "Yahoo test candidates")),
             ),
             patch("app.idea_service.generate_route_copywriting", new=AsyncMock(return_value=None)),
-            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_commercial_image", new=AsyncMock(return_value=None)),
             patch("app.main.search_route", new=AsyncMock()) as route_search,
         ):
             response = client.get("/api/ideas/random?theme=nature&spot_count=2")
@@ -66,8 +74,14 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 new=AsyncMock(return_value=RouteCopywriting("Gemini title", "Gemini story")),
             ) as generate_copy,
             patch(
-                "app.idea_service.search_pixabay_image",
-                new=AsyncMock(return_value="https://pixabay.com/get/example.jpg"),
+                "app.idea_service.search_commercial_image",
+                new=AsyncMock(return_value=CommercialImage(
+                    image_url="https://upload.wikimedia.org/example.jpg",
+                    author_name="Test photographer",
+                    source_url="https://commons.wikimedia.org/wiki/File:Example.jpg",
+                    license_name="CC BY-SA 4.0",
+                    license_url="https://creativecommons.org/licenses/by-sa/4.0/",
+                )),
             ) as search_image,
             patch("app.main.search_route", new=AsyncMock()) as route_search,
         ):
@@ -79,7 +93,11 @@ class RandomRouteIdeaTests(unittest.TestCase):
         self.assertEqual(payload["title"], "Gemini title")
         self.assertEqual(payload["story"], "Gemini story")
         self.assertEqual(len(payload["places"]), 3)
-        self.assertEqual(payload["image_url"], "https://pixabay.com/get/example.jpg")
+        self.assertEqual(payload["image_url"], "https://upload.wikimedia.org/example.jpg")
+        self.assertEqual(payload["author_name"], "Test photographer")
+        self.assertEqual(payload["source_url"], "https://commons.wikimedia.org/wiki/File:Example.jpg")
+        self.assertEqual(payload["license_name"], "CC BY-SA 4.0")
+        self.assertEqual(payload["license_url"], "https://creativecommons.org/licenses/by-sa/4.0/")
         generate_copy.assert_awaited_once()
         search_image.assert_awaited_once_with(payload["places"][0]["name"])
         route_search.assert_not_awaited()
@@ -107,7 +125,7 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 "app.idea_service.generate_route_copywriting",
                 new=AsyncMock(side_effect=HTTPException(502, "Gemini unavailable")),
             ),
-            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_commercial_image", new=AsyncMock(return_value=None)),
         ):
             response = TestClient(app).get("/api/ideas/random?theme=nature&spot_count=2")
 
@@ -115,14 +133,14 @@ class RandomRouteIdeaTests(unittest.TestCase):
         self.assertEqual(response.json()["copywriting_source"], "fallback")
         self.assertIn("Geminiを利用できなかった", response.json()["note"])
 
-    def test_pixabay_failure_does_not_fail_idea_response(self):
+    def test_commercial_image_failure_does_not_fail_idea_response(self):
         with (
             patch(
                 "app.main._route_candidates",
                 new=AsyncMock(return_value=(sample_places(), "Yahoo test candidates")),
             ),
             patch("app.idea_service.generate_route_copywriting", new=AsyncMock(return_value=None)),
-            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_commercial_image", new=AsyncMock(return_value=None)),
         ):
             response = TestClient(app).get(
                 "/api/ideas/random?theme=nature&spot_count=2",
@@ -131,80 +149,259 @@ class RandomRouteIdeaTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.json()["image_url"])
 
+    def test_idea_response_rejects_images_without_complete_https_attribution(self):
+        with self.assertRaises(ValueError):
+            RouteIdeaResponse(
+                theme="nature",
+                title="Test",
+                story="Test story",
+                places=sample_places()[:2],
+                image_url="https://upload.wikimedia.org/example.jpg",
+                copywriting_source="fallback",
+                note="",
+            )
 
-class PixabayImageSearchTests(unittest.IsolatedAsyncioTestCase):
+        with self.assertRaises(ValueError):
+            RouteIdeaResponse(
+                theme="nature",
+                title="Test",
+                story="Test story",
+                places=sample_places()[:2],
+                image_url="https://upload.wikimedia.org/example.jpg",
+                author_name="Photographer",
+                source_url="http://commons.wikimedia.org/wiki/File:Example.jpg",
+                license_name="CC BY 4.0",
+                license_url="https://creativecommons.org/licenses/by/4.0/",
+                copywriting_source="fallback",
+                note="",
+            )
+
+
+class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         _image_cache.clear()
 
-    async def test_missing_api_key_returns_none_without_request(self):
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"PIXABAY_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient") as async_client,
-        ):
-            image_url = await search_pixabay_image("清水寺")
-
-        self.assertIsNone(image_url)
-        async_client.assert_not_called()
-
-    async def test_returns_large_image_url_for_first_hit(self):
+    @staticmethod
+    def _response(payload: dict, status_code: int = 200):
         response = Mock()
-        response.status_code = 200
-        response.json.return_value = {
-            "hits": [{"largeImageURL": "https://pixabay.com/get/large.jpg"}],
-        }
+        response.status_code = status_code
+        response.json.return_value = payload
+        return response
+
+    @staticmethod
+    def _client_context(*responses):
         client = AsyncMock()
-        client.get.return_value = response
+        client.get.side_effect = list(responses)
         client_context = AsyncMock()
         client_context.__aenter__.return_value = client
+        return client, client_context
 
+    def _wikipedia_responses(self):
+        return (
+            self._response({
+                "query": {"pages": [{"pageimage": "Kiyomizu-dera.jpg"}]},
+            }),
+            self._response({
+                "query": {
+                    "pages": [{
+                        "imageinfo": [{
+                            "thumburl": "https://upload.wikimedia.org/thumb.jpg",
+                            "url": "https://upload.wikimedia.org/original.jpg",
+                            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera.jpg",
+                            "extmetadata": {
+                                "Artist": {"value": '<a href="/wiki/User:A">Alice</a>'},
+                                "LicenseShortName": {"value": "CC BY-SA 4.0"},
+                                "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0/"},
+                            },
+                        }],
+                    }],
+                },
+            }),
+        )
+
+    async def test_wikipedia_image_is_used_first_with_license_and_author(self):
+        client, client_context = self._client_context(*self._wikipedia_responses())
         with (
             patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"PIXABAY_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
+            patch(
+                "app.image_search.httpx.AsyncClient",
+                return_value=client_context,
+            ) as async_client,
+        ):
+            image = await search_commercial_image("清水寺")
+
+        self.assertEqual(image, CommercialImage(
+            image_url="https://upload.wikimedia.org/thumb.jpg",
+            author_name="Alice",
+            source_url="https://commons.wikimedia.org/wiki/File:Kiyomizu-dera.jpg",
+            license_name="CC BY-SA 4.0",
+            license_url="https://creativecommons.org/licenses/by-sa/4.0/",
+        ))
+        self.assertEqual(client.get.await_count, 2)
+        first_call = client.get.await_args_list[0]
+        self.assertEqual(first_call.args[0], WIKIPEDIA_API_URL)
+        self.assertEqual(first_call.kwargs["params"]["pilicense"], "free")
+        self.assertEqual(first_call.kwargs["params"]["piprop"], "thumbnail|name")
+        self.assertEqual(first_call.kwargs["params"]["maxlag"], 5)
+        self.assertEqual(
+            async_client.call_args.kwargs["headers"]["User-Agent"],
+            WIKIMEDIA_USER_AGENT,
+        )
+
+    async def test_wikipedia_image_metadata_is_fetched_in_one_batched_request(self):
+        page_response = self._response({
+            "query": {"pages": [
+                {"pageimage": "Kiyomizu-dera.jpg"},
+                {"pageimage": "Kyoto-temple.jpg"},
+            ]},
+        })
+        image_response = self._wikipedia_responses()[1]
+        client, client_context = self._client_context(page_response, image_response)
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
             patch("app.image_search.httpx.AsyncClient", return_value=client_context),
         ):
-            image_url = await search_pixabay_image("清水寺")
+            image = await search_commercial_image("京都の寺院")
 
-        self.assertEqual(image_url, "https://pixabay.com/get/large.jpg")
+        self.assertIsNotNone(image)
+        self.assertEqual(client.get.await_count, 2)
+        metadata_call = client.get.await_args_list[1]
+        self.assertEqual(
+            metadata_call.kwargs["params"]["titles"],
+            "File:Kiyomizu-dera.jpg|File:Kyoto-temple.jpg",
+        )
+        self.assertEqual(metadata_call.kwargs["params"]["maxlag"], 5)
 
-    async def test_image_search_result_is_cached(self):
-        response = Mock()
-        response.status_code = 200
-        response.json.return_value = {
-            "hits": [{"largeImageURL": "https://pixabay.com/get/cached.jpg"}],
+    async def test_flickr_is_used_only_after_wikipedia_and_excludes_noncommercial_hits(self):
+        flickr_payload = {
+            "stat": "ok",
+            "photos": {
+                "photo": [
+                    {
+                        "id": "100",
+                        "owner": "owner-nc",
+                        "ownername": "Noncommercial photographer",
+                        "license": "2",
+                        "url_l": "https://live.staticflickr.com/nc.jpg",
+                    },
+                    {
+                        "id": "101",
+                        "owner": "owner-cc",
+                        "ownername": "Commercial photographer",
+                        "license": "5",
+                        "url_l": "https://live.staticflickr.com/cc.jpg",
+                    },
+                ],
+            },
         }
-        client = AsyncMock()
-        client.get.return_value = response
-        client_context = AsyncMock()
-        client_context.__aenter__.return_value = client
-
+        client, client_context = self._client_context(
+            self._response({"query": {"pages": []}}),
+            self._response(flickr_payload),
+        )
         with (
             patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"PIXABAY_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
             patch("app.image_search.httpx.AsyncClient", return_value=client_context),
         ):
-            first_result = await search_pixabay_image("cache fixture")
-            second_result = await search_pixabay_image(" cache   fixture ")
+            image = await search_commercial_image("東福寺")
 
-        self.assertEqual(first_result, "https://pixabay.com/get/cached.jpg")
-        self.assertEqual(second_result, first_result)
+        self.assertEqual(image, CommercialImage(
+            image_url="https://live.staticflickr.com/cc.jpg",
+            author_name="Commercial photographer",
+            source_url="https://www.flickr.com/photos/owner-cc/101",
+            license_name="CC BY-SA 2.0",
+            license_url="https://creativecommons.org/licenses/by-sa/2.0/",
+        ))
+        flickr_call = client.get.await_args_list[1]
+        self.assertEqual(flickr_call.args[0], FLICKR_API_URL)
+        self.assertEqual(
+            set(flickr_call.kwargs["params"]["license"].split(",")),
+            FLICKR_COMMERCIAL_LICENSES,
+        )
+        self.assertEqual(
+            flickr_call.kwargs["params"]["license"],
+            "4,5,6,7,8,9,10",
+        )
+
+    async def test_wikipedia_noncommercial_and_unattributed_images_are_rejected(self):
+        page_response, image_response = self._wikipedia_responses()
+        image_payload = image_response.json.return_value
+        metadata = image_payload["query"]["pages"][0]["imageinfo"][0]["extmetadata"]
+        metadata["Artist"] = {"value": ""}
+        metadata["LicenseShortName"] = {"value": "CC BY-NC-SA 4.0"}
+        metadata["LicenseUrl"] = {
+            "value": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        }
+        client, client_context = self._client_context(
+            page_response,
+            image_response,
+            self._response({"query": {"pages": []}}),
+        )
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
+            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
+        ):
+            image = await search_commercial_image("ライセンス確認")
+
+        self.assertIsNone(image)
+        self.assertEqual(client.get.await_count, 2)
+
+    async def test_flickr_is_not_called_without_key_or_free_wikipedia_image(self):
+        client, client_context = self._client_context(
+            self._response({"query": {"pages": []}}),
+        )
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
+            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
+        ):
+            image = await search_commercial_image("画像なし")
+
+        self.assertIsNone(image)
         client.get.assert_awaited_once()
-        self.assertEqual(client.get.await_args.kwargs["params"]["q"], "cache fixture")
 
-    async def test_network_failure_returns_none(self):
-        client = AsyncMock()
-        client.get.side_effect = httpx.ConnectError("Pixabay unavailable")
-        client_context = AsyncMock()
-        client_context.__aenter__.return_value = client
-
+    async def test_malformed_wikipedia_payload_falls_back_safely(self):
+        client, client_context = self._client_context(
+            self._response({"query": None}),
+            self._response({"stat": "ok", "photos": {"photo": []}}),
+        )
         with (
             patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"PIXABAY_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
             patch("app.image_search.httpx.AsyncClient", return_value=client_context),
         ):
-            image_url = await search_pixabay_image("清水寺")
+            image = await search_commercial_image("不正応答")
 
-        self.assertIsNone(image_url)
+        self.assertIsNone(image)
+        self.assertEqual(client.get.await_count, 2)
+
+    async def test_commercial_image_result_is_cached(self):
+        client, client_context = self._client_context(*self._wikipedia_responses())
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
+            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
+        ):
+            first_result = await search_commercial_image("cache fixture")
+            second_result = await search_commercial_image(" cache   fixture ")
+
+        self.assertEqual(first_result, second_result)
+        self.assertEqual(client.get.await_count, 2)
+
+    async def test_provider_network_failure_returns_none(self):
+        client, client_context = self._client_context()
+        client.get.side_effect = httpx.ConnectError("provider unavailable")
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
+            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
+        ):
+            image = await search_commercial_image("京都")
+
+        self.assertIsNone(image)
 
 
 if __name__ == "__main__":
