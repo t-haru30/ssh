@@ -35,6 +35,8 @@ type MarkerLocation = {
   isOrigin: boolean;
 };
 
+type MapCoordinate = [number, number];
+
 const categoryIcons = {
   temple: {
     color: "#a64f43",
@@ -156,7 +158,7 @@ function createSpotMarker(location: MarkerLocation) {
 }
 
 function findTransitMarkers(
-  locations: MarkerLocation[],
+  locations: Array<{ location: MarkerLocation; coordinate: MapCoordinate }>,
   legs: RouteLeg[],
 ) {
   if (locations.length < 2 || legs.length === 0) return [];
@@ -166,9 +168,9 @@ function findTransitMarkers(
     const startLeg = Math.floor(index * legs.length / segmentCount);
     const endLeg = Math.floor((index + 1) * legs.length / segmentCount);
     const segmentLegs = legs.slice(startLeg, endLeg);
-    const midpoint: [number, number] = [
-      (start.latitude + destination.latitude) / 2,
-      (start.longitude + destination.longitude) / 2,
+    const midpoint: MapCoordinate = [
+      (start.coordinate[0] + destination.coordinate[0]) / 2,
+      (start.coordinate[1] + destination.coordinate[1]) / 2,
     ];
     const modes = [...new Set(segmentLegs
       .map((leg) => getModeIcon(leg.mode)?.icon)
@@ -176,21 +178,23 @@ function findTransitMarkers(
     return modes.map((mode) => ({
       mode,
       midpoint,
-      fromName: start.name,
-      toName: destination.name,
+      fromName: start.location.name,
+      toName: destination.location.name,
     }));
   });
 }
 
-function routeFeature(coordinates: [number, number][]) {
+function toMapCoordinate([latitude, longitude]: [number, number]): MapCoordinate {
+  return [longitude, latitude];
+}
+
+function routeFeature(coordinates: MapCoordinate[]) {
   return {
     type: "Feature" as const,
     properties: {},
     geometry: {
       type: "LineString" as const,
-      coordinates: coordinates.length > 1
-        ? coordinates.map(([latitude, longitude]) => [longitude, latitude])
-        : [],
+      coordinates: coordinates.length > 1 ? coordinates : [],
     },
   };
 }
@@ -283,6 +287,7 @@ export function MapView({
           "symbol-spacing": 80,
           "icon-image": "route-direction-arrow",
           "icon-size": 0.7,
+          "icon-anchor": "center",
           "icon-rotation-alignment": "map",
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
@@ -311,7 +316,7 @@ export function MapView({
       const current = propsRef.current;
       const currentPlaces = current.places;
       const currentOrigin = current.origin;
-      const currentCoordinates = current.coordinates;
+      const routeCoordinates = current.coordinates.map(toMapCoordinate);
       const currentLegs = current.legs;
 
       markersRef.current.forEach((marker) => marker.remove());
@@ -342,7 +347,16 @@ export function MapView({
         })),
       ];
 
-      for (const location of locations) {
+      const locatedMarkers = locations.map((location) => ({
+        location,
+        coordinate: routeCoordinates.find(
+          ([longitude, latitude]) => (
+            longitude === location.longitude && latitude === location.latitude
+          ),
+        ) ?? toMapCoordinate([location.latitude, location.longitude]),
+      }));
+
+      for (const { location, coordinate } of locatedMarkers) {
         const element = createSpotMarker(location);
         const popupText = location.isOrigin
           ? `出発地 · ${location.name}`
@@ -351,13 +365,13 @@ export function MapView({
             location.address,
           ].filter(Boolean).join("\n");
         const marker = new Marker({ element, anchor: "bottom" })
-          .setLngLat([location.longitude, location.latitude])
+          .setLngLat(coordinate)
           .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
           .addTo(map);
         markersRef.current.push(marker);
       }
 
-      findTransitMarkers(locations, currentLegs).forEach((transit) => {
+      findTransitMarkers(locatedMarkers, currentLegs).forEach((transit) => {
         const modeIcon = modeIcons[transit.mode];
         const element = document.createElement("div");
         element.className = `map-transit-marker map-transit-${transit.mode}`;
@@ -365,7 +379,7 @@ export function MapView({
         element.setAttribute("aria-label", `${transit.fromName}から${transit.toName}への移動手段: ${modeIcon.label}`);
         element.innerHTML = iconSvg(modeIcon.svg);
         const marker = new Marker({ element, anchor: "center" })
-          .setLngLat([transit.midpoint[1], transit.midpoint[0]])
+          .setLngLat(transit.midpoint)
           .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
             `${transit.fromName} → ${transit.toName}: ${modeIcon.label}`,
           ))
@@ -375,24 +389,17 @@ export function MapView({
 
       if (locations.length > 1) {
         const bounds = new LngLatBounds();
-        locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
+        locatedMarkers.forEach(({ coordinate }) => bounds.extend(coordinate));
         map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: current.fitDuration });
       } else if (locations.length === 1) {
-        map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: current.fitDuration });
+        map.flyTo({ center: locatedMarkers[0].coordinate, zoom: 13, duration: current.fitDuration });
       } else {
         map.flyTo({ center: kyotoCenter, zoom: 11, duration: current.fitDuration });
       }
 
       const source = map.getSource("route");
       if (source?.type === "geojson") {
-        (source as GeoJSONSource).setData({
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: routeFeature(currentCoordinates).geometry.coordinates,
-          },
-        });
+        (source as GeoJSONSource).setData(routeFeature(routeCoordinates));
       }
     };
     syncMapRef.current();

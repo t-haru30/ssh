@@ -10,6 +10,7 @@ const mapTestState = vi.hoisted(() => ({
   fitBoundsCalls: 0,
   layers: [] as Array<Record<string, unknown>>,
   transitMarkers: [] as Array<{ label: string | null; position: number[] }>,
+  markerAnchors: [] as Array<{ label: string | null; anchor: string | undefined }>,
 }));
 
 vi.mock("maplibre-gl", () => {
@@ -46,8 +47,12 @@ vi.mock("maplibre-gl", () => {
   class MockMarker {
     private label: string | null;
 
-    constructor(options?: { element?: HTMLElement }) {
+    constructor(options?: { element?: HTMLElement; anchor?: string }) {
       this.label = options?.element?.getAttribute("aria-label") ?? null;
+      mapTestState.markerAnchors.push({
+        label: this.label,
+        anchor: options?.anchor,
+      });
     }
     setLngLat(position: number[]) {
       mapTestState.markerPositions.push(position);
@@ -118,6 +123,7 @@ afterEach(() => {
   mapTestState.fitBoundsCalls = 0;
   mapTestState.layers = [];
   mapTestState.transitMarkers = [];
+  mapTestState.markerAnchors = [];
 });
 
 beforeEach(() => {
@@ -159,6 +165,16 @@ describe("MapView", () => {
         coordinates: [[135.5, 35.5], [135.7588, 34.9858]],
       },
     });
+    const routeCoordinates = (
+      mapTestState.routeData as { geometry: { coordinates: number[][] } }
+    ).geometry.coordinates;
+    mapTestState.markerPositions.forEach((position) => {
+      expect(routeCoordinates).toContainEqual(position);
+    });
+    expect(mapTestState.markerAnchors).toContainEqual({
+      label: "自然: 最新候補",
+      anchor: "bottom",
+    });
   });
 
   it("adds regularly spaced arrows following the route direction", () => {
@@ -174,6 +190,7 @@ describe("MapView", () => {
       layout: expect.objectContaining({
         "symbol-placement": "line",
         "symbol-spacing": 80,
+        "icon-anchor": "center",
         "icon-rotation-alignment": "map",
         "icon-allow-overlap": true,
         "icon-ignore-placement": true,
