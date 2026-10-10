@@ -600,7 +600,7 @@ export function SearchMode({ active }: SearchModeProps) {
             origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
             coordinates={mapCoordinates}
             legs={mapLegs}
-            fitDuration={1500}
+            fitDuration={1200}
             activeSpotId={activeSpotId}
           />
         </div>
