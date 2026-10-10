@@ -19,9 +19,12 @@ type MapViewProps = {
   origin: Origin | null;
   coordinates?: [number, number][];
   legs?: RouteLeg[];
+  fitDuration?: number;
+  activeSpotId?: string | null;
 };
 
 type MarkerLocation = {
+  id: string;
   name: string;
   longitude: number;
   latitude: number;
@@ -144,6 +147,7 @@ function createSpotMarker(location: MarkerLocation) {
     : getCategoryIcon(location.category, location.name, location.themes);
   const element = document.createElement("div");
   element.className = location.isOrigin ? "map-illustration-marker map-illustration-origin" : "map-illustration-marker";
+  element.dataset.spotId = location.id;
   element.setAttribute("role", "img");
   element.setAttribute("aria-label", `${icon.label}: ${location.name}`);
   element.innerHTML = `<span class="map-marker-art" style="--marker-color:${icon.color};--marker-background:${icon.background}">${iconSvg(icon.svg)}</span>${location.order === null ? "" : `<span class="map-marker-order">${location.order}</span>`}`;
@@ -186,7 +190,14 @@ function routeFeature(coordinates: [number, number][]) {
   };
 }
 
-export function MapView({ places, origin, coordinates = [], legs = [] }: MapViewProps) {
+export function MapView({
+  places,
+  origin,
+  coordinates = [],
+  legs = [],
+  fitDuration = 350,
+  activeSpotId = null,
+}: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -263,6 +274,7 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
     const locations: MarkerLocation[] = [
       ...(origin
         ? [{
+          id: "origin",
           name: origin.name,
           longitude: origin.longitude,
           latitude: origin.latitude,
@@ -273,6 +285,7 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
         }]
         : []),
       ...places.map((place, index) => ({
+        id: place.id,
         name: place.name,
         longitude: place.longitude,
         latitude: place.latitude,
@@ -325,11 +338,11 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
     if (locations.length > 1) {
       const bounds = new LngLatBounds();
       locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
-      map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: 350 });
+      map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: fitDuration });
     } else if (locations.length === 1) {
-      map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: 350 });
+      map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: fitDuration });
     } else {
-      map.flyTo({ center: kyotoCenter, zoom: 11, duration: 350 });
+      map.flyTo({ center: kyotoCenter, zoom: 11, duration: fitDuration });
     }
 
     const source = map.getSource("route");
@@ -345,6 +358,14 @@ export function MapView({ places, origin, coordinates = [], legs = [] }: MapView
     }
 
   }, [origin, places, coordinates, legs]);
+
+  useEffect(() => {
+    markersRef.current.forEach((marker) => {
+      const element = marker.getElement();
+      const isActive = activeSpotId !== null && element.dataset.spotId === activeSpotId;
+      element.classList.toggle("is-active", isActive);
+    });
+  }, [activeSpotId, origin, places, coordinates, legs]);
 
   return (
     <div className="map-frame">

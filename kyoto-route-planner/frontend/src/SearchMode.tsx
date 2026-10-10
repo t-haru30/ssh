@@ -284,6 +284,31 @@ export function SearchMode({ active }: SearchModeProps) {
       : suggestions[0]?.legs ?? []
   ), [isOvernight, overnightSuggestion, suggestions]);
 
+  const hasResult = suggestions.length > 0 || overnightSuggestion !== null;
+  const [formCollapsed, setFormCollapsed] = useState(false);
+  const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
+  const timelineAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setFormCollapsed(hasResult);
+  }, [hasResult]);
+
+  // Scroll Spy: 地図に隠れない画面下側の帯に入ったスポットをハイライトする
+  useEffect(() => {
+    setActiveSpotId(null);
+    const container = timelineAreaRef.current;
+    if (!hasResult || !container) return;
+    const targets = container.querySelectorAll<HTMLElement>("[data-spot-id]");
+    if (targets.length === 0) return;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      const last = visible[visible.length - 1];
+      if (last) setActiveSpotId((last.target as HTMLElement).dataset.spotId ?? null);
+    }, { rootMargin: "-60% 0px -25% 0px", threshold: 0 });
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, [hasResult, suggestions, overnightSuggestion]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
     event.preventDefault();
@@ -510,7 +535,7 @@ export function SearchMode({ active }: SearchModeProps) {
 
   return (
     <div
-      className="tab-panel search-mode"
+      className={`tab-panel search-mode${hasResult ? " search-mode--result" : ""}`}
       id="panel-search"
       role="tabpanel"
       aria-labelledby="tab-search"
@@ -568,8 +593,37 @@ export function SearchMode({ active }: SearchModeProps) {
         )}
       </section>
 
-      <div className="content-grid">
-        <section className="planner-card" aria-labelledby="planner-title">
+      {hasResult && (
+        <div className="hero-map">
+          <MapView
+            places={mapPlaces}
+            origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
+            coordinates={mapCoordinates}
+            legs={mapLegs}
+            fitDuration={1500}
+            activeSpotId={activeSpotId}
+          />
+        </div>
+      )}
+
+      <div className={`search-stage${hasResult ? " has-result" : ""}`}>
+        {hasResult && (
+          <button
+            className="form-toggle-button"
+            type="button"
+            aria-expanded={!formCollapsed}
+            aria-controls="planner-card"
+            onClick={() => setFormCollapsed((value) => !value)}
+          >
+            {formCollapsed ? "条件を変更する" : "条件を閉じる"}
+            <span aria-hidden="true">{formCollapsed ? "▾" : "▴"}</span>
+          </button>
+        )}
+        <section
+          className={`planner-card${hasResult && formCollapsed ? " collapsed" : ""}`}
+          id="planner-card"
+          aria-labelledby="planner-title"
+        >
                     <div className="section-heading">
             <div>
               <p className="eyebrow">YOUR JOURNEY</p>
@@ -673,39 +727,25 @@ export function SearchMode({ active }: SearchModeProps) {
           {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
         </section>
 
-                <section className="map-card" aria-label="京都の候補地マップ">
-          <div className="map-heading">
-            <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-            <span className="map-count">{showIdeaDeck ? `${ideaMapPlaces.length} SPOTS` : suggestions.length > 0 || overnightSuggestion ? `${mapPlaces.length} SPOTS` : "KYOTO"}</span>
-          </div>
-          <MapView
-            places={showIdeaDeck ? ideaMapPlaces : mapPlaces}
-            origin={overnightSuggestion?.origin ?? suggestions[0]?.origin ?? origin}
-            coordinates={showIdeaDeck ? [] : mapCoordinates}
-            legs={showIdeaDeck ? [] : mapLegs}
-          />
-
-          <div className="map-legend">
-            <span className="legend-origin">出</span> 出発地
-            <span className="legend-stop"><span>寺</span></span> カテゴリ別スポット
-            {mapLegs.length > 0 && <span className="map-legend-note">線上のアイコンは経路に含まれる移動手段</span>}
-          </div>
-        </section>
-
+        {!hasResult && showIdeaDeck && (
+          <section className="map-card" aria-label="京都の候補地マップ">
+            <div className="map-heading">
+              <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
+              <span className="map-count">{ideaMapPlaces.length} SPOTS</span>
+            </div>
+            <MapView places={ideaMapPlaces} origin={origin} />
+          </section>
+        )}
       </div>
 
-            <section className="results-section" aria-live="polite">
-        <div className="section-heading results-heading">
-          <div><p className="eyebrow">ROUTE IDEA</p><h2>{suggestions.length > 0 || overnightSuggestion ? "今日のよりみちルート" : "ルートの提案"}</h2></div>
-          {(suggestions.length > 0 || overnightSuggestion) && <span className="result-date">{departureDate}</span>}
-        </div>
-
-        {suggestions.length === 0 && !overnightSuggestion && !error && (
-          <div className="empty-state">
-            <span className="empty-icon">↗</span>
-            <div><strong>行き先の候補と実際の経路をご提案します</strong><p>出発駅とテーマを選んで、ルートを検索してください。</p></div>
-          </div>
-        )}
+      {hasResult && (
+        <div className="timeline-area" ref={timelineAreaRef}>
+          <section className="results-section" aria-live="polite">
+            <div className="section-heading results-heading">
+              <div><p className="eyebrow">ROUTE IDEA</p><h2>今日のよりみちルート</h2></div>
+              <span className="result-date">{departureDate}</span>
+            </div>
+            {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
 
         {overnightSuggestion && (
           <div className="route-options">
@@ -765,7 +805,9 @@ export function SearchMode({ active }: SearchModeProps) {
             </div>
           </div>
         )}
-      </section>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
