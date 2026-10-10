@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:09.554883+00:00",
+  "area": "oita",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-oita-01",
+      "area": "oita",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "大分県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 149,
+      "total_score": 43.3,
+      "center": [
+        33.234007,
+        131.612979
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423866080",
+          "name": "大分県立埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 33.238622,
+          "lng": 131.634572,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11810990719",
+          "name": "元町石仏",
+          "category": "観光名所",
+          "lat": 33.2206565,
+          "lng": 131.6157123,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12585313048",
+          "name": "浄土寺",
+          "category": "観光名所",
+          "lat": 33.2427412,
+          "lng": 131.5886539,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.238622,
+          131.634572
+        ],
+        [
+          33.2206565,
+          131.6157123
+        ],
+        [
+          33.2427412,
+          131.5886539
+        ]
+      ]
+    },
+    {
+      "id": "osm-oita-02",
+      "area": "oita",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "大分県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 167,
+      "total_score": 46.7,
+      "center": [
+        33.301526,
+        131.451521
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1746093077",
+          "name": "狭霧台",
+          "category": "展望地",
+          "lat": 33.2602225,
+          "lng": 131.3824425,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7173334485",
+          "name": "大分香りの博物館",
+          "category": "博物館",
+          "lat": 33.3119524,
+          "lng": 131.4888527,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13422412857",
+          "name": "八幡竃門神社",
+          "category": "観光名所",
+          "lat": 33.3324043,
+          "lng": 131.483268,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.2602225,
+          131.3824425
+        ],
+        [
+          33.3119524,
+          131.4888527
+        ],
+        [
+          33.3324043,
+          131.483268
+        ]
+      ]
+    },
+    {
+      "id": "osm-oita-03",
+      "area": "oita",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "大分県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 138,
+      "total_score": 43.3,
+      "center": [
+        33.608332,
+        131.190474
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2237716789",
+          "name": "福澤諭吉旧居",
+          "category": "博物館",
+          "lat": 33.6072992,
+          "lng": 131.1909282,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423861515",
+          "name": "中津城",
+          "category": "史跡",
+          "lat": 33.6066484,
+          "lng": 131.1863802,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2237754347",
+          "name": "闇無浜神社",
+          "category": "観光名所",
+          "lat": 33.6110497,
+          "lng": 131.1941146,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.6072992,
+          131.1909282
+        ],
+        [
+          33.6066484,
+          131.1863802
+        ],
+        [
+          33.6110497,
+          131.1941146
+        ]
+      ]
+    },
+    {
+      "id": "osm-oita-04",
+      "area": "oita",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "大分県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 298,
+      "total_score": 38.0,
+      "center": [
+        32.984917,
+        131.416581
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2460191723",
+          "name": "岡城",
+          "category": "史跡",
+          "lat": 32.9692029,
+          "lng": 131.4078196,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-14145352001",
+          "name": "鳥屋城",
+          "category": "史跡",
+          "lat": 33.0530653,
+          "lng": 131.4366077,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5719492821",
+          "name": "道の駅あさじ",
+          "category": "飲食店",
+          "lat": 33.0026173,
+          "lng": 131.448133,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423870388",
+          "name": "旧竹田荘",
+          "category": "博物館",
+          "lat": 32.9653239,
+          "lng": 131.3935455,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-14025356801",
+          "name": "津賀牟礼城",
+          "category": "史跡",
+          "lat": 32.934375,
+          "lng": 131.3967996,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.9692029,
+          131.4078196
+        ],
+        [
+          33.0530653,
+          131.4366077
+        ],
+        [
+          33.0026173,
+          131.448133
+        ],
+        [
+          32.9653239,
+          131.3935455
+        ],
+        [
+          32.934375,
+          131.3967996
+        ]
+      ]
+    },
+    {
+      "id": "osm-oita-05",
+      "area": "oita",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "大分県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 293,
+      "total_score": 34.0,
+      "center": [
+        32.987186,
+        131.454542
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423870477",
+          "name": "朝倉文夫記念館",
+          "category": "博物館",
+          "lat": 33.026935,
+          "lng": 131.446254,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423883394",
+          "name": "竹田市立歴史資料館",
+          "category": "博物館",
+          "lat": 32.965882,
+          "lng": 131.392692,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5719492821",
+          "name": "道の駅あさじ",
+          "category": "飲食店",
+          "lat": 33.0026173,
+          "lng": 131.448133,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423884116",
+          "name": "豊後大野市歴史民俗資料館",
+          "category": "博物館",
+          "lat": 32.972077,
+          "lng": 131.4708518,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423884144",
+          "name": "豊後大野市清川歴史民俗資料室",
+          "category": "博物館",
+          "lat": 32.968418,
+          "lng": 131.514779,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.026935,
+          131.446254
+        ],
+        [
+          32.965882,
+          131.392692
+        ],
+        [
+          33.0026173,
+          131.448133
+        ],
+        [
+          32.972077,
+          131.4708518
+        ],
+        [
+          32.968418,
+          131.514779
+        ]
+      ]
+    }
+  ]
+}

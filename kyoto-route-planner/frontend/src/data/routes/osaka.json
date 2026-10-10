@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:00.917491+00:00",
+  "area": "osaka",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-osaka-01",
+      "area": "osaka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "大阪府の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 153,
+      "total_score": 66.7,
+      "center": [
+        34.666222,
+        135.516446
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6942739357",
+          "name": "清水寺",
+          "category": "史跡",
+          "lat": 34.6553905,
+          "lng": 135.5111526,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6942773150",
+          "name": "有栖山 清水寺",
+          "category": "史跡",
+          "lat": 34.6557874,
+          "lng": 135.5122979,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13388509601",
+          "name": "大阪城天守閣",
+          "category": "博物館",
+          "lat": 34.6874875,
+          "lng": 135.5258873,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6553905,
+          135.5111526
+        ],
+        [
+          34.6557874,
+          135.5122979
+        ],
+        [
+          34.6874875,
+          135.5258873
+        ]
+      ]
+    },
+    {
+      "id": "osm-osaka-02",
+      "area": "osaka",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "大阪府の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 176,
+      "total_score": 55.0,
+      "center": [
+        34.713873,
+        135.495577
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11180461682",
+          "name": "伏見稲荷大社 摂津淡路稲荷教会",
+          "category": "観光名所",
+          "lat": 34.7436301,
+          "lng": 135.5139963,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1906505143",
+          "name": "キッズプラザ大阪",
+          "category": "テーマパーク",
+          "lat": 34.7045253,
+          "lng": 135.5102709,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1422989271",
+          "name": "ミザック下水道科学館OSAKA",
+          "category": "博物館",
+          "lat": 34.693465,
+          "lng": 135.462465,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7436301,
+          135.5139963
+        ],
+        [
+          34.7045253,
+          135.5102709
+        ],
+        [
+          34.693465,
+          135.462465
+        ]
+      ]
+    },
+    {
+      "id": "osm-osaka-03",
+      "area": "osaka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "大阪府の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 50.0,
+      "center": [
+        34.560603,
+        135.583258
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11101816364",
+          "name": "舊丹南藩主高木主水正陣屋址碑",
+          "category": "史跡",
+          "lat": 34.5588204,
+          "lng": 135.5553461,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9572015375",
+          "name": "埴生坂本陵",
+          "category": "史跡",
+          "lat": 34.5568927,
+          "lng": 135.597336,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9575866193",
+          "name": "アイセルシュラホール",
+          "category": "博物館",
+          "lat": 34.5660964,
+          "lng": 135.5970906,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.5588204,
+          135.5553461
+        ],
+        [
+          34.5568927,
+          135.597336
+        ],
+        [
+          34.5660964,
+          135.5970906
+        ]
+      ]
+    },
+    {
+      "id": "osm-osaka-04",
+      "area": "osaka",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "大阪府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 298,
+      "total_score": 50.0,
+      "center": [
+        34.691188,
+        135.499372
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1422990011",
+          "name": "大阪府立 上方演芸資料館",
+          "category": "博物館",
+          "lat": 34.6646523,
+          "lng": 135.5031573,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423006333",
+          "name": "湯木美術館",
+          "category": "博物館",
+          "lat": 34.6875435,
+          "lng": 135.5022517,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12535469433",
+          "name": "銀のさら",
+          "category": "飲食店",
+          "lat": 34.6983935,
+          "lng": 135.477866,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423016951",
+          "name": "造幣博物館",
+          "category": "博物館",
+          "lat": 34.6958942,
+          "lng": 135.5216842,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2376818627",
+          "name": "南蛮文化館",
+          "category": "博物館",
+          "lat": 34.709457,
+          "lng": 135.4919,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6646523,
+          135.5031573
+        ],
+        [
+          34.6875435,
+          135.5022517
+        ],
+        [
+          34.6983935,
+          135.477866
+        ],
+        [
+          34.6958942,
+          135.5216842
+        ],
+        [
+          34.709457,
+          135.4919
+        ]
+      ]
+    },
+    {
+      "id": "osm-osaka-05",
+      "area": "osaka",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "大阪府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 288,
+      "total_score": 50.0,
+      "center": [
+        34.694842,
+        135.501401
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4419665990",
+          "name": "大阪くらしの今昔館",
+          "category": "博物館",
+          "lat": 34.7104664,
+          "lng": 135.5114334,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4920617728",
+          "name": "大阪歴史博物館",
+          "category": "博物館",
+          "lat": 34.6826183,
+          "lng": 135.5208131,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12535469433",
+          "name": "銀のさら",
+          "category": "飲食店",
+          "lat": 34.6983935,
+          "lng": 135.477866,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6362209586",
+          "name": "蛸の松",
+          "category": "史跡",
+          "lat": 34.6940971,
+          "lng": 135.4908974,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6549326466",
+          "name": "くすりの道修町資料館",
+          "category": "博物館",
+          "lat": 34.6886356,
+          "lng": 135.5059954,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7104664,
+          135.5114334
+        ],
+        [
+          34.6826183,
+          135.5208131
+        ],
+        [
+          34.6983935,
+          135.477866
+        ],
+        [
+          34.6940971,
+          135.4908974
+        ],
+        [
+          34.6886356,
+          135.5059954
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:56.600540+00:00",
+  "area": "gifu",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-gifu-01",
+      "area": "gifu",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岐阜県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 160,
+      "total_score": 50.0,
+      "center": [
+        35.379968,
+        136.832598
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11740083485",
+          "name": "承久の乱合戦供養塔",
+          "category": "史跡",
+          "lat": 35.3842756,
+          "lng": 136.8803296,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420977941",
+          "name": "内藤記念くすり博物館",
+          "category": "博物館",
+          "lat": 35.36449,
+          "lng": 136.844501,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420980910",
+          "name": "大松美術館",
+          "category": "博物館",
+          "lat": 35.391139,
+          "lng": 136.772963,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.3842756,
+          136.8803296
+        ],
+        [
+          35.36449,
+          136.844501
+        ],
+        [
+          35.391139,
+          136.772963
+        ]
+      ]
+    },
+    {
+      "id": "osm-gifu-02",
+      "area": "gifu",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岐阜県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 46.7,
+      "center": [
+        35.594487,
+        137.194985
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-14138839399",
+          "name": "飛水身代観音",
+          "category": "史跡",
+          "lat": 35.560368,
+          "lng": 137.1842232,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8462968705",
+          "name": "天心白菊の塔",
+          "category": "史跡",
+          "lat": 35.6035983,
+          "lng": 137.1728377,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4516624335",
+          "name": "大山白山神社",
+          "category": "観光名所",
+          "lat": 35.6194956,
+          "lng": 137.2278939,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.560368,
+          137.1842232
+        ],
+        [
+          35.6035983,
+          137.1728377
+        ],
+        [
+          35.6194956,
+          137.2278939
+        ]
+      ]
+    },
+    {
+      "id": "osm-gifu-03",
+      "area": "gifu",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岐阜県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 187,
+      "total_score": 50.0,
+      "center": [
+        35.377082,
+        137.152278
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420974972",
+          "name": "こども陶器博物館",
+          "category": "博物館",
+          "lat": 35.3610116,
+          "lng": 137.1113565,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420975636",
+          "name": "ミュージアム中仙道",
+          "category": "博物館",
+          "lat": 35.366609,
+          "lng": 137.234267,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420978567",
+          "name": "可児郷土歴史館",
+          "category": "博物館",
+          "lat": 35.403625,
+          "lng": 137.111212,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.3610116,
+          137.1113565
+        ],
+        [
+          35.366609,
+          137.234267
+        ],
+        [
+          35.403625,
+          137.111212
+        ]
+      ]
+    },
+    {
+      "id": "osm-gifu-04",
+      "area": "gifu",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "岐阜県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 300,
+      "total_score": 48.0,
+      "center": [
+        35.501256,
+        137.490331
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420976566",
+          "name": "中津川市苗木遠山史料館",
+          "category": "博物館",
+          "lat": 35.5147784,
+          "lng": 137.4816281,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1421000414",
+          "name": "藤村記念館",
+          "category": "博物館",
+          "lat": 35.526736,
+          "lng": 137.567364,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13670537706",
+          "name": "スガキヤ",
+          "category": "飲食店",
+          "lat": 35.4986714,
+          "lng": 137.5074155,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-2501451285",
+          "name": "苗木城",
+          "category": "史跡",
+          "lat": 35.5131554,
+          "lng": 137.4852643,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420976524",
+          "name": "中山道広重美術館",
+          "category": "博物館",
+          "lat": 35.452938,
+          "lng": 137.409982,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.5147784,
+          137.4816281
+        ],
+        [
+          35.526736,
+          137.567364
+        ],
+        [
+          35.4986714,
+          137.5074155
+        ],
+        [
+          35.5131554,
+          137.4852643
+        ],
+        [
+          35.452938,
+          137.409982
+        ]
+      ]
+    },
+    {
+      "id": "osm-gifu-05",
+      "area": "gifu",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "岐阜県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 285,
+      "total_score": 42.0,
+      "center": [
+        35.530231,
+        137.544839
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10914014076",
+          "name": "馬籠宿",
+          "category": "観光名所",
+          "lat": 35.526549,
+          "lng": 137.5674758,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12452501038",
+          "name": "善昌寺",
+          "category": "観光名所",
+          "lat": 35.5127816,
+          "lng": 137.530226,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13670537706",
+          "name": "スガキヤ",
+          "category": "飲食店",
+          "lat": 35.4986714,
+          "lng": 137.5074155,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1421002782",
+          "name": "馬籠脇本陣史料館",
+          "category": "博物館",
+          "lat": 35.527131,
+          "lng": 137.567646,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420976560",
+          "name": "中津川市東山魁夷心の旅路館",
+          "category": "博物館",
+          "lat": 35.5860224,
+          "lng": 137.5514331,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.526549,
+          137.5674758
+        ],
+        [
+          35.5127816,
+          137.530226
+        ],
+        [
+          35.4986714,
+          137.5074155
+        ],
+        [
+          35.527131,
+          137.567646
+        ],
+        [
+          35.5860224,
+          137.5514331
+        ]
+      ]
+    }
+  ]
+}

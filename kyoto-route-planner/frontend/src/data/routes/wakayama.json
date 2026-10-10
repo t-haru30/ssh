@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:03.140066+00:00",
+  "area": "wakayama",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-wakayama-01",
+      "area": "wakayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "和歌山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 140,
+      "total_score": 55.0,
+      "center": [
+        33.725017,
+        135.994711
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6853147488",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 33.7169494,
+          "lng": 135.9986355,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2215791774",
+          "name": "新宮城跡",
+          "category": "史跡",
+          "lat": 33.7301974,
+          "lng": 135.9928219,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6853147921",
+          "name": "西村記念館",
+          "category": "博物館",
+          "lat": 33.7279036,
+          "lng": 135.9926771,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.7169494,
+          135.9986355
+        ],
+        [
+          33.7301974,
+          135.9928219
+        ],
+        [
+          33.7279036,
+          135.9926771
+        ]
+      ]
+    },
+    {
+      "id": "osm-wakayama-02",
+      "area": "wakayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "和歌山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 175,
+      "total_score": 46.7,
+      "center": [
+        34.075427,
+        135.205636
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10111545771",
+          "name": "有田川町鉄道交流館",
+          "category": "博物館",
+          "lat": 34.0655154,
+          "lng": 135.2464078,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6816805607",
+          "name": "甚風呂",
+          "category": "博物館",
+          "lat": 34.0364603,
+          "lng": 135.1747178,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2605851910",
+          "name": "橘本神社",
+          "category": "観光名所",
+          "lat": 34.1243055,
+          "lng": 135.1957817,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.0655154,
+          135.2464078
+        ],
+        [
+          34.0364603,
+          135.1747178
+        ],
+        [
+          34.1243055,
+          135.1957817
+        ]
+      ]
+    },
+    {
+      "id": "osm-wakayama-03",
+      "area": "wakayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "和歌山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 150,
+      "total_score": 43.3,
+      "center": [
+        33.694631,
+        135.358121
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423051676",
+          "name": "白浜水族館",
+          "category": "水族館",
+          "lat": 33.6927802,
+          "lng": 135.3375243,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423055572",
+          "name": "南方熊楠記念館",
+          "category": "博物館",
+          "lat": 33.6936902,
+          "lng": 135.3361146,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423074356",
+          "name": "田辺市立美術館",
+          "category": "博物館",
+          "lat": 33.6974225,
+          "lng": 135.4007249,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.6927802,
+          135.3375243
+        ],
+        [
+          33.6936902,
+          135.3361146
+        ],
+        [
+          33.6974225,
+          135.4007249
+        ]
+      ]
+    },
+    {
+      "id": "osm-wakayama-04",
+      "area": "wakayama",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "和歌山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 293,
+      "total_score": 38.0,
+      "center": [
+        33.701332,
+        135.381676
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423088610",
+          "name": "紀州博物館",
+          "category": "博物館",
+          "lat": 33.670592,
+          "lng": 135.34722,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6751560043",
+          "name": "鳥巣半島の泥岩岩脈",
+          "category": "史跡",
+          "lat": 33.7000058,
+          "lng": 135.381106,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10087090263",
+          "name": "白熊UDON",
+          "category": "飲食店",
+          "lat": 33.6828651,
+          "lng": 135.3470843,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-776737168",
+          "name": "高山寺",
+          "category": "観光名所",
+          "lat": 33.740286,
+          "lng": 135.3788928,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6367407494",
+          "name": "稲葉根王子",
+          "category": "観光名所",
+          "lat": 33.7129122,
+          "lng": 135.4540747,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.670592,
+          135.34722
+        ],
+        [
+          33.7000058,
+          135.381106
+        ],
+        [
+          33.6828651,
+          135.3470843
+        ],
+        [
+          33.740286,
+          135.3788928
+        ],
+        [
+          33.7129122,
+          135.4540747
+        ]
+      ]
+    },
+    {
+      "id": "osm-wakayama-05",
+      "area": "wakayama",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "和歌山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 275,
+      "total_score": 30.0,
+      "center": [
+        33.705172,
+        135.347727
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12845266546",
+          "name": "和歌山県朝日夕陽百選 白良浜",
+          "category": "史跡",
+          "lat": 33.6809737,
+          "lng": 135.3450164,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2098226563",
+          "name": "平草原展望台",
+          "category": "展望地",
+          "lat": 33.6714137,
+          "lng": 135.3465854,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10087090263",
+          "name": "白熊UDON",
+          "category": "飲食店",
+          "lat": 33.6828651,
+          "lng": 135.3470843,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-2404654464",
+          "name": "南方熊楠翁顕彰碑",
+          "category": "史跡",
+          "lat": 33.7223586,
+          "lng": 135.3795372,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10312948898",
+          "name": "南部町道路元標",
+          "category": "史跡",
+          "lat": 33.7682498,
+          "lng": 135.320414,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.6809737,
+          135.3450164
+        ],
+        [
+          33.6714137,
+          135.3465854
+        ],
+        [
+          33.6828651,
+          135.3470843
+        ],
+        [
+          33.7223586,
+          135.3795372
+        ],
+        [
+          33.7682498,
+          135.320414
+        ]
+      ]
+    }
+  ]
+}

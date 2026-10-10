@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:03.839700+00:00",
+  "area": "shimane",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-shimane-01",
+      "area": "shimane",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "島根県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 168,
+      "total_score": 60.0,
+      "center": [
+        35.43268,
+        133.244944
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5558132400",
+          "name": "清水寺宝物館",
+          "category": "観光名所",
+          "lat": 35.4012463,
+          "lng": 133.2813206,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5558136764",
+          "name": "清水寺光明閣",
+          "category": "観光名所",
+          "lat": 35.4021002,
+          "lng": 133.2812102,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10068494897",
+          "name": "中村元記念館",
+          "category": "博物館",
+          "lat": 35.4946932,
+          "lng": 133.1723009,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4012463,
+          133.2813206
+        ],
+        [
+          35.4021002,
+          133.2812102
+        ],
+        [
+          35.4946932,
+          133.1723009
+        ]
+      ]
+    },
+    {
+      "id": "osm-shimane-02",
+      "area": "shimane",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "島根県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 143,
+      "total_score": 51.7,
+      "center": [
+        35.113628,
+        132.443447
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-7460556285",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 35.1049642,
+          "lng": 132.4369639,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423618360",
+          "name": "石見銀山資料館",
+          "category": "博物館",
+          "lat": 35.122164,
+          "lng": 132.448042,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1184306054",
+          "name": "石見銀山遺跡",
+          "category": "史跡",
+          "lat": 35.113757,
+          "lng": 132.445335,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.1049642,
+          132.4369639
+        ],
+        [
+          35.122164,
+          132.448042
+        ],
+        [
+          35.113757,
+          132.445335
+        ]
+      ]
+    },
+    {
+      "id": "osm-shimane-03",
+      "area": "shimane",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "島根県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 177,
+      "total_score": 46.7,
+      "center": [
+        35.424017,
+        133.113937
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10139467382",
+          "name": "島根大学総合博物館アシカル",
+          "category": "博物館",
+          "lat": 35.4857556,
+          "lng": 133.06927,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10081061417",
+          "name": "出雲かんべの里",
+          "category": "博物館",
+          "lat": 35.4254491,
+          "lng": 133.0872751,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2459202190",
+          "name": "月山富田城",
+          "category": "史跡",
+          "lat": 35.3608474,
+          "lng": 133.1852653,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4857556,
+          133.06927
+        ],
+        [
+          35.4254491,
+          133.0872751
+        ],
+        [
+          35.3608474,
+          133.1852653
+        ]
+      ]
+    },
+    {
+      "id": "osm-shimane-04",
+      "area": "shimane",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "島根県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 294,
+      "total_score": 36.0,
+      "center": [
+        35.456323,
+        133.044334
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2478942299",
+          "name": "岩屋後古墳",
+          "category": "史跡",
+          "lat": 35.4266574,
+          "lng": 133.093098,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6327647978",
+          "name": "金崎古墳群",
+          "category": "史跡",
+          "lat": 35.4897908,
+          "lng": 133.0699911,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10008463363",
+          "name": "Y'sキッチン",
+          "category": "飲食店",
+          "lat": 35.4692959,
+          "lng": 133.0544811,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6332083808",
+          "name": "丹花庵古墳",
+          "category": "史跡",
+          "lat": 35.4826885,
+          "lng": 132.9948861,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10232630398",
+          "name": "戦没者慰霊碑",
+          "category": "史跡",
+          "lat": 35.4131826,
+          "lng": 133.0092158,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4266574,
+          133.093098
+        ],
+        [
+          35.4897908,
+          133.0699911
+        ],
+        [
+          35.4692959,
+          133.0544811
+        ],
+        [
+          35.4826885,
+          132.9948861
+        ],
+        [
+          35.4131826,
+          133.0092158
+        ]
+      ]
+    },
+    {
+      "id": "osm-shimane-05",
+      "area": "shimane",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "島根県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 283,
+      "total_score": 32.0,
+      "center": [
+        35.458635,
+        133.088532
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10542495490",
+          "name": "大山代神社跡地",
+          "category": "史跡",
+          "lat": 35.45237,
+          "lng": 133.0745243,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10895405242",
+          "name": "源助柱記念碑",
+          "category": "史跡",
+          "lat": 35.4673132,
+          "lng": 133.0554503,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10008463363",
+          "name": "Y'sキッチン",
+          "category": "飲食店",
+          "lat": 35.4692959,
+          "lng": 133.0544811,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-11338017533",
+          "name": "松江城碑",
+          "category": "史跡",
+          "lat": 35.4740004,
+          "lng": 133.0516742,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12684157527",
+          "name": "大成古墳",
+          "category": "史跡",
+          "lat": 35.4301943,
+          "lng": 133.206528,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.45237,
+          133.0745243
+        ],
+        [
+          35.4673132,
+          133.0554503
+        ],
+        [
+          35.4692959,
+          133.0544811
+        ],
+        [
+          35.4740004,
+          133.0516742
+        ],
+        [
+          35.4301943,
+          133.206528
+        ]
+      ]
+    }
+  ]
+}

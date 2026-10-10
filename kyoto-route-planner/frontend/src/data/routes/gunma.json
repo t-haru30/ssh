@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:48.917279+00:00",
+  "area": "gunma",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-gunma-01",
+      "area": "gunma",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "群馬県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 147,
+      "total_score": 43.3,
+      "center": [
+        36.26655,
+        139.520075
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13104807478",
+          "name": "田中正造記念館",
+          "category": "博物館",
+          "lat": 36.2468333,
+          "lng": 139.5385493,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12054181986",
+          "name": "宝生寺",
+          "category": "観光名所",
+          "lat": 36.2760443,
+          "lng": 139.5079189,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12054182016",
+          "name": "赤城神社",
+          "category": "観光名所",
+          "lat": 36.276773,
+          "lng": 139.5137581,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2468333,
+          139.5385493
+        ],
+        [
+          36.2760443,
+          139.5079189
+        ],
+        [
+          36.276773,
+          139.5137581
+        ]
+      ]
+    },
+    {
+      "id": "osm-gunma-02",
+      "area": "gunma",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "群馬県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 185,
+      "total_score": 50.0,
+      "center": [
+        36.372419,
+        139.262574
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420708530",
+          "name": "コノドント館",
+          "category": "博物館",
+          "lat": 36.4352743,
+          "lng": 139.2746841,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420710338",
+          "name": "太田市立藪塚本町歴史民俗資料館",
+          "category": "博物館",
+          "lat": 36.363422,
+          "lng": 139.321742,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420712477",
+          "name": "相川考古館",
+          "category": "博物館",
+          "lat": 36.318562,
+          "lng": 139.191295,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.4352743,
+          139.2746841
+        ],
+        [
+          36.363422,
+          139.321742
+        ],
+        [
+          36.318562,
+          139.191295
+        ]
+      ]
+    },
+    {
+      "id": "osm-gunma-03",
+      "area": "gunma",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "群馬県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 50.0,
+      "center": [
+        36.433699,
+        138.996295
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420711983",
+          "name": "水と緑と詩のまち前橋文学館",
+          "category": "博物館",
+          "lat": 36.393897,
+          "lng": 139.072229,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420713235",
+          "name": "群馬県立日本絹の里",
+          "category": "博物館",
+          "lat": 36.407157,
+          "lng": 138.989766,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420712843",
+          "name": "竹久夢二伊香保記念館",
+          "category": "博物館",
+          "lat": 36.500042,
+          "lng": 138.92689,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.393897,
+          139.072229
+        ],
+        [
+          36.407157,
+          138.989766
+        ],
+        [
+          36.500042,
+          138.92689
+        ]
+      ]
+    },
+    {
+      "id": "osm-gunma-04",
+      "area": "gunma",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "群馬県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 273,
+      "total_score": 40.0,
+      "center": [
+        36.257003,
+        139.501925
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12054182023",
+          "name": "常楽寺",
+          "category": "観光名所",
+          "lat": 36.2778308,
+          "lng": 139.5138584,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12265495753",
+          "name": "青石地蔵板碑",
+          "category": "史跡",
+          "lat": 36.2516422,
+          "lng": 139.5286564,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12265257647",
+          "name": "三の丸商店",
+          "category": "飲食店",
+          "lat": 36.2485377,
+          "lng": 139.5273032,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420711331",
+          "name": "製粉ミュージアム",
+          "category": "博物館",
+          "lat": 36.245599,
+          "lng": 139.525805,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2486497935",
+          "name": "小泉城",
+          "category": "史跡",
+          "lat": 36.2614067,
+          "lng": 139.4140011,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2778308,
+          139.5138584
+        ],
+        [
+          36.2516422,
+          139.5286564
+        ],
+        [
+          36.2485377,
+          139.5273032
+        ],
+        [
+          36.245599,
+          139.525805
+        ],
+        [
+          36.2614067,
+          139.4140011
+        ]
+      ]
+    },
+    {
+      "id": "osm-gunma-05",
+      "area": "gunma",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "群馬県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 299,
+      "total_score": 36.0,
+      "center": [
+        36.244672,
+        139.533721
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6185321719",
+          "name": "愛宕祠",
+          "category": "史跡",
+          "lat": 36.2489274,
+          "lng": 139.5365313,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-968791256",
+          "name": "雷電神社",
+          "category": "観光名所",
+          "lat": 36.227526,
+          "lng": 139.6078042,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12265257647",
+          "name": "三の丸商店",
+          "category": "飲食店",
+          "lat": 36.2485377,
+          "lng": 139.5273032,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10015679498",
+          "name": "熊野神社",
+          "category": "観光名所",
+          "lat": 36.2264809,
+          "lng": 139.5375788,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10068017581",
+          "name": "高正寺",
+          "category": "観光名所",
+          "lat": 36.2718882,
+          "lng": 139.4593871,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.2489274,
+          139.5365313
+        ],
+        [
+          36.227526,
+          139.6078042
+        ],
+        [
+          36.2485377,
+          139.5273032
+        ],
+        [
+          36.2264809,
+          139.5375788
+        ],
+        [
+          36.2718882,
+          139.4593871
+        ]
+      ]
+    }
+  ]
+}

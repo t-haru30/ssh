@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:04.452300+00:00",
+  "area": "okayama",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-okayama-01",
+      "area": "okayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岡山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 53.3,
+      "center": [
+        34.659909,
+        134.161795
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13118921844",
+          "name": "妙福寺 観音院 東寺",
+          "category": "観光名所",
+          "lat": 34.6144434,
+          "lng": 134.1697213,
+          "stay_minutes": 45,
+          "score": 60.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12163242927",
+          "name": "夢二郷土美術館 夢二生家記念館",
+          "category": "博物館",
+          "lat": 34.6592417,
+          "lng": 134.1205382,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12491917783",
+          "name": "柴田錬三郎文学碑",
+          "category": "史跡",
+          "lat": 34.7060417,
+          "lng": 134.1951265,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6144434,
+          134.1697213
+        ],
+        [
+          34.6592417,
+          134.1205382
+        ],
+        [
+          34.7060417,
+          134.1951265
+        ]
+      ]
+    },
+    {
+      "id": "osm-okayama-02",
+      "area": "okayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岡山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 149,
+      "total_score": 50.0,
+      "center": [
+        34.681447,
+        133.930494
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12570593374",
+          "name": "animo museum 有森裕子資料館",
+          "category": "博物館",
+          "lat": 34.7073201,
+          "lng": 133.9410199,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423609563",
+          "name": "夢二郷土美術館本館",
+          "category": "博物館",
+          "lat": 34.6707119,
+          "lng": 133.9346426,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423610324",
+          "name": "岡山シティミュージアム",
+          "category": "博物館",
+          "lat": 34.66631,
+          "lng": 133.9158203,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7073201,
+          133.9410199
+        ],
+        [
+          34.6707119,
+          133.9346426
+        ],
+        [
+          34.66631,
+          133.9158203
+        ]
+      ]
+    },
+    {
+      "id": "osm-okayama-03",
+      "area": "okayama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "岡山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 139,
+      "total_score": 50.0,
+      "center": [
+        35.062362,
+        134.008992
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423608045",
+          "name": "つやま自然のふしぎ館",
+          "category": "博物館",
+          "lat": 35.061108,
+          "lng": 134.005265,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1909471047",
+          "name": "津山城跡",
+          "category": "史跡",
+          "lat": 35.0627653,
+          "lng": 134.0048125,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3939057630",
+          "name": "城東むかし町家",
+          "category": "博物館",
+          "lat": 35.0632119,
+          "lng": 134.0168992,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.061108,
+          134.005265
+        ],
+        [
+          35.0627653,
+          134.0048125
+        ],
+        [
+          35.0632119,
+          134.0168992
+        ]
+      ]
+    },
+    {
+      "id": "osm-okayama-04",
+      "area": "okayama",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "岡山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 278,
+      "total_score": 46.0,
+      "center": [
+        34.6948,
+        134.050562
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423609042",
+          "name": "備前長船刀剣博物館",
+          "category": "博物館",
+          "lat": 34.721634,
+          "lng": 134.106905,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6363948327",
+          "name": "亀山城",
+          "category": "史跡",
+          "lat": 34.7065004,
+          "lng": 134.0365047,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12369044045",
+          "name": "かつ庵",
+          "category": "飲食店",
+          "lat": 34.7095717,
+          "lng": 134.0503794,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10307783128",
+          "name": "窪八幡宮",
+          "category": "観光名所",
+          "lat": 34.6669744,
+          "lng": 134.0506986,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11789472350",
+          "name": "大多羅寄宮跡",
+          "category": "史跡",
+          "lat": 34.6693182,
+          "lng": 134.0083214,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.721634,
+          134.106905
+        ],
+        [
+          34.7065004,
+          134.0365047
+        ],
+        [
+          34.7095717,
+          134.0503794
+        ],
+        [
+          34.6669744,
+          134.0506986
+        ],
+        [
+          34.6693182,
+          134.0083214
+        ]
+      ]
+    },
+    {
+      "id": "osm-okayama-05",
+      "area": "okayama",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "岡山県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 285,
+      "total_score": 42.0,
+      "center": [
+        34.705528,
+        134.037148
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1909489715",
+          "name": "両宮山古墳",
+          "category": "史跡",
+          "lat": 34.7397868,
+          "lng": 134.0024868,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2478977058",
+          "name": "牟佐大塚古墳",
+          "category": "史跡",
+          "lat": 34.7252186,
+          "lng": 133.9768055,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12369044045",
+          "name": "かつ庵",
+          "category": "飲食店",
+          "lat": 34.7095717,
+          "lng": 134.0503794,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4262869689",
+          "name": "浦間茶臼山古墳",
+          "category": "史跡",
+          "lat": 34.7100582,
+          "lng": 134.0666904,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12230830576",
+          "name": "大賀島寺",
+          "category": "観光名所",
+          "lat": 34.6430051,
+          "lng": 134.0893781,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7397868,
+          134.0024868
+        ],
+        [
+          34.7252186,
+          133.9768055
+        ],
+        [
+          34.7095717,
+          134.0503794
+        ],
+        [
+          34.7100582,
+          134.0666904
+        ],
+        [
+          34.6430051,
+          134.0893781
+        ]
+      ]
+    }
+  ]
+}

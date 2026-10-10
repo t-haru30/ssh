@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:05.161017+00:00",
+  "area": "hiroshima",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-hiroshima-01",
+      "area": "hiroshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "広島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 141,
+      "total_score": 36.7,
+      "center": [
+        34.672336,
+        132.705211
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11872224337",
+          "name": "吉田郡山城",
+          "category": "史跡",
+          "lat": 34.6736204,
+          "lng": 132.7095652,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423631663",
+          "name": "安芸高田市吉田歴史民俗資料館",
+          "category": "博物館",
+          "lat": 34.6706559,
+          "lng": 132.7014919,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4279271193",
+          "name": "薬研掘跡",
+          "category": "史跡",
+          "lat": 34.6727305,
+          "lng": 132.7045769,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.6736204,
+          132.7095652
+        ],
+        [
+          34.6706559,
+          132.7014919
+        ],
+        [
+          34.6727305,
+          132.7045769
+        ]
+      ]
+    },
+    {
+      "id": "osm-hiroshima-02",
+      "area": "hiroshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "広島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 144,
+      "total_score": 50.0,
+      "center": [
+        34.395215,
+        132.45477
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12946707224",
+          "name": "本川小学校平和資料館",
+          "category": "博物館",
+          "lat": 34.3962188,
+          "lng": 132.4508591,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13122777400",
+          "name": "臨時帝国議会仮議事堂跡",
+          "category": "史跡",
+          "lat": 34.395977,
+          "lng": 132.4607061,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13462820414",
+          "name": "平和の灯",
+          "category": "史跡",
+          "lat": 34.3934503,
+          "lng": 132.452745,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3962188,
+          132.4508591
+        ],
+        [
+          34.395977,
+          132.4607061
+        ],
+        [
+          34.3934503,
+          132.452745
+        ]
+      ]
+    },
+    {
+      "id": "osm-hiroshima-03",
+      "area": "hiroshima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "広島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 50.0,
+      "center": [
+        34.381853,
+        132.453636
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1375543445",
+          "name": "広島市現代美術館",
+          "category": "博物館",
+          "lat": 34.386388,
+          "lng": 132.4733314,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423636508",
+          "name": "江波山気象館",
+          "category": "博物館",
+          "lat": 34.3661986,
+          "lng": 132.4350056,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1805765497",
+          "name": "原爆死没者慰霊碑",
+          "category": "史跡",
+          "lat": 34.3929718,
+          "lng": 132.4525711,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.386388,
+          132.4733314
+        ],
+        [
+          34.3661986,
+          132.4350056
+        ],
+        [
+          34.3929718,
+          132.4525711
+        ]
+      ]
+    },
+    {
+      "id": "osm-hiroshima-04",
+      "area": "hiroshima",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "広島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 307,
+      "total_score": 38.0,
+      "center": [
+        34.336078,
+        132.330902
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1251268068",
+          "name": "西幸記念碑",
+          "category": "史跡",
+          "lat": 34.3248969,
+          "lng": 132.3184314,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1308981258",
+          "name": "桂公園碑",
+          "category": "史跡",
+          "lat": 34.3576204,
+          "lng": 132.3427409,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3836643257",
+          "name": "みっちゃん総本店",
+          "category": "飲食店",
+          "lat": 34.3456057,
+          "lng": 132.3358887,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1309008637",
+          "name": "桜尾城跡",
+          "category": "史跡",
+          "lat": 34.3567916,
+          "lng": 132.3417956,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423631831",
+          "name": "宮島水族館",
+          "category": "水族館",
+          "lat": 34.2954755,
+          "lng": 132.3156513,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3248969,
+          132.3184314
+        ],
+        [
+          34.3576204,
+          132.3427409
+        ],
+        [
+          34.3456057,
+          132.3358887
+        ],
+        [
+          34.3567916,
+          132.3417956
+        ],
+        [
+          34.2954755,
+          132.3156513
+        ]
+      ]
+    },
+    {
+      "id": "osm-hiroshima-05",
+      "area": "hiroshima",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "広島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 277,
+      "total_score": 38.0,
+      "center": [
+        34.345106,
+        132.323638
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1341952958",
+          "name": "廿日市市役所",
+          "category": "史跡",
+          "lat": 34.3488778,
+          "lng": 132.3317756,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1341952960",
+          "name": "廿日市市民憲章",
+          "category": "史跡",
+          "lat": 34.3488304,
+          "lng": 132.3318358,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3836643257",
+          "name": "みっちゃん総本店",
+          "category": "飲食店",
+          "lat": 34.3456057,
+          "lng": 132.3358887,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1478159870",
+          "name": "芸州廿日市御本陣旧跡",
+          "category": "史跡",
+          "lat": 34.3553528,
+          "lng": 132.3380452,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423638572",
+          "name": "海の見える杜美術館",
+          "category": "博物館",
+          "lat": 34.326863,
+          "lng": 132.280645,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3488778,
+          132.3317756
+        ],
+        [
+          34.3488304,
+          132.3318358
+        ],
+        [
+          34.3456057,
+          132.3358887
+        ],
+        [
+          34.3553528,
+          132.3380452
+        ],
+        [
+          34.326863,
+          132.280645
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:52.528799+00:00",
+  "area": "kanagawa",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-kanagawa-01",
+      "area": "kanagawa",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "神奈川県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 168,
+      "total_score": 60.0,
+      "center": [
+        35.457975,
+        139.632276
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-14021361319",
+          "name": "祠 伏見稲荷大社講務本庁扱所",
+          "category": "観光名所",
+          "lat": 35.4845845,
+          "lng": 139.6264827,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420812637",
+          "name": "そごう美術館",
+          "category": "博物館",
+          "lat": 35.465652,
+          "lng": 139.625204,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6371493585",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 35.423688,
+          "lng": 139.645141,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4845845,
+          139.6264827
+        ],
+        [
+          35.465652,
+          139.625204
+        ],
+        [
+          35.423688,
+          139.645141
+        ]
+      ]
+    },
+    {
+      "id": "osm-kanagawa-02",
+      "area": "kanagawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "神奈川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 50.0,
+      "center": [
+        35.449675,
+        139.396635
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11098810060",
+          "name": "憲政碑",
+          "category": "史跡",
+          "lat": 35.4701099,
+          "lng": 139.4040133,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420815043",
+          "name": "厚木市子ども科学館",
+          "category": "博物館",
+          "lat": 35.4409469,
+          "lng": 139.3664028,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1668185171",
+          "name": "早川城址",
+          "category": "史跡",
+          "lat": 35.4379692,
+          "lng": 139.4194898,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4701099,
+          139.4040133
+        ],
+        [
+          35.4409469,
+          139.3664028
+        ],
+        [
+          35.4379692,
+          139.4194898
+        ]
+      ]
+    },
+    {
+      "id": "osm-kanagawa-03",
+      "area": "kanagawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "神奈川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 173,
+      "total_score": 50.0,
+      "center": [
+        35.581943,
+        139.576424
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1144058836",
+          "name": "ローム斜面崩壊実験事故慰霊碑",
+          "category": "史跡",
+          "lat": 35.6079055,
+          "lng": 139.5586242,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420834189",
+          "name": "電車とバスの博物館",
+          "category": "博物館",
+          "lat": 35.587838,
+          "lng": 139.5924695,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420825110",
+          "name": "横浜市歴史博物館",
+          "category": "博物館",
+          "lat": 35.550086,
+          "lng": 139.578179,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6079055,
+          139.5586242
+        ],
+        [
+          35.587838,
+          139.5924695
+        ],
+        [
+          35.550086,
+          139.578179
+        ]
+      ]
+    },
+    {
+      "id": "osm-kanagawa-04",
+      "area": "kanagawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "神奈川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 278,
+      "total_score": 50.0,
+      "center": [
+        35.440406,
+        139.643331
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420813409",
+          "name": "ブリキのおもちゃ博物館",
+          "category": "博物館",
+          "lat": 35.437639,
+          "lng": 139.653063,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420813557",
+          "name": "横浜三渓園",
+          "category": "博物館",
+          "lat": 35.417037,
+          "lng": 139.658776,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11062734959",
+          "name": "不二家レストラン 横浜センター店",
+          "category": "飲食店",
+          "lat": 35.4442809,
+          "lng": 139.632768,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420822813",
+          "name": "日本郵船歴史博物館",
+          "category": "博物館",
+          "lat": 35.450362,
+          "lng": 139.639421,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420823424",
+          "name": "横浜みなと博物館",
+          "category": "博物館",
+          "lat": 35.452709,
+          "lng": 139.632629,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.437639,
+          139.653063
+        ],
+        [
+          35.417037,
+          139.658776
+        ],
+        [
+          35.4442809,
+          139.632768
+        ],
+        [
+          35.450362,
+          139.639421
+        ],
+        [
+          35.452709,
+          139.632629
+        ]
+      ]
+    },
+    {
+      "id": "osm-kanagawa-05",
+      "area": "kanagawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "神奈川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 295,
+      "total_score": 50.0,
+      "center": [
+        35.434848,
+        139.644808
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420823425",
+          "name": "横浜ユーラシア文化館",
+          "category": "博物館",
+          "lat": 35.4462299,
+          "lng": 139.6432801,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420824058",
+          "name": "横浜市八聖殿郷土資料館",
+          "category": "博物館",
+          "lat": 35.415075,
+          "lng": 139.664813,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11062734959",
+          "name": "不二家レストラン 横浜センター店",
+          "category": "飲食店",
+          "lat": 35.4442809,
+          "lng": 139.632768,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1420825726",
+          "name": "横浜都市発展記念館",
+          "category": "博物館",
+          "lat": 35.4461073,
+          "lng": 139.6434318,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420834306",
+          "name": "馬の博物館",
+          "category": "博物館",
+          "lat": 35.4225483,
+          "lng": 139.6397486,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4462299,
+          139.6432801
+        ],
+        [
+          35.415075,
+          139.664813
+        ],
+        [
+          35.4442809,
+          139.632768
+        ],
+        [
+          35.4461073,
+          139.6434318
+        ],
+        [
+          35.4225483,
+          139.6397486
+        ]
+      ]
+    }
+  ]
+}

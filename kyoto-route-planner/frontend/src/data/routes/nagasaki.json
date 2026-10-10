@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:08.221255+00:00",
+  "area": "nagasaki",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-nagasaki-01",
+      "area": "nagasaki",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "長崎県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 146,
+      "total_score": 58.3,
+      "center": [
+        32.744173,
+        129.882025
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1126669127",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 32.741436,
+          "lng": 129.884106,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423797426",
+          "name": "シーボルト記念館",
+          "category": "博物館",
+          "lat": 32.755863,
+          "lng": 129.892228,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423814216",
+          "name": "祈りの丘絵本美術館",
+          "category": "博物館",
+          "lat": 32.73522,
+          "lng": 129.869742,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.741436,
+          129.884106
+        ],
+        [
+          32.755863,
+          129.892228
+        ],
+        [
+          32.73522,
+          129.869742
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagasaki-02",
+      "area": "nagasaki",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "長崎県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 181,
+      "total_score": 50.0,
+      "center": [
+        32.825719,
+        130.298346
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1126580989",
+          "name": "清光山 江東寺",
+          "category": "観光名所",
+          "lat": 32.7820835,
+          "lng": 130.3691434,
+          "stay_minutes": 45,
+          "score": 60.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10654415652",
+          "name": "オキチモズク",
+          "category": "史跡",
+          "lat": 32.8498274,
+          "lng": 130.3243307,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10578965532",
+          "name": "守山大塚古墳",
+          "category": "史跡",
+          "lat": 32.8452471,
+          "lng": 130.2015653,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.7820835,
+          130.3691434
+        ],
+        [
+          32.8498274,
+          130.3243307
+        ],
+        [
+          32.8452471,
+          130.2015653
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagasaki-03",
+      "area": "nagasaki",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "長崎県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 174,
+      "total_score": 50.0,
+      "center": [
+        33.128214,
+        129.732387
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423797459",
+          "name": "ハウステンボス美術館・博物館",
+          "category": "博物館",
+          "lat": 33.0795856,
+          "lng": 129.7835755,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423798969",
+          "name": "佐世保市博物館島瀬美術センター",
+          "category": "博物館",
+          "lat": 33.172722,
+          "lng": 129.720668,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2083152386",
+          "name": "展海峰",
+          "category": "展望地",
+          "lat": 33.1323347,
+          "lng": 129.692917,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.0795856,
+          129.7835755
+        ],
+        [
+          33.172722,
+          129.720668
+        ],
+        [
+          33.1323347,
+          129.692917
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagasaki-04",
+      "area": "nagasaki",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "長崎県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 272,
+      "total_score": 32.0,
+      "center": [
+        32.897727,
+        129.966853
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10277027895",
+          "name": "天正遣欧少年使節顕彰之像",
+          "category": "史跡",
+          "lat": 32.9203623,
+          "lng": 129.9368385,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10277027896",
+          "name": "黒丸踊像",
+          "category": "史跡",
+          "lat": 32.9209792,
+          "lng": 129.9392364,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10271001078",
+          "name": "星乃珈琲店 長崎大村店",
+          "category": "飲食店",
+          "lat": 32.9018836,
+          "lng": 129.9577937,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4764068971",
+          "name": "玖島城址石垣復元完成記念碑",
+          "category": "史跡",
+          "lat": 32.897011,
+          "lng": 129.9571317,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4458783098",
+          "name": "諫早神社",
+          "category": "観光名所",
+          "lat": 32.8483985,
+          "lng": 130.0432636,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.9203623,
+          129.9368385
+        ],
+        [
+          32.9209792,
+          129.9392364
+        ],
+        [
+          32.9018836,
+          129.9577937
+        ],
+        [
+          32.897011,
+          129.9571317
+        ],
+        [
+          32.8483985,
+          130.0432636
+        ]
+      ]
+    },
+    {
+      "id": "osm-nagasaki-05",
+      "area": "nagasaki",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "長崎県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 269,
+      "total_score": 30.0,
+      "center": [
+        32.887042,
+        129.975602
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4764068994",
+          "name": "少年鼓手 浜田謹吾",
+          "category": "史跡",
+          "lat": 32.8969131,
+          "lng": 129.9568098,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4764068995",
+          "name": "歩兵第二十三旅團記念碑",
+          "category": "史跡",
+          "lat": 32.896881,
+          "lng": 129.9568306,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10271001078",
+          "name": "星乃珈琲店 長崎大村店",
+          "category": "飲食店",
+          "lat": 32.9018836,
+          "lng": 129.9577937,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4764069040",
+          "name": "歩兵少佐佐藤嘉平次君碑",
+          "category": "史跡",
+          "lat": 32.8966448,
+          "lng": 129.9571536,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423818805",
+          "name": "諫早市郷土館",
+          "category": "博物館",
+          "lat": 32.842887,
+          "lng": 130.04942,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.8969131,
+          129.9568098
+        ],
+        [
+          32.896881,
+          129.9568306
+        ],
+        [
+          32.9018836,
+          129.9577937
+        ],
+        [
+          32.8966448,
+          129.9571536
+        ],
+        [
+          32.842887,
+          130.04942
+        ]
+      ]
+    }
+  ]
+}

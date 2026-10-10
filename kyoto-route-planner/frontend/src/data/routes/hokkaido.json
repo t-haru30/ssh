@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:42.975948+00:00",
+  "area": "hokkaido",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-hokkaido-01",
+      "area": "hokkaido",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "北海道の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 210,
+      "total_score": 43.3,
+      "center": [
+        43.765443,
+        143.012509
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11049028605",
+          "name": "遠軽町埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 43.8864092,
+          "lng": 143.1928061,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5603040033",
+          "name": "層雲峡",
+          "category": "観光名所",
+          "lat": 43.727881,
+          "lng": 142.951303,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3600728446",
+          "name": "大雪山",
+          "category": "観光名所",
+          "lat": 43.6820387,
+          "lng": 142.8934189,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.8864092,
+          143.1928061
+        ],
+        [
+          43.727881,
+          142.951303
+        ],
+        [
+          43.6820387,
+          142.8934189
+        ]
+      ]
+    },
+    {
+      "id": "osm-hokkaido-02",
+      "area": "hokkaido",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "北海道の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 231,
+      "total_score": 40.0,
+      "center": [
+        43.421208,
+        141.385593
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11311153766",
+          "name": "はまます郷土資料館",
+          "category": "博物館",
+          "lat": 43.6125979,
+          "lng": 141.3740094,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10077473597",
+          "name": "厚田展望台",
+          "category": "展望地",
+          "lat": 43.4058027,
+          "lng": 141.4324888,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4506513689",
+          "name": "いしかり砂丘の風資料館",
+          "category": "博物館",
+          "lat": 43.2452222,
+          "lng": 141.3502814,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.6125979,
+          141.3740094
+        ],
+        [
+          43.4058027,
+          141.4324888
+        ],
+        [
+          43.2452222,
+          141.3502814
+        ]
+      ]
+    },
+    {
+      "id": "osm-hokkaido-03",
+      "area": "hokkaido",
+      "pattern": "half_day",
+      "theme": "nature",
+      "title": "北海道の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 175,
+      "total_score": 50.0,
+      "center": [
+        42.996804,
+        141.419694
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11446459834",
+          "name": "サンピアザ水族館",
+          "category": "水族館",
+          "lat": 43.036808,
+          "lng": 141.4717964,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11880299865",
+          "name": "札幌市交通資料館",
+          "category": "博物館",
+          "lat": 43.0046818,
+          "lng": 141.3642656,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1514819326",
+          "name": "白旗山",
+          "category": "展望地",
+          "lat": 42.9489208,
+          "lng": 141.423019,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.036808,
+          141.4717964
+        ],
+        [
+          43.0046818,
+          141.3642656
+        ],
+        [
+          42.9489208,
+          141.423019
+        ]
+      ]
+    },
+    {
+      "id": "osm-hokkaido-04",
+      "area": "hokkaido",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "北海道の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 326,
+      "total_score": 44.0,
+      "center": [
+        43.164918,
+        141.043855
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-462763881",
+          "name": "小樽市立 小樽美術館",
+          "category": "博物館",
+          "lat": 43.1966451,
+          "lng": 141.0002996,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1256671137",
+          "name": "小樽オルゴール堂",
+          "category": "観光名所",
+          "lat": 43.1905785,
+          "lng": 141.007792,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2479929794",
+          "name": "民宿青塚食堂",
+          "category": "飲食店",
+          "lat": 43.2366044,
+          "lng": 141.0148332,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-462763241",
+          "name": "金融資料館",
+          "category": "博物館",
+          "lat": 43.1962697,
+          "lng": 141.0003253,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1433205471",
+          "name": "神威岳",
+          "category": "展望地",
+          "lat": 43.0044944,
+          "lng": 141.1960264,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.1966451,
+          141.0002996
+        ],
+        [
+          43.1905785,
+          141.007792
+        ],
+        [
+          43.2366044,
+          141.0148332
+        ],
+        [
+          43.1962697,
+          141.0003253
+        ],
+        [
+          43.0044944,
+          141.1960264
+        ]
+      ]
+    },
+    {
+      "id": "osm-hokkaido-05",
+      "area": "hokkaido",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "北海道の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 318,
+      "total_score": 40.0,
+      "center": [
+        43.190181,
+        141.060724
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5841733786",
+          "name": "市立小樽文学館",
+          "category": "博物館",
+          "lat": 43.1968801,
+          "lng": 141.000351,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6038918589",
+          "name": "メルヘン交差点",
+          "category": "観光名所",
+          "lat": 43.1906873,
+          "lng": 141.0075101,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2479929794",
+          "name": "民宿青塚食堂",
+          "category": "飲食店",
+          "lat": 43.2366044,
+          "lng": 141.0148332,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10129673461",
+          "name": "追分節名歌碑",
+          "category": "史跡",
+          "lat": 43.238043,
+          "lng": 141.0092469,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2422507432",
+          "name": "白い恋人パーク",
+          "category": "博物館",
+          "lat": 43.0886903,
+          "lng": 141.2716802,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.1968801,
+          141.000351
+        ],
+        [
+          43.1906873,
+          141.0075101
+        ],
+        [
+          43.2366044,
+          141.0148332
+        ],
+        [
+          43.238043,
+          141.0092469
+        ],
+        [
+          43.0886903,
+          141.2716802
+        ]
+      ]
+    }
+  ]
+}

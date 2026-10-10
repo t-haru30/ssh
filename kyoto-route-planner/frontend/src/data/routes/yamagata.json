@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:46.302544+00:00",
+  "area": "yamagata",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-yamagata-01",
+      "area": "yamagata",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山形県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 46.7,
+      "center": [
+        38.831483,
+        140.263143
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11434504710",
+          "name": "雪の里情報館",
+          "category": "博物館",
+          "lat": 38.7708939,
+          "lng": 140.2972388,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5019614128",
+          "name": "真室川町立歴史民俗資料館",
+          "category": "博物館",
+          "lat": 38.8575901,
+          "lng": 140.2502281,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5021640222",
+          "name": "秋山スキー場",
+          "category": "観光名所",
+          "lat": 38.8659645,
+          "lng": 140.2419613,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.7708939,
+          140.2972388
+        ],
+        [
+          38.8575901,
+          140.2502281
+        ],
+        [
+          38.8659645,
+          140.2419613
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamagata-02",
+      "area": "yamagata",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山形県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 173,
+      "total_score": 50.0,
+      "center": [
+        38.340711,
+        140.359326
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3718261552",
+          "name": "高瀬山古墳",
+          "category": "史跡",
+          "lat": 38.3630126,
+          "lng": 140.2679785,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5006955747",
+          "name": "出羽桜美術館",
+          "category": "博物館",
+          "lat": 38.3496426,
+          "lng": 140.3708457,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5008989129",
+          "name": "山寺芭蕉記念館",
+          "category": "博物館",
+          "lat": 38.3094776,
+          "lng": 140.439155,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.3630126,
+          140.2679785
+        ],
+        [
+          38.3496426,
+          140.3708457
+        ],
+        [
+          38.3094776,
+          140.439155
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamagata-03",
+      "area": "yamagata",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山形県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 158,
+      "total_score": 50.0,
+      "center": [
+        38.894466,
+        139.859869
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4079646818",
+          "name": "内藤秀因水彩画記念館",
+          "category": "博物館",
+          "lat": 38.8487163,
+          "lng": 139.9044402,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5024056804",
+          "name": "酒田市立資料館",
+          "category": "博物館",
+          "lat": 38.9152097,
+          "lng": 139.8417672,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5026244866",
+          "name": "相馬樓",
+          "category": "博物館",
+          "lat": 38.9194709,
+          "lng": 139.833401,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.8487163,
+          139.9044402
+        ],
+        [
+          38.9152097,
+          139.8417672
+        ],
+        [
+          38.9194709,
+          139.833401
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamagata-04",
+      "area": "yamagata",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "山形県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 279,
+      "total_score": 44.0,
+      "center": [
+        37.93258,
+        140.096113
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5146743651",
+          "name": "米沢織物歴史資料館",
+          "category": "博物館",
+          "lat": 37.9075648,
+          "lng": 140.1112765,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-416167900",
+          "name": "上杉神社",
+          "category": "観光名所",
+          "lat": 37.9092747,
+          "lng": 140.1040578,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5153200224",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 37.923087,
+          "lng": 140.1078147,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-416190573",
+          "name": "松岬神社",
+          "category": "観光名所",
+          "lat": 37.9092579,
+          "lng": 140.10666,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5121436161",
+          "name": "掬粋巧芸館",
+          "category": "博物館",
+          "lat": 38.013716,
+          "lng": 140.0507564,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.9075648,
+          140.1112765
+        ],
+        [
+          37.9092747,
+          140.1040578
+        ],
+        [
+          37.923087,
+          140.1078147
+        ],
+        [
+          37.9092579,
+          140.10666
+        ],
+        [
+          38.013716,
+          140.0507564
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamagata-05",
+      "area": "yamagata",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "山形県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 292,
+      "total_score": 38.0,
+      "center": [
+        37.936995,
+        140.111515
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-7037879379",
+          "name": "愛宕神社",
+          "category": "観光名所",
+          "lat": 37.8953079,
+          "lng": 140.0748103,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1962665090",
+          "name": "稽照殿",
+          "category": "博物館",
+          "lat": 37.9096087,
+          "lng": 140.1044884,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5153200224",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 37.923087,
+          "lng": 140.1078147,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-427883857",
+          "name": "招魂碑",
+          "category": "史跡",
+          "lat": 37.9085492,
+          "lng": 140.1053723,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5126105423",
+          "name": "結城豊太郎記念館",
+          "category": "博物館",
+          "lat": 38.048422,
+          "lng": 140.1650875,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.8953079,
+          140.0748103
+        ],
+        [
+          37.9096087,
+          140.1044884
+        ],
+        [
+          37.923087,
+          140.1078147
+        ],
+        [
+          37.9085492,
+          140.1053723
+        ],
+        [
+          38.048422,
+          140.1650875
+        ]
+      ]
+    }
+  ]
+}

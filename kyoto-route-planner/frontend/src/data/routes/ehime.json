@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:06.905803+00:00",
+  "area": "ehime",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-ehime-01",
+      "area": "ehime",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "愛媛県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 145,
+      "total_score": 46.7,
+      "center": [
+        33.219238,
+        132.564547
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12035283135",
+          "name": "宇和島市立伊達博物館",
+          "category": "博物館",
+          "lat": 33.2159805,
+          "lng": 132.562659,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423733742",
+          "name": "宇和島市立歴史資料館",
+          "category": "博物館",
+          "lat": 33.226452,
+          "lng": 132.554664,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12092844322",
+          "name": "大隆寺",
+          "category": "観光名所",
+          "lat": 33.2152819,
+          "lng": 132.5763182,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.2159805,
+          132.562659
+        ],
+        [
+          33.226452,
+          132.554664
+        ],
+        [
+          33.2152819,
+          132.5763182
+        ]
+      ]
+    },
+    {
+      "id": "osm-ehime-02",
+      "area": "ehime",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "愛媛県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 152,
+      "total_score": 43.3,
+      "center": [
+        33.633173,
+        132.942674
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423707323",
+          "name": "久万美術館",
+          "category": "博物館",
+          "lat": 33.662004,
+          "lng": 132.906867,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12161936364",
+          "name": "旧山中家住宅",
+          "category": "史跡",
+          "lat": 33.6198248,
+          "lng": 132.9607554,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12161936371",
+          "name": "上黒岩岩陰遺跡",
+          "category": "史跡",
+          "lat": 33.6176906,
+          "lng": 132.9604,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.662004,
+          132.906867
+        ],
+        [
+          33.6198248,
+          132.9607554
+        ],
+        [
+          33.6176906,
+          132.9604
+        ]
+      ]
+    },
+    {
+      "id": "osm-ehime-03",
+      "area": "ehime",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "愛媛県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 50.0,
+      "center": [
+        34.048458,
+        132.960197
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423730110",
+          "name": "今治城",
+          "category": "博物館",
+          "lat": 34.0633765,
+          "lng": 133.0068513,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423730152",
+          "name": "今治市玉川近代美術館（徳生記念館）",
+          "category": "博物館",
+          "lat": 34.0220106,
+          "lng": 132.9445575,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423733464",
+          "name": "大西藤山歴史資料館",
+          "category": "博物館",
+          "lat": 34.059988,
+          "lng": 132.929182,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.0633765,
+          133.0068513
+        ],
+        [
+          34.0220106,
+          132.9445575
+        ],
+        [
+          34.059988,
+          132.929182
+        ]
+      ]
+    },
+    {
+      "id": "osm-ehime-04",
+      "area": "ehime",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "愛媛県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 273,
+      "total_score": 38.0,
+      "center": [
+        34.062237,
+        132.981577
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423707363",
+          "name": "乗禅寺宝物館",
+          "category": "博物館",
+          "lat": 34.0718893,
+          "lng": 132.9590525,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423730146",
+          "name": "今治市河野美術館",
+          "category": "博物館",
+          "lat": 34.062772,
+          "lng": 132.998931,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10183035675",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 34.0534722,
+          "lng": 133.014006,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1423737706",
+          "name": "愛媛文華館",
+          "category": "博物館",
+          "lat": 34.0643507,
+          "lng": 133.0051139,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6403206274",
+          "name": "妙見山古墳",
+          "category": "史跡",
+          "lat": 34.0587004,
+          "lng": 132.930782,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.0718893,
+          132.9590525
+        ],
+        [
+          34.062772,
+          132.998931
+        ],
+        [
+          34.0534722,
+          133.014006
+        ],
+        [
+          34.0643507,
+          133.0051139
+        ],
+        [
+          34.0587004,
+          132.930782
+        ]
+      ]
+    },
+    {
+      "id": "osm-ehime-05",
+      "area": "ehime",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "愛媛県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 261,
+      "total_score": 32.0,
+      "center": [
+        34.044342,
+        133.002978
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-8300556396",
+          "name": "石清水八幡神社",
+          "category": "観光名所",
+          "lat": 34.031362,
+          "lng": 132.9783546,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10582259228",
+          "name": "大手通碑",
+          "category": "史跡",
+          "lat": 34.0648444,
+          "lng": 133.0068241,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10183035675",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 34.0534722,
+          "lng": 133.014006,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10582378811",
+          "name": "井原輝一翁像",
+          "category": "史跡",
+          "lat": 34.0360012,
+          "lng": 133.0078731,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10582378812",
+          "name": "砂原鶴松氏顕彰碑",
+          "category": "史跡",
+          "lat": 34.0360295,
+          "lng": 133.0078336,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.031362,
+          132.9783546
+        ],
+        [
+          34.0648444,
+          133.0068241
+        ],
+        [
+          34.0534722,
+          133.014006
+        ],
+        [
+          34.0360012,
+          133.0078731
+        ],
+        [
+          34.0360295,
+          133.0078336
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:48.428346+00:00",
+  "area": "tochigi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-tochigi-01",
+      "area": "tochigi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "栃木県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 188,
+      "total_score": 58.3,
+      "center": [
+        36.439802,
+        139.765752
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-9054990168",
+          "name": "二条城跡",
+          "category": "史跡",
+          "lat": 36.4735566,
+          "lng": 139.7253236,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4114320799",
+          "name": "おもちゃのまちバンダイミュージアム",
+          "category": "博物館",
+          "lat": 36.4654291,
+          "lng": 139.8383503,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5722281723",
+          "name": "とちぎ山車会館",
+          "category": "博物館",
+          "lat": 36.3804209,
+          "lng": 139.7335811,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.4735566,
+          139.7253236
+        ],
+        [
+          36.4654291,
+          139.8383503
+        ],
+        [
+          36.3804209,
+          139.7335811
+        ]
+      ]
+    },
+    {
+      "id": "osm-tochigi-02",
+      "area": "tochigi",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "栃木県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 181,
+      "total_score": 43.3,
+      "center": [
+        36.754758,
+        139.663989
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10132665793",
+          "name": "Western village",
+          "category": "テーマパーク",
+          "lat": 36.7732429,
+          "lng": 139.7104436,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3521264179",
+          "name": "滝尾神社",
+          "category": "観光名所",
+          "lat": 36.7653722,
+          "lng": 139.5920315,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4100075935",
+          "name": "報徳二宮神社",
+          "category": "観光名所",
+          "lat": 36.7256592,
+          "lng": 139.6894921,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.7732429,
+          139.7104436
+        ],
+        [
+          36.7653722,
+          139.5920315
+        ],
+        [
+          36.7256592,
+          139.6894921
+        ]
+      ]
+    },
+    {
+      "id": "osm-tochigi-03",
+      "area": "tochigi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "栃木県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 145,
+      "total_score": 50.0,
+      "center": [
+        37.032228,
+        140.030816
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10728992604",
+          "name": "大麻博物館",
+          "category": "博物館",
+          "lat": 37.0214411,
+          "lng": 140.0287704,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3844183788",
+          "name": "那須オルゴール美術館",
+          "category": "博物館",
+          "lat": 37.0438563,
+          "lng": 140.0276907,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5913206351",
+          "name": "那須とりっくあーとぴあ",
+          "category": "博物館",
+          "lat": 37.0313873,
+          "lng": 140.0359861,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.0214411,
+          140.0287704
+        ],
+        [
+          37.0438563,
+          140.0276907
+        ],
+        [
+          37.0313873,
+          140.0359861
+        ]
+      ]
+    },
+    {
+      "id": "osm-tochigi-04",
+      "area": "tochigi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "栃木県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 309,
+      "total_score": 44.0,
+      "center": [
+        36.466766,
+        140.076426
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1678432284",
+          "name": "益子参考館",
+          "category": "博物館",
+          "lat": 36.470045,
+          "lng": 140.1083527,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4664831632",
+          "name": "能仁寺",
+          "category": "観光名所",
+          "lat": 36.4345853,
+          "lng": 140.0639179,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4158742789",
+          "name": "益子焼カフェレストラン 壺々炉",
+          "category": "飲食店",
+          "lat": 36.463551,
+          "lng": 140.101806,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-11305178494",
+          "name": "市貝町立歴史民俗資料館",
+          "category": "博物館",
+          "lat": 36.5286656,
+          "lng": 140.0917298,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11475661228",
+          "name": "真岡市科学教育センター",
+          "category": "博物館",
+          "lat": 36.4369837,
+          "lng": 140.0163216,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.470045,
+          140.1083527
+        ],
+        [
+          36.4345853,
+          140.0639179
+        ],
+        [
+          36.463551,
+          140.101806
+        ],
+        [
+          36.5286656,
+          140.0917298
+        ],
+        [
+          36.4369837,
+          140.0163216
+        ]
+      ]
+    },
+    {
+      "id": "osm-tochigi-05",
+      "area": "tochigi",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "栃木県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 288,
+      "total_score": 42.0,
+      "center": [
+        36.3943,
+        139.751821
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2493357531",
+          "name": "大中寺",
+          "category": "観光名所",
+          "lat": 36.359688,
+          "lng": 139.688778,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2493409810",
+          "name": "大平山神社",
+          "category": "観光名所",
+          "lat": 36.3626322,
+          "lng": 139.6932291,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6145265429",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 36.3966976,
+          "lng": 139.7538703,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4134893207",
+          "name": "国分寺",
+          "category": "観光名所",
+          "lat": 36.3907402,
+          "lng": 139.8148805,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8735832677",
+          "name": "壬生町おもちゃ博物館",
+          "category": "博物館",
+          "lat": 36.4617422,
+          "lng": 139.8083465,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.359688,
+          139.688778
+        ],
+        [
+          36.3626322,
+          139.6932291
+        ],
+        [
+          36.3966976,
+          139.7538703
+        ],
+        [
+          36.3907402,
+          139.8148805
+        ],
+        [
+          36.4617422,
+          139.8083465
+        ]
+      ]
+    }
+  ]
+}

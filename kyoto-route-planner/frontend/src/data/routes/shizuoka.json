@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:57.225384+00:00",
+  "area": "shizuoka",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-shizuoka-01",
+      "area": "shizuoka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "静岡県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 168,
+      "total_score": 55.0,
+      "center": [
+        34.991683,
+        138.433266
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1540355430",
+          "name": "駿府音羽山清水寺",
+          "category": "観光名所",
+          "lat": 34.9792343,
+          "lng": 138.3965617,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12343107950",
+          "name": "静岡市歴史博物館",
+          "category": "博物館",
+          "lat": 34.9766353,
+          "lng": 138.3849981,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420989541",
+          "name": "東海大学海洋科学博物館",
+          "category": "博物館",
+          "lat": 35.019178,
+          "lng": 138.518238,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.9792343,
+          138.3965617
+        ],
+        [
+          34.9766353,
+          138.3849981
+        ],
+        [
+          35.019178,
+          138.518238
+        ]
+      ]
+    },
+    {
+      "id": "osm-shizuoka-02",
+      "area": "shizuoka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "静岡県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 174,
+      "total_score": 50.0,
+      "center": [
+        35.103704,
+        139.023804
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10235163637",
+          "name": "熱海秘宝館",
+          "category": "博物館",
+          "lat": 35.0869181,
+          "lng": 139.0801444,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1421003343",
+          "name": "MOA美術館",
+          "category": "博物館",
+          "lat": 35.1092616,
+          "lng": 139.0753345,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420977549",
+          "name": "佐野美術館",
+          "category": "博物館",
+          "lat": 35.1149319,
+          "lng": 138.9159324,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0869181,
+          139.0801444
+        ],
+        [
+          35.1092616,
+          139.0753345
+        ],
+        [
+          35.1149319,
+          138.9159324
+        ]
+      ]
+    },
+    {
+      "id": "osm-shizuoka-03",
+      "area": "shizuoka",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "静岡県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 193,
+      "total_score": 43.3,
+      "center": [
+        35.319939,
+        138.795938
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11211393673",
+          "name": "富士モータースポーツミュージアム",
+          "category": "博物館",
+          "lat": 35.3678006,
+          "lng": 138.9183201,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13235444973",
+          "name": "英國機遭難地",
+          "category": "史跡",
+          "lat": 35.3307993,
+          "lng": 138.803361,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3703070730",
+          "name": "村山浅間神社",
+          "category": "観光名所",
+          "lat": 35.261217,
+          "lng": 138.6661331,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.3678006,
+          138.9183201
+        ],
+        [
+          35.3307993,
+          138.803361
+        ],
+        [
+          35.261217,
+          138.6661331
+        ]
+      ]
+    },
+    {
+      "id": "osm-shizuoka-04",
+      "area": "shizuoka",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "静岡県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 284,
+      "total_score": 44.0,
+      "center": [
+        34.720664,
+        137.70442
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420992468",
+          "name": "浜松市楽器博物館",
+          "category": "博物館",
+          "lat": 34.7066154,
+          "lng": 137.7382244,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5142606732",
+          "name": "木下惠介記念館",
+          "category": "博物館",
+          "lat": 34.7046527,
+          "lng": 137.7247957,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10001460714",
+          "name": "類",
+          "category": "飲食店",
+          "lat": 34.7313256,
+          "lng": 137.7152277,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-11335465626",
+          "name": "伊場遺跡",
+          "category": "史跡",
+          "lat": 34.6945876,
+          "lng": 137.7107725,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420992434",
+          "name": "浜松市動物園",
+          "category": "動物園",
+          "lat": 34.7661405,
+          "lng": 137.6330796,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7066154,
+          137.7382244
+        ],
+        [
+          34.7046527,
+          137.7247957
+        ],
+        [
+          34.7313256,
+          137.7152277
+        ],
+        [
+          34.6945876,
+          137.7107725
+        ],
+        [
+          34.7661405,
+          137.6330796
+        ]
+      ]
+    },
+    {
+      "id": "osm-shizuoka-05",
+      "area": "shizuoka",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "静岡県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 279,
+      "total_score": 40.0,
+      "center": [
+        34.725169,
+        137.700574
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13389277429",
+          "name": "河合小市像",
+          "category": "史跡",
+          "lat": 34.699361,
+          "lng": 137.7403538,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420992599",
+          "name": "浜松市美術館",
+          "category": "美術館",
+          "lat": 34.7118434,
+          "lng": 137.7237404,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10001460714",
+          "name": "類",
+          "category": "飲食店",
+          "lat": 34.7313256,
+          "lng": 137.7152277,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1999668735",
+          "name": "蜆塚遺跡",
+          "category": "史跡",
+          "lat": 34.713292,
+          "lng": 137.7031213,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6172794871",
+          "name": "浜名湖オルゴールミュージアム",
+          "category": "博物館",
+          "lat": 34.7700205,
+          "lng": 137.6204261,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.699361,
+          137.7403538
+        ],
+        [
+          34.7118434,
+          137.7237404
+        ],
+        [
+          34.7313256,
+          137.7152277
+        ],
+        [
+          34.713292,
+          137.7031213
+        ],
+        [
+          34.7700205,
+          137.6204261
+        ]
+      ]
+    }
+  ]
+}

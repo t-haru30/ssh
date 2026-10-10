@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:53.710530+00:00",
+  "area": "toyama",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-toyama-01",
+      "area": "toyama",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "富山県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 177,
+      "total_score": 58.3,
+      "center": [
+        36.874359,
+        137.527034
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5490855545",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 36.9327843,
+          "lng": 137.5728097,
+          "stay_minutes": 45,
+          "score": 85.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10959595369",
+          "name": "千光寺",
+          "category": "観光名所",
+          "lat": 36.8641374,
+          "lng": 137.5591444,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420917910",
+          "name": "魚津歴史民俗博物館",
+          "category": "博物館",
+          "lat": 36.826154,
+          "lng": 137.449147,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.9327843,
+          137.5728097
+        ],
+        [
+          36.8641374,
+          137.5591444
+        ],
+        [
+          36.826154,
+          137.449147
+        ]
+      ]
+    },
+    {
+      "id": "osm-toyama-02",
+      "area": "toyama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "富山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 50.0,
+      "center": [
+        36.647233,
+        136.936424
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420913184",
+          "name": "ミュゼふくおかカメラ館",
+          "category": "博物館",
+          "lat": 36.711437,
+          "lng": 136.92988,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420916976",
+          "name": "砺波郷土資料館",
+          "category": "博物館",
+          "lat": 36.6387745,
+          "lng": 136.961199,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420913953",
+          "name": "南砺市福野文化創造センターヘリオス",
+          "category": "博物館",
+          "lat": 36.591486,
+          "lng": 136.918194,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.711437,
+          136.92988
+        ],
+        [
+          36.6387745,
+          136.961199
+        ],
+        [
+          36.591486,
+          136.918194
+        ]
+      ]
+    },
+    {
+      "id": "osm-toyama-03",
+      "area": "toyama",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "富山県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 171,
+      "total_score": 46.7,
+      "center": [
+        36.653018,
+        137.170627
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420913472",
+          "name": "八尾おわら資料館",
+          "category": "博物館",
+          "lat": 36.577008,
+          "lng": 137.135863,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5231961527",
+          "name": "鵜坂神社",
+          "category": "観光名所",
+          "lat": 36.6717814,
+          "lng": 137.1869282,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420914768",
+          "name": "富山市民俗民芸村",
+          "category": "博物館",
+          "lat": 36.7102644,
+          "lng": 137.1890906,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.577008,
+          137.135863
+        ],
+        [
+          36.6717814,
+          137.1869282
+        ],
+        [
+          36.7102644,
+          137.1890906
+        ]
+      ]
+    },
+    {
+      "id": "osm-toyama-04",
+      "area": "toyama",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "富山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 270,
+      "total_score": 48.0,
+      "center": [
+        36.700304,
+        137.194621
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420915028",
+          "name": "富山県埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 36.710546,
+          "lng": 137.180459,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3769895563",
+          "name": "富山市ガラス美術館",
+          "category": "博物館",
+          "lat": 36.6883464,
+          "lng": 137.2149413,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13758884223",
+          "name": "ゼッテリア",
+          "category": "飲食店",
+          "lat": 36.7008608,
+          "lng": 137.2140603,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6543300485",
+          "name": "楽翠亭美術館",
+          "category": "博物館",
+          "lat": 36.7064012,
+          "lng": 137.2172356,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2971297433",
+          "name": "富山ガラス工房",
+          "category": "美術館",
+          "lat": 36.6953677,
+          "lng": 137.1464069,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.710546,
+          137.180459
+        ],
+        [
+          36.6883464,
+          137.2149413
+        ],
+        [
+          36.7008608,
+          137.2140603
+        ],
+        [
+          36.7064012,
+          137.2172356
+        ],
+        [
+          36.6953677,
+          137.1464069
+        ]
+      ]
+    },
+    {
+      "id": "osm-toyama-05",
+      "area": "toyama",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "富山県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 299,
+      "total_score": 42.0,
+      "center": [
+        36.720845,
+        137.17328
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3464122747",
+          "name": "中島閘門",
+          "category": "史跡",
+          "lat": 36.7256291,
+          "lng": 137.2196877,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4350658305",
+          "name": "加茂神社",
+          "category": "観光名所",
+          "lat": 36.7421525,
+          "lng": 137.1419584,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13758884223",
+          "name": "ゼッテリア",
+          "category": "飲食店",
+          "lat": 36.7008608,
+          "lng": 137.2140603,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4355000441",
+          "name": "長慶寺",
+          "category": "観光名所",
+          "lat": 36.7115139,
+          "lng": 137.1904123,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4405129933",
+          "name": "蓮王寺",
+          "category": "観光名所",
+          "lat": 36.7240691,
+          "lng": 137.1002835,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.7256291,
+          137.2196877
+        ],
+        [
+          36.7421525,
+          137.1419584
+        ],
+        [
+          36.7008608,
+          137.2140603
+        ],
+        [
+          36.7115139,
+          137.1904123
+        ],
+        [
+          36.7240691,
+          137.1002835
+        ]
+      ]
+    }
+  ]
+}

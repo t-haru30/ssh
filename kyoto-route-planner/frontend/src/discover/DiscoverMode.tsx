@@ -1,79 +1,61 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { isRouteIdeaBatch } from "../apiValidation";
 import type { RouteIdea } from "../SwipeCard";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DiscoverDirection } from "./DiscoverCard";
 import { RouteDetailModal } from "./RouteDetailModal";
 import type { DatasetRoute } from "./datasetTypes";
+import type { RouteDataset, RouteDatasetIndex } from "./datasetTypes";
+
+import prefectureIndex from "../data/routes/index.json";
 
 const VISIBLE_CARDS = 3;
+const datasets = import.meta.glob(["../data/routes/*.json", "!../data/routes/index.json"], {
+  eager: true,
+  import: "default",
+}) as Record<string, RouteDataset>;
+const prefectureDatasets = Object.values(datasets).filter(
+  (value): value is RouteDataset => "area" in value && Array.isArray(value.routes),
+);
+const indexEntries = [...(prefectureIndex as RouteDatasetIndex).prefectures].sort((first, second) =>
+  first.prefecture_code.localeCompare(second.prefecture_code),
+);
+const prefectureNames: Record<string, string> = Object.fromEntries(
+  indexEntries.map((entry) => [entry.id, entry.name]),
+);
+const prefectureOrder = new Map(indexEntries.map((entry, order) => [entry.id, order]));
+prefectureDatasets.sort(
+  (first, second) => (prefectureOrder.get(first.area) ?? 99) - (prefectureOrder.get(second.area) ?? 99),
+);
 
 type DiscoverModeProps = {
   active: boolean;
 };
 
 export function DiscoverMode({ active }: DiscoverModeProps) {
-  const [routes, setRoutes] = useState<RouteIdea[]>([]);
+  const [routes, setRoutes] = useState<Array<DatasetRoute | RouteIdea>>([]);
+  const [area, setArea] = useState("kyoto");
   const [index, setIndex] = useState(0);
   const [exitDirection, setExitDirection] = useState<DiscoverDirection>("pass");
   const [selected, setSelected] = useState<DatasetRoute | RouteIdea | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [fallbackCount, setFallbackCount] = useState(0);
-  const [usedFallback, setUsedFallback] = useState(true);
-  const [loadAttempt, setLoadAttempt] = useState(0);
-
   const stack = routes.slice(index, index + VISIBLE_CARDS);
 
   useEffect(() => {
     if (!active) return;
-    const controller = new AbortController();
     setLoading(true);
     setError(null);
-
-    async function loadFallbackIdeas() {
-      try {
-        const params = new URLSearchParams({
-          theme: "all",
-          count: "5",
-          spot_count: "2",
-          use_fallback: "true",
-        });
-        const response = await fetch(`/api/ideas?${params.toString()}`, {
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          const payload: unknown = await response.json().catch(() => null);
-          const detail = typeof payload === "object"
-            && payload !== null
-            && "detail" in payload
-            && typeof payload.detail === "string"
-            ? payload.detail
-            : "事前サンプルを読み込めませんでした。";
-          throw new Error(detail);
-        }
-        const payload: unknown = await response.json();
-        if (!isRouteIdeaBatch(payload)) {
-          throw new Error("提案APIから有効なサンプル一覧が返されませんでした。");
-        }
-        if (controller.signal.aborted) return;
-        setRoutes(payload.ideas);
-        setIndex(0);
-        setFallbackCount(payload.fallback_count);
-        setUsedFallback(payload.used_fallback);
-      } catch (cause) {
-        if (!controller.signal.aborted) {
-          setError(cause instanceof Error ? cause.message : "事前サンプルを読み込めませんでした。");
-        }
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
+    const dataset = prefectureDatasets.find((item) => item.area === area);
+    if (!dataset) {
+      setRoutes([]);
+      setError("選択した都道府県のサンプルルートが見つかりません。");
+    } else {
+      setRoutes(dataset.routes);
+      setIndex(0);
     }
-
-    void loadFallbackIdeas();
-    return () => controller.abort();
-  }, [active, loadAttempt]);
+    setLoading(false);
+  }, [active, area]);
 
   function swipe(direction: DiscoverDirection) {
     const current = routes[index];
@@ -87,15 +69,23 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
     <div className="tab-panel discover-mode" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
       <div className="discover-heading">
         <p className="eyebrow">DISCOVER</p>
-        <h2>直感で選ぶ、京都のよりみち</h2>
+        <h2>直感で選ぶ、都道府県のよりみち</h2>
         <p>右にスワイプで詳細を表示、左でスキップ。</p>
       </div>
+      <label className="prefecture-picker">
+        都道府県
+        <select value={area} onChange={(event) => setArea(event.target.value)}>
+          {prefectureDatasets.map((dataset) => (
+            <option key={dataset.area} value={dataset.area}>
+              {prefectureNames[dataset.area] ?? dataset.area}
+            </option>
+          ))}
+        </select>
+      </label>
       <p className="discover-fallback-status" role="status">
         {loading
           ? "事前サンプルを読み込んでいます…"
-          : usedFallback
-            ? `外部APIを使わない事前サンプル（${fallbackCount}件）`
-            : `リアルタイム生成の候補を表示中（事前サンプル ${fallbackCount}件）`}
+          : `${prefectureNames[area] ?? area}の実データに基づくサンプル（${routes.length}件）`}
       </p>
 
       <div className="discover-stack">
@@ -105,7 +95,7 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
             .reverse()
             .map(({ route, depth }) => (
               <DiscoverCard
-                key={route.places.map((place) => place.id).join("-")}
+                key={"places" in route ? route.places.map((place) => place.id).join("-") : route.id}
                 route={route}
                 depth={depth}
                 exitDirection={exitDirection}
@@ -119,9 +109,6 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
         {error && (
           <div className="discover-empty discover-error" role="alert">
             <strong>{error}</strong>
-            <button type="button" className="regenerate-button" onClick={() => setLoadAttempt((value) => value + 1)}>
-              再読み込み
-            </button>
           </div>
         )}
         {!loading && !error && routes.length > 0 && stack.length === 0 && (

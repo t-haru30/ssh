@@ -1,0 +1,287 @@
+{
+  "ok": true,
+  "datasets": [
+    {
+      "area": "aichi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "akita",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "aomori",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "chiba",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "ehime",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "fukui",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "fukuoka",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "fukushima",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "gifu",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "gunma",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "hiroshima",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "hokkaido",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "hyogo",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "ibaraki",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "ishikawa",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "iwate",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kagawa",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kagoshima",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kanagawa",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kochi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kumamoto",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "kyoto",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "mie",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "miyagi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "miyazaki",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "nagano",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "nagasaki",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "nara",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "niigata",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "oita",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "okayama",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "okinawa",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "osaka",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "saga",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "saitama",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "shiga",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "shimane",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "shizuoka",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "tochigi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "tokushima",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "tokyo",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "tottori",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "toyama",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "wakayama",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "yamagata",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "yamaguchi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "area": "yamanashi",
+      "routes": 5,
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

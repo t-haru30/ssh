@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:45.111221+00:00",
+  "area": "miyagi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-miyagi-01",
+      "area": "miyagi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "宮城県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 161,
+      "total_score": 55.0,
+      "center": [
+        38.28294,
+        140.880085
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4577204907",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 38.3145167,
+          "lng": 140.9117738,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12836778984",
+          "name": "東北福祉大学芹沢銈介美術工芸館",
+          "category": "博物館",
+          "lat": 38.2794772,
+          "lng": 140.8471367,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2288615204",
+          "name": "カメイ美術館",
+          "category": "博物館",
+          "lat": 38.2548262,
+          "lng": 140.8813435,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.3145167,
+          140.9117738
+        ],
+        [
+          38.2794772,
+          140.8471367
+        ],
+        [
+          38.2548262,
+          140.8813435
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyagi-02",
+      "area": "miyagi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "宮城県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 194,
+      "total_score": 55.0,
+      "center": [
+        38.546532,
+        141.415076
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-7720649492",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 38.633901,
+          "lng": 141.510275,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8451526424",
+          "name": "石巻市震災遺構 大川小学校",
+          "category": "史跡",
+          "lat": 38.5462677,
+          "lng": 141.4284554,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10814021313",
+          "name": "石巻市博物館",
+          "category": "博物館",
+          "lat": 38.4594282,
+          "lng": 141.3064982,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.633901,
+          141.510275
+        ],
+        [
+          38.5462677,
+          141.4284554
+        ],
+        [
+          38.4594282,
+          141.3064982
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyagi-03",
+      "area": "miyagi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "宮城県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 139,
+      "total_score": 50.0,
+      "center": [
+        38.423026,
+        141.306721
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1217256687",
+          "name": "石ノ森萬画館",
+          "category": "博物館",
+          "lat": 38.4295754,
+          "lng": 141.3107621,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6956586991",
+          "name": "震災遺構門脇小学校",
+          "category": "史跡",
+          "lat": 38.4213241,
+          "lng": 141.3046647,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8712321917",
+          "name": "みやぎ東日本大震災津波伝承館",
+          "category": "博物館",
+          "lat": 38.4181775,
+          "lng": 141.3047365,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.4295754,
+          141.3107621
+        ],
+        [
+          38.4213241,
+          141.3046647
+        ],
+        [
+          38.4181775,
+          141.3047365
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyagi-04",
+      "area": "miyagi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "宮城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 290,
+      "total_score": 48.0,
+      "center": [
+        38.254986,
+        140.87504
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2494582238",
+          "name": "仙台市戦災復興記念館",
+          "category": "博物館",
+          "lat": 38.2608558,
+          "lng": 140.8670616,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3090575056",
+          "name": "仙台アンパンマンこどもミュージアム&モール",
+          "category": "博物館",
+          "lat": 38.2641806,
+          "lng": 140.8875014,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4524557791",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 38.1930652,
+          "lng": 140.8738728,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-6609197294",
+          "name": "芭蕉の辻",
+          "category": "展望地",
+          "lat": 38.2603275,
+          "lng": 140.8706195,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4684907291",
+          "name": "仙台文学館",
+          "category": "博物館",
+          "lat": 38.2964999,
+          "lng": 140.8761426,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.2608558,
+          140.8670616
+        ],
+        [
+          38.2641806,
+          140.8875014
+        ],
+        [
+          38.1930652,
+          140.8738728
+        ],
+        [
+          38.2603275,
+          140.8706195
+        ],
+        [
+          38.2964999,
+          140.8761426
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyagi-05",
+      "area": "miyagi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "宮城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 296,
+      "total_score": 44.0,
+      "center": [
+        38.227902,
+        140.903398
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6863131655",
+          "name": "地底の森ミュージアム",
+          "category": "博物館",
+          "lat": 38.2227753,
+          "lng": 140.8725352,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10744083032",
+          "name": "満福寺",
+          "category": "観光名所",
+          "lat": 38.2499768,
+          "lng": 140.8865379,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4524557791",
+          "name": "サイゼリヤ",
+          "category": "飲食店",
+          "lat": 38.1930652,
+          "lng": 140.8738728,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4475431696",
+          "name": "白山神社",
+          "category": "観光名所",
+          "lat": 38.2513533,
+          "lng": 140.9034815,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4811335024",
+          "name": "震災遺構 仙台市立荒浜小学校",
+          "category": "史跡",
+          "lat": 38.2223376,
+          "lng": 140.9805636,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.2227753,
+          140.8725352
+        ],
+        [
+          38.2499768,
+          140.8865379
+        ],
+        [
+          38.1930652,
+          140.8738728
+        ],
+        [
+          38.2513533,
+          140.9034815
+        ],
+        [
+          38.2223376,
+          140.9805636
+        ]
+      ]
+    }
+  ]
+}

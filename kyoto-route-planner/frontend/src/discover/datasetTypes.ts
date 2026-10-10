@@ -32,3 +32,18 @@ export type RouteDataset = {
   generator_version: string;
   routes: DatasetRoute[];
 };
+
+export type RouteDatasetIndexEntry = {
+  id: string;
+  prefecture_code: string;
+  name: string;
+  center: [number, number];
+  route_count: number;
+  file: string;
+};
+
+export type RouteDatasetIndex = {
+  version: number;
+  generated_at: string;
+  prefectures: RouteDatasetIndexEntry[];
+};

@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:53.231332+00:00",
+  "area": "niigata",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-niigata-01",
+      "area": "niigata",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "新潟県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 160,
+      "total_score": 51.7,
+      "center": [
+        37.733367,
+        139.135483
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6830929248",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 37.6888637,
+          "lng": 139.1759152,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2456809688",
+          "name": "新潟県埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 37.7613457,
+          "lng": 139.1159327,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1399900920",
+          "name": "中野邸美術館",
+          "category": "博物館",
+          "lat": 37.7498912,
+          "lng": 139.1146013,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.6888637,
+          139.1759152
+        ],
+        [
+          37.7613457,
+          139.1159327
+        ],
+        [
+          37.7498912,
+          139.1146013
+        ]
+      ]
+    },
+    {
+      "id": "osm-niigata-02",
+      "area": "niigata",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "新潟県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 162,
+      "total_score": 43.3,
+      "center": [
+        37.918952,
+        139.054586
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13747411646",
+          "name": "安吾風の館",
+          "category": "博物館",
+          "lat": 37.9266433,
+          "lng": 139.0377639,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12771695823",
+          "name": "知足美術館",
+          "category": "美術館",
+          "lat": 37.8989941,
+          "lng": 139.0200466,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13182601831",
+          "name": "巻菱湖記念時代館",
+          "category": "博物館",
+          "lat": 37.9312174,
+          "lng": 139.105947,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.9266433,
+          139.0377639
+        ],
+        [
+          37.8989941,
+          139.0200466
+        ],
+        [
+          37.9312174,
+          139.105947
+        ]
+      ]
+    },
+    {
+      "id": "osm-niigata-03",
+      "area": "niigata",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "新潟県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 166,
+      "total_score": 43.3,
+      "center": [
+        38.021697,
+        139.378895
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1948762674",
+          "name": "新発田城",
+          "category": "史跡",
+          "lat": 37.9548019,
+          "lng": 139.3255546,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7104784998",
+          "name": "熊野若宮神社",
+          "category": "観光名所",
+          "lat": 38.0541645,
+          "lng": 139.4031358,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7104785052",
+          "name": "大輪寺",
+          "category": "観光名所",
+          "lat": 38.0561255,
+          "lng": 139.4079946,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.9548019,
+          139.3255546
+        ],
+        [
+          38.0541645,
+          139.4031358
+        ],
+        [
+          38.0561255,
+          139.4079946
+        ]
+      ]
+    },
+    {
+      "id": "osm-niigata-04",
+      "area": "niigata",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "新潟県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 250,
+      "total_score": 40.0,
+      "center": [
+        37.918863,
+        139.051899
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13869439382",
+          "name": "新潟市會津八一記念館",
+          "category": "博物館",
+          "lat": 37.9185275,
+          "lng": 139.0559753,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3648458078",
+          "name": "敦井美術館",
+          "category": "博物館",
+          "lat": 37.9145149,
+          "lng": 139.0595281,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13762315648",
+          "name": "瓢亭（旧花岡家住宅）",
+          "category": "飲食店",
+          "lat": 37.924593,
+          "lng": 139.045976,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4198186296",
+          "name": "新潟市マンガの家",
+          "category": "博物館",
+          "lat": 37.92061,
+          "lng": 139.044841,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4448575180",
+          "name": "新潟市マンガ・アニメ情報館",
+          "category": "博物館",
+          "lat": 37.916071,
+          "lng": 139.0531746,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.9185275,
+          139.0559753
+        ],
+        [
+          37.9145149,
+          139.0595281
+        ],
+        [
+          37.924593,
+          139.045976
+        ],
+        [
+          37.92061,
+          139.044841
+        ],
+        [
+          37.916071,
+          139.0531746
+        ]
+      ]
+    },
+    {
+      "id": "osm-niigata-05",
+      "area": "niigata",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "新潟県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 293,
+      "total_score": 36.0,
+      "center": [
+        37.900107,
+        139.066704
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5261087323",
+          "name": "大形神社",
+          "category": "観光名所",
+          "lat": 37.9348665,
+          "lng": 139.1045338,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12648840813",
+          "name": "即往寺",
+          "category": "観光名所",
+          "lat": 37.8890733,
+          "lng": 139.077419,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13762315648",
+          "name": "瓢亭（旧花岡家住宅）",
+          "category": "飲食店",
+          "lat": 37.924593,
+          "lng": 139.045976,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-12697894607",
+          "name": "諏訪神社",
+          "category": "観光名所",
+          "lat": 37.9081475,
+          "lng": 139.0835398,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6126340892",
+          "name": "金玉神社",
+          "category": "観光名所",
+          "lat": 37.8438526,
+          "lng": 139.0220504,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.9348665,
+          139.1045338
+        ],
+        [
+          37.8890733,
+          139.077419
+        ],
+        [
+          37.924593,
+          139.045976
+        ],
+        [
+          37.9081475,
+          139.0835398
+        ],
+        [
+          37.8438526,
+          139.0220504
+        ]
+      ]
+    }
+  ]
+}

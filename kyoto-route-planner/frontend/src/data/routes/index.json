@@ -1,0 +1,523 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:53:25.635419+00:00",
+  "prefectures": [
+    {
+      "id": "hokkaido",
+      "prefecture_code": "01",
+      "name": "北海道",
+      "center": [
+        43.307711,
+        141.584475
+      ],
+      "route_count": 5,
+      "file": "hokkaido.json"
+    },
+    {
+      "id": "aomori",
+      "prefecture_code": "02",
+      "name": "青森県",
+      "center": [
+        40.86582,
+        140.625669
+      ],
+      "route_count": 5,
+      "file": "aomori.json"
+    },
+    {
+      "id": "iwate",
+      "prefecture_code": "03",
+      "name": "岩手県",
+      "center": [
+        39.339195,
+        141.622749
+      ],
+      "route_count": 5,
+      "file": "iwate.json"
+    },
+    {
+      "id": "miyagi",
+      "prefecture_code": "04",
+      "name": "宮城県",
+      "center": [
+        38.347077,
+        141.076064
+      ],
+      "route_count": 5,
+      "file": "miyagi.json"
+    },
+    {
+      "id": "akita",
+      "prefecture_code": "05",
+      "name": "秋田県",
+      "center": [
+        39.458039,
+        140.350532
+      ],
+      "route_count": 5,
+      "file": "akita.json"
+    },
+    {
+      "id": "yamagata",
+      "prefecture_code": "06",
+      "name": "山形県",
+      "center": [
+        38.387247,
+        140.137993
+      ],
+      "route_count": 5,
+      "file": "yamagata.json"
+    },
+    {
+      "id": "fukushima",
+      "prefecture_code": "07",
+      "name": "福島県",
+      "center": [
+        37.504249,
+        140.7439
+      ],
+      "route_count": 5,
+      "file": "fukushima.json"
+    },
+    {
+      "id": "ibaraki",
+      "prefecture_code": "08",
+      "name": "茨城県",
+      "center": [
+        36.173789,
+        140.402125
+      ],
+      "route_count": 5,
+      "file": "ibaraki.json"
+    },
+    {
+      "id": "tochigi",
+      "prefecture_code": "09",
+      "name": "栃木県",
+      "center": [
+        36.617571,
+        139.857761
+      ],
+      "route_count": 5,
+      "file": "tochigi.json"
+    },
+    {
+      "id": "gunma",
+      "prefecture_code": "10",
+      "name": "群馬県",
+      "center": [
+        36.314869,
+        139.362918
+      ],
+      "route_count": 5,
+      "file": "gunma.json"
+    },
+    {
+      "id": "saitama",
+      "prefecture_code": "11",
+      "name": "埼玉県",
+      "center": [
+        36.000418,
+        139.556944
+      ],
+      "route_count": 5,
+      "file": "saitama.json"
+    },
+    {
+      "id": "chiba",
+      "prefecture_code": "12",
+      "name": "千葉県",
+      "center": [
+        35.5985,
+        140.195857
+      ],
+      "route_count": 5,
+      "file": "chiba.json"
+    },
+    {
+      "id": "tokyo",
+      "prefecture_code": "13",
+      "name": "東京都",
+      "center": [
+        35.679302,
+        139.752483
+      ],
+      "route_count": 5,
+      "file": "tokyo.json"
+    },
+    {
+      "id": "kanagawa",
+      "prefecture_code": "14",
+      "name": "神奈川県",
+      "center": [
+        35.472969,
+        139.578695
+      ],
+      "route_count": 5,
+      "file": "kanagawa.json"
+    },
+    {
+      "id": "niigata",
+      "prefecture_code": "15",
+      "name": "新潟県",
+      "center": [
+        37.898597,
+        139.137513
+      ],
+      "route_count": 5,
+      "file": "niigata.json"
+    },
+    {
+      "id": "toyama",
+      "prefecture_code": "16",
+      "name": "富山県",
+      "center": [
+        36.719152,
+        137.200397
+      ],
+      "route_count": 5,
+      "file": "toyama.json"
+    },
+    {
+      "id": "ishikawa",
+      "prefecture_code": "17",
+      "name": "石川県",
+      "center": [
+        36.778576,
+        136.664324
+      ],
+      "route_count": 5,
+      "file": "ishikawa.json"
+    },
+    {
+      "id": "fukui",
+      "prefecture_code": "18",
+      "name": "福井県",
+      "center": [
+        35.896447,
+        136.214544
+      ],
+      "route_count": 5,
+      "file": "fukui.json"
+    },
+    {
+      "id": "yamanashi",
+      "prefecture_code": "19",
+      "name": "山梨県",
+      "center": [
+        35.59229,
+        138.629807
+      ],
+      "route_count": 5,
+      "file": "yamanashi.json"
+    },
+    {
+      "id": "nagano",
+      "prefecture_code": "20",
+      "name": "長野県",
+      "center": [
+        36.494565,
+        138.208323
+      ],
+      "route_count": 5,
+      "file": "nagano.json"
+    },
+    {
+      "id": "gifu",
+      "prefecture_code": "21",
+      "name": "岐阜県",
+      "center": [
+        35.476605,
+        137.243006
+      ],
+      "route_count": 5,
+      "file": "gifu.json"
+    },
+    {
+      "id": "shizuoka",
+      "prefecture_code": "22",
+      "name": "静岡県",
+      "center": [
+        34.972232,
+        138.3316
+      ],
+      "route_count": 5,
+      "file": "shizuoka.json"
+    },
+    {
+      "id": "aichi",
+      "prefecture_code": "23",
+      "name": "愛知県",
+      "center": [
+        35.151873,
+        136.95249
+      ],
+      "route_count": 5,
+      "file": "aichi.json"
+    },
+    {
+      "id": "mie",
+      "prefecture_code": "24",
+      "name": "三重県",
+      "center": [
+        34.596258,
+        136.648402
+      ],
+      "route_count": 5,
+      "file": "mie.json"
+    },
+    {
+      "id": "shiga",
+      "prefecture_code": "25",
+      "name": "滋賀県",
+      "center": [
+        35.110141,
+        135.983443
+      ],
+      "route_count": 5,
+      "file": "shiga.json"
+    },
+    {
+      "id": "kyoto",
+      "prefecture_code": "26",
+      "name": "京都府",
+      "center": [
+        35.013405,
+        135.759349
+      ],
+      "route_count": 5,
+      "file": "kyoto.json"
+    },
+    {
+      "id": "osaka",
+      "prefecture_code": "27",
+      "name": "大阪府",
+      "center": [
+        34.665346,
+        135.519211
+      ],
+      "route_count": 5,
+      "file": "osaka.json"
+    },
+    {
+      "id": "hyogo",
+      "prefecture_code": "28",
+      "name": "兵庫県",
+      "center": [
+        34.823956,
+        135.28092
+      ],
+      "route_count": 5,
+      "file": "hyogo.json"
+    },
+    {
+      "id": "nara",
+      "prefecture_code": "29",
+      "name": "奈良県",
+      "center": [
+        34.612948,
+        135.745847
+      ],
+      "route_count": 5,
+      "file": "nara.json"
+    },
+    {
+      "id": "wakayama",
+      "prefecture_code": "30",
+      "name": "和歌山県",
+      "center": [
+        33.780316,
+        135.457574
+      ],
+      "route_count": 5,
+      "file": "wakayama.json"
+    },
+    {
+      "id": "tottori",
+      "prefecture_code": "31",
+      "name": "鳥取県",
+      "center": [
+        35.442981,
+        133.999431
+      ],
+      "route_count": 5,
+      "file": "tottori.json"
+    },
+    {
+      "id": "shimane",
+      "prefecture_code": "32",
+      "name": "島根県",
+      "center": [
+        35.377057,
+        132.987039
+      ],
+      "route_count": 5,
+      "file": "shimane.json"
+    },
+    {
+      "id": "okayama",
+      "prefecture_code": "33",
+      "name": "岡山県",
+      "center": [
+        34.760809,
+        134.037798
+      ],
+      "route_count": 5,
+      "file": "okayama.json"
+    },
+    {
+      "id": "hiroshima",
+      "prefecture_code": "34",
+      "name": "広島県",
+      "center": [
+        34.426118,
+        132.453631
+      ],
+      "route_count": 5,
+      "file": "hiroshima.json"
+    },
+    {
+      "id": "yamaguchi",
+      "prefecture_code": "35",
+      "name": "山口県",
+      "center": [
+        34.107644,
+        131.237819
+      ],
+      "route_count": 5,
+      "file": "yamaguchi.json"
+    },
+    {
+      "id": "tokushima",
+      "prefecture_code": "36",
+      "name": "徳島県",
+      "center": [
+        33.874988,
+        134.384509
+      ],
+      "route_count": 5,
+      "file": "tokushima.json"
+    },
+    {
+      "id": "kagawa",
+      "prefecture_code": "37",
+      "name": "香川県",
+      "center": [
+        34.381041,
+        133.992358
+      ],
+      "route_count": 5,
+      "file": "kagawa.json"
+    },
+    {
+      "id": "ehime",
+      "prefecture_code": "38",
+      "name": "愛媛県",
+      "center": [
+        33.80149,
+        132.890395
+      ],
+      "route_count": 5,
+      "file": "ehime.json"
+    },
+    {
+      "id": "kochi",
+      "prefecture_code": "39",
+      "name": "高知県",
+      "center": [
+        33.380547,
+        133.310115
+      ],
+      "route_count": 5,
+      "file": "kochi.json"
+    },
+    {
+      "id": "fukuoka",
+      "prefecture_code": "40",
+      "name": "福岡県",
+      "center": [
+        33.555742,
+        130.508283
+      ],
+      "route_count": 5,
+      "file": "fukuoka.json"
+    },
+    {
+      "id": "saga",
+      "prefecture_code": "41",
+      "name": "佐賀県",
+      "center": [
+        33.264132,
+        130.184106
+      ],
+      "route_count": 5,
+      "file": "saga.json"
+    },
+    {
+      "id": "nagasaki",
+      "prefecture_code": "42",
+      "name": "長崎県",
+      "center": [
+        32.896575,
+        129.971043
+      ],
+      "route_count": 5,
+      "file": "nagasaki.json"
+    },
+    {
+      "id": "kumamoto",
+      "prefecture_code": "43",
+      "name": "熊本県",
+      "center": [
+        32.784966,
+        130.760794
+      ],
+      "route_count": 5,
+      "file": "kumamoto.json"
+    },
+    {
+      "id": "oita",
+      "prefecture_code": "44",
+      "name": "大分県",
+      "center": [
+        33.223194,
+        131.425219
+      ],
+      "route_count": 5,
+      "file": "oita.json"
+    },
+    {
+      "id": "miyazaki",
+      "prefecture_code": "45",
+      "name": "宮崎県",
+      "center": [
+        32.204433,
+        131.493247
+      ],
+      "route_count": 5,
+      "file": "miyazaki.json"
+    },
+    {
+      "id": "kagoshima",
+      "prefecture_code": "46",
+      "name": "鹿児島県",
+      "center": [
+        31.516751,
+        130.550011
+      ],
+      "route_count": 5,
+      "file": "kagoshima.json"
+    },
+    {
+      "id": "okinawa",
+      "prefecture_code": "47",
+      "name": "沖縄県",
+      "center": [
+        26.188553,
+        128.432447
+      ],
+      "route_count": 5,
+      "file": "okinawa.json"
+    }
+  ]
+}

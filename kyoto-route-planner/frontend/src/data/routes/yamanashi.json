@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:55.467617+00:00",
+  "area": "yamanashi",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-yamanashi-01",
+      "area": "yamanashi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山梨県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 179,
+      "total_score": 55.0,
+      "center": [
+        35.686639,
+        138.689381
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-7133202005",
+          "name": "清水寺",
+          "category": "観光名所",
+          "lat": 35.7133932,
+          "lng": 138.6848346,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420930440",
+          "name": "山梨県立博物館",
+          "category": "博物館",
+          "lat": 35.640171,
+          "lng": 138.648528,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2744225516",
+          "name": "甘草屋敷",
+          "category": "博物館",
+          "lat": 35.7063514,
+          "lng": 138.7347815,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.7133932,
+          138.6848346
+        ],
+        [
+          35.640171,
+          138.648528
+        ],
+        [
+          35.7063514,
+          138.7347815
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamanashi-02",
+      "area": "yamanashi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山梨県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 176,
+      "total_score": 50.0,
+      "center": [
+        35.812382,
+        138.379448
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420931996",
+          "name": "平山郁夫シルクロード美術館",
+          "category": "博物館",
+          "lat": 35.8792743,
+          "lng": 138.3593363,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420932688",
+          "name": "清春白樺美術館",
+          "category": "博物館",
+          "lat": 35.822273,
+          "lng": 138.353699,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2484962810",
+          "name": "新府城跡",
+          "category": "史跡",
+          "lat": 35.7355996,
+          "lng": 138.4253077,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.8792743,
+          138.3593363
+        ],
+        [
+          35.822273,
+          138.353699
+        ],
+        [
+          35.7355996,
+          138.4253077
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamanashi-03",
+      "area": "yamanashi",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "山梨県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 166,
+      "total_score": 43.3,
+      "center": [
+        35.412314,
+        138.453452
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420933000",
+          "name": "甲斐黄金村・湯之奥金山博物館",
+          "category": "博物館",
+          "lat": 35.4238717,
+          "lng": 138.4719007,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420934674",
+          "name": "身延町歴史民俗資料館",
+          "category": "博物館",
+          "lat": 35.450803,
+          "lng": 138.442672,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1923261787",
+          "name": "本遠寺",
+          "category": "観光名所",
+          "lat": 35.3622681,
+          "lng": 138.4457819,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4238717,
+          138.4719007
+        ],
+        [
+          35.450803,
+          138.442672
+        ],
+        [
+          35.3622681,
+          138.4457819
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamanashi-04",
+      "area": "yamanashi",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "山梨県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 313,
+      "total_score": 46.0,
+      "center": [
+        35.526632,
+        138.802308
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420936032",
+          "name": "河口湖オルゴールの森美術館",
+          "category": "博物館",
+          "lat": 35.522377,
+          "lng": 138.768691,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10055316117",
+          "name": "小室浅間神社",
+          "category": "観光名所",
+          "lat": 35.4948598,
+          "lng": 138.8031488,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1798325969",
+          "name": "天下茶屋",
+          "category": "飲食店",
+          "lat": 35.5564619,
+          "lng": 138.7838598,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1139099964",
+          "name": "妙法寺",
+          "category": "観光名所",
+          "lat": 35.509699,
+          "lng": 138.7509058,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420934794",
+          "name": "都留市博物館ミュージアム都留",
+          "category": "博物館",
+          "lat": 35.549761,
+          "lng": 138.904934,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.522377,
+          138.768691
+        ],
+        [
+          35.4948598,
+          138.8031488
+        ],
+        [
+          35.5564619,
+          138.7838598
+        ],
+        [
+          35.509699,
+          138.7509058
+        ],
+        [
+          35.549761,
+          138.904934
+        ]
+      ]
+    },
+    {
+      "id": "osm-yamanashi-05",
+      "area": "yamanashi",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "山梨県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 306,
+      "total_score": 44.0,
+      "center": [
+        35.523484,
+        138.824446
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13037489469",
+          "name": "山ノ神のフジ",
+          "category": "観光名所",
+          "lat": 35.5162076,
+          "lng": 138.8303849,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13039675084",
+          "name": "月江寺",
+          "category": "観光名所",
+          "lat": 35.4934141,
+          "lng": 138.8000223,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1798325969",
+          "name": "天下茶屋",
+          "category": "飲食店",
+          "lat": 35.5564619,
+          "lng": 138.7838598,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4539620102",
+          "name": "新倉富士浅間神社",
+          "category": "観光名所",
+          "lat": 35.5003121,
+          "lng": 138.8001336,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420934796",
+          "name": "都留市商家資料館",
+          "category": "博物館",
+          "lat": 35.551025,
+          "lng": 138.907828,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.5162076,
+          138.8303849
+        ],
+        [
+          35.4934141,
+          138.8000223
+        ],
+        [
+          35.5564619,
+          138.7838598
+        ],
+        [
+          35.5003121,
+          138.8001336
+        ],
+        [
+          35.551025,
+          138.907828
+        ]
+      ]
+    }
+  ]
+}

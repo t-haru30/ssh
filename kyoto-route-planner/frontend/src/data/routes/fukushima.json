@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:46.970718+00:00",
+  "area": "fukushima",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-fukushima-01",
+      "area": "fukushima",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "福島県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 43.3,
+      "center": [
+        37.486587,
+        141.008384
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13356312429",
+          "name": "福島原発事故現場",
+          "category": "史跡",
+          "lat": 37.4225465,
+          "lng": 141.0334596,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124229551",
+          "name": "正西寺",
+          "category": "観光名所",
+          "lat": 37.4915949,
+          "lng": 140.9817507,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2383843468",
+          "name": "日鷲神社",
+          "category": "観光名所",
+          "lat": 37.545621,
+          "lng": 141.009942,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.4225465,
+          141.0334596
+        ],
+        [
+          37.4915949,
+          140.9817507
+        ],
+        [
+          37.545621,
+          141.009942
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-02",
+      "area": "fukushima",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "福島県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 138,
+      "total_score": 43.3,
+      "center": [
+        37.832721,
+        140.454868
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1727693689",
+          "name": "旧堀切邸",
+          "category": "博物館",
+          "lat": 37.8332669,
+          "lng": 140.4524253,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10814020317",
+          "name": "常泉寺",
+          "category": "観光名所",
+          "lat": 37.8338585,
+          "lng": 140.4517464,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10815515277",
+          "name": "西根神社",
+          "category": "観光名所",
+          "lat": 37.8310368,
+          "lng": 140.4604316,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.8332669,
+          140.4524253
+        ],
+        [
+          37.8338585,
+          140.4517464
+        ],
+        [
+          37.8310368,
+          140.4604316
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-03",
+      "area": "fukushima",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "福島県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 178,
+      "total_score": 43.3,
+      "center": [
+        37.154759,
+        140.277593
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1945096249",
+          "name": "小峰城",
+          "category": "史跡",
+          "lat": 37.1327408,
+          "lng": 140.2138267,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2458092628",
+          "name": "小峰城歴史館",
+          "category": "博物館",
+          "lat": 37.131222,
+          "lng": 140.2126112,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2469766659",
+          "name": "宮ノ前古墳",
+          "category": "史跡",
+          "lat": 37.2003145,
+          "lng": 140.4063403,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.1327408,
+          140.2138267
+        ],
+        [
+          37.131222,
+          140.2126112
+        ],
+        [
+          37.2003145,
+          140.4063403
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-04",
+      "area": "fukushima",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "福島県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 302,
+      "total_score": 38.0,
+      "center": [
+        37.534982,
+        140.994318
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-3698775374",
+          "name": "浦尻貝塚",
+          "category": "史跡",
+          "lat": 37.5194953,
+          "lng": 141.0253298,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3698775395",
+          "name": "大悲山の石仏",
+          "category": "史跡",
+          "lat": 37.5415721,
+          "lng": 140.982812,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124349196",
+          "name": "うなぎ 大坊",
+          "category": "飲食店",
+          "lat": 37.4923224,
+          "lng": 140.9919236,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4893305722",
+          "name": "大聖寺",
+          "category": "観光名所",
+          "lat": 37.4976264,
+          "lng": 141.0146205,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12000083354",
+          "name": "馬頭観世音",
+          "category": "史跡",
+          "lat": 37.6238935,
+          "lng": 140.9569049,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.5194953,
+          141.0253298
+        ],
+        [
+          37.5415721,
+          140.982812
+        ],
+        [
+          37.4923224,
+          140.9919236
+        ],
+        [
+          37.4976264,
+          141.0146205
+        ],
+        [
+          37.6238935,
+          140.9569049
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-05",
+      "area": "fukushima",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "福島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 290,
+      "total_score": 32.0,
+      "center": [
+        37.512197,
+        140.984338
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12803403048",
+          "name": "東京2020オリンピック聖火リレー記念碑",
+          "category": "史跡",
+          "lat": 37.4535339,
+          "lng": 141.0063196,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124180380",
+          "name": "國玉神社",
+          "category": "観光名所",
+          "lat": 37.4961357,
+          "lng": 140.9785984,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124349196",
+          "name": "うなぎ 大坊",
+          "category": "飲食店",
+          "lat": 37.4923224,
+          "lng": 140.9919236,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-13124718995",
+          "name": "金比羅大権現",
+          "category": "史跡",
+          "lat": 37.4952242,
+          "lng": 140.9879649,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12000083355",
+          "name": "相馬野馬追祭場地石碑",
+          "category": "史跡",
+          "lat": 37.6237687,
+          "lng": 140.9568855,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.4535339,
+          141.0063196
+        ],
+        [
+          37.4961357,
+          140.9785984
+        ],
+        [
+          37.4923224,
+          140.9919236
+        ],
+        [
+          37.4952242,
+          140.9879649
+        ],
+        [
+          37.6237687,
+          140.9568855
+        ]
+      ]
+    }
+  ]
+}

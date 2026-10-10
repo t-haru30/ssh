@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:45.684883+00:00",
+  "area": "akita",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-akita-01",
+      "area": "akita",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "秋田県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 163,
+      "total_score": 46.7,
+      "center": [
+        39.233658,
+        140.558981
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2163503387",
+          "name": "秋田県立近代美術館",
+          "category": "博物館",
+          "lat": 39.2924778,
+          "lng": 140.5475726,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6117731383",
+          "name": "横手市増田まんが美術館",
+          "category": "博物館",
+          "lat": 39.2045713,
+          "lng": 140.5504976,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12458015477",
+          "name": "増田水力電気 真人発電所跡",
+          "category": "観光名所",
+          "lat": 39.2039245,
+          "lng": 140.5788719,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.2924778,
+          140.5475726
+        ],
+        [
+          39.2045713,
+          140.5504976
+        ],
+        [
+          39.2039245,
+          140.5788719
+        ]
+      ]
+    },
+    {
+      "id": "osm-akita-02",
+      "area": "akita",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "秋田県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 148,
+      "total_score": 50.0,
+      "center": [
+        39.726488,
+        140.109122
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2501411119",
+          "name": "秋田城跡",
+          "category": "史跡",
+          "lat": 39.7403081,
+          "lng": 140.0792214,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4568671983",
+          "name": "秋田市立千秋美術館",
+          "category": "博物館",
+          "lat": 39.7172596,
+          "lng": 140.1243828,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-8553116272",
+          "name": "久保田城跡",
+          "category": "史跡",
+          "lat": 39.721897,
+          "lng": 140.1237623,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.7403081,
+          140.0792214
+        ],
+        [
+          39.7172596,
+          140.1243828
+        ],
+        [
+          39.721897,
+          140.1237623
+        ]
+      ]
+    },
+    {
+      "id": "osm-akita-03",
+      "area": "akita",
+      "pattern": "half_day",
+      "theme": "all",
+      "title": "秋田県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 182,
+      "total_score": 43.3,
+      "center": [
+        39.218065,
+        139.976232
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5166937635",
+          "name": "象潟海水浴場",
+          "category": "展望地",
+          "lat": 39.2064141,
+          "lng": 139.894721,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4380187991",
+          "name": "蚶満寺",
+          "category": "観光名所",
+          "lat": 39.2162489,
+          "lng": 139.9029442,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5179423528",
+          "name": "龍源寺",
+          "category": "観光名所",
+          "lat": 39.2315323,
+          "lng": 140.1310322,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.2064141,
+          139.894721
+        ],
+        [
+          39.2162489,
+          139.9029442
+        ],
+        [
+          39.2315323,
+          140.1310322
+        ]
+      ]
+    },
+    {
+      "id": "osm-akita-04",
+      "area": "akita",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "秋田県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 284,
+      "total_score": 36.0,
+      "center": [
+        39.556592,
+        140.55842
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2598170890",
+          "name": "武家屋敷石黒家",
+          "category": "観光名所",
+          "lat": 39.6011819,
+          "lng": 140.5617229,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10122953152",
+          "name": "角館小学校跡",
+          "category": "史跡",
+          "lat": 39.5988272,
+          "lng": 140.5617988,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10128172892",
+          "name": "料亭 登喜和",
+          "category": "飲食店",
+          "lat": 39.5935227,
+          "lng": 140.5618071,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10185058557",
+          "name": "南無妙法蓮華経碑",
+          "category": "史跡",
+          "lat": 39.5547287,
+          "lng": 140.5432117,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7235324132",
+          "name": "美郷町歴史民俗資料館・佐々木毅記念室",
+          "category": "博物館",
+          "lat": 39.4346999,
+          "lng": 140.5635596,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.6011819,
+          140.5617229
+        ],
+        [
+          39.5988272,
+          140.5617988
+        ],
+        [
+          39.5935227,
+          140.5618071
+        ],
+        [
+          39.5547287,
+          140.5432117
+        ],
+        [
+          39.4346999,
+          140.5635596
+        ]
+      ]
+    },
+    {
+      "id": "osm-akita-05",
+      "area": "akita",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "秋田県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 287,
+      "total_score": 32.0,
+      "center": [
+        39.555391,
+        140.549907
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11023072630",
+          "name": "中仙町民歌記念歌碑",
+          "category": "史跡",
+          "lat": 39.5450642,
+          "lng": 140.5426655,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11023072635",
+          "name": "ドンパン節発祥之地",
+          "category": "史跡",
+          "lat": 39.5450701,
+          "lng": 140.5425823,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10128172892",
+          "name": "料亭 登喜和",
+          "category": "飲食店",
+          "lat": 39.5935227,
+          "lng": 140.5618071,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-2598309170",
+          "name": "古城山城跡",
+          "category": "史跡",
+          "lat": 39.6047474,
+          "lng": 140.5609195,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7236578866",
+          "name": "稲荷神社",
+          "category": "観光名所",
+          "lat": 39.4885515,
+          "lng": 140.5415612,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.5450642,
+          140.5426655
+        ],
+        [
+          39.5450701,
+          140.5425823
+        ],
+        [
+          39.5935227,
+          140.5618071
+        ],
+        [
+          39.6047474,
+          140.5609195
+        ],
+        [
+          39.4885515,
+          140.5415612
+        ]
+      ]
+    }
+  ]
+}

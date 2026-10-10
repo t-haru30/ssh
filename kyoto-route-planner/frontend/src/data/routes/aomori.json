@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:48:43.601185+00:00",
+  "area": "aomori",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-aomori-01",
+      "area": "aomori",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "青森県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 213,
+      "total_score": 46.7,
+      "center": [
+        40.605649,
+        140.539806
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12102755802",
+          "name": "津軽藩ねぷた村",
+          "category": "博物館",
+          "lat": 40.611141,
+          "lng": 140.4696888,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2988685951",
+          "name": "津軽こけし館",
+          "category": "博物館",
+          "lat": 40.606429,
+          "lng": 140.6764977,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1512752163",
+          "name": "弘前昇天教会",
+          "category": "観光名所",
+          "lat": 40.5993763,
+          "lng": 140.4732323,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          40.611141,
+          140.4696888
+        ],
+        [
+          40.606429,
+          140.6764977
+        ],
+        [
+          40.5993763,
+          140.4732323
+        ]
+      ]
+    },
+    {
+      "id": "osm-aomori-02",
+      "area": "aomori",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "青森県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 160,
+      "total_score": 46.7,
+      "center": [
+        40.808404,
+        140.737681
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13726805901",
+          "name": "八甲田山雪中行軍遭難資料館",
+          "category": "博物館",
+          "lat": 40.7847523,
+          "lng": 140.789709,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2350431955",
+          "name": "青森市森林博物館",
+          "category": "博物館",
+          "lat": 40.8315369,
+          "lng": 140.7257722,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12997708549",
+          "name": "さんまるミュージアム",
+          "category": "博物館",
+          "lat": 40.808924,
+          "lng": 140.6975628,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          40.7847523,
+          140.789709
+        ],
+        [
+          40.8315369,
+          140.7257722
+        ],
+        [
+          40.808924,
+          140.6975628
+        ]
+      ]
+    },
+    {
+      "id": "osm-aomori-03",
+      "area": "aomori",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "青森県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 138,
+      "total_score": 46.7,
+      "center": [
+        41.255525,
+        140.345194
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2484550916",
+          "name": "竜飛ウィンドパーク展示館",
+          "category": "博物館",
+          "lat": 41.2541342,
+          "lng": 140.3464804,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-462263857",
+          "name": "青函トンネル記念館",
+          "category": "博物館",
+          "lat": 41.2539479,
+          "lng": 140.3466908,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3906862678",
+          "name": "龍飛埼灯台",
+          "category": "観光名所",
+          "lat": 41.2584925,
+          "lng": 140.3424107,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          41.2541342,
+          140.3464804
+        ],
+        [
+          41.2539479,
+          140.3466908
+        ],
+        [
+          41.2584925,
+          140.3424107
+        ]
+      ]
+    },
+    {
+      "id": "osm-aomori-04",
+      "area": "aomori",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "青森県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 259,
+      "total_score": 38.0,
+      "center": [
+        40.824053,
+        140.733158
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2343164496",
+          "name": "善知鳥神社",
+          "category": "観光名所",
+          "lat": 40.8266592,
+          "lng": 140.7427279,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2344127990",
+          "name": "青森県立郷土館 (Aomori Prefectural Museum)",
+          "category": "博物館",
+          "lat": 40.8272792,
+          "lng": 140.748663,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10000200180",
+          "name": "とんこつらーめん 虎の家",
+          "category": "飲食店",
+          "lat": 40.8217622,
+          "lng": 140.7482761,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-2350408300",
+          "name": "みちのく北方漁船博物館",
+          "category": "博物館",
+          "lat": 40.8372734,
+          "lng": 140.7252379,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-318411516",
+          "name": "青森県立美術館",
+          "category": "博物館",
+          "lat": 40.8072917,
+          "lng": 140.7008863,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          40.8266592,
+          140.7427279
+        ],
+        [
+          40.8272792,
+          140.748663
+        ],
+        [
+          40.8217622,
+          140.7482761
+        ],
+        [
+          40.8372734,
+          140.7252379
+        ],
+        [
+          40.8072917,
+          140.7008863
+        ]
+      ]
+    },
+    {
+      "id": "osm-aomori-05",
+      "area": "aomori",
+      "pattern": "full_day",
+      "theme": "all",
+      "title": "青森県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 271,
+      "total_score": 36.0,
+      "center": [
+        40.835468,
+        140.772505
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5651283773",
+          "name": "廣田神社",
+          "category": "観光名所",
+          "lat": 40.8224856,
+          "lng": 140.7426408,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5651344764",
+          "name": "蓮華寺",
+          "category": "観光名所",
+          "lat": 40.8240813,
+          "lng": 140.7493736,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10000200180",
+          "name": "とんこつらーめん 虎の家",
+          "category": "飲食店",
+          "lat": 40.8217622,
+          "lng": 140.7482761,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10255133244",
+          "name": "開通記念碑",
+          "category": "史跡",
+          "lat": 40.8221143,
+          "lng": 140.7580572,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7168788723",
+          "name": "夢宅寺",
+          "category": "観光名所",
+          "lat": 40.8868969,
+          "lng": 140.8641766,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          40.8224856,
+          140.7426408
+        ],
+        [
+          40.8240813,
+          140.7493736
+        ],
+        [
+          40.8217622,
+          140.7482761
+        ],
+        [
+          40.8221143,
+          140.7580572
+        ],
+        [
+          40.8868969,
+          140.8641766
+        ]
+      ]
+    }
+  ]
+}

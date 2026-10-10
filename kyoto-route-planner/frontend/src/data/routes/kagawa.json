@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-10T16:49:06.389091+00:00",
+  "area": "kagawa",
+  "generator_version": "osm-deterministic-v1",
+  "routes": [
+    {
+      "id": "osm-kagawa-01",
+      "area": "kagawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "香川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 170,
+      "total_score": 50.0,
+      "center": [
+        34.265788,
+        133.791533
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1179835155",
+          "name": "丸亀城",
+          "category": "史跡",
+          "lat": 34.2860216,
+          "lng": 133.8001009,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12642142296",
+          "name": "乃木館",
+          "category": "博物館",
+          "lat": 34.2200667,
+          "lng": 133.7821781,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423707261",
+          "name": "丸亀市猪熊弦一郎現代美術館",
+          "category": "博物館",
+          "lat": 34.2912754,
+          "lng": 133.7923195,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.2860216,
+          133.8001009
+        ],
+        [
+          34.2200667,
+          133.7821781
+        ],
+        [
+          34.2912754,
+          133.7923195
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-02",
+      "area": "kagawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "香川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 151,
+      "total_score": 50.0,
+      "center": [
+        34.351579,
+        134.076248
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1308488435",
+          "name": "イサム・ノグチ庭園美術館 (Isamu Noguchi Garden Museum)",
+          "category": "博物館",
+          "lat": 34.3549874,
+          "lng": 134.1250669,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423745215",
+          "name": "香川県立ミュージアム",
+          "category": "博物館",
+          "lat": 34.349722,
+          "lng": 134.05329,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2381052708",
+          "name": "高松城",
+          "category": "史跡",
+          "lat": 34.350028,
+          "lng": 134.050386,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3549874,
+          134.1250669
+        ],
+        [
+          34.349722,
+          134.05329
+        ],
+        [
+          34.350028,
+          134.050386
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-03",
+      "area": "kagawa",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "香川県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 154,
+      "total_score": 46.7,
+      "center": [
+        34.464334,
+        134.016637
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2401280882",
+          "name": "豊島横尾館",
+          "category": "博物館",
+          "lat": 34.4869088,
+          "lng": 134.0596607,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2401898964",
+          "name": "ANDO MUSEUM",
+          "category": "博物館",
+          "lat": 34.4594028,
+          "lng": 133.997021,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1493825968",
+          "name": "Benesse House Beach",
+          "category": "博物館",
+          "lat": 34.4466914,
+          "lng": 133.9932279,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.4869088,
+          134.0596607
+        ],
+        [
+          34.4594028,
+          133.997021
+        ],
+        [
+          34.4466914,
+          133.9932279
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-04",
+      "area": "kagawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "香川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 296,
+      "total_score": 32.0,
+      "center": [
+        34.422746,
+        134.026055
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10208525845",
+          "name": "男木島漁港功労者",
+          "category": "史跡",
+          "lat": 34.4222097,
+          "lng": 134.0545623,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13329557101",
+          "name": "Open Air Observation Deck 8F",
+          "category": "展望地",
+          "lat": 34.3527483,
+          "lng": 134.0464805,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10017948058",
+          "name": "象と太陽社",
+          "category": "飲食店",
+          "lat": 34.4228815,
+          "lng": 134.0553642,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-13347352819",
+          "name": "直島新美術館",
+          "category": "博物館",
+          "lat": 34.4579024,
+          "lng": 133.9987355,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-892741840",
+          "name": "直島銭湯",
+          "category": "観光名所",
+          "lat": 34.4579858,
+          "lng": 133.9751323,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.4222097,
+          134.0545623
+        ],
+        [
+          34.3527483,
+          134.0464805
+        ],
+        [
+          34.4228815,
+          134.0553642
+        ],
+        [
+          34.4579024,
+          133.9987355
+        ],
+        [
+          34.4579858,
+          133.9751323
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-05",
+      "area": "kagawa",
+      "pattern": "full_day",
+      "theme": "history",
+      "title": "香川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 294,
+      "total_score": 34.0,
+      "center": [
+        34.400758,
+        134.051315
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13694665448",
+          "name": "Valley Gallery",
+          "category": "博物館",
+          "lat": 34.4478989,
+          "lng": 133.9894345,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1527616378",
+          "name": "高松市鬼ヶ島おにの館",
+          "category": "博物館",
+          "lat": 34.3893786,
+          "lng": 134.0521595,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10017948058",
+          "name": "象と太陽社",
+          "category": "飲食店",
+          "lat": 34.4228815,
+          "lng": 134.0553642,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1527616770",
+          "name": "Observation Platform",
+          "category": "展望地",
+          "lat": 34.3980651,
+          "lng": 134.050779,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4627926289",
+          "name": "四国村ギャラリー",
+          "category": "博物館",
+          "lat": 34.3455646,
+          "lng": 134.1088369,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.4478989,
+          133.9894345
+        ],
+        [
+          34.3893786,
+          134.0521595
+        ],
+        [
+          34.4228815,
+          134.0553642
+        ],
+        [
+          34.3980651,
+          134.050779
+        ],
+        [
+          34.3455646,
+          134.1088369
+        ]
+      ]
+    }
+  ]
+}
