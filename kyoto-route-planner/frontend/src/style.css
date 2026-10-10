@@ -111,7 +111,7 @@ a { color: inherit; text-decoration: none; }
 .legend-stop { margin-left: 8px; color: #a64f43; background: #fff0e8; }
 .map-legend-note { margin-left: auto; color: var(--muted); font-size: 8px; }
 .maplibregl-marker { cursor: pointer; }
-.map-illustration-marker { position: relative; display: block; width: 48px; height: 53px; cursor: pointer; filter: drop-shadow(0 3px 3px rgba(34, 43, 37, .23)); }
+.map-illustration-marker { position: absolute; display: block; width: 48px; height: 53px; cursor: pointer; filter: drop-shadow(0 3px 3px rgba(34, 43, 37, .23)); }
 .map-illustration-marker:hover { z-index: 2; filter: drop-shadow(0 0 7px rgba(189, 101, 76, .7)); }
 .map-marker-art { position: absolute; inset: 2px 3px 8px; display: grid; place-items: center; border: 2px solid #fffefa; border-radius: 50% 50% 48% 48%; color: var(--marker-color); background: var(--marker-background); }
 .map-marker-art::after { position: absolute; bottom: -6px; width: 10px; height: 10px; border-right: 2px solid #fffefa; border-bottom: 2px solid #fffefa; content: ""; background: var(--marker-background); transform: rotate(45deg); z-index: -1; }

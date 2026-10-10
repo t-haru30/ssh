@@ -150,6 +150,7 @@ function createSpotMarker(location: MarkerLocation) {
     : getCategoryIcon(location.category, location.name, location.themes);
   const element = document.createElement("div");
   element.className = location.isOrigin ? "map-illustration-marker map-illustration-origin" : "map-illustration-marker";
+  element.style.position = "absolute";
   element.dataset.spotId = location.id;
   element.setAttribute("role", "img");
   element.setAttribute("aria-label", `${icon.label}: ${location.name}`);

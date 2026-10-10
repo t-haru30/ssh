@@ -10,7 +10,7 @@ const mapTestState = vi.hoisted(() => ({
   fitBoundsCalls: 0,
   layers: [] as Array<Record<string, unknown>>,
   transitMarkers: [] as Array<{ label: string | null; position: number[] }>,
-  markerAnchors: [] as Array<{ label: string | null; anchor: string | undefined }>,
+  markerAnchors: [] as Array<{ label: string | null; anchor: string | undefined; position: string | undefined }>,
 }));
 
 vi.mock("maplibre-gl", () => {
@@ -52,6 +52,7 @@ vi.mock("maplibre-gl", () => {
       mapTestState.markerAnchors.push({
         label: this.label,
         anchor: options?.anchor,
+        position: options?.element?.style.position,
       });
     }
     setLngLat(position: number[]) {
@@ -174,6 +175,7 @@ describe("MapView", () => {
     expect(mapTestState.markerAnchors).toContainEqual({
       label: "自然: 最新候補",
       anchor: "bottom",
+      position: "absolute",
     });
   });
 
