@@ -12,7 +12,7 @@ from app.http_client import provider_timeout, request_with_retry
 from app.models import Place, Theme
 
 GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
 logger = logging.getLogger(__name__)
 
 
