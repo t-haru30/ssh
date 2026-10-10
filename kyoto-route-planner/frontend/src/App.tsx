@@ -43,7 +43,6 @@ function App() {
         ))}
       </div>
 
-      {/* 両方マウントしたまま hidden で切り替え、MapLibreを作り直さない */}
       <DiscoverMode active={activeTab === "discover"} />
       <SearchMode active={activeTab === "search"} />
 

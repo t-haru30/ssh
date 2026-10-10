@@ -2,10 +2,12 @@ import httpx
 import logging
 from typing import List
 
+from app.http_client import provider_timeout, request_with_retry
+
 # OSRM Public Demo API
 # Usage Policy: https://github.com/Project-OSRM/osrm-backend/wiki/Api-usage-policy
 # Maximum 10000 requests per minute. No heavy usage.
-OSRM_BASE_URL = "http://router.project-osrm.org/route/v1/driving"
+OSRM_BASE_URL = "https://router.project-osrm.org/route/v1/driving"
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +34,8 @@ async def fetch_detailed_polyline(coordinates: List[List[float]]) -> List[List[f
     }
 
     try:
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            response = await client.get(url, params=params)
+        async with httpx.AsyncClient(timeout=provider_timeout(3.0)) as client:
+            response = await request_with_retry(client, "GET", url, params=params)
             response.raise_for_status()
             data = response.json()
             

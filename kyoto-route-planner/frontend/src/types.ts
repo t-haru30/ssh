@@ -28,6 +28,15 @@ export type RouteLeg = {
   duration_minutes: number | null;
 };
 
+export type SwipeItinerary = {
+  origin: Origin;
+  places: Place[];
+  legs: RouteLeg[];
+  estimated_total_minutes: number | null;
+  estimated_return_at: string | null;
+  note: string;
+};
+
 export type RouteTimelineSpot = {
   type: "spot";
   role: "start" | "stop" | "finish";

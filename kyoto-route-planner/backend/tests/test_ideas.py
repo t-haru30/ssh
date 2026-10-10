@@ -8,7 +8,7 @@ import httpx
 from fastapi.testclient import TestClient
 
 from app.copywriting import RouteCopywriting
-from app.image_search import search_pixabay_image
+from app.image_search import _image_cache, search_pixabay_image
 from app.main import app
 from app.models import Place
 
@@ -38,8 +38,8 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 "app.main._route_candidates",
                 new=AsyncMock(return_value=(candidates, "Yahoo test candidates")),
             ),
-            patch("app.main.generate_route_copywriting", new=AsyncMock(return_value=None)),
-            patch("app.main.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.generate_route_copywriting", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
             patch("app.main.search_route", new=AsyncMock()) as route_search,
         ):
             response = client.get("/api/ideas/random?theme=nature&spot_count=2")
@@ -62,11 +62,11 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 new=AsyncMock(return_value=(sample_places(), "Yahoo test candidates")),
             ),
             patch(
-                "app.main.generate_route_copywriting",
+                "app.idea_service.generate_route_copywriting",
                 new=AsyncMock(return_value=RouteCopywriting("Gemini title", "Gemini story")),
             ) as generate_copy,
             patch(
-                "app.main.search_pixabay_image",
+                "app.idea_service.search_pixabay_image",
                 new=AsyncMock(return_value="https://pixabay.com/get/example.jpg"),
             ) as search_image,
             patch("app.main.search_route", new=AsyncMock()) as route_search,
@@ -104,10 +104,10 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 new=AsyncMock(return_value=(sample_places(), "Yahoo test candidates")),
             ),
             patch(
-                "app.main.generate_route_copywriting",
+                "app.idea_service.generate_route_copywriting",
                 new=AsyncMock(side_effect=HTTPException(502, "Gemini unavailable")),
             ),
-            patch("app.main.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
         ):
             response = TestClient(app).get("/api/ideas/random?theme=nature&spot_count=2")
 
@@ -121,8 +121,8 @@ class RandomRouteIdeaTests(unittest.TestCase):
                 "app.main._route_candidates",
                 new=AsyncMock(return_value=(sample_places(), "Yahoo test candidates")),
             ),
-            patch("app.main.generate_route_copywriting", new=AsyncMock(return_value=None)),
-            patch("app.main.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.generate_route_copywriting", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
         ):
             response = TestClient(app).get(
                 "/api/ideas/random?theme=nature&spot_count=2",
@@ -133,6 +133,9 @@ class RandomRouteIdeaTests(unittest.TestCase):
 
 
 class PixabayImageSearchTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        _image_cache.clear()
+
     async def test_missing_api_key_returns_none_without_request(self):
         with (
             patch("app.image_search.load_dotenv"),
@@ -163,8 +166,30 @@ class PixabayImageSearchTests(unittest.IsolatedAsyncioTestCase):
             image_url = await search_pixabay_image("清水寺")
 
         self.assertEqual(image_url, "https://pixabay.com/get/large.jpg")
+
+    async def test_image_search_result_is_cached(self):
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {
+            "hits": [{"largeImageURL": "https://pixabay.com/get/cached.jpg"}],
+        }
+        client = AsyncMock()
+        client.get.return_value = response
+        client_context = AsyncMock()
+        client_context.__aenter__.return_value = client
+
+        with (
+            patch("app.image_search.load_dotenv"),
+            patch.dict(os.environ, {"PIXABAY_API_KEY": "test-key"}),
+            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
+        ):
+            first_result = await search_pixabay_image("cache fixture")
+            second_result = await search_pixabay_image(" cache   fixture ")
+
+        self.assertEqual(first_result, "https://pixabay.com/get/cached.jpg")
+        self.assertEqual(second_result, first_result)
         client.get.assert_awaited_once()
-        self.assertEqual(client.get.await_args.kwargs["params"]["q"], "清水寺")
+        self.assertEqual(client.get.await_args.kwargs["params"]["q"], "cache fixture")
 
     async def test_network_failure_returns_none(self):
         client = AsyncMock()

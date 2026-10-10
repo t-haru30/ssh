@@ -1,26 +1,30 @@
 from datetime import date, time
 from typing import Annotated, Literal, Union
+from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 Theme = Literal["all", "history", "temple", "nature", "food"]
+Latitude = Annotated[float, Field(ge=-90, le=90)]
+Longitude = Annotated[float, Field(ge=-180, le=180)]
+Coordinate = tuple[Latitude, Longitude]
 
 class Place(BaseModel):
-    id: str
-    name: str
-    category: str
-    description: str
-    access_point: str
-    latitude: float
-    longitude: float
-    themes: list[Theme]
-    address: str = ""
+    id: str = Field(min_length=1, max_length=200)
+    name: str = Field(min_length=1, max_length=200)
+    category: str = Field(max_length=100)
+    description: str = Field(max_length=2000)
+    access_point: str = Field(max_length=500)
+    latitude: Latitude
+    longitude: Longitude
+    themes: list[Theme] = Field(max_length=10)
+    address: str = Field(default="", max_length=500)
     tags: dict[str, str] = Field(default_factory=dict)
 
 class Origin(BaseModel):
-    name: str
-    latitude: float
-    longitude: float
+    name: str = Field(min_length=1, max_length=80)
+    latitude: Latitude
+    longitude: Longitude
 
 class RouteSuggestionRequest(BaseModel):
     origin: str = Field(min_length=1, max_length=80)
@@ -31,11 +35,11 @@ class RouteSuggestionRequest(BaseModel):
     variation: int = Field(default=0, ge=0, le=2_147_483_647)
 
 class RouteLeg(BaseModel):
-    from_name: str
-    to_name: str
-    line_name: str
-    mode: str
-    duration_minutes: int | None = None
+    from_name: str = Field(min_length=1, max_length=200)
+    to_name: str = Field(min_length=1, max_length=200)
+    line_name: str = Field(min_length=1, max_length=200)
+    mode: str = Field(min_length=1, max_length=80)
+    duration_minutes: int | None = Field(default=None, ge=0)
 
 class RouteTimelineSpot(BaseModel):
     type: Literal["spot"] = "spot"
@@ -72,7 +76,7 @@ class RouteSuggestion(BaseModel):
     arrival_time: str | None = None
     timeline: list[RouteTimelineItem] = Field(default_factory=list)
     note: str
-    coordinates: list[list[float]] = Field(default_factory=list)
+    coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class RouteSuggestions(BaseModel):
     routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
@@ -82,9 +86,19 @@ class RouteIdeaResponse(BaseModel):
     title: str = Field(min_length=1)
     story: str = Field(min_length=1)
     places: list[Place] = Field(min_length=2, max_length=3)
-    image_url: str | None = None
+    image_url: str | None = Field(default=None, max_length=2048)
     copywriting_source: Literal["gemini", "fallback"]
     note: str
+
+    @field_validator("image_url")
+    @classmethod
+    def validate_image_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        parsed = urlparse(value)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("image_url must be an absolute HTTPS URL")
+        return value
 
 class LabelPreference(BaseModel):
     label_type: Literal["atmosphere", "target_audience", "activity_type"]
@@ -97,8 +111,8 @@ class ParsedPlaceQuery(BaseModel):
     keywords: list[str] = Field(default_factory=list)
     preferences: list[LabelPreference] = Field(default_factory=list)
     center_station: str | None = None
-    center_latitude: float | None = None
-    center_longitude: float | None = None
+    center_latitude: Latitude | None = None
+    center_longitude: Longitude | None = None
     max_distance_m: int | None = None
     warnings: list[str] = Field(default_factory=list)
 
@@ -106,14 +120,14 @@ class PlaceSearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
 
 class CatalogPlace(BaseModel):
-    id: str
-    name: str
-    category: str
-    region: str
-    address: str
-    latitude: float
-    longitude: float
-    description: str
+    id: str = Field(min_length=1, max_length=200)
+    name: str = Field(min_length=1, max_length=200)
+    category: str = Field(max_length=100)
+    region: str = Field(max_length=100)
+    address: str = Field(max_length=500)
+    latitude: Latitude
+    longitude: Longitude
+    description: str = Field(max_length=2000)
     source_record_id: str | None = None
     genre_code: str = ""
     tags: dict[str, str] = Field(default_factory=dict)
@@ -152,7 +166,7 @@ class ItinerarySuggestion(BaseModel):
     feasible: bool | None = None
     route_search_calls: int
     note: str
-    coordinates: list[list[float]] = Field(default_factory=list)
+    coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class OvernightItineraryRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
@@ -172,7 +186,7 @@ class DailyItinerary(BaseModel):
     transit_minutes: int | None = None
     stay_minutes: int
     estimated_arrival_at: str | None = None
-    coordinates: list[list[float]] = Field(default_factory=list)
+    coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class ItineraryScheduleItem(BaseModel):
     start_time: str | None = None
