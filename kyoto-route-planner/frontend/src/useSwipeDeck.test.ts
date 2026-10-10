@@ -50,8 +50,8 @@ function makeBatch(ideas: RouteIdea[], requestedCount = ideas.length, shortfall 
   };
 }
 
-function renderSwipeDeck() {
-  return renderHook(() => useSwipeDeck({
+function renderSwipeDeck(fallbackOnly = false) {
+  return renderHook(({ isFallbackOnly }) => useSwipeDeck({
     origin: {
       name: "京都駅",
       latitude: 34.9858,
@@ -60,7 +60,8 @@ function renderSwipeDeck() {
     departureDate: "2026-05-01",
     departureTime: "09:00",
     onItineraryChange: vi.fn(),
-  }));
+    fallbackOnly: isFallbackOnly,
+  }), { initialProps: { isFallbackOnly: fallbackOnly } });
 }
 
 afterEach(() => {
@@ -80,6 +81,65 @@ describe("useSwipeDeck", () => {
     expect(result.current.error).toContain("3件は補充できませんでした");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toContain("/api/ideas?theme=all&count=5");
+  });
+
+  it("requests only pre-generated ideas when fallback-only mode is enabled", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      makeResponse(makeBatch([makeIdea(0), makeIdea(1), makeIdea(2), makeIdea(3), makeIdea(4)])),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const { result } = renderSwipeDeck(true);
+
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
+    expect(fetchMock.mock.calls[0][0]).toContain("use_fallback=true");
+  });
+
+  it("aborts a live request and reloads from fallback when switching modes", async () => {
+    const pending: Array<{
+      resolve: (response: Response) => void;
+      signal: AbortSignal | null;
+    }> = [];
+    vi.stubGlobal("fetch", vi.fn((_input: RequestInfo | URL, init?: RequestInit) => (
+      new Promise<Response>((resolve) => {
+        pending.push({ resolve, signal: init?.signal ?? null });
+      })
+    )));
+    const { result, rerender } = renderSwipeDeck(false);
+    await waitFor(() => expect(pending).toHaveLength(1));
+
+    rerender({ isFallbackOnly: true });
+    await waitFor(() => expect(pending).toHaveLength(2));
+    expect(pending[0].signal?.aborted).toBe(true);
+
+    await act(async () => {
+      pending[1].resolve(makeResponse(makeBatch([makeIdea(9)])));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.ideas.map((idea) => idea.title)).toEqual(["候補9"]);
+  });
+
+  it("does not prefetch past the available sample batch in fallback-only mode", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      makeResponse(makeBatch([
+        makeIdea(0),
+        makeIdea(1),
+        makeIdea(2),
+        makeIdea(3),
+        makeIdea(4),
+      ])),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const { result } = renderSwipeDeck(true);
+
+    await waitFor(() => expect(result.current.ideas).toHaveLength(5));
+    await act(async () => {
+      await result.current.handleSwipe("skip");
+      await result.current.handleSwipe("skip");
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.ideas).toHaveLength(3);
   });
 
   it("ignores stale batch responses after a newer load starts", async () => {

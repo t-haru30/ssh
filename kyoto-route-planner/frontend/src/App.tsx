@@ -48,7 +48,7 @@ function App() {
 
       <footer className="footer">
         <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
-        <p>観光地・施設の検索にはYahoo! Local Searchのみを利用します。APIエラーや候補不足時は、代替データを混在させず取得状況を表示します。</p>
+        <p>検索の候補地取得にはYahoo! Local Searchを利用します。DiscoverとSearchの事前サンプルモードは候補生成の外部APIを使いません（採用後の経路検索を除く）。</p>
         <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
       </footer>
     </main>

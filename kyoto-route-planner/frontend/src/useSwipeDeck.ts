@@ -8,11 +8,13 @@ type UseSwipeDeckOptions = {
   departureDate: string;
   departureTime: string;
   onItineraryChange: (itinerary: SwipeItinerary) => void;
+  fallbackOnly: boolean;
 };
 
 const INITIAL_BATCH_SIZE = 5;
 const PREFETCH_BATCH_SIZE = 5;
 const PREFETCH_THRESHOLD = 3;
+const EMPTY_PLACES: Place[] = [];
 
 async function readResponseError(response: Response) {
   const payload: unknown = await response.json().catch(() => null);
@@ -47,6 +49,7 @@ export function useSwipeDeck({
   departureDate,
   departureTime,
   onItineraryChange,
+  fallbackOnly,
 }: UseSwipeDeckOptions) {
   const [ideas, setIdeas] = useState<RouteIdea[]>([]);
   const [loadingIdeas, setLoadingIdeas] = useState(true);
@@ -65,7 +68,7 @@ export function useSwipeDeck({
 
   const activePlaces: Place[] = showItinerary && itinerary
     ? itinerary.places
-    : ideas[0]?.places ?? [];
+    : ideas[0]?.places ?? EMPTY_PLACES;
 
   useEffect(() => () => {
     loadGeneration.current += 1;
@@ -95,6 +98,7 @@ export function useSwipeDeck({
         count: String(requestCount),
         spot_count: "2",
       });
+      if (fallbackOnly) params.set("use_fallback", "true");
       [...seenIdeaSignatures.current]
         .slice(-50)
         .forEach((signature) => params.append("exclude", signature));
@@ -124,7 +128,7 @@ export function useSwipeDeck({
         setLoadingIdeas(false);
       }
     }
-  }, []);
+  }, [fallbackOnly]);
 
   useEffect(() => {
     void loadIdeas(false);
@@ -134,6 +138,7 @@ export function useSwipeDeck({
     if (
       ideas.length > 0
       && ideas.length <= PREFETCH_THRESHOLD
+      && !fallbackOnly
       && !loadingIdeas
       && failedLoadCount === 0
       && !itinerary
@@ -143,7 +148,7 @@ export function useSwipeDeck({
       lastAutoLoadCount.current = ideas.length;
       void loadIdeas(true, PREFETCH_BATCH_SIZE);
     }
-  }, [adopting, failedLoadCount, ideas.length, itinerary, loadingIdeas, loadIdeas]);
+  }, [adopting, failedLoadCount, fallbackOnly, ideas.length, itinerary, loadingIdeas, loadIdeas]);
 
   const handleSwipe = useCallback(async (direction: SwipeDirection) => {
     const idea = ideas[0];
