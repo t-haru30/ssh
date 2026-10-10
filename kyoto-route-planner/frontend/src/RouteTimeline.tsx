@@ -345,6 +345,7 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
             <li
               className={`timeline-row timeline-spot timeline-${item.role}`}
               key={`spot-${item.place_id ?? index}`}
+              data-spot-id={item.place_id ?? (item.role === "start" ? "origin" : undefined)}
             >
               <time className="timeline-time">{item.time ?? "—"}</time>
               <span className="timeline-marker" aria-hidden="true">
