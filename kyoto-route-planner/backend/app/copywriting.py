@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,10 +8,12 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
+from app.http_client import provider_timeout, request_with_retry
 from app.models import Place, Theme
 
 GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -102,8 +105,10 @@ async def generate_route_copywriting(
         },
     }
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
+        async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
+            response = await request_with_retry(
+                client,
+                "POST",
                 url,
                 headers={"x-goog-api-key": api_key},
                 json=body,
@@ -127,6 +132,7 @@ async def generate_route_copywriting(
             detail="Gemini APIからJSON形式でない応答が返されました。",
         ) from error
     if response.status_code >= 400:
+        logger.warning("Gemini API returned an error response: status=%s", response.status_code)
         raise HTTPException(
             status_code=502,
             detail="Gemini APIでタイトルとストーリーを生成できませんでした。",

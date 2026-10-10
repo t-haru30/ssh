@@ -1,3 +1,4 @@
+import asyncio
 import os
 import unittest
 from unittest.mock import AsyncMock, patch
@@ -10,6 +11,7 @@ from app.poi_search import (
     _geocoder_query,
     _local_search_params,
     _parse_yahoo_places,
+    _search_cache,
     get_yahoo_search_status,
     search_yahoo_catalog,
 )
@@ -49,6 +51,7 @@ def yahoo_payload(*features: dict) -> dict:
 
 class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        _search_cache.clear()
         self.dotenv_patcher = patch("app.poi_search.load_dotenv")
         self.dotenv_patcher.start()
         self.environment_patcher = patch.dict(os.environ, {"YAHOO_APP_ID": "test-app-id"})
@@ -114,6 +117,13 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(result.results), 1)
         self.assertEqual(result.results[0].place.id, "yahoo-1234")
 
+    async def test_successful_search_results_are_cached(self):
+        result, client = await self._search_with_response(yahoo_payload(yahoo_feature()))
+        cached = await search_yahoo_catalog("京都駅周辺の神社")
+
+        self.assertEqual(cached.results[0].place.id, result.results[0].place.id)
+        self.assertEqual(client.get.await_count, 8)
+
     async def test_yahoo_failure_returns_empty_without_backup_provider(self):
         client = AsyncMock()
         client.get.side_effect = httpx.ReadTimeout("request timed out")
@@ -136,6 +146,35 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.results, [])
         self.assertIn("YAHOO_APP_ID", result.note)
         client_factory.assert_not_called()
+
+    async def test_genre_search_concurrency_is_bounded(self):
+        active_requests = 0
+        maximum_active_requests = 0
+
+        async def delayed_search(*_args, **_kwargs):
+            nonlocal active_requests, maximum_active_requests
+            active_requests += 1
+            maximum_active_requests = max(maximum_active_requests, active_requests)
+            await asyncio.sleep(0.01)
+            active_requests -= 1
+            return httpx.Response(
+                200,
+                json=yahoo_payload(),
+                request=httpx.Request("GET", YAHOO_LOCAL_SEARCH_URL),
+            )
+
+        client = AsyncMock()
+        client.get.side_effect = delayed_search
+        client_context = AsyncMock()
+        client_context.__aenter__.return_value = client
+        with patch("app.poi_search.httpx.AsyncClient", return_value=client_context):
+            await search_yahoo_catalog(
+                "京都",
+                genre_codes=tuple(f"genre-{index}" for index in range(8)),
+            )
+
+        self.assertEqual(client.get.await_count, 8)
+        self.assertEqual(maximum_active_requests, 4)
 
     async def test_unregistered_station_is_geocoded_before_local_search(self):
         geocoder_response = httpx.Response(

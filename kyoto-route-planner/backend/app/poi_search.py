@@ -8,6 +8,8 @@ from typing import Any
 
 import httpx
 from dotenv import load_dotenv
+from app.cache import TTLCache
+from app.http_client import provider_timeout, request_with_retry
 from app.models import (
     CatalogPlace,
     ParsedPlaceQuery,
@@ -20,6 +22,13 @@ YAHOO_LOCAL_SEARCH_URL = "https://map.yahooapis.jp/search/local/V1/localSearch"
 YAHOO_GEOCODER_URL = "https://map.yahooapis.jp/geocode/V1/geoCoder"
 DEFAULT_CENTER = (34.98585, 135.75877)
 DEFAULT_RADIUS_M = 5_000
+YAHOO_MAX_CONCURRENT_SEARCHES = 4
+YAHOO_REQUEST_TIMEOUT_SECONDS = 20.0
+YAHOO_SEARCH_CACHE_TTL_SECONDS = 60.0
+_search_cache: TTLCache[tuple[str, int, tuple[str, ...] | None], PlaceSearchResponse] = TTLCache(
+    ttl_seconds=YAHOO_SEARCH_CACHE_TTL_SECONDS,
+    max_entries=256,
+)
 TOURISM_GENRE_CODES = (
     "0424001",  # Temples
     "0424002",  # Shrines
@@ -284,7 +293,9 @@ def _geocoder_query(query: str, intent: ParsedPlaceQuery) -> str | None:
 
 
 async def _geocode(client: httpx.AsyncClient, app_id: str, query: str) -> tuple[float, float] | None:
-    response = await client.get(
+    response = await request_with_retry(
+        client,
+        "GET",
         YAHOO_GEOCODER_URL,
         params={"appid": app_id, "query": query, "output": "json", "results": 1},
     )
@@ -345,7 +356,7 @@ async def _search_yahoo(
     location_query = _geocoder_query(query, intent)
     genre_codes = requested_genre_codes or _genre_codes_for_query(query, intent)
     async with httpx.AsyncClient(
-        timeout=10.0,
+        timeout=provider_timeout(10.0),
         headers={"Accept": "application/json", "User-Agent": "KyotoRoutePlanner/1.0"},
     ) as client:
         center = None
@@ -366,9 +377,13 @@ async def _search_yahoo(
         if center is not None:
             intent.center_latitude, intent.center_longitude = center
 
-        responses = await asyncio.gather(
-            *(
-                client.get(
+        semaphore = asyncio.Semaphore(YAHOO_MAX_CONCURRENT_SEARCHES)
+
+        async def search_genre(genre_code: str) -> httpx.Response:
+            async with semaphore:
+                return await request_with_retry(
+                    client,
+                    "GET",
                     YAHOO_LOCAL_SEARCH_URL,
                     params=_local_search_params(
                         query,
@@ -380,8 +395,9 @@ async def _search_yahoo(
                         genre_code,
                     ),
                 )
-                for genre_code in genre_codes
-            )
+
+        responses = await asyncio.gather(
+            *(search_genre(genre_code) for genre_code in genre_codes)
         )
         results: list[PlaceSearchHit] = []
         incomplete = False
@@ -434,6 +450,11 @@ async def search_yahoo_catalog(
 ) -> PlaceSearchResponse:
     if limit < 1:
         raise ValueError("limit must be positive")
+    cache_key = (
+        " ".join(query_text.casefold().split()),
+        limit,
+        genre_codes,
+    )
     intent = parse_place_query(query_text)
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     warning: str | None = None
@@ -443,13 +464,23 @@ async def search_yahoo_catalog(
         yahoo_results: list[PlaceSearchHit] = []
         logger.error("Yahoo Local Search unavailable: YAHOO_APP_ID is not configured")
     else:
+        cache_hit, cached_result = _search_cache.get(cache_key)
+        if cache_hit and cached_result is not None:
+            _last_search_status.update(
+                state="success" if cached_result.results else "error",
+                warning=cached_result.note or None,
+            )
+            return cached_result
         try:
-            yahoo_results, yahoo_incomplete = await _search_yahoo(
-                query_text,
-                intent,
-                limit,
-                app_id,
-                genre_codes,
+            yahoo_results, yahoo_incomplete = await asyncio.wait_for(
+                _search_yahoo(
+                    query_text,
+                    intent,
+                    limit,
+                    app_id,
+                    genre_codes,
+                ),
+                timeout=YAHOO_REQUEST_TIMEOUT_SECONDS,
             )
             if yahoo_incomplete:
                 warning = "Yahoo!ローカルサーチの一部結果でカテゴリまたは位置情報が不足しています。"
@@ -457,6 +488,7 @@ async def search_yahoo_catalog(
             httpx.HTTPError,
             ValueError,
             YahooAPIError,
+            asyncio.TimeoutError,
         ) as error:
             warning = (
                 f"Yahoo!ローカルサーチに接続できませんでした（{error}）。"
@@ -473,8 +505,11 @@ async def search_yahoo_catalog(
         warning=warning,
     )
     logger.info("POI search provider selected: Yahoo Local Search (%d results)", len(yahoo_results))
-    return PlaceSearchResponse(
+    result = PlaceSearchResponse(
         query=intent,
         results=yahoo_results,
         note=warning or "Yahoo!ローカルサーチAPIの検索結果です。",
     )
+    if yahoo_results:
+        _search_cache.set(cache_key, result)
+    return result

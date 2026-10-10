@@ -701,6 +701,39 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(search.await_args.kwargs["via_points"][0], "34.98585,135.75877")
         self.assertEqual(search.await_args.kwargs["via_points"][-1], "34.98585,135.75877")
 
+    def test_random_route_uses_fallback_copy_when_gemini_fails(self):
+        client = TestClient(app)
+        search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="京都",
+                to_name="稲荷",
+                line_name="JR奈良線",
+                mode="train",
+                duration_minutes=5,
+            )],
+            35,
+            "09:00",
+            "09:35",
+        ))
+
+        with (
+            patch("app.main.random.choice", return_value="nature"),
+            patch("app.main.random.randint", return_value=1),
+            patch("app.main.search_route", search),
+            patch(
+                "app.main.generate_route_copywriting",
+                new=AsyncMock(side_effect=HTTPException(502, "Gemini unavailable")),
+            ),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
+        ):
+            response = client.get("/api/routes/random")
+
+        self.assertEqual(response.status_code, 200)
+        route = response.json()["routes"][0]
+        self.assertIn("で楽しむ", route["title"])
+        self.assertIn("を巡るルートです", route["story"])
+        self.assertIn("Geminiを利用できなかった", route["note"])
+
     def test_route_suggestion_retries_with_fewer_stops_when_exact_route_is_unavailable(self):
         client = TestClient(app)
         request = {
