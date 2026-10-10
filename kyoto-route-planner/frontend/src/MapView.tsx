@@ -35,6 +35,8 @@ type MarkerLocation = {
   isOrigin: boolean;
 };
 
+type MapCoordinate = [number, number];
+
 const categoryIcons = {
   temple: {
     color: "#a64f43",
@@ -155,40 +157,62 @@ function createSpotMarker(location: MarkerLocation) {
   return element;
 }
 
-function findPathMidpoint(coordinates: [number, number][]) {
-  if (coordinates.length === 0) return null;
-  if (coordinates.length === 1) return coordinates[0];
-  const lengths = coordinates.slice(1).map((point, index) => (
-    Math.hypot(point[0] - coordinates[index][0], point[1] - coordinates[index][1])
-  ));
-  const totalLength = lengths.reduce((sum, length) => sum + length, 0);
-  if (totalLength === 0) return coordinates[0];
-  let remaining = totalLength / 2;
-  for (let index = 0; index < lengths.length; index += 1) {
-    const segmentLength = lengths[index];
-    if (remaining <= segmentLength) {
-      const ratio = segmentLength === 0 ? 0 : remaining / segmentLength;
-      return [
-        coordinates[index][0] + (coordinates[index + 1][0] - coordinates[index][0]) * ratio,
-        coordinates[index][1] + (coordinates[index + 1][1] - coordinates[index][1]) * ratio,
-      ] as [number, number];
-    }
-    remaining -= segmentLength;
-  }
-  return coordinates[coordinates.length - 1];
+function findTransitMarkers(
+  locations: Array<{ location: MarkerLocation; coordinate: MapCoordinate }>,
+  legs: RouteLeg[],
+) {
+  if (locations.length < 2 || legs.length === 0) return [];
+  const segmentCount = locations.length - 1;
+  return locations.slice(1).flatMap((destination, index) => {
+    const start = locations[index];
+    const startLeg = Math.floor(index * legs.length / segmentCount);
+    const endLeg = Math.floor((index + 1) * legs.length / segmentCount);
+    const segmentLegs = legs.slice(startLeg, endLeg);
+    const midpoint: MapCoordinate = [
+      (start.coordinate[0] + destination.coordinate[0]) / 2,
+      (start.coordinate[1] + destination.coordinate[1]) / 2,
+    ];
+    const modes = [...new Set(segmentLegs
+      .map((leg) => getModeIcon(leg.mode)?.icon)
+      .filter((mode): mode is keyof typeof modeIcons => mode !== undefined))];
+    return modes.map((mode) => ({
+      mode,
+      midpoint,
+      fromName: start.location.name,
+      toName: destination.location.name,
+    }));
+  });
 }
 
-function routeFeature(coordinates: [number, number][]) {
+function toMapCoordinate([latitude, longitude]: [number, number]): MapCoordinate {
+  return [longitude, latitude];
+}
+
+function routeFeature(coordinates: MapCoordinate[]) {
   return {
     type: "Feature" as const,
     properties: {},
     geometry: {
       type: "LineString" as const,
-      coordinates: coordinates.length > 1
-        ? coordinates.map(([latitude, longitude]) => [longitude, latitude])
-        : [],
+      coordinates: coordinates.length > 1 ? coordinates : [],
     },
   };
+}
+
+function createRouteArrowImage() {
+  const size = 32;
+  const pixels = new Uint8ClampedArray(size * size * 4);
+  for (let y = 3; y < size - 3; y += 1) {
+    const maxX = 28 - Math.abs(y - 16) * 1.5;
+    for (let x = 4; x <= maxX; x += 1) {
+      const index = (y * size + x) * 4;
+      pixels[index] = 169;
+      pixels[index + 1] = 79;
+      pixels[index + 2] = 57;
+      pixels[index + 3] = 255;
+    }
+  }
+  return new ImageData(pixels, size, size);
 }
 
 export function MapView({
@@ -253,6 +277,23 @@ export function MapView({
           "line-dasharray": [1.2, 1.6],
         },
       });
+      map.addImage("route-direction-arrow", createRouteArrowImage());
+      map.addLayer({
+        id: "route-direction-arrows",
+        type: "symbol",
+        source: "route",
+        layout: {
+          "symbol-placement": "line",
+          "symbol-spacing": 80,
+          "icon-image": "route-direction-arrow",
+          "icon-size": 0.7,
+          "icon-anchor": "center",
+          "icon-rotation-alignment": "map",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+        paint: { "icon-opacity": 0.95 },
+      });
       mapLoadedRef.current = true;
       syncMapRef.current();
     });
@@ -275,7 +316,7 @@ export function MapView({
       const current = propsRef.current;
       const currentPlaces = current.places;
       const currentOrigin = current.origin;
-      const currentCoordinates = current.coordinates;
+      const routeCoordinates = current.coordinates.map(toMapCoordinate);
       const currentLegs = current.legs;
 
       markersRef.current.forEach((marker) => marker.remove());
@@ -306,7 +347,16 @@ export function MapView({
         })),
       ];
 
-      for (const location of locations) {
+      const locatedMarkers = locations.map((location) => ({
+        location,
+        coordinate: routeCoordinates.find(
+          ([longitude, latitude]) => (
+            longitude === location.longitude && latitude === location.latitude
+          ),
+        ) ?? toMapCoordinate([location.latitude, location.longitude]),
+      }));
+
+      for (const { location, coordinate } of locatedMarkers) {
         const element = createSpotMarker(location);
         const popupText = location.isOrigin
           ? `出発地 · ${location.name}`
@@ -315,59 +365,41 @@ export function MapView({
             location.address,
           ].filter(Boolean).join("\n");
         const marker = new Marker({ element, anchor: "bottom" })
-          .setLngLat([location.longitude, location.latitude])
+          .setLngLat(coordinate)
           .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
           .addTo(map);
         markersRef.current.push(marker);
       }
 
-      const midpoint = findPathMidpoint(currentCoordinates);
-      const uniqueModes = [...new Set(currentLegs.map((leg) => getModeIcon(leg.mode)?.icon).filter(
-        (mode): mode is keyof typeof modeIcons => mode !== undefined && mode !== null,
-      ))];
-      if (midpoint && uniqueModes.length > 0) {
-        uniqueModes.forEach((mode, index) => {
-          const modeIcon = modeIcons[mode];
-          const element = document.createElement("div");
-          element.className = `map-transit-marker map-transit-${mode}`;
-          element.setAttribute("role", "img");
-          element.setAttribute("aria-label", `ルート上の移動手段: ${modeIcon.label}`);
-          element.innerHTML = iconSvg(modeIcon.svg);
-          const offset = (index - (uniqueModes.length - 1) / 2) * 28;
-          const marker = new Marker({
-            element,
-            anchor: "center",
-            offset: [offset, 0],
-          })
-            .setLngLat([midpoint[1], midpoint[0]])
-            .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
-              `このルートに含まれる移動手段: ${modeIcon.label}`,
-            ))
-            .addTo(map);
-          markersRef.current.push(marker);
-        });
-      }
+      findTransitMarkers(locatedMarkers, currentLegs).forEach((transit) => {
+        const modeIcon = modeIcons[transit.mode];
+        const element = document.createElement("div");
+        element.className = `map-transit-marker map-transit-${transit.mode}`;
+        element.setAttribute("role", "img");
+        element.setAttribute("aria-label", `${transit.fromName}から${transit.toName}への移動手段: ${modeIcon.label}`);
+        element.innerHTML = iconSvg(modeIcon.svg);
+        const marker = new Marker({ element, anchor: "center" })
+          .setLngLat(transit.midpoint)
+          .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
+            `${transit.fromName} → ${transit.toName}: ${modeIcon.label}`,
+          ))
+          .addTo(map);
+        markersRef.current.push(marker);
+      });
 
       if (locations.length > 1) {
         const bounds = new LngLatBounds();
-        locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
+        locatedMarkers.forEach(({ coordinate }) => bounds.extend(coordinate));
         map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: current.fitDuration });
       } else if (locations.length === 1) {
-        map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: current.fitDuration });
+        map.flyTo({ center: locatedMarkers[0].coordinate, zoom: 13, duration: current.fitDuration });
       } else {
         map.flyTo({ center: kyotoCenter, zoom: 11, duration: current.fitDuration });
       }
 
       const source = map.getSource("route");
       if (source?.type === "geojson") {
-        (source as GeoJSONSource).setData({
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: routeFeature(currentCoordinates).geometry.coordinates,
-          },
-        });
+        (source as GeoJSONSource).setData(routeFeature(routeCoordinates));
       }
     };
     syncMapRef.current();
