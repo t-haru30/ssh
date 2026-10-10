@@ -680,9 +680,30 @@ export function SearchMode({ active }: SearchModeProps) {
             <article className="route-option">
               <h3>1泊2日宿泊プラン：{overnightSuggestion.hotel.name} に泊まる旅</h3>
               <div className="route-result">
+                {overnightSuggestion.fare_yen !== undefined && (
+                  <p className="fare-estimate" aria-live="polite">
+                    <strong>1泊2日の交通費概算（1人分）</strong>
+                    <span>
+                      {overnightSuggestion.fare_yen === null
+                        ? "全日分を取得できませんでした"
+                        : `約${overnightSuggestion.fare_yen.toLocaleString("ja-JP")}円`}
+                    </span>
+                    <small>時刻表を使わない経路探索による目安です。各日の経路を別々に検索して合算しています。</small>
+                  </p>
+                )}
                 {overnightSuggestion.days.map((day) => (
                   <div key={day.day} className="overnight-day-section">
                     <h4>【Day {day.day}】 {day.date}</h4>
+                    {day.fare_yen !== undefined && (
+                      <p className="fare-estimate" aria-live="polite">
+                        <strong>Day {day.day} 交通費概算</strong>
+                        <span>
+                          {day.fare_yen === null
+                            ? "取得できませんでした"
+                            : `約${day.fare_yen.toLocaleString("ja-JP")}円`}
+                        </span>
+                      </p>
+                    )}
                     <RouteTimeline
                       items={buildDayTimeline(
                         day,
@@ -723,6 +744,17 @@ export function SearchMode({ active }: SearchModeProps) {
                   suggestions[0].legs,
                 )}
               />
+              {suggestions[0].fare_yen !== undefined && (
+                <p className="fare-estimate" aria-live="polite">
+                  <strong>交通費の概算（1人分・往復）</strong>
+                  <span>
+                    {suggestions[0].fare_yen === null
+                      ? "取得できませんでした"
+                      : `約${suggestions[0].fare_yen.toLocaleString("ja-JP")}円`}
+                  </span>
+                  <small>時刻表を使わない経路探索による目安です。実際の経路・運賃と異なる場合があります。</small>
+                </p>
+              )}
               <p className="result-note">{suggestions[0].note}</p>
             </article>
             <div className="route-swipe-controls">

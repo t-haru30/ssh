@@ -1,13 +1,20 @@
 import unittest
 import asyncio
 import tempfile
-from unittest.mock import AsyncMock, call, patch
+from unittest.mock import AsyncMock, Mock, call, patch
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
-from app.ekispert import _make_url, _parse_legs, _redact_access_key
+from app.ekispert import (
+    _make_url,
+    _parse_fare_yen,
+    _parse_legs,
+    _redact_access_key,
+    estimate_route_fare,
+)
 from app.main import (
     ROUTE_GENRE_CODES,
     _build_route_timeline,
@@ -65,6 +72,12 @@ def sample_places() -> list[Place]:
 class RoutePlannerTests(unittest.TestCase):
     def setUp(self):
         limiter.reset()
+        self.fare_estimate = AsyncMock(return_value=620)
+        self.fare_estimate_patch = patch(
+            "app.main.estimate_route_fare",
+            new=self.fare_estimate,
+        )
+        self.fare_estimate_patch.start()
         self.search_places_patch = patch(
             "app.main.search_yahoo_catalog",
             new=AsyncMock(return_value=PlaceSearchResponse(
@@ -77,6 +90,7 @@ class RoutePlannerTests(unittest.TestCase):
 
     def tearDown(self):
         self.search_places_patch.stop()
+        self.fare_estimate_patch.stop()
 
     def test_route_generation_uses_yahoo_places(self):
         client = TestClient(app)
@@ -584,6 +598,49 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(legs[0].line_name, "JR奈良線")
         self.assertEqual(total_minutes, 35)
 
+    def test_fare_parser_sums_fare_and_selected_route_charges(self):
+        self.assertEqual(
+            _parse_fare_yen({
+                "Price": [
+                    {"kind": "FareSummary", "Oneway": "460"},
+                    {"kind": "ChargeSummary", "Oneway": "300"},
+                    {"kind": "Teiki1Summary", "Oneway": "12000"},
+                ],
+            }),
+            760,
+        )
+        self.assertIsNone(_parse_fare_yen({"Price": [{"kind": "ChargeSummary", "Oneway": "300"}]}))
+
+    def test_fare_search_uses_plain_search_without_date_or_time(self):
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {
+            "ResultSet": {
+                "Course": {
+                    "Price": [
+                        {"kind": "FareSummary", "Oneway": "460"},
+                        {"kind": "ChargeSummary", "Oneway": "300"},
+                    ],
+                },
+            },
+        }
+        request = AsyncMock(return_value=response)
+
+        with (
+            patch.dict("os.environ", {"EKISPERT_API_KEY": "test-key"}),
+            patch("app.ekispert.load_dotenv"),
+            patch("app.ekispert.request_with_retry", request),
+        ):
+            fare_yen = asyncio.run(estimate_route_fare(["35.0,135.0", "35.1,135.1"]))
+
+        self.assertEqual(fare_yen, 760)
+        requested_url = request.await_args.args[2]
+        query = parse_qs(urlparse(requested_url).query)
+        self.assertEqual(query["searchType"], ["plain"])
+        self.assertNotIn("date", query)
+        self.assertNotIn("time", query)
+        self.assertNotIn("test-key", _redact_access_key(requested_url))
+
     def test_zero_route_total_falls_back_to_positive_segment_durations(self):
         course = {
             "Route": {
@@ -648,9 +705,9 @@ class RoutePlannerTests(unittest.TestCase):
         ))
 
         candidates = sample_places()
-        with patch("app.main.search_route", search), patch(
-            "app.main._route_candidates",
-            new=AsyncMock(return_value=(candidates, "test candidates")),
+        with (
+            patch("app.main.search_route", search),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(candidates, "test candidates"))),
         ):
             response = client.post("/api/routes", json=request)
 
@@ -659,8 +716,38 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(len(body["routes"]), 1)
         self.assertEqual(body["routes"][0]["legs"][0]["line_name"], "JR奈良線")
         self.assertEqual(body["routes"][0]["total_minutes"], 35)
+        self.assertEqual(body["routes"][0]["fare_yen"], 620)
         search.assert_awaited_once()
+        expected_fare_points = [
+            f"{latitude},{longitude}"
+            for latitude, longitude in body["routes"][0]["coordinates"]
+        ]
+        self.fare_estimate.assert_awaited_once_with(expected_fare_points)
         self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
+
+    def test_route_suggestion_is_returned_when_fare_estimate_fails(self):
+        client = TestClient(app)
+        self.fare_estimate.side_effect = HTTPException(502, "fare service unavailable")
+        search = AsyncMock(return_value=([], 35, "09:00", "09:35"))
+
+        with (
+            patch("app.main.search_route", search),
+            patch("app.main.generate_route_copywriting", new=AsyncMock(return_value=RouteCopywriting(
+                title="京都の寄り道",
+                story="スポットを巡ります。",
+            ))),
+            patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
+        ):
+            response = client.post("/api/routes", json={
+                "origin": "京都駅",
+                "theme": "all",
+                "stop_count": 1,
+                "departure_date": "2026-10-05",
+                "departure_time": "09:00",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["routes"][0]["fare_yen"])
 
     def test_random_route_selects_backend_conditions_and_returns_one_route(self):
         client = TestClient(app)

@@ -117,6 +117,30 @@ def _make_url(params: dict[str, str]) -> str:
     return f"{API_BASE_URL}/search/course/extreme?{urlencode(params, safe=':')}"
 
 
+def _parse_fare_yen(course: dict) -> int | None:
+    prices = _as_list(course.get("Price"))
+    fare_summary = next(
+        (price for price in prices if price.get("kind") == "FareSummary"),
+        None,
+    )
+    if fare_summary is None:
+        return None
+    fare_yen = _integer(fare_summary.get("Oneway"))
+    if fare_yen is None or fare_yen < 0:
+        return None
+
+    charge_summary = next(
+        (price for price in prices if price.get("kind") == "ChargeSummary"),
+        None,
+    )
+    if charge_summary is not None:
+        charge_yen = _integer(charge_summary.get("Oneway"))
+        if charge_yen is None or charge_yen < 0:
+            return None
+        fare_yen += charge_yen
+    return fare_yen
+
+
 async def search_route(
     via_points: list[str],
     departure_date: str,
@@ -192,3 +216,69 @@ async def search_route(
         _text(course.get("departureState")),
         _text(course.get("arrivalState")),
     )
+
+
+async def estimate_route_fare(via_points: list[str]) -> int | None:
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+    key = os.getenv("EKISPERT_API_KEY")
+    if not key:
+        raise HTTPException(
+            status_code=503,
+            detail="駅すぱあとAPIキーが設定されていません。環境変数 EKISPERT_API_KEY を設定してください。",
+        )
+
+    referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
+    params = {
+        "key": key,
+        "viaList": ":".join(via_points),
+        "searchType": "plain",
+        "answerCount": "1",
+        "gcs": "wgs84",
+    }
+    url = _make_url(params)
+    logger.debug("Requesting Ekispert fare estimate: %s", _redact_access_key(url))
+
+    try:
+        async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
+            response = await request_with_retry(
+                client,
+                "GET",
+                url,
+                headers={"Referer": referer} if referer else {},
+            )
+    except httpx.TimeoutException as error:
+        raise HTTPException(
+            status_code=504,
+            detail="駅すぱあとAPIの運賃概算取得がタイムアウトしました。",
+        ) from error
+    except httpx.RequestError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="駅すぱあとAPIから運賃概算を取得できませんでした。",
+        ) from error
+
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="駅すぱあとAPIからJSON形式でない運賃応答が返されました。",
+        ) from error
+
+    provider_error = _provider_error(payload)
+    if response.status_code >= 400 or provider_error:
+        if response.status_code == 403:
+            detail = "駅すぱあとAPIの運賃検索認証に失敗しました。"
+        else:
+            detail = provider_error or (
+                f"駅すぱあとAPIで運賃を検索できませんでした（HTTP {response.status_code}）。"
+            )
+        raise HTTPException(status_code=502, detail=detail)
+
+    courses = _course_list(payload)
+    if not courses:
+        raise HTTPException(
+            status_code=404,
+            detail="指定した経由地の運賃情報が見つかりませんでした。",
+        )
+    return _parse_fare_yen(courses[0])

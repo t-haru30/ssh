@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time as time_module
 from datetime import datetime, timedelta, time, date
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ from itertools import permutations
 
 from fastapi import HTTPException
 
-from app.ekispert import search_route
+from app.ekispert import estimate_route_fare, search_route
 from app.models import (
     CatalogPlace,
     Origin,
@@ -28,6 +29,7 @@ from app.places import list_origins, normalize_origin_name
 from app.search import parse_place_query
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
+logger = logging.getLogger(__name__)
 
 
 LODGING_CATEGORIES = {
@@ -454,11 +456,43 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         )
     ]
 
+    for day in days:
+        remaining = deadline - time_module.monotonic()
+        if remaining <= 0:
+            logger.warning(
+                "Ekispert overnight fare estimate skipped: request budget exhausted (day=%d)",
+                day.day,
+            )
+            continue
+        try:
+            day.fare_yen = await asyncio.wait_for(
+                estimate_route_fare([
+                    f"{latitude},{longitude}"
+                    for latitude, longitude in day.coordinates
+                ]),
+                timeout=remaining,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Ekispert overnight fare estimate timed out (day=%d)", day.day)
+        except HTTPException as error:
+            logger.warning(
+                "Ekispert overnight fare estimate failed: status=%d day=%d",
+                error.status_code,
+                day.day,
+            )
+
+    total_fare_yen = (
+        sum(day.fare_yen for day in days if day.fare_yen is not None)
+        if all(day.fare_yen is not None for day in days)
+        else None
+    )
+
     return OvernightItinerarySuggestion(
         query=spot_search.query,
         origin=Origin(name=origin.name, latitude=origin.latitude, longitude=origin.longitude),
         hotel=selected_hotel,
         days=days,
+        fare_yen=total_fare_yen,
         feasible=best_day1["transit_minutes"] is not None and best_day2["transit_minutes"] is not None,
         route_search_calls=best_day1["calls"] + best_day2["calls"],
         note=(
@@ -739,6 +773,31 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         )
 
     feasible = best.feasible
+    fare_yen: int | None = None
+    remaining_seconds = deadline - asyncio.get_running_loop().time()
+    if remaining_seconds > 0:
+        via_points = [
+            f"{origin.latitude},{origin.longitude}",
+            *(f"{place.latitude},{place.longitude}" for place in best.places),
+            f"{origin.latitude},{origin.longitude}",
+        ]
+        try:
+            fare_yen = await asyncio.wait_for(
+                estimate_route_fare(via_points),
+                timeout=remaining_seconds,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Ekispert itinerary fare estimate timed out")
+        except HTTPException as error:
+            logger.warning(
+                "Ekispert itinerary fare estimate failed: status=%d",
+                error.status_code,
+            )
+    else:
+        logger.warning(
+            "Ekispert itinerary fare estimate skipped: request budget exhausted"
+        )
+
     if feasible is True:
         feasibility_note = "指定の帰着時刻内に収まる概算です。"
     elif feasible is False:
@@ -751,6 +810,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         origin=origin,
         places=list(best.places),
         legs=best.legs,
+        fare_yen=fare_yen,
         departure_at=datetime.combine(
             request.departure_date,
             request.departure_time,
