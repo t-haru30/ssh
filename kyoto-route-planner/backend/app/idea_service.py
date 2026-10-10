@@ -4,7 +4,7 @@ import random
 from fastapi import HTTPException
 
 from app.copywriting import generate_route_copywriting
-from app.image_search import search_pixabay_image
+from app.image_search import search_commercial_image
 from app.models import Place, RouteIdeaResponse, Theme
 
 logger = logging.getLogger(__name__)
@@ -24,11 +24,7 @@ async def generate_random_idea(
         )
 
     places = random.sample(candidates, min(requested_count or random.randint(2, 3), len(candidates)))
-    image_url = None
-    for image_query in (places[0].name, f"京都 {theme_label}", "京都"):
-        image_url = await search_pixabay_image(image_query)
-        if image_url:
-            break
+    image = await search_commercial_image(places[0].name)
 
     copywriting_source = "fallback"
     copywriting_note = "GEMINI_API_KEY未設定のため、簡易タイトルとストーリーを使用しています。"
@@ -57,7 +53,11 @@ async def generate_random_idea(
         title=title,
         story=story,
         places=places,
-        image_url=image_url,
+        image_url=image.image_url if image else None,
+        author_name=image.author_name if image else None,
+        source_url=image.source_url if image else None,
+        license_name=image.license_name if image else None,
+        license_url=image.license_url if image else None,
         copywriting_source=copywriting_source,
         note=f"{candidate_note} {copywriting_note}",
     )

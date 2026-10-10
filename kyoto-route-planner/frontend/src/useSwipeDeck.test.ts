@@ -24,6 +24,10 @@ function makeIdea(index: number): RouteIdea {
     story: "自然を巡るアイデアです。",
     places: [makePlace(`idea-${index}-a`), makePlace(`idea-${index}-b`)],
     image_url: null,
+    author_name: null,
+    source_url: null,
+    license_name: null,
+    license_url: null,
     copywriting_source: "fallback",
     note: "",
   };

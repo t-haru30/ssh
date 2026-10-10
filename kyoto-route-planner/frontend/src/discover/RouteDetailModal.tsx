@@ -1,11 +1,13 @@
-import { useEffect, useMemo } from "react";
-import { MapView } from "../MapView";
+import { lazy, Suspense, useEffect, useMemo } from "react";
 import { buildRouteTimeline, RouteTimeline } from "../RouteTimeline";
 import type { Origin, Place } from "../types";
 import type { DatasetRoute } from "./datasetTypes";
 import { formatMinutes } from "./DiscoverCard";
 
 const START: Origin = { name: "京都駅", latitude: 34.985849, longitude: 135.758766 };
+const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) => ({
+  default: Component,
+})));
 
 type RouteDetailModalProps = {
   route: DatasetRoute;
@@ -59,7 +61,20 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
           <button type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button>
         </header>
         <div className="route-modal-map">
-          <MapView places={places} origin={START} coordinates={[[START.latitude, START.longitude], ...route.coordinates]} legs={[]} />
+          <Suspense
+            fallback={
+              <div className="map-canvas map-canvas-placeholder" role="status">
+                地図を読み込んでいます…
+              </div>
+            }
+          >
+            <MapView
+              places={places}
+              origin={START}
+              coordinates={[[START.latitude, START.longitude], ...route.coordinates]}
+              legs={[]}
+            />
+          </Suspense>
         </div>
         <RouteTimeline items={items} />
         <p className="result-note">所要時間は直線距離からの目安です。実際の経路は「Search」タブで確認できます。</p>

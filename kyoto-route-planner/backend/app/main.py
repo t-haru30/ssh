@@ -18,7 +18,6 @@ from slowapi.util import get_remote_address
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
 from app.ekispert import search_route
-from app.image_search import search_pixabay_image
 from app.idea_service import generate_random_idea
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
