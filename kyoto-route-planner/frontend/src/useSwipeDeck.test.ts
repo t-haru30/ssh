@@ -61,6 +61,7 @@ function renderSwipeDeck(fallbackOnly = false) {
     departureTime: "09:00",
     onItineraryChange: vi.fn(),
     fallbackOnly: isFallbackOnly,
+    prefectureCode: "26",
   }), { initialProps: { isFallbackOnly: fallbackOnly } });
 }
 
@@ -81,6 +82,7 @@ describe("useSwipeDeck", () => {
     expect(result.current.error).toContain("3件は補充できませんでした");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toContain("/api/ideas?theme=all&count=5");
+    expect(fetchMock.mock.calls[0][0]).toContain("prefecture_code=26");
   });
 
   it("requests only pre-generated ideas when fallback-only mode is enabled", async () => {

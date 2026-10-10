@@ -83,6 +83,8 @@ class RouteSuggestions(BaseModel):
 
 class RouteIdeaResponse(BaseModel):
     theme: Theme
+    prefecture_code: str | None = Field(default=None, pattern=r"^(0[1-9]|[1-3][0-9]|4[0-7])$")
+    prefecture_name: str | None = Field(default=None, min_length=1, max_length=10)
     title: str = Field(min_length=1)
     story: str = Field(min_length=1)
     places: list[Place] = Field(min_length=2, max_length=3)
@@ -113,6 +115,12 @@ class RouteIdeaResponse(BaseModel):
             self.license_url,
         )):
             raise ValueError("commercial images require author, source, and license attribution")
+        return self
+
+    @model_validator(mode="after")
+    def validate_prefecture_tag(self):
+        if (self.prefecture_code is None) != (self.prefecture_name is None):
+            raise ValueError("prefecture code and name must be provided together")
         return self
 
 class RouteIdeaBatchResponse(BaseModel):

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { RouteIdea } from "../SwipeCard";
+import { usePrefecture } from "../PrefectureContext";
+import type { PrefectureCode } from "../PrefectureContext";
+import { useFavorites } from "../useFavorites";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DiscoverDirection } from "./DiscoverCard";
 import { RouteDetailModal } from "./RouteDetailModal";
@@ -33,6 +36,8 @@ type DiscoverModeProps = {
 };
 
 export function DiscoverMode({ active }: DiscoverModeProps) {
+  const { prefecture, setPrefectureCode } = usePrefecture();
+  const { saveFavorite } = useFavorites();
   const [routes, setRoutes] = useState<Array<DatasetRoute | RouteIdea>>([]);
   const [area, setArea] = useState("kyoto");
   const [index, setIndex] = useState(0);
@@ -62,7 +67,38 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
     if (!current) return;
     setExitDirection(direction);
     setIndex((value) => value + 1);
-    if (direction === "like") setSelected(current);
+    if (direction === "like") {
+      if ("spots" in current) {
+        const entry = indexEntries.find((candidate) => candidate.id === current.area);
+        saveFavorite({
+          theme: current.theme,
+          prefecture_code: entry?.prefecture_code ?? prefecture.code,
+          prefecture_name: entry?.name ?? prefecture.name,
+          title: current.title,
+          story: `${current.spots.length}か所を巡る事前サンプルルートです。`,
+          places: current.spots.map((spot) => ({
+            id: spot.place_id,
+            name: spot.name,
+            category: spot.category,
+            description: "",
+            access_point: "",
+            latitude: spot.lat,
+            longitude: spot.lng,
+            themes: [current.theme],
+          })),
+          image_url: null,
+          author_name: null,
+          source_url: null,
+          license_name: null,
+          license_url: null,
+          copywriting_source: "fallback",
+          note: "事前サンプル",
+        });
+      } else {
+        saveFavorite(current);
+      }
+      setSelected(current);
+    }
   }
 
   return (
@@ -74,7 +110,12 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
       </div>
       <label className="prefecture-picker">
         都道府県
-        <select value={area} onChange={(event) => setArea(event.target.value)}>
+        <select value={area} onChange={(event) => {
+          const nextArea = event.target.value;
+          setArea(nextArea);
+          const entry = indexEntries.find((candidate) => candidate.id === nextArea);
+          if (entry) setPrefectureCode(entry.prefecture_code as PrefectureCode);
+        }}>
           {prefectureDatasets.map((dataset) => (
             <option key={dataset.area} value={dataset.area}>
               {prefectureNames[dataset.area] ?? dataset.area}

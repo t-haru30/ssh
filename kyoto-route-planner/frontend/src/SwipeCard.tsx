@@ -6,6 +6,8 @@ export type SwipeDirection = SharedSwipeDirection;
 
 export type RouteIdea = {
   theme: Place["themes"][number];
+  prefecture_code?: string | null;
+  prefecture_name?: string | null;
   title: string;
   story: string;
   places: Place[];
