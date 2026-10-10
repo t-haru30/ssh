@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
@@ -23,6 +23,7 @@ export function IdeaDeck({
   onItineraryChange,
   onClose,
 }: IdeaDeckProps) {
+  const [fallbackOnly, setFallbackOnly] = useState(false);
   const {
     ideas,
     loadingIdeas,
@@ -37,7 +38,7 @@ export function IdeaDeck({
     activePlaces,
     loadIdeas,
     handleSwipe,
-  } = useSwipeDeck({ origin, departureDate, departureTime, onItineraryChange });
+  } = useSwipeDeck({ origin, departureDate, departureTime, onItineraryChange, fallbackOnly });
 
   useEffect(() => {
     onActivePlacesChange(activePlaces);
@@ -50,8 +51,26 @@ export function IdeaDeck({
           <p className="eyebrow">SWIPE YOUR KYOTO</p>
           <h2 id="idea-deck-title">{itinerary ? "旅のプラン" : "直感で、次の寄り道を。"}</h2>
         </div>
-        <button className="idea-close-button" type="button" onClick={onClose}>閉じる</button>
+        <div className="idea-deck-heading-actions">
+          {!itinerary && (
+            <button
+              className={`idea-source-toggle${fallbackOnly ? " active" : ""}`}
+              type="button"
+              aria-pressed={fallbackOnly}
+              disabled={adopting}
+              onClick={() => setFallbackOnly((value) => !value)}
+            >
+              {fallbackOnly ? "事前サンプル中" : "事前サンプルを使う"}
+            </button>
+          )}
+          <button className="idea-close-button" type="button" onClick={onClose}>閉じる</button>
+        </div>
       </div>
+      {fallbackOnly && !itinerary && (
+        <p className="idea-source-status" role="status">
+          提案・画像の外部APIを使わず、事前サンプルを表示しています。採用後の経路検索には駅すぱあとAPIを使用します。
+        </p>
+      )}
 
       {error && (
         <div className="idea-error" role="alert">
@@ -129,7 +148,9 @@ export function IdeaDeck({
             {!loadingIdeas && ideas.length === 0 && failedLoadCount === 0 && (
               <div className="idea-empty">
                 <p>表示できるアイデアがありません。</p>
-                <button className="idea-primary-button" type="button" onClick={() => void loadIdeas(false)}>もう一度取得</button>
+                <button className="idea-primary-button" type="button" onClick={() => void loadIdeas(false)}>
+                  {fallbackOnly ? "事前サンプルを最初から見る" : "もう一度取得"}
+                </button>
               </div>
             )}
           </div>
@@ -143,7 +164,7 @@ export function IdeaDeck({
             </p>
           )}
           <p className="idea-deck-footnote">残り {ideas.length} 件</p>
-          {!loadingIdeas && ideas.length <= LOW_CARD_COUNT && !adopting && (
+          {!fallbackOnly && !loadingIdeas && ideas.length <= LOW_CARD_COUNT && !adopting && (
             <button className="idea-reload-button" type="button" onClick={() => void loadIdeas(true)}>アイデアを追加で読み込む</button>
           )}
         </>

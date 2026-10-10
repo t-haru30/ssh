@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
 import { buildRouteTimeline, RouteTimeline } from "../RouteTimeline";
 import type { Origin, Place } from "../types";
+import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
 import { formatMinutes } from "./DiscoverCard";
 
@@ -10,9 +11,13 @@ const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) =>
 })));
 
 type RouteDetailModalProps = {
-  route: DatasetRoute;
+  route: DatasetRoute | RouteIdea;
   onClose: () => void;
 };
+
+function isDatasetRoute(route: DatasetRoute | RouteIdea): route is DatasetRoute {
+  return "spots" in route;
+}
 
 function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][number]): Place {
   return {
@@ -28,8 +33,17 @@ function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][num
 }
 
 export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
-  const places = useMemo(() => route.spots.map((spot) => toPlace(spot, route.theme)), [route]);
+  const isStaticRoute = isDatasetRoute(route);
+  const places = useMemo(
+    () => isStaticRoute
+      ? route.spots.map((spot) => toPlace(spot, route.theme))
+      : route.places,
+    [isStaticRoute, route],
+  );
   const items = useMemo(() => buildRouteTimeline(START, places, "09:00", null), [places]);
+  const coordinates: [number, number][] = isStaticRoute
+    ? route.coordinates
+    : route.places.map((place) => [place.latitude, place.longitude]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -55,7 +69,9 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
       >
         <header className="route-modal-header">
           <div>
-            <p className="eyebrow">YOUR PICK · 約{formatMinutes(route.estimated_minutes)}</p>
+            <p className="eyebrow">
+              YOUR PICK · {isStaticRoute ? `約${formatMinutes(route.estimated_minutes)}` : `${route.places.length}か所`}
+            </p>
             <h2>{route.title}</h2>
           </div>
           <button type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button>
@@ -71,7 +87,7 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
             <MapView
               places={places}
               origin={START}
-              coordinates={[[START.latitude, START.longitude], ...route.coordinates]}
+              coordinates={[[START.latitude, START.longitude], ...coordinates]}
               legs={[]}
             />
           </Suspense>
