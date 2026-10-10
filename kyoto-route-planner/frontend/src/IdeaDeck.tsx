@@ -4,6 +4,7 @@ import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import { useSwipeDeck } from "./useSwipeDeck";
 import { usePrefecture } from "./PrefectureContext";
+import { useFavorites } from "./useFavorites";
 
 const LOW_CARD_COUNT = 3;
 
@@ -26,6 +27,7 @@ export function IdeaDeck({
 }: IdeaDeckProps) {
   const [fallbackOnly, setFallbackOnly] = useState(false);
   const { prefecture } = usePrefecture();
+  const { saveFavorite } = useFavorites();
   const {
     ideas,
     loadingIdeas,
@@ -48,6 +50,11 @@ export function IdeaDeck({
     fallbackOnly,
     prefectureCode: prefecture.code,
   });
+
+  function swipe(direction: Parameters<typeof handleSwipe>[0]) {
+    if (direction === "accept" && ideas[0]) saveFavorite(ideas[0]);
+    void handleSwipe(direction);
+  }
 
   useEffect(() => {
     onActivePlacesChange(activePlaces);
@@ -98,7 +105,7 @@ export function IdeaDeck({
             <button
               className="idea-primary-button"
               type="button"
-              onClick={() => void handleSwipe("accept")}
+              onClick={() => swipe("accept")}
               disabled={adopting}
             >
               このルートを再試行
@@ -150,7 +157,7 @@ export function IdeaDeck({
                   depth={2 - index}
                   isProcessing={adopting}
                   exitDirection={swipeDirection}
-                  onSwipe={(direction) => void handleSwipe(direction)}
+                  onSwipe={swipe}
                 />
               ))}
             </AnimatePresence>
@@ -165,7 +172,7 @@ export function IdeaDeck({
           </div>
           <div className="idea-actions">
             <button type="button" className="idea-action-button skip" onClick={() => void handleSwipe("skip")} disabled={!ideas.length || adopting} aria-label="スキップ">×</button>
-            <button type="button" className="idea-action-button accept" onClick={() => void handleSwipe("accept")} disabled={!ideas.length || adopting} aria-label="このアイデアを採用">✓</button>
+            <button type="button" className="idea-action-button accept" onClick={() => swipe("accept")} disabled={!ideas.length || adopting} aria-label="このアイデアを採用">✓</button>
           </div>
           {adopting && (
             <p className="idea-loading" role="status">
