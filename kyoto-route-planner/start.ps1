@@ -66,7 +66,7 @@ elseif ($health) {
 else {
     $backendLiteral = $backend.Replace("'", "''")
     $pythonLiteral = $python.Replace("'", "''")
-    $command = "Set-Location -LiteralPath '$backendLiteral'; & '$pythonLiteral' -m uvicorn app.main:app --host 127.0.0.1 --port 8000"
+    $command = "Set-Location -LiteralPath '$backendLiteral'; & '$pythonLiteral' -X utf8 -m uvicorn app.main:app --host 127.0.0.1 --port 8000"
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     Start-Process -FilePath "powershell.exe" `
         -ArgumentList @("-NoLogo", "-NoExit", "-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand", $encoded) `
