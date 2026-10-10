@@ -4,6 +4,8 @@
   "ideas": [
     {
       "theme": "temple",
+      "prefecture_code": "26",
+      "prefecture_name": "京都府",
       "title": "清水寺から高台寺へ、東山の寺院めぐり",
       "story": "清水寺と高台寺を訪ね、東山の歴史ある景色を楽しむルートです。",
       "places": [
@@ -42,6 +44,8 @@
     },
     {
       "theme": "history",
+      "prefecture_code": "26",
+      "prefecture_name": "京都府",
       "title": "伏見稲荷大社から東福寺へ、伏見の歴史散歩",
       "story": "伏見稲荷大社と東福寺を巡り、京都の歴史に触れるルートです。",
       "places": [
@@ -80,6 +84,8 @@
     },
     {
       "theme": "nature",
+      "prefecture_code": "26",
+      "prefecture_name": "京都府",
       "title": "渡月橋から竹林の小径へ、嵐山さんぽ",
       "story": "渡月橋と竹林の小径を訪れ、嵐山の景色を楽しむルートです。",
       "places": [
@@ -118,6 +124,8 @@
     },
     {
       "theme": "food",
+      "prefecture_code": "26",
+      "prefecture_name": "京都府",
       "title": "錦市場から先斗町へ、京の食べ歩き",
       "story": "錦市場と先斗町を巡り、京都の街なかを楽しむルートです。",
       "places": [
@@ -156,6 +164,8 @@
     },
     {
       "theme": "nature",
+      "prefecture_code": "26",
+      "prefecture_name": "京都府",
       "title": "銀閣寺から哲学の道へ、東山の散策",
       "story": "銀閣寺と哲学の道を巡り、東山の散策を楽しむルートです。",
       "places": [

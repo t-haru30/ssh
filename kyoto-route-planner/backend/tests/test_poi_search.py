@@ -18,6 +18,18 @@ from app.poi_search import (
 from app.search import parse_place_query
 
 
+class PrefectureParsingTests(unittest.TestCase):
+    def test_prefecture_names_are_not_misread_as_theme_or_category_keywords(self):
+        for prefecture_name in ("北海道", "宮城県", "山形県"):
+            with self.subTest(prefecture=prefecture_name):
+                intent = parse_place_query(prefecture_name)
+
+                self.assertEqual(intent.region, prefecture_name)
+                self.assertEqual(intent.preferences, [])
+                self.assertIsNone(intent.category)
+                self.assertEqual(intent.keywords, [])
+
+
 def yahoo_feature(
     name: str = "京都の神社",
     category: str = "神社",

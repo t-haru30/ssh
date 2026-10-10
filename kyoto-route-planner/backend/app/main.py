@@ -419,6 +419,10 @@ async def recommend_random_idea(
     theme: Theme | None = None,
     spot_count: int | None = Query(default=None, ge=2, le=3),
     use_fallback: bool = False,
+    prefecture_code: str | None = Query(
+        default=None,
+        pattern=r"^(0[1-9]|[1-3][0-9]|4[0-7])$",
+    ),
     exclude: list[Annotated[str, Field(min_length=1, max_length=600)]] = Query(
         default=[],
         max_length=50,
@@ -433,6 +437,7 @@ async def recommend_random_idea(
         spot_count=spot_count,
         use_fallback=use_fallback,
         exclude=exclude,
+        prefecture_code=prefecture_code,
     )
     return batch.ideas[0]
 
@@ -446,6 +451,10 @@ async def recommend_ideas(
     count: int = Query(default=5, ge=1, le=10),
     spot_count: int | None = Query(default=None, ge=2, le=3),
     use_fallback: bool = False,
+    prefecture_code: str | None = Query(
+        default=None,
+        pattern=r"^(0[1-9]|[1-3][0-9]|4[0-7])$",
+    ),
     exclude: list[Annotated[str, Field(min_length=1, max_length=600)]] = Query(
         default=[],
         max_length=50,
@@ -460,6 +469,7 @@ async def recommend_ideas(
         spot_count=spot_count,
         use_fallback=use_fallback,
         exclude=exclude,
+        prefecture_code=prefecture_code,
     )
 
 
@@ -470,6 +480,7 @@ async def _provide_idea_batch(
     spot_count: int | None,
     use_fallback: bool,
     exclude: list[str],
+    prefecture_code: str | None = None,
 ) -> RouteIdeaBatchResponse:
     live_ideas: list[RouteIdeaResponse] = []
     excluded_signatures = {
@@ -479,7 +490,7 @@ async def _provide_idea_batch(
         and all(signature_part for signature_part in signature.split("|"))
     }
     fallback_pool = getattr(request.app.state, "fallback_ideas", [])
-    if not use_fallback:
+    if not use_fallback and prefecture_code is None:
         deadline = time.monotonic() + REALTIME_IDEA_TIMEOUT_SECONDS
         try:
             candidates, candidate_note = await asyncio.wait_for(
@@ -531,6 +542,7 @@ async def _provide_idea_batch(
         count - len(live_ideas),
         theme,
         excluded_signatures,
+        prefecture_code,
     )
     for idea in fallback_ideas:
         live_ideas.append(idea.model_copy(update={

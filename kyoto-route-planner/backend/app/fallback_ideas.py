@@ -39,11 +39,14 @@ def select_fallback_ideas(
     count: int,
     theme: Theme,
     excluded_signatures: set[tuple[str, ...]] | None = None,
+    prefecture_code: str | None = None,
 ) -> list[RouteIdeaResponse]:
     excluded = excluded_signatures or set()
     eligible: list[RouteIdeaResponse] = []
     seen: set[tuple[str, ...]] = set(excluded)
     for idea in ideas:
+        if prefecture_code is not None and idea.prefecture_code != prefecture_code:
+            continue
         if theme != "all" and idea.theme not in {theme, "all"}:
             continue
         signature = tuple(sorted(place.id for place in idea.places))
