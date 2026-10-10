@@ -550,6 +550,7 @@ a { color: inherit; text-decoration: none; }
 /* Search mode: 検索前は中央フォームのみ、検索後は上部stickyマップ＋下部タイムライン（雑誌風） */
 .search-stage { display: block; max-width: 760px; margin: 18px auto 0; }
 .search-stage.has-result { max-width: 880px; }
+.search-mode--result { overflow-x: clip; }
 .search-mode--result .hero,
 .search-mode--result .swipe-launch-button { display: none; }
 .hero-map { position: sticky; top: 0; z-index: 10; height: 42vh; min-height: 260px; margin: 0 -38px; background: var(--map-surface); box-shadow: 0 6px 18px rgba(34, 43, 37, .16); }

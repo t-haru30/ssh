@@ -335,29 +335,33 @@ export function MapView({
       });
     }
 
-    if (locations.length > 1) {
-      const bounds = new LngLatBounds();
-      locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
-      map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: fitDuration });
-    } else if (locations.length === 1) {
-      map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: fitDuration });
-    } else {
-      map.flyTo({ center: kyotoCenter, zoom: 11, duration: fitDuration });
-    }
+    const applyCameraAndRoute = () => {
+      if (locations.length > 1) {
+        const bounds = new LngLatBounds();
+        locations.forEach((point) => bounds.extend([point.longitude, point.latitude]));
+        map.fitBounds(bounds, { padding: 64, maxZoom: 13, duration: fitDuration });
+      } else if (locations.length === 1) {
+        map.flyTo({ center: [locations[0].longitude, locations[0].latitude], zoom: 13, duration: fitDuration });
+      } else {
+        map.flyTo({ center: kyotoCenter, zoom: 11, duration: fitDuration });
+      }
 
-    const source = map.getSource("route");
-    if (source?.type === "geojson") {
-      (source as GeoJSONSource).setData({
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "LineString",
-          coordinates: routeFeature(coordinates).geometry.coordinates,
-        },
-      });
-    }
+      const source = map.getSource("route");
+      if (source?.type === "geojson") {
+        (source as GeoJSONSource).setData(routeFeature(coordinates));
+      }
+    };
 
-  }, [origin, places, coordinates, legs]);
+    // スタイル読み込み前にカメラやソースを操作するとエラーになるため load を待つ
+    if (map.isStyleLoaded()) {
+      applyCameraAndRoute();
+      return;
+    }
+    map.once("load", applyCameraAndRoute);
+    return () => {
+      map.off("load", applyCameraAndRoute);
+    };
+  }, [origin, places, coordinates, legs, fitDuration]);
 
   useEffect(() => {
     markersRef.current.forEach((marker) => {

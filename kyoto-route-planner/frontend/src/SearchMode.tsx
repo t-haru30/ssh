@@ -293,7 +293,7 @@ export function SearchMode({ active }: SearchModeProps) {
     setFormCollapsed(hasResult);
   }, [hasResult]);
 
-  // Scroll Spy: 地図に隠れない画面下側の帯に入ったスポットをハイライトする
+  // Scroll Spy: 画面中央の帯に入ったスポットをハイライトする
   useEffect(() => {
     setActiveSpotId(null);
     const container = timelineAreaRef.current;
@@ -304,7 +304,7 @@ export function SearchMode({ active }: SearchModeProps) {
       const visible = entries.filter((entry) => entry.isIntersecting);
       const last = visible[visible.length - 1];
       if (last) setActiveSpotId((last.target as HTMLElement).dataset.spotId ?? null);
-    }, { rootMargin: "-60% 0px -25% 0px", threshold: 0 });
+    }, { rootMargin: "-35% 0px -35% 0px", threshold: 0 });
     targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
   }, [hasResult, suggestions, overnightSuggestion]);
