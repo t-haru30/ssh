@@ -155,27 +155,32 @@ function createSpotMarker(location: MarkerLocation) {
   return element;
 }
 
-function findPathMidpoint(coordinates: [number, number][]) {
-  if (coordinates.length === 0) return null;
-  if (coordinates.length === 1) return coordinates[0];
-  const lengths = coordinates.slice(1).map((point, index) => (
-    Math.hypot(point[0] - coordinates[index][0], point[1] - coordinates[index][1])
-  ));
-  const totalLength = lengths.reduce((sum, length) => sum + length, 0);
-  if (totalLength === 0) return coordinates[0];
-  let remaining = totalLength / 2;
-  for (let index = 0; index < lengths.length; index += 1) {
-    const segmentLength = lengths[index];
-    if (remaining <= segmentLength) {
-      const ratio = segmentLength === 0 ? 0 : remaining / segmentLength;
-      return [
-        coordinates[index][0] + (coordinates[index + 1][0] - coordinates[index][0]) * ratio,
-        coordinates[index][1] + (coordinates[index + 1][1] - coordinates[index][1]) * ratio,
-      ] as [number, number];
-    }
-    remaining -= segmentLength;
-  }
-  return coordinates[coordinates.length - 1];
+function findTransitMarkers(
+  locations: MarkerLocation[],
+  legs: RouteLeg[],
+) {
+  if (locations.length < 2 || legs.length === 0) return [];
+  const segmentCount = locations.length - 1;
+  return locations.slice(1).flatMap((destination, index) => {
+    const start = locations[index];
+    const startLeg = Math.floor(index * legs.length / segmentCount);
+    const endLeg = Math.floor((index + 1) * legs.length / segmentCount);
+    const segmentLegs = legs.slice(startLeg, endLeg);
+    const midpoint: [number, number] = [
+      (start.latitude + destination.latitude) / 2,
+      (start.longitude + destination.longitude) / 2,
+    ];
+    const modes = [...new Set(segmentLegs
+      .map((leg) => getModeIcon(leg.mode)?.icon)
+      .filter((mode): mode is keyof typeof modeIcons => mode !== undefined))];
+    return modes.map((mode, modeIndex) => ({
+      mode,
+      midpoint,
+      offset: (modeIndex - (modes.length - 1) / 2) * 26,
+      fromName: start.name,
+      toName: destination.name,
+    }));
+  });
 }
 
 function routeFeature(coordinates: [number, number][]) {
@@ -189,6 +194,22 @@ function routeFeature(coordinates: [number, number][]) {
         : [],
     },
   };
+}
+
+function createRouteArrowImage() {
+  const size = 32;
+  const pixels = new Uint8ClampedArray(size * size * 4);
+  for (let y = 3; y < size - 3; y += 1) {
+    const maxX = 28 - Math.abs(y - 16) * 1.5;
+    for (let x = 4; x <= maxX; x += 1) {
+      const index = (y * size + x) * 4;
+      pixels[index] = 169;
+      pixels[index + 1] = 79;
+      pixels[index + 2] = 57;
+      pixels[index + 3] = 255;
+    }
+  }
+  return new ImageData(pixels, size, size);
 }
 
 export function MapView({
@@ -252,6 +273,22 @@ export function MapView({
           "line-opacity": 0.9,
           "line-dasharray": [1.2, 1.6],
         },
+      });
+      map.addImage("route-direction-arrow", createRouteArrowImage());
+      map.addLayer({
+        id: "route-direction-arrows",
+        type: "symbol",
+        source: "route",
+        layout: {
+          "symbol-placement": "line",
+          "symbol-spacing": 80,
+          "icon-image": "route-direction-arrow",
+          "icon-size": 0.7,
+          "icon-rotation-alignment": "map",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+        paint: { "icon-opacity": 0.95 },
       });
       mapLoadedRef.current = true;
       syncMapRef.current();
@@ -321,32 +358,25 @@ export function MapView({
         markersRef.current.push(marker);
       }
 
-      const midpoint = findPathMidpoint(currentCoordinates);
-      const uniqueModes = [...new Set(currentLegs.map((leg) => getModeIcon(leg.mode)?.icon).filter(
-        (mode): mode is keyof typeof modeIcons => mode !== undefined && mode !== null,
-      ))];
-      if (midpoint && uniqueModes.length > 0) {
-        uniqueModes.forEach((mode, index) => {
-          const modeIcon = modeIcons[mode];
-          const element = document.createElement("div");
-          element.className = `map-transit-marker map-transit-${mode}`;
-          element.setAttribute("role", "img");
-          element.setAttribute("aria-label", `ルート上の移動手段: ${modeIcon.label}`);
-          element.innerHTML = iconSvg(modeIcon.svg);
-          const offset = (index - (uniqueModes.length - 1) / 2) * 28;
-          const marker = new Marker({
-            element,
-            anchor: "center",
-            offset: [offset, 0],
-          })
-            .setLngLat([midpoint[1], midpoint[0]])
-            .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
-              `このルートに含まれる移動手段: ${modeIcon.label}`,
-            ))
-            .addTo(map);
-          markersRef.current.push(marker);
-        });
-      }
+      findTransitMarkers(locations, currentLegs).forEach((transit) => {
+        const modeIcon = modeIcons[transit.mode];
+        const element = document.createElement("div");
+        element.className = `map-transit-marker map-transit-${transit.mode}`;
+        element.setAttribute("role", "img");
+        element.setAttribute("aria-label", `${transit.fromName}から${transit.toName}への移動手段: ${modeIcon.label}`);
+        element.innerHTML = iconSvg(modeIcon.svg);
+        const marker = new Marker({
+          element,
+          anchor: "center",
+          offset: [transit.offset, 0],
+        })
+          .setLngLat([transit.midpoint[1], transit.midpoint[0]])
+          .setPopup(new Popup({ closeButton: false, offset: 14 }).setText(
+            `${transit.fromName} → ${transit.toName}: ${modeIcon.label}`,
+          ))
+          .addTo(map);
+        markersRef.current.push(marker);
+      });
 
       if (locations.length > 1) {
         const bounds = new LngLatBounds();
