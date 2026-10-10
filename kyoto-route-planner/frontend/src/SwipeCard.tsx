@@ -10,7 +10,11 @@ export type RouteIdea = {
   title: string;
   story: string;
   places: Place[];
-  image_url?: string | null;
+  image_url: string | null;
+  author_name: string | null;
+  source_url: string | null;
+  license_name: string | null;
+  license_url: string | null;
   copywriting_source: "gemini" | "fallback";
   note: string;
 };
@@ -107,7 +111,26 @@ export function SwipeCard({ idea, depth, isProcessing, onSwipe }: SwipeCardProps
             <span>{idea.places[0]?.name ?? "京都"}</span>
           </div>
         )}
-        {hasCoverImage && <span className="swipe-cover-image-label">イメージ画像</span>}
+        {hasCoverImage && (
+          <>
+            <span className="swipe-cover-image-label">イメージ画像</span>
+            {idea.author_name && idea.source_url && idea.license_name && idea.license_url && (
+              <div className="swipe-cover-credit" onPointerDown={(event) => event.stopPropagation()}>
+                <a href={idea.source_url} target="_blank" rel="noopener noreferrer">
+                  {idea.author_name}
+                </a>
+                <a
+                  className="swipe-cover-license"
+                  href={idea.license_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {idea.license_name}
+                </a>
+              </div>
+            )}
+          </>
+        )}
         <span className="swipe-cover-badge">{idea.places.length}か所</span>
       </div>
       <div className="swipe-card-copy">

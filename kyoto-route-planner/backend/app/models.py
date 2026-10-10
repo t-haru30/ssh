@@ -2,7 +2,7 @@ from datetime import date, time
 from typing import Annotated, Literal, Union
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 Theme = Literal["all", "history", "temple", "nature", "food"]
 Latitude = Annotated[float, Field(ge=-90, le=90)]
@@ -87,18 +87,33 @@ class RouteIdeaResponse(BaseModel):
     story: str = Field(min_length=1)
     places: list[Place] = Field(min_length=2, max_length=3)
     image_url: str | None = Field(default=None, max_length=2048)
+    author_name: str | None = Field(default=None, max_length=300)
+    source_url: str | None = Field(default=None, max_length=2048)
+    license_name: str | None = Field(default=None, max_length=120)
+    license_url: str | None = Field(default=None, max_length=2048)
     copywriting_source: Literal["gemini", "fallback"]
     note: str
 
-    @field_validator("image_url")
+    @field_validator("image_url", "source_url", "license_url")
     @classmethod
-    def validate_image_url(cls, value: str | None) -> str | None:
+    def validate_https_url(cls, value: str | None) -> str | None:
         if value is None:
             return None
         parsed = urlparse(value)
         if parsed.scheme != "https" or not parsed.netloc:
-            raise ValueError("image_url must be an absolute HTTPS URL")
+            raise ValueError("image and attribution URLs must be absolute HTTPS URLs")
         return value
+
+    @model_validator(mode="after")
+    def validate_image_attribution(self):
+        if self.image_url is not None and not all((
+            self.author_name,
+            self.source_url,
+            self.license_name,
+            self.license_url,
+        )):
+            raise ValueError("commercial images require author, source, and license attribution")
+        return self
 
 class LabelPreference(BaseModel):
     label_type: Literal["atmosphere", "target_audience", "activity_type"]

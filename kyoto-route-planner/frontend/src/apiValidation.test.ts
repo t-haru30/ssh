@@ -28,6 +28,10 @@ const validIdea = {
     },
   ],
   image_url: null,
+  author_name: null,
+  source_url: null,
+  license_name: null,
+  license_url: null,
   copywriting_source: "fallback",
   note: "",
 };
@@ -45,6 +49,21 @@ describe("API response validation", () => {
     expect(isRouteIdea({
       ...validIdea,
       places: [validIdea.places[0], { ...validIdea.places[1], latitude: 100 }],
+    })).toBe(false);
+  });
+
+  it("requires complete author, source, and license attribution for an image", () => {
+    expect(isRouteIdea({
+      ...validIdea,
+      image_url: "https://upload.wikimedia.org/example.jpg",
+      author_name: "Photographer",
+      source_url: "https://commons.wikimedia.org/wiki/File:Example.jpg",
+      license_name: "CC BY-SA 4.0",
+      license_url: "https://creativecommons.org/licenses/by-sa/4.0/",
+    })).toBe(true);
+    expect(isRouteIdea({
+      ...validIdea,
+      image_url: "https://upload.wikimedia.org/example.jpg",
     })).toBe(false);
   });
 });

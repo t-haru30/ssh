@@ -63,7 +63,7 @@
 | `POST /api/itineraries/overnight` | 1泊2日の旅程提案 | Yahoo!、駅すぱあと |
 | `POST /api/routes` | 条件指定ルート検索 | Yahoo!、駅すぱあと |
 | `GET /api/routes/random` | ランダム条件のルート検索 | Yahoo!、駅すぱあと |
-| `GET /api/ideas/random` | 軽量なスワイプ用アイデア | Yahoo!、任意でGemini・Pixabay |
+| `GET /api/ideas/random` | 軽量なスワイプ用アイデア | Yahoo!、任意でGemini・Wikimedia Commons・Flickr |
 
 外部APIを呼ぶ検索系エンドポイントにはIP単位のレート制限があります。Cloud Runではインスタンス間で制限を共有するRedis接続が必要です。
 
@@ -75,13 +75,14 @@
 | Yahoo! Geocoder | 登録駅以外の検索地点の座標解決 | `YAHOO_APP_ID` |
 | 駅すぱあとAPI | 公共交通経路・時刻の検索 | `EKISPERT_API_KEY`、`EKISPERT_APPLICATION_URL` |
 | Google Gemini | ルートのタイトル・ストーリー生成。未設定・失敗時はテンプレート | `GEMINI_API_KEY`、任意で`GEMINI_MODEL` |
-| Pixabay | IdeaDeckのカバー画像検索。未設定時はプレースホルダー | `PIXABAY_API_KEY` |
+| Wikimedia Commons | IdeaDeckのカバー画像を検索し、ライセンスと著作者を確認 | 追加キーなし |
+| Flickr | Wikimedia Commonsで見つからない場合の商用利用可能画像検索 | `FLICKR_API_KEY` |
 | Wikidata / Wikipedia | スポット人気度（サイトリンク数・ページビュー）同期・スコア算出 | 追加キーなし |
 | OpenFreeMap / OpenStreetMap | 地図タイル・地理データの帰属 | 追加キーなし |
 
 キーは `backend/.env` に保存し、Gitへコミットしません。設定名だけを示しています。実際のキー値を共有資料やチャットに貼らないでください。
 
-Yahoo!が未設定・失敗・0件の場合、POIは空結果と状態情報として扱い、別事業者やサンプルPOIへ暗黙に切り替えません。GeminiとPixabayは任意機能です。
+Yahoo!が未設定・失敗・0件の場合、POIは空結果と状態情報として扱い、別事業者やサンプルPOIへ暗黙に切り替えません。GeminiとFlickrは任意機能です。カバー画像はWikimedia Commonsを先に検索し、商用利用可能なライセンスと著作者を確認できた画像だけを採用します。確認できない場合はFlickrのライセンスID 4〜10に限定して検索し、それも使えない場合は画像なしで表示します。
 
 ## 6. SQLiteとデータ
 
@@ -123,7 +124,7 @@ kyoto-route-planner/
 │  ├─ app/itinerary.py           # 旅程生成
 │  ├─ app/popularity.py          # Wikidata/Wikipedia人気度
 │  ├─ app/copywriting.py         # Geminiコピー生成
-│  └─ app/image_search.py        # Pixabay画像検索
+│  └─ app/image_search.py        # Wikimedia Commons / Flickr画像検索とライセンス検証
 └─ DEVELOPMENT_OVERVIEW.md       # この共有資料
 ```
 
@@ -151,7 +152,7 @@ cd ..
 ## 9. 制約・注意事項
 
 - POI検索・経路検索は外部APIの利用条件、利用量、レート制限、ネットワーク状態に依存します。駅すぱあとAPIの利用登録ドメインと契約条件を確認してください。
-- Gemini・Pixabay・Yahoo!の認証情報はサーバー側だけで扱います。ログやブラウザーへキーを出さないでください。
+- Gemini・Flickr・Yahoo!の認証情報はサーバー側だけで扱います。ログやブラウザーへキーを出さないでください。
 - DiscoverのサンプルJSONは画面確認用であり、生成バッチの最新データではありません。
 - バッチとDiscoverの統合後は、バッチJSONのスキーマ変更時にフロントエンド型・表示処理も合わせて更新してください。
 - ルート候補の選定順、徒歩部分、スポット滞在時間には推定が含まれます。営業時間や実地での安全・通行可否を保証しません。

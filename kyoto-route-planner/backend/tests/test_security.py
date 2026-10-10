@@ -117,7 +117,7 @@ class SecurityTests(unittest.TestCase):
                 new=AsyncMock(return_value=(places, "test candidates")),
             ) as candidates,
             patch("app.idea_service.generate_route_copywriting", new=AsyncMock(return_value=None)),
-            patch("app.idea_service.search_pixabay_image", new=AsyncMock(return_value=None)),
+            patch("app.idea_service.search_commercial_image", new=AsyncMock(return_value=None)),
         ):
             responses = [
                 client.get("/api/ideas/random?theme=nature&spot_count=2")
