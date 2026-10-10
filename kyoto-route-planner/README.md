@@ -30,6 +30,8 @@ GET /api/ideas/random?theme=nature&spot_count=2
 
 応答には`theme`、`title`、`story`、`places`、`image_url`、`copywriting_source`、`note`が含まれます。Pixabay APIキーを設定するとメインスポット名でカバー画像を検索します。画像が見つからない場合やAPIキー未設定・通信失敗時の`image_url`は`null`で、スワイプカードはテーマ別グラデーションを表示します。Gemini利用時は`copywriting_source`が`gemini`、フォールバック時は`fallback`です。
 
+Geminiの既定モデルは`gemini-3.8-flash`です。別の利用可能なモデルを使う場合だけ、`backend/.env`で`GEMINI_MODEL`を明示的に指定してください。
+
 カバー画像を有効にする場合は[Pixabay API](https://pixabay.com/api/docs/)からAPIキーを取得し、バックエンドの`.env`へ`PIXABAY_API_KEY`として設定してください。キーはバックエンド内でのみ利用します。
 
 フロントエンドのスワイプ画面では`frontend`フォルダーで `npm install framer-motion` を実行してから開発サーバーまたは本番ビルドを実行します。右スワイプしたカードの選択済みスポットは`POST /api/itineraries`の`selected_places`へ渡され、Yahoo!へ再検索せずに駅すぱあと経路を計算します。
