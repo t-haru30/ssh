@@ -1,4 +1,3 @@
-import os
 import unittest
 from fastapi import HTTPException
 from unittest.mock import AsyncMock, Mock, patch
@@ -9,8 +8,6 @@ from fastapi.testclient import TestClient
 
 from app.copywriting import RouteCopywriting
 from app.image_search import (
-    FLICKR_COMMERCIAL_LICENSES,
-    FLICKR_API_URL,
     WIKIPEDIA_API_URL,
     WIKIMEDIA_USER_AGENT,
     CommercialImage,
@@ -231,14 +228,7 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_wikipedia_image_is_used_first_with_license_and_author(self):
         client, client_context = self._client_context(*self._wikipedia_responses())
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
-            patch(
-                "app.image_search.httpx.AsyncClient",
-                return_value=client_context,
-            ) as async_client,
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context) as async_client:
             image = await search_commercial_image("清水寺")
 
         self.assertEqual(image, CommercialImage(
@@ -268,11 +258,7 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
         })
         image_response = self._wikipedia_responses()[1]
         client, client_context = self._client_context(page_response, image_response)
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             image = await search_commercial_image("京都の寺院")
 
         self.assertIsNotNone(image)
@@ -283,57 +269,6 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
             "File:Kiyomizu-dera.jpg|File:Kyoto-temple.jpg",
         )
         self.assertEqual(metadata_call.kwargs["params"]["maxlag"], 5)
-
-    async def test_flickr_is_used_only_after_wikipedia_and_excludes_noncommercial_hits(self):
-        flickr_payload = {
-            "stat": "ok",
-            "photos": {
-                "photo": [
-                    {
-                        "id": "100",
-                        "owner": "owner-nc",
-                        "ownername": "Noncommercial photographer",
-                        "license": "2",
-                        "url_l": "https://live.staticflickr.com/nc.jpg",
-                    },
-                    {
-                        "id": "101",
-                        "owner": "owner-cc",
-                        "ownername": "Commercial photographer",
-                        "license": "5",
-                        "url_l": "https://live.staticflickr.com/cc.jpg",
-                    },
-                ],
-            },
-        }
-        client, client_context = self._client_context(
-            self._response({"query": {"pages": []}}),
-            self._response(flickr_payload),
-        )
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
-            image = await search_commercial_image("東福寺")
-
-        self.assertEqual(image, CommercialImage(
-            image_url="https://live.staticflickr.com/cc.jpg",
-            author_name="Commercial photographer",
-            source_url="https://www.flickr.com/photos/owner-cc/101",
-            license_name="CC BY-SA 2.0",
-            license_url="https://creativecommons.org/licenses/by-sa/2.0/",
-        ))
-        flickr_call = client.get.await_args_list[1]
-        self.assertEqual(flickr_call.args[0], FLICKR_API_URL)
-        self.assertEqual(
-            set(flickr_call.kwargs["params"]["license"].split(",")),
-            FLICKR_COMMERCIAL_LICENSES,
-        )
-        self.assertEqual(
-            flickr_call.kwargs["params"]["license"],
-            "4,5,6,7,8,9,10",
-        )
 
     async def test_wikipedia_noncommercial_and_unattributed_images_are_rejected(self):
         page_response, image_response = self._wikipedia_responses()
@@ -349,52 +284,35 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
             image_response,
             self._response({"query": {"pages": []}}),
         )
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             image = await search_commercial_image("ライセンス確認")
 
         self.assertIsNone(image)
         self.assertEqual(client.get.await_count, 2)
 
-    async def test_flickr_is_not_called_without_key_or_free_wikipedia_image(self):
+    async def test_no_extra_request_without_free_wikipedia_image(self):
         client, client_context = self._client_context(
             self._response({"query": {"pages": []}}),
         )
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             image = await search_commercial_image("画像なし")
 
         self.assertIsNone(image)
         client.get.assert_awaited_once()
 
-    async def test_malformed_wikipedia_payload_falls_back_safely(self):
+    async def test_malformed_wikipedia_payload_returns_none(self):
         client, client_context = self._client_context(
             self._response({"query": None}),
-            self._response({"stat": "ok", "photos": {"photo": []}}),
         )
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": "flickr-key"}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             image = await search_commercial_image("不正応答")
 
         self.assertIsNone(image)
-        self.assertEqual(client.get.await_count, 2)
+        client.get.assert_awaited_once()
 
     async def test_commercial_image_result_is_cached(self):
         client, client_context = self._client_context(*self._wikipedia_responses())
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             first_result = await search_commercial_image("cache fixture")
             second_result = await search_commercial_image(" cache   fixture ")
 
@@ -404,11 +322,7 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     async def test_provider_network_failure_returns_none(self):
         client, client_context = self._client_context()
         client.get.side_effect = httpx.ConnectError("provider unavailable")
-        with (
-            patch("app.image_search.load_dotenv"),
-            patch.dict(os.environ, {"FLICKR_API_KEY": ""}),
-            patch("app.image_search.httpx.AsyncClient", return_value=client_context),
-        ):
+        with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
             image = await search_commercial_image("京都")
 
         self.assertIsNone(image)
