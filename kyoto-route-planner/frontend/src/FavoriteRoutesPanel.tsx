@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFavorites } from "./useFavorites";
+import { MAX_FAVORITES, useFavorites } from "./useFavorites";
 
 type FavoriteRoutesPanelProps = {
   onClose: () => void;
@@ -33,6 +33,9 @@ export function FavoriteRoutesPanel({ onClose }: FavoriteRoutesPanelProps) {
           <button type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button>
         </header>
 
+        <p className="favorites-limit-note">
+          保存数の上限は{MAX_FAVORITES}件です。上限を超えると、古いルートから自動的に削除されます。
+        </p>
         {error && <p className="favorites-error" role="alert">{error}</p>}
         {favorites.length === 0 ? (
           <p className="favorites-empty">保存したルートはありません。右スワイプでお気に入りに追加できます。</p>
