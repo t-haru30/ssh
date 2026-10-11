@@ -1,5 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { isRouteIdea } from "./apiValidation";
+import { isRouteIdea, isSwipeItinerary, normalizeSwipeItinerary } from "./apiValidation";
+
+describe("normalizeSwipeItinerary", () => {
+  it("accepts an itinerary whose catalog places lack access_point and themes", () => {
+    const payload = {
+      origin: { name: "京都駅", latitude: 34.98, longitude: 135.75 },
+      places: [{
+        id: "a",
+        name: "清水寺",
+        category: "寺院",
+        region: "京都府",
+        address: "京都市",
+        latitude: 34.99,
+        longitude: 135.78,
+        description: "",
+      }],
+      legs: [{
+        from_name: "京都駅",
+        to_name: "清水寺",
+        line_name: "車（概算）",
+        mode: "car",
+        duration_minutes: 10,
+        departure_at: "2026-10-09T09:00:00",
+        arrival_at: "2026-10-09T09:10:00",
+      }],
+      fare_yen: null,
+      estimated_total_minutes: 100,
+      estimated_return_at: "2026-10-09T10:50:00",
+      note: "概算",
+    };
+
+    expect(isSwipeItinerary(payload)).toBe(false);
+    expect(isSwipeItinerary(normalizeSwipeItinerary(payload))).toBe(true);
+  });
+});
 
 const validIdea = {
   theme: "nature",

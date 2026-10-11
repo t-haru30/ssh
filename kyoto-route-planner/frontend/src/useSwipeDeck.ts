@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { isRouteIdeaBatch, isSwipeItinerary } from "./apiValidation";
+import { isRouteIdeaBatch, isSwipeItinerary, normalizeSwipeItinerary } from "./apiValidation";
 import type { Origin, Place, SwipeItinerary } from "./types";
 import type { RouteIdea, SwipeDirection } from "./SwipeCard";
 
@@ -195,7 +195,7 @@ export function useSwipeDeck({
         signal: controller.signal,
       });
       if (!response.ok) throw new Error(await readResponseError(response));
-      const payload: unknown = await response.json();
+      const payload = normalizeSwipeItinerary(await response.json());
       if (!isSwipeItinerary(payload)) throw new Error("経路APIから有効な旅程が返されませんでした。");
       if (controller.signal.aborted || adoptionAbortController.current !== controller) return;
       setItinerary(payload);
