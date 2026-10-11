@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, time as datetime_time
+from datetime import datetime, time as datetime_time, timedelta
 from math import asin, cos, radians, sin, sqrt
 import os
 from pathlib import Path
@@ -49,6 +49,7 @@ from app.places import choose_place_sets, list_origins, normalize_origin_name
 
 
 logger = logging.getLogger(__name__)
+DAY_TRIP_RETURN_BY = datetime_time(19, 0)
 
 
 def _format_timeline_time(total_minutes: int) -> str:
@@ -343,6 +344,23 @@ def origins():
     return list_origins()
 
 
+@app.get("/api/origins/nearest", response_model=Origin)
+def nearest_origin(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+) -> Origin:
+    available_origins = list_origins()
+    if not available_origins:
+        raise HTTPException(status_code=404, detail="利用可能な出発駅がありません。")
+    return min(
+        available_origins,
+        key=lambda origin: _distance_km(
+            (latitude, longitude),
+            (origin.latitude, origin.longitude),
+        ),
+    )
+
+
 @app.get("/api/places/status")
 def places_status():
     return get_yahoo_search_status()
@@ -629,6 +647,18 @@ async def _recommend_routes(
                     ),
                     timeout=remaining_seconds,
                 )
+                estimated_return = (
+                    datetime.combine(request.departure_date, request.departure_time)
+                    + timedelta(minutes=total_minutes)
+                    if total_minutes is not None
+                    else None
+                )
+                if estimated_return is not None and estimated_return.time() > DAY_TRIP_RETURN_BY:
+                    last_error = HTTPException(
+                        status_code=422,
+                        detail="19:00までに出発駅へ戻れるルートが見つかりませんでした。",
+                    )
+                    continue
                 suggestions.append(
                     RouteSuggestion(
                         places=chosen,
