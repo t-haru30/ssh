@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toFriendlyMessage } from "./friendlyError";
 import { isRouteIdeaBatch, isSwipeItinerary, normalizeSwipeItinerary } from "./apiValidation";
 import type { Origin, Place, SwipeItinerary } from "./types";
 import type { RouteIdea, SwipeDirection } from "./SwipeCard";
@@ -123,7 +124,7 @@ export function useSwipeDeck({
     } catch (cause) {
       if (generation === loadGeneration.current && !controller.signal.aborted) {
         setFailedLoadCount(requestCount);
-        setError(cause instanceof Error ? cause.message : "アイデアを読み込めませんでした。");
+        setError(toFriendlyMessage(cause, "ルート案を読み込めませんでした。もう一度お試しください。"));
       }
     } finally {
       if (generation === loadGeneration.current) {
@@ -204,7 +205,7 @@ export function useSwipeDeck({
       setIdeas((current) => current.filter((candidate) => candidate !== idea));
     } catch (cause) {
       if (!controller.signal.aborted && adoptionAbortController.current === controller) {
-        setError(cause instanceof Error ? cause.message : "経路を取得できませんでした。");
+        setError(toFriendlyMessage(cause));
         setRetryIdeaId(idea.places.map((place) => place.id).join("-"));
       }
     } finally {

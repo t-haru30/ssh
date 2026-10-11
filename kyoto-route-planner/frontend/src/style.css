@@ -539,6 +539,9 @@ a { color: inherit; text-decoration: none; }
 .idea-itinerary-legs li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 11px; }
 .idea-itinerary-legs strong { color: var(--forest); }
 .idea-itinerary-legs small { color: var(--muted); }
+.idea-estimate-notice { display: grid; gap: 4px; margin: 12px 0; padding: 10px 12px; border-left: 3px solid #c98a1b; background: #fbf3e1; color: #6b4a0b; font-size: 11px; line-height: 1.7; }
+.idea-itinerary-legs li.estimated { border-top-style: dashed; }
+.estimate-badge { margin-left: 6px; padding: 1px 6px; border: 1px solid #c98a1b; border-radius: 999px; color: #8a5d0a; background: #fff8e8; font-size: 10px; font-style: normal; font-weight: 600; }
 .idea-itinerary .idea-primary-button { width: 100%; margin-top: 10px; }
 
 @media (max-width: 520px) {
