@@ -567,6 +567,12 @@ a { color: inherit; text-decoration: none; }
 .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; max-width: 360px; margin: 16px auto 8px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-muted); }
 .mode-tabs button { display: flex; align-items: baseline; justify-content: center; gap: 6px; padding: 10px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--control-text); font: inherit; font-weight: 700; cursor: pointer; transition: background .15s, color .15s; }
 .mode-tabs button small { font-size: 11px; font-weight: 500; opacity: .75; }
+.onboarding { display: grid; gap: 14px; max-width: 480px; border-radius: 20px; }
+.onboarding h2 { margin: 0; }
+.onboarding-steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.onboarding-steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+.onboarding-steps p { margin: 2px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.onboarding-number { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: var(--forest); color: var(--on-accent); font-size: 13px; font-weight: 700; }
 .mode-tabs button.active { background: var(--forest); color: var(--on-accent); }
 .mode-tabs button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
