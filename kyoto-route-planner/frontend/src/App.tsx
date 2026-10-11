@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FavoriteRoutesPanel } from "./FavoriteRoutesPanel";
+import { SavedRoutesList } from "./SavedRoutesList";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -31,7 +31,7 @@ function App() {
             onClick={() => setShowFavorites(true)}
             aria-haspopup="dialog"
           >
-            保存済み <span>{favorites.length}</span>
+            ♥ 保存済み <span>{favorites.length}</span>
           </button>
           <span className="sample-label"><span /> 駅すぱあと経路検索</span>
           <ThemeSwitcher />
@@ -58,7 +58,7 @@ function App() {
 
       <DiscoverMode active={activeTab === "discover"} />
       <SearchMode active={activeTab === "search"} />
-      {showFavorites && <FavoriteRoutesPanel onClose={() => setShowFavorites(false)} />}
+      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} />}
 
       <footer className="footer">
         <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>

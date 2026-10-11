@@ -563,10 +563,17 @@ a { color: inherit; text-decoration: none; }
 .favorites-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .favorites-header h2 { margin: 4px 0 0; }
 .favorites-limit-note { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
-.favorites-empty { margin: auto 0; color: var(--muted); line-height: 1.7; text-align: center; }
+.favorites-empty { display: grid; margin: auto 0; gap: 4px; color: var(--muted); line-height: 1.7; text-align: center; }
+.favorites-empty p { margin: 0; }
+.favorites-empty-icon { display: grid; width: 72px; height: 72px; margin: 0 auto 10px; place-items: center; border-radius: 50%; background: var(--line); color: var(--forest); font-size: 34px; }
+.favorite-route-open { display: flex; gap: 14px; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.favorite-route-more { color: var(--forest); font-size: 11px; }
+.favorite-route-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.favorite-route-footer a { color: var(--forest); font-size: 11px; }
+.favorites-backdrop + .route-modal-backdrop { z-index: 120; }
 .favorites-error { color: #8a3d35; font-size: 13px; }
 .favorites-list { display: grid; gap: 12px; margin: 0; padding: 18px 2px; overflow-y: auto; list-style: none; }
-.favorite-route { display: flex; gap: 14px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.favorite-route { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .favorite-route-image { flex: none; width: 104px; height: 88px; border-radius: 8px; object-fit: cover; }
 .favorite-route-content { min-width: 0; flex: 1; }
 .favorite-route-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
@@ -574,7 +581,7 @@ a { color: inherit; text-decoration: none; }
 .favorite-prefecture-tag { flex: none; padding: 4px 7px; border-radius: 999px; background: #edf3ea; color: var(--forest); font-size: 10px; font-weight: 700; }
 .favorite-route-content > p { margin: 7px 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .favorite-route-content > a { color: var(--forest); font-size: 11px; }
-.favorite-remove-button { display: block; margin: 9px 0 0 auto; padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--control-text); font-size: 11px; cursor: pointer; }
+.favorite-remove-button { display: block; margin: 0 0 0 auto; padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--control-text); font-size: 11px; cursor: pointer; }
 @media (max-width: 520px) {
   .favorites-panel { padding: 18px 14px; }
   .favorite-route { gap: 9px; padding: 9px; }
