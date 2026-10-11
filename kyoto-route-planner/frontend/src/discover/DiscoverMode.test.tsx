@@ -52,6 +52,32 @@ describe("DiscoverMode", () => {
     });
   });
 
+  it("shows a save notice and undoes a like, removing the saved favorite", () => {
+    renderDiscoverMode();
+    const undoButton = screen.getByRole("button", { name: "1つ前に戻す" }) as HTMLButtonElement;
+    expect(undoButton.disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "しおりを開く" }));
+    expect(screen.getByText(/保存しました/)).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]")).toHaveLength(1);
+    expect(screen.getByText("2 / 5")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "元に戻す" }));
+    expect(JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]")).toHaveLength(0);
+    expect(screen.getByText("1 / 5")).toBeTruthy();
+    expect(undoButton.disabled).toBe(true);
+  });
+
+  it("undoes a skip without touching favorites", () => {
+    renderDiscoverMode();
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    expect(screen.getByText("スキップしました")).toBeTruthy();
+    expect(screen.getByText("2 / 5")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "1つ前に戻す" }));
+    expect(screen.getByText("1 / 5")).toBeTruthy();
+  });
+
   it("does not render an API error state for local datasets", () => {
     renderDiscoverMode();
 
