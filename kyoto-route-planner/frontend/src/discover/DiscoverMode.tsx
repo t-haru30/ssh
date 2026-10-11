@@ -33,9 +33,10 @@ prefectureDatasets.sort(
 
 type DiscoverModeProps = {
   active: boolean;
+  onPlanInSearch?: (route: DatasetRoute | RouteIdea) => void;
 };
 
-export function DiscoverMode({ active }: DiscoverModeProps) {
+export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const { prefecture, setPrefectureCode } = usePrefecture();
   const { saveFavorite, removeFavorite } = useFavorites();
   const [routes, setRoutes] = useState<Array<DatasetRoute | RouteIdea>>([]);
@@ -197,7 +198,16 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
         <button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={loading || stack.length === 0} aria-label="しおりを開く">♡</button>
       </div>
 
-      {selected && <RouteDetailModal route={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <RouteDetailModal
+          route={selected}
+          onClose={() => setSelected(null)}
+          onPlanInSearch={onPlanInSearch && ((route) => {
+            setSelected(null);
+            onPlanInSearch(route);
+          })}
+        />
+      )}
     </div>
   );
 }

@@ -62,11 +62,19 @@ async function readError(response: Response) {
   return "ルートを取得できませんでした。APIサーバーの状態を確認してください。";
 }
 
+export type SearchPreset = { theme: Theme; stopCount: number; nonce: number };
+
 type SearchModeProps = {
   active: boolean;
+  preset?: SearchPreset | null;
 };
 
-export function SearchMode({ active }: SearchModeProps) {
+export function SearchMode({ active, preset }: SearchModeProps) {
+  useEffect(() => {
+    if (!preset) return;
+    setTheme(preset.theme);
+    setStopCount(Math.min(3, Math.max(1, preset.stopCount)));
+  }, [preset]);
   useEffect(() => {
     // display:none から戻った直後にMapLibreへ新しいコンテナサイズを通知する
     if (active) window.dispatchEvent(new Event("resize"));

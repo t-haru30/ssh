@@ -312,13 +312,33 @@ function LegList({ legs }: { legs: RouteLeg[] }) {
   );
 }
 
+function summarizeTimeline(items: TimelineItem[]) {
+  const stops = items.filter((item) => item.type === "spot" && item.role === "stop").length;
+  const times = items.flatMap((item) => (item.type === "spot" ? [item.time] : [item.start_time, item.end_time]))
+    .filter((value): value is string => Boolean(value));
+  const transitMinutes = items.reduce((sum, item) => {
+    if (item.type !== "transit") return sum;
+    return sum + (item.duration_minutes ?? durationBetween(item.start_time, item.end_time) ?? 0);
+  }, 0);
+  return { stops, first: times[0] ?? null, last: times[times.length - 1] ?? null, transitMinutes };
+}
+
 export function RouteTimeline({ items }: RouteTimelineProps) {
   let stopIndex = 0;
+  const summary = summarizeTimeline(items);
   return (
     <section className="route-timeline" aria-label="時系列のルート行程">
+      {summary.first && summary.last && summary.stops > 0 && (
+        <p className="timeline-summary">
+          <span>{summary.first} 出発 → {summary.last} 着</span>
+          <span>立ち寄り {summary.stops}か所</span>
+          {summary.transitMinutes > 0 && <span>移動 合計{formatDuration(summary.transitMinutes)}</span>}
+        </p>
+      )}
       <ol className="timeline-list">
         {items.map((item, index) => {
           if (item.type === "transit") {
+            const minutes = item.duration_minutes ?? durationBetween(item.start_time, item.end_time);
             return (
               <li className="timeline-row timeline-transit" key={`transit-${index}`}>
                 <time className="timeline-time">
@@ -328,6 +348,9 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
                 <div className="timeline-transit-copy">
                   <strong>{item.summary ?? "公共交通・徒歩で移動"}</strong>
                   <span>{item.from_name} <b>→</b> {item.to_name}</span>
+                  {minutes !== null && minutes > 0 && (
+                    <span className="timeline-transit-duration">移動 約{formatDuration(minutes)}</span>
+                  )}
                   {item.detail && <small>{item.detail}</small>}
                   {item.legs && item.legs.length > 0 && (
                     <details className="timeline-route-details">

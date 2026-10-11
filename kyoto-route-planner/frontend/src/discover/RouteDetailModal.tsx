@@ -20,6 +20,7 @@ const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) =>
 type RouteDetailModalProps = {
   route: DatasetRoute | RouteIdea;
   onClose: () => void;
+  onPlanInSearch?: (route: DatasetRoute | RouteIdea) => void;
 };
 
 function isDatasetRoute(route: DatasetRoute | RouteIdea): route is DatasetRoute {
@@ -39,7 +40,7 @@ function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][num
   };
 }
 
-export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
+export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetailModalProps) {
   const isStaticRoute = isDatasetRoute(route);
   const places = useMemo(
     () => isStaticRoute
@@ -103,6 +104,11 @@ export function RouteDetailModal({ route, onClose }: RouteDetailModalProps) {
           </Suspense>
         </div>
         <RouteTimeline items={items} />
+        {onPlanInSearch && (
+          <button type="button" className="idea-primary-button" onClick={() => onPlanInSearch(route)}>
+            この条件で乗換つきの経路を作る
+          </button>
+        )}
         <p className="result-note">所要時間は直線距離からの目安です。実際の経路は「Search」タブで確認できます。</p>
       </section>
     </div>
