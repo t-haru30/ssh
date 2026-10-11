@@ -180,12 +180,6 @@ async def lifespan(_app: FastAPI):
 
 
 RATE_LIMIT_STORAGE_URI = os.getenv("RATE_LIMIT_STORAGE_URI", "memory://").strip()
-if os.getenv("K_SERVICE") and not RATE_LIMIT_STORAGE_URI.startswith(("redis://", "rediss://")):
-    raise RuntimeError(
-        "Cloud Runでは共有レート制限ストレージが必要です。"
-        "RATE_LIMIT_STORAGE_URIにRedis接続URIを設定してください。"
-    )
-
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri=RATE_LIMIT_STORAGE_URI,
