@@ -644,7 +644,7 @@ export function SearchMode({ active }: SearchModeProps) {
             </div>
 
             <button className="submit-button" type="submit" disabled={searching || loading}>
-              {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>この条件でルートを提案 <span>↗</span></>}
+              {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>旅のしおりを作る <span>↗</span></>}
             </button>
             <p className="form-footnote">検索ボタンまたはおまかせボタンを押した時だけ、駅すぱあとAPIに問い合わせます。</p>
           </form>

@@ -41,7 +41,7 @@ describe("DiscoverMode", () => {
     fireEvent.change(select, { target: { value: nextOption.value } });
 
     expect(screen.getByText(`${nextOption.textContent}の実データに基づくサンプル（5件）`)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "行きたい" }));
+    fireEvent.click(screen.getByRole("button", { name: "しおりを開く" }));
 
     const favorites = JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]");
     expect(favorites).toHaveLength(1);
