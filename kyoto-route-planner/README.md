@@ -221,18 +221,32 @@ cd ..
 
 Cloud Run、Cloud Build、Artifact Registryを有効にしたGoogle Cloudプロジェクトと、`gcloud` CLIが必要です。Google Cloudの利用料は駅すぱあとAPI・地図タイルの利用条件とは別です。無料枠の対象・料金はプロジェクトごとに確認してください。
 
-このアプリのフォルダー (`kyoto-route-planner`) でコマンドを実行してください。駅すぱあとAPIキーはGoogle Cloud ConsoleのSecret Managerに登録し、ソースコードやブラウザー環境変数に記載しないでください。Cloud Runの実行サービスアカウントには、そのシークレットを参照する `Secret Manager Secret Accessor` 権限が必要です。
+このアプリのフォルダー (`kyoto-route-planner`) でコマンドを実行してください。APIキーやRedis接続URIはSecret Managerに登録し、ソースコードやブラウザー環境変数に記載しないでください。次の例はGemini APIキーの登録方法です。ほかの必須シークレット（`ekispert-api-key`、`yahoo-app-id`、`rate-limit-storage-uri`）も同様に登録してください。
+
+```bash
+echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key --data-file=-
+```
+
+`YOUR_GEMINI_API_KEY` は取得済みの値に置き換えてください。実際のキーをコマンドへ直接入力するとシェル履歴に残る場合があるため、Secret ManagerのGoogle Cloud Console画面から登録するか、シェルの入力プロンプト等を使ってください。Cloud Runの実行サービスアカウントには、参照する各シークレットに対する `Secret Manager Secret Accessor` (`roles/secretmanager.secretAccessor`) 権限が必要です。
+
+```bash
+gcloud secrets add-iam-policy-binding gemini-api-key \
+  --member="serviceAccount:YOUR_CLOUD_RUN_SERVICE_ACCOUNT" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+`YOUR_CLOUD_RUN_SERVICE_ACCOUNT` はCloud Runサービスの実行サービスアカウントに置き換え、ほかのシークレットにも同じ権限を付与してください。
 
 ```powershell
 gcloud run deploy kyoto-route-planner `
   --source . `
   --region asia-northeast1 `
   --allow-unauthenticated `
-  --set-secrets "EKISPERT_API_KEY=ekispert-api-key:latest,YAHOO_APP_ID=yahoo-app-id:latest,RATE_LIMIT_STORAGE_URI=rate-limit-storage-uri:latest" `
+  --set-secrets "EKISPERT_API_KEY=ekispert-api-key:latest,YAHOO_APP_ID=yahoo-app-id:latest,RATE_LIMIT_STORAGE_URI=rate-limit-storage-uri:latest,GEMINI_API_KEY=gemini-api-key:latest" `
   --set-env-vars "EKISPERT_APPLICATION_URL=https://your-registered-domain.example"
 ```
 
-事前に `ekispert-api-key`、`yahoo-app-id`、Redis接続URIを含む `rate-limit-storage-uri` をSecret Managerへ登録し、Cloud Run実行サービスアカウントに参照権限を付与してください。RedisがCloud Runから到達可能であることも確認してください。`your-registered-domain.example` は、駅すぱあとAPIに登録した実際のアプリドメインに置き換えてください。Cloud RunのURLまたは独自ドメインが駅すぱあとAPIの登録条件に合うか、公開前に提供元へ確認してください。アプリのドメイン登録要件を満たさない場合はAPI認証に失敗します。
+デプロイ前に必須の3つのシークレットを作成し、Cloud Run実行サービスアカウントにそれぞれ参照権限を付与してください。Geminiを利用する場合は `gemini-api-key` も作成して権限を付与します。Gemini APIキーを設定すると、ルートのタイトルとストーリー生成にGeminiを利用し、未設定時はテンプレート文が使われます。RedisがCloud Runから到達可能であることも確認してください。`your-registered-domain.example` は、駅すぱあとAPIに登録した実際のアプリドメインに置き換えてください。Cloud RunのURLまたは独自ドメインが駅すぱあとAPIの登録条件に合うか、公開前に提供元へ確認してください。アプリのドメイン登録要件を満たさない場合はAPI認証に失敗します。
 
 ## 動作・制約
 
