@@ -307,7 +307,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         setLocationError(message);
         window.alert(message);
       },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
+      { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
     );
   }
 
