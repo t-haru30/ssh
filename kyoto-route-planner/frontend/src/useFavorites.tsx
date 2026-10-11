@@ -13,6 +13,7 @@ export type FavoriteRoute = RouteIdea & {
   prefecture_name: string;
   tags: Record<string, string>;
   saved_at: string;
+  pinned?: boolean;
 };
 
 type FavoritesContextValue = {
@@ -20,6 +21,7 @@ type FavoritesContextValue = {
   error: string | null;
   saveFavorite: (idea: RouteIdea) => boolean;
   removeFavorite: (id: string) => boolean;
+  togglePin: (id: string) => boolean;
   isFavorite: (idea: RouteIdea) => boolean;
 };
 
@@ -40,7 +42,25 @@ function isFavoriteRoute(value: unknown): value is FavoriteRoute {
     && typeof favorite.prefecture_name === "string"
     && isRecord(favorite.tags)
     && Object.values(favorite.tags).every((tag) => typeof tag === "string")
-    && typeof favorite.saved_at === "string";
+    && typeof favorite.saved_at === "string"
+    && (favorite.pinned === undefined || typeof favorite.pinned === "boolean");
+}
+
+// 上限を超えたら、ピン留めされていない最も古いルート（配列の末尾側）から削除する
+export function trimFavorites(favorites: FavoriteRoute[], max: number = MAX_FAVORITES): FavoriteRoute[] | null {
+  const result = [...favorites];
+  while (result.length > max) {
+    let index = -1;
+    for (let cursor = result.length - 1; cursor >= 0; cursor -= 1) {
+      if (!result[cursor].pinned) {
+        index = cursor;
+        break;
+      }
+    }
+    if (index < 0) return null;
+    result.splice(index, 1);
+  }
+  return result;
 }
 
 function readFavorites(): FavoritesState {
@@ -132,8 +152,24 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
       },
       saved_at: new Date().toISOString(),
     };
-    return persist([favorite, ...favoritesRef.current].slice(0, MAX_FAVORITES));
+    const trimmed = trimFavorites([favorite, ...favoritesRef.current]);
+    if (!trimmed) {
+      setState((current) => ({
+        ...current,
+        error: `保存数が上限（${MAX_FAVORITES}件）に達し、すべてピン留めされています。ピン留めを外してから保存してください。`,
+      }));
+      return false;
+    }
+    return persist(trimmed);
   }, [persist, prefecture]);
+
+  const togglePin = useCallback((id: string) => {
+    const current = favoritesRef.current;
+    if (!current.some((favorite) => favorite.id === id)) return false;
+    return persist(current.map((favorite) => (
+      favorite.id === id ? { ...favorite, pinned: !favorite.pinned } : favorite
+    )));
+  }, [persist]);
 
   const removeFavorite = useCallback((id: string) => {
     const current = favoritesRef.current;
@@ -152,8 +188,9 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     error: state.error,
     saveFavorite,
     removeFavorite,
+    togglePin,
     isFavorite,
-  }), [isFavorite, removeFavorite, saveFavorite, state]);
+  }), [isFavorite, removeFavorite, saveFavorite, togglePin, state]);
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }

@@ -1,15 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RouteDetailModal } from "./discover/RouteDetailModal";
 import { MAX_FAVORITES, useFavorites } from "./useFavorites";
 import type { FavoriteRoute } from "./useFavorites";
+
+const NEAR_LIMIT_MARGIN = 5;
 
 type SavedRoutesListProps = {
   onClose: () => void;
 };
 
+function formatSavedDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : `${date.getMonth() + 1}/${date.getDate()}保存`;
+}
+
 export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
-  const { favorites, error, removeFavorite } = useFavorites();
+  const { favorites, error, removeFavorite, togglePin } = useFavorites();
   const [detail, setDetail] = useState<FavoriteRoute | null>(null);
+  const [prefectureFilter, setPrefectureFilter] = useState("all");
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -18,6 +27,22 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose, detail]);
+
+  const prefectures = useMemo(() => {
+    const names = new Map<string, string>();
+    favorites.forEach((favorite) => names.set(favorite.prefecture_code, favorite.prefecture_name));
+    return [...names.entries()].sort(([first], [second]) => first.localeCompare(second));
+  }, [favorites]);
+
+  const activeFilter = prefectures.some(([code]) => code === prefectureFilter) ? prefectureFilter : "all";
+  const visible = useMemo(() => {
+    const filtered = activeFilter === "all"
+      ? favorites
+      : favorites.filter((favorite) => favorite.prefecture_code === activeFilter);
+    // ピン留めを先頭に、それ以外は保存順（新しい順）を維持する
+    return [...filtered.filter((item) => item.pinned), ...filtered.filter((item) => !item.pinned)];
+  }, [favorites, activeFilter]);
+  const remaining = MAX_FAVORITES - favorites.length;
 
   return (
     <>
@@ -38,9 +63,27 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
           </header>
 
           <p className="favorites-limit-note">
-            保存数の上限は{MAX_FAVORITES}件です。上限を超えると、古いルートから自動的に削除されます。
+            保存数の上限は{MAX_FAVORITES}件です。上限を超えると、ピン留めしていない古いルートから自動的に削除されます。
           </p>
+          {remaining <= NEAR_LIMIT_MARGIN && favorites.length > 0 && (
+            <p className="favorites-near-limit" role="status">
+              {remaining > 0
+                ? `あと${remaining}件で上限です。残したいルートは📌でピン留めすると削除されません。`
+                : "上限に達しています。次に保存すると、ピン留めしていない最も古いルートが削除されます。"}
+            </p>
+          )}
           {error && <p className="favorites-error" role="alert">{error}</p>}
+          {prefectures.length > 1 && (
+            <label className="favorites-filter">
+              都道府県で絞り込む
+              <select value={activeFilter} onChange={(event) => setPrefectureFilter(event.target.value)}>
+                <option value="all">すべて（{favorites.length}件）</option>
+                {prefectures.map(([code, name]) => (
+                  <option key={code} value={code}>{name}</option>
+                ))}
+              </select>
+            </label>
+          )}
           {favorites.length === 0 ? (
             <div className="favorites-empty">
               <span className="favorites-empty-icon" aria-hidden="true">♡</span>
@@ -49,7 +92,7 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
             </div>
           ) : (
             <ul className="favorites-list">
-              {favorites.map((favorite) => (
+              {visible.map((favorite) => (
                 <li className="favorite-route" key={favorite.id}>
                   <button
                     type="button"
@@ -62,13 +105,13 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
                     )}
                     <div className="favorite-route-content">
                       <div className="favorite-route-heading">
-                        <h3>{favorite.title}</h3>
+                        <h3>{favorite.pinned ? "📌 " : ""}{favorite.title}</h3>
                         <span className="favorite-prefecture-tag">
                           {favorite.prefecture_name} ({favorite.prefecture_code})
                         </span>
                       </div>
                       <p>{favorite.places.map((place) => place.name).join(" → ")}</p>
-                      <span className="favorite-route-more">詳細を見る ›</span>
+                      <span className="favorite-route-more">{formatSavedDate(favorite.saved_at)} · 詳細を見る ›</span>
                     </div>
                   </button>
                   <div className="favorite-route-footer">
@@ -79,12 +122,40 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
                     )}
                     <button
                       type="button"
-                      className="favorite-remove-button"
-                      onClick={() => removeFavorite(favorite.id)}
-                      aria-label={`${favorite.title}を保存から削除`}
+                      className="favorite-pin-button"
+                      onClick={() => togglePin(favorite.id)}
+                      aria-pressed={Boolean(favorite.pinned)}
+                      aria-label={`${favorite.title}を${favorite.pinned ? "ピン留め解除" : "ピン留め"}`}
                     >
-                      🗑 削除
+                      {favorite.pinned ? "📌 ピン留め中" : "📌 ピン留め"}
                     </button>
+                    {confirmingId === favorite.id ? (
+                      <span className="favorite-confirm">
+                        <button
+                          type="button"
+                          className="favorite-remove-button"
+                          onClick={() => {
+                            removeFavorite(favorite.id);
+                            setConfirmingId(null);
+                          }}
+                          aria-label={`${favorite.title}の削除を確定`}
+                        >
+                          削除する
+                        </button>
+                        <button type="button" className="favorite-cancel-button" onClick={() => setConfirmingId(null)}>
+                          やめる
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="favorite-remove-button"
+                        onClick={() => setConfirmingId(favorite.id)}
+                        aria-label={`${favorite.title}を保存から削除`}
+                      >
+                        🗑 削除
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}
