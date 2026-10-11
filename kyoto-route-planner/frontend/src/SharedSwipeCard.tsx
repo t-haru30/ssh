@@ -33,6 +33,7 @@ export type SharedSwipeCardProps = {
 };
 
 const SWIPE_THRESHOLD = 110;
+const MAX_VISIBLE_SPOTS = 3;
 const cardVariants = {
   exit: (direction: SharedSwipeDirection) => ({
     x: direction === "accept" ? 520 : -520,
@@ -151,7 +152,7 @@ export function SharedSwipeCard({
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
-          {spots.map((spot) => (
+          {spots.slice(0, MAX_VISIBLE_SPOTS).map((spot) => (
             <li key={spot.id}>
               <span className="swipe-spot-icon" aria-hidden="true">
                 {spot.icon ?? <PinIcon />}
@@ -162,6 +163,9 @@ export function SharedSwipeCard({
               {spot.category && <small className="swipe-spot-category">{spot.category}</small>}
             </li>
           ))}
+          {spots.length > MAX_VISIBLE_SPOTS && (
+            <li className="swipe-spot-more">ほか{spots.length - MAX_VISIBLE_SPOTS}か所（詳細で確認）</li>
+          )}
         </ul>
       </div>
     </motion.article>
