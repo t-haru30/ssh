@@ -4,6 +4,7 @@ import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import { useSwipeDeck } from "./useSwipeDeck";
 import { isEstimatedLeg } from "./friendlyError";
+import { ProgressStatus, ROUTE_STEPS } from "./ProgressStatus";
 import { usePrefecture } from "./PrefectureContext";
 import { useFavorites } from "./useFavorites";
 
@@ -201,9 +202,10 @@ export function IdeaDeck({
             <button type="button" className="idea-action-button accept" onClick={() => swipe("accept")} disabled={!ideas.length || adopting} aria-label="このアイデアを採用">✓</button>
           </div>
           {adopting && (
-            <p className="idea-loading" role="status">
-              「{ideas[0]?.title ?? "選択したルート"}」の経路を計算しています…
-            </p>
+            <ProgressStatus
+              title={`「${ideas[0]?.title ?? "選択したルート"}」の経路を計算しています`}
+              steps={ROUTE_STEPS.slice(1)}
+            />
           )}
           <p className="idea-deck-footnote">残り {ideas.length} 件</p>
           {!fallbackOnly && !loadingIdeas && ideas.length <= LOW_CARD_COUNT && !adopting && (

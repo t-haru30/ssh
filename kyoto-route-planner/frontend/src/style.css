@@ -99,6 +99,11 @@ a { color: inherit; text-decoration: none; }
 .form-footnote { margin: 9px 0 0; color: #92968e; font-size: 9px; text-align: center; }
 .button-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.progress-status { display: grid; gap: 6px; max-width: 600px; margin: 12px auto; padding: 12px 14px; border: 1px solid var(--line); background: var(--paper); font-size: 12px; }
+.progress-status ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
+.progress-status li.done { color: var(--forest); }
+.progress-status li.current { color: var(--ink, inherit); font-weight: 700; }
+.progress-status small { color: #8a5d0a; }
 .error-panel { display: flex; flex-direction: column; gap: 5px; margin-top: 15px; border-left: 3px solid #bd634f; padding: 10px 12px; background: #fbf1ee; color: #774639; font-size: 11px; line-height: 1.6; }
 .error-panel strong { font-size: 11px; }
 .status-message { color: var(--muted); font-size: 11px; }
