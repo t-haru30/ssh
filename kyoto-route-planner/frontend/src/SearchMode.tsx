@@ -681,23 +681,29 @@ export function SearchMode({ active }: SearchModeProps) {
                 <small>スポット候補は出発駅の周辺から取得します。</small>
                 {locationError && <small className="location-error" role="alert">{locationError}</small>}
               </label>
-              <label>
-                <span>出発日</span>
-                <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching} required />
-              </label>
-              <label>
-                <span>出発時刻</span>
-                <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching} required />
-              </label>
-                            <label>
-                <span>{isOvernight ? "1日あたりの立ち寄り先" : "立ち寄り先"}</span>
-                <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))} disabled={searching}>
-                  <option value={1}>1か所</option>
-                  <option value={2}>2か所</option>
-                  <option value={3}>3か所</option>
-                </select>
-              </label>
-
+              <details className="form-advanced">
+                <summary>
+                  詳細設定：{departureDate} {departureTime}出発・{stopCount}か所
+                </summary>
+                <div className="form-advanced-fields">
+                  <label>
+                    <span>出発日</span>
+                    <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching} required />
+                  </label>
+                  <label>
+                    <span>出発時刻</span>
+                    <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching} required />
+                  </label>
+                  <label>
+                    <span>{isOvernight ? "1日あたりの立ち寄り先" : "立ち寄り先"}</span>
+                    <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))} disabled={searching}>
+                      <option value={1}>1か所</option>
+                      <option value={2}>2か所</option>
+                      <option value={3}>3か所</option>
+                    </select>
+                  </label>
+                </div>
+              </details>
             </div>
 
             <button className="submit-button" type="submit" disabled={searching || loading}>
