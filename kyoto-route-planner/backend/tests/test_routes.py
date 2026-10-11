@@ -14,6 +14,7 @@ from app.ekispert import (
     _parse_legs,
     _redact_access_key,
     estimate_route_fare,
+    find_nearest_train_station,
 )
 from app.main import (
     ROUTE_GENRE_CODES,
@@ -25,6 +26,7 @@ from app.main import (
 from app.copywriting import RouteCopywriting
 from app.models import (
     CatalogPlace,
+    Origin,
     ParsedPlaceQuery,
     Place,
     PlaceSearchHit,
@@ -153,7 +155,13 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(
             poi_search.await_args_list,
             [
-                call("京都", limit=100, genre_codes=("0424001", "0424002")),
+                call(
+                    "神社 寺",
+                    limit=100,
+                    genre_codes=("0424001", "0424002"),
+                    center=(34.98585, 135.75877),
+                    radius_m=20_000,
+                ),
                 call("清水寺", limit=100, genre_codes=("0424001",)),
                 call("平安神宮", limit=100, genre_codes=("0424002",)),
             ],
@@ -223,6 +231,149 @@ class RoutePlannerTests(unittest.TestCase):
                 call("平安神宮", limit=100, genre_codes=("0424002",)),
             ],
         )
+
+    def test_national_route_candidates_are_centered_on_the_selected_station(self):
+        origin = Origin(name="高尾駅", latitude=35.6575, longitude=139.2828)
+        response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="local-spot",
+                        name="高尾山",
+                        category="自然",
+                        region="東京都",
+                        address="東京都八王子市",
+                        latitude=35.6254,
+                        longitude=139.2431,
+                        description="",
+                        genre_code="0305007",
+                    ),
+                    score=80.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        search = AsyncMock(return_value=response)
+
+        with patch("app.main.search_yahoo_catalog", new=search):
+            candidates, _ = asyncio.run(_route_candidates("all", origin))
+
+        self.assertEqual([candidate.name for candidate in candidates], ["高尾山"])
+        search.assert_awaited_once_with(
+            "観光",
+            limit=100,
+            genre_codes=ROUTE_GENRE_CODES["all"],
+            center=(35.6575, 139.2828),
+            radius_m=20_000,
+        )
+
+    def test_route_generation_accepts_a_dynamic_national_station(self):
+        client = TestClient(app)
+        yahoo_response = PlaceSearchResponse(
+            query=ParsedPlaceQuery(),
+            results=[
+                PlaceSearchHit(
+                    place=CatalogPlace(
+                        id="local-spot",
+                        name="高尾山",
+                        category="自然",
+                        region="東京都",
+                        address="東京都八王子市",
+                        latitude=35.6254,
+                        longitude=139.2431,
+                        description="",
+                        genre_code="0305007",
+                    ),
+                    score=80.0,
+                )
+            ],
+            note="Yahoo!ローカルサーチAPIの検索結果です。",
+        )
+        route_search = AsyncMock(return_value=([], 30, "09:00", "09:30"))
+
+        with (
+            patch("app.main.search_yahoo_catalog", new=AsyncMock(return_value=yahoo_response)) as place_search,
+            patch("app.main.search_route", route_search),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "高尾駅",
+                    "origin_latitude": 35.6575,
+                    "origin_longitude": 139.2828,
+                    "theme": "all",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-12",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["routes"][0]["origin"]["name"], "高尾駅")
+        place_search.assert_awaited_once()
+        self.assertEqual(
+            place_search.await_args.kwargs["center"],
+            (35.6575, 139.2828),
+        )
+        self.assertEqual(
+            route_search.await_args.kwargs["via_points"][0],
+            "高尾",
+        )
+        self.assertEqual(
+            route_search.await_args.kwargs["via_points"][-1],
+            "高尾",
+        )
+
+    def test_nearest_station_lookup_uses_train_station_results(self):
+        payload = {
+            "ResultSet": {
+                "Point": [
+                    {
+                        "Distance": "5",
+                        "Station": {"Name": "バス停", "Type": "bus"},
+                        "GeoPoint": {"lati_d": "35.0", "longi_d": "139.0"},
+                    },
+                    {
+                        "Distance": "120",
+                        "Station": {"Name": "JR駅", "Type": "train"},
+                        "GeoPoint": {"lati_d": "35.1", "longi_d": "139.1"},
+                    },
+                    {
+                        "Distance": "250",
+                        "Station": {"Name": "私鉄駅", "Type": "train"},
+                        "GeoPoint": {"lati_d": "35.2", "longi_d": "139.2"},
+                    },
+                ]
+            }
+        }
+        response = Mock(status_code=200, is_error=False)
+        response.json.return_value = payload
+
+        class MockStationClient:
+            request_params = None
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *_args):
+                return None
+
+            async def get(self, _url, **kwargs):
+                self.request_params = kwargs["params"]
+                return response
+
+        station_client = MockStationClient()
+        with (
+            patch.dict("os.environ", {"EKISPERT_API_KEY": "test-key"}),
+            patch("app.ekispert.load_dotenv"),
+            patch("app.ekispert.httpx.AsyncClient", return_value=station_client),
+        ):
+            station = asyncio.run(find_nearest_train_station(35.0, 139.0))
+
+        self.assertEqual(station, ("JR駅", 35.1, 139.1))
+        self.assertEqual(station_client.request_params["type"], "train")
+        self.assertNotIn("corporationBind", station_client.request_params)
 
     def test_route_search_reports_empty_yahoo_results_without_substitute_places(self):
         client = TestClient(app)
@@ -303,7 +454,7 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(
             poi_search.await_args_list[0],
             call(
-                "京都",
+                "観光",
                 limit=100,
                 genre_codes=(
                     "0424001",
@@ -315,6 +466,8 @@ class RoutePlannerTests(unittest.TestCase):
                     "0303003",
                     "0303004",
                 ),
+                center=(34.98585, 135.75877),
+                radius_m=20_000,
             ),
         )
 
@@ -379,11 +532,18 @@ class RoutePlannerTests(unittest.TestCase):
         )
         self.assertEqual(
             [origin["name"] for origin in client.get("/api/origins").json()],
-            ["京都駅"],
+            ["京都駅", "大阪駅", "新大阪駅", "三ノ宮駅", "奈良駅", "名古屋駅", "東京駅"],
         )
-        nearest = client.get("/api/origins/nearest?latitude=35.0116&longitude=135.7681")
+        with patch(
+            "app.main.find_nearest_train_station",
+            new=AsyncMock(return_value=("大阪駅", 34.70248, 135.49595)),
+        ) as nearest_station:
+            nearest = client.get(
+                "/api/origins/nearest?latitude=34.7030&longitude=135.4960"
+            )
         self.assertEqual(nearest.status_code, 200)
-        self.assertEqual(nearest.json()["name"], "京都駅")
+        self.assertEqual(nearest.json()["name"], "大阪駅")
+        nearest_station.assert_awaited_once_with(34.703, 135.496)
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
             results=[
@@ -722,8 +882,12 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(body["routes"][0]["fare_yen"], 620)
         search.assert_awaited_once()
         expected_fare_points = [
-            f"{latitude},{longitude}"
-            for latitude, longitude in body["routes"][0]["coordinates"]
+            "京都",
+            *(
+                f"{latitude},{longitude}"
+                for latitude, longitude in body["routes"][0]["coordinates"][1:-1]
+            ),
+            "京都",
         ]
         self.fare_estimate.assert_awaited_once_with(expected_fare_points)
         self.assertEqual(len(choose_place_sets("all", 3, "京都駅", candidates)), 3)
@@ -788,8 +952,8 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(response.json()["routes"][0]["title"], "喧騒を離れて、京都の余白へ")
         self.assertIn("静かな自然", response.json()["routes"][0]["story"])
         search.assert_awaited_once()
-        self.assertEqual(search.await_args.kwargs["via_points"][0], "34.98585,135.75877")
-        self.assertEqual(search.await_args.kwargs["via_points"][-1], "34.98585,135.75877")
+        self.assertEqual(search.await_args.kwargs["via_points"][0], "京都")
+        self.assertEqual(search.await_args.kwargs["via_points"][-1], "京都")
 
     def test_random_route_uses_fallback_copy_when_gemini_fails(self):
         client = TestClient(app)

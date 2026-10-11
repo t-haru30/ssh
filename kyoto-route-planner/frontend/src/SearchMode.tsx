@@ -270,6 +270,10 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           if (!isOrigin(payload)) {
             throw new Error("最寄り駅のデータ形式が不正です。");
           }
+          setOrigins((current) => [
+            ...current.filter((item) => item.name !== payload.name),
+            payload,
+          ]);
           setOriginName(payload.name);
           setLocationError(null);
           console.log("[current-location] Departure station updated.", {
@@ -325,11 +329,16 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
     if (isOvernight) {
       const request: OvernightItineraryRequest = {
-        query: mood.trim() || (theme === "all" ? "京都 観光" : `京都 ${themeLabel}`),
+        query: mood.trim() || (theme === "all" ? "観光" : themeLabel),
         departure_station: originName,
+        ...(origin ? {
+          origin_latitude: origin.latitude,
+          origin_longitude: origin.longitude,
+        } : {}),
         departure_date: departureDate,
         departure_time: departureTime,
         stops_per_day: stopCount,
+        hotel_query: `${originName} ホテル 旅館`,
       };
 
       try {
@@ -365,6 +374,10 @@ export function SearchMode({ active, preset }: SearchModeProps) {
     } else {
       const request: RouteSuggestionRequest = {
         origin: originName,
+        ...(origin ? {
+          origin_latitude: origin.latitude,
+          origin_longitude: origin.longitude,
+        } : {}),
         theme,
         stop_count: stopCount,
         departure_date: departureDate,
@@ -422,6 +435,10 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
     const request: RouteSuggestionRequest = {
       origin: originName,
+      ...(origin ? {
+        origin_latitude: origin.latitude,
+        origin_longitude: origin.longitude,
+      } : {}),
       theme,
       stop_count: stopCount,
       departure_date: departureDate,
@@ -473,7 +490,12 @@ export function SearchMode({ active, preset }: SearchModeProps) {
     setSearching(true);
 
     try {
-      const response = await fetchWithTimeout("/api/routes/random", {
+      const params = new URLSearchParams({ origin: originName });
+      if (origin) {
+        params.set("origin_latitude", String(origin.latitude));
+        params.set("origin_longitude", String(origin.longitude));
+      }
+      const response = await fetchWithTimeout(`/api/routes/random?${params.toString()}`, {
         signal: controller.signal,
       }, REQUEST_TIMEOUT_MS);
       if (!response.ok) {

@@ -25,7 +25,10 @@ DEFAULT_RADIUS_M = 5_000
 YAHOO_MAX_CONCURRENT_SEARCHES = 4
 YAHOO_REQUEST_TIMEOUT_SECONDS = 20.0
 YAHOO_SEARCH_CACHE_TTL_SECONDS = 60.0
-_search_cache: TTLCache[tuple[str, int, tuple[str, ...] | None], PlaceSearchResponse] = TTLCache(
+_search_cache: TTLCache[
+    tuple[str, int, tuple[str, ...] | None, tuple[float, float] | None, int | None],
+    PlaceSearchResponse,
+] = TTLCache(
     ttl_seconds=YAHOO_SEARCH_CACHE_TTL_SECONDS,
     max_entries=256,
 )
@@ -353,7 +356,11 @@ async def _search_yahoo(
     app_id: str,
     requested_genre_codes: tuple[str, ...] | None = None,
 ) -> tuple[list[PlaceSearchHit], bool]:
-    location_query = _geocoder_query(query, intent)
+    has_explicit_center = (
+        intent.center_latitude is not None
+        and intent.center_longitude is not None
+    )
+    location_query = None if has_explicit_center else _geocoder_query(query, intent)
     genre_codes = requested_genre_codes or _genre_codes_for_query(query, intent)
     async with httpx.AsyncClient(
         timeout=provider_timeout(10.0),
@@ -368,7 +375,7 @@ async def _search_yahoo(
                     "Yahoo geocoder failed; continuing with local search: %s",
                     type(error).__name__,
                 )
-        if center is None and intent.center_latitude is not None and intent.center_longitude is not None:
+        if center is None and has_explicit_center:
             center = (intent.center_latitude, intent.center_longitude)
         if center is None and not location_query and (
             intent.region is None or intent.region == "京都府"
@@ -447,15 +454,23 @@ async def search_yahoo_catalog(
     query_text: str,
     limit: int = 20,
     genre_codes: tuple[str, ...] | None = None,
+    center: tuple[float, float] | None = None,
+    radius_m: int | None = None,
 ) -> PlaceSearchResponse:
-    if limit < 1:
-        raise ValueError("limit must be positive")
+    if limit < 1 or (radius_m is not None and radius_m < 1):
+        raise ValueError("limit and radius_m must be positive")
     cache_key = (
         " ".join(query_text.casefold().split()),
         limit,
         genre_codes,
+        center,
+        radius_m,
     )
     intent = parse_place_query(query_text)
+    if center is not None:
+        intent.center_latitude, intent.center_longitude = center
+    if radius_m is not None:
+        intent.max_distance_m = radius_m
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     warning: str | None = None
     app_id = os.getenv("YAHOO_APP_ID", "").strip()

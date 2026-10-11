@@ -19,7 +19,7 @@ from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
-from app.ekispert import estimate_route_fare, search_route
+from app.ekispert import estimate_route_fare, find_nearest_train_station, search_route
 from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
@@ -45,7 +45,7 @@ from app.models import (
     Theme,
 )
 
-from app.places import choose_place_sets, list_origins, normalize_origin_name
+from app.places import choose_place_sets, list_origins, resolve_origin
 
 
 logger = logging.getLogger(__name__)
@@ -197,11 +197,11 @@ MAX_REALTIME_IDEAS_PER_REQUEST = 2
 REALTIME_IDEA_TIMEOUT_SECONDS = 8.0
 RANDOM_ROUTE_THEMES = ("history", "nature", "food")
 ROUTE_SEARCH_QUERIES: dict[Theme, str] = {
-    "all": "京都",
-    "history": "京都",
-    "temple": "京都",
-    "nature": "京都",
-    "food": "京都",
+    "all": "観光",
+    "history": "歴史 史跡",
+    "temple": "神社 寺",
+    "nature": "公園 自然 景色",
+    "food": "グルメ 食事",
 }
 ROUTE_GENRE_CODES: dict[Theme, tuple[str, ...]] = {
     "all": (
@@ -218,7 +218,7 @@ ROUTE_PRIORITY_LANDMARKS = {
     "平安神宮": "0424002",
 }
 IDEA_THEME_LABELS: dict[Theme, str] = {
-    "all": "気ままな京都",
+    "all": "気ままな旅",
     "history": "歴史と文化",
     "temple": "神社と寺院",
     "nature": "自然と景色",
@@ -281,15 +281,26 @@ def _route_place_from_search_hit(hit: PlaceSearchHit) -> Place:
     )
 
 
-async def _route_candidates(theme: Theme) -> tuple[list[Place], str]:
-    query = ROUTE_SEARCH_QUERIES[theme]
+async def _route_candidates(
+    theme: Theme,
+    origin: Origin | None = None,
+) -> tuple[list[Place], str]:
+    query = ROUTE_SEARCH_QUERIES[theme] if origin else "京都"
     search = await search_yahoo_catalog(
         query,
         limit=100,
         genre_codes=ROUTE_GENRE_CODES[theme],
+        **(
+            {"center": (origin.latitude, origin.longitude), "radius_m": 20_000}
+            if origin else {}
+        ),
     )
     additional_hits: list[PlaceSearchHit] = []
-    if theme in {"all", "history", "temple"}:
+    near_kyoto = origin is None or _distance_km(
+        (origin.latitude, origin.longitude),
+        (34.98585, 135.75877),
+    ) <= 30
+    if near_kyoto and theme in {"all", "history", "temple"}:
         for name, genre_code in ROUTE_PRIORITY_LANDMARKS.items():
             if any(hit.place.name == name for hit in search.results):
                 continue
@@ -345,19 +356,18 @@ def origins():
 
 
 @app.get("/api/origins/nearest", response_model=Origin)
-def nearest_origin(
+async def nearest_origin(
     latitude: float = Query(..., ge=-90, le=90),
     longitude: float = Query(..., ge=-180, le=180),
 ) -> Origin:
-    available_origins = list_origins()
-    if not available_origins:
-        raise HTTPException(status_code=404, detail="利用可能な出発駅がありません。")
-    return min(
-        available_origins,
-        key=lambda origin: _distance_km(
-            (latitude, longitude),
-            (origin.latitude, origin.longitude),
-        ),
+    name, station_latitude, station_longitude = await find_nearest_train_station(
+        latitude,
+        longitude,
+    )
+    return Origin(
+        name=name,
+        latitude=station_latitude,
+        longitude=station_longitude,
     )
 
 
@@ -410,17 +420,24 @@ async def recommend_route(
 @app.get("/api/routes/random", response_model=RouteSuggestions)
 @limiter.shared_limit("20/minute", scope="paid-external-api")
 @limiter.limit("5/minute")
-async def recommend_random_route(request: Request) -> RouteSuggestions:
+async def recommend_random_route(
+    request: Request,
+    origin: str = Query(default="京都駅", min_length=1, max_length=80),
+    origin_latitude: float | None = Query(default=None, ge=-90, le=90),
+    origin_longitude: float | None = Query(default=None, ge=-180, le=180),
+) -> RouteSuggestions:
     departure = datetime.now().replace(second=0, microsecond=0)
-    request = RouteSuggestionRequest(
-        origin=list_origins()[0].name,
+    random_request = RouteSuggestionRequest(
+        origin=origin,
+        origin_latitude=origin_latitude,
+        origin_longitude=origin_longitude,
         theme=random.choice(RANDOM_ROUTE_THEMES),
         stop_count=random.randint(1, 3),
         departure_date=departure.date(),
         departure_time=departure.time(),
         variation=random.randint(1, 2_147_483_647),
     )
-    return await _recommend_routes(request, max_routes=1)
+    return await _recommend_routes(random_request, max_routes=1)
 
 
 @app.get("/api/ideas/random", response_model=RouteIdeaResponse)
@@ -587,21 +604,16 @@ async def _recommend_routes(
 ) -> RouteSuggestions:
     deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
     try:
-        origin = next(
-            (
-                item
-                for item in list_origins()
-                if normalize_origin_name(item.name) == normalize_origin_name(request.origin)
-            ),
-            None,
+        origin = resolve_origin(
+            request.origin,
+            request.origin_latitude,
+            request.origin_longitude,
         )
-        if origin is None:
-            raise ValueError("出発駅を選び直してください。")
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds <= 0:
             raise asyncio.TimeoutError
         candidates, candidate_note = await asyncio.wait_for(
-            _route_candidates(request.theme),
+            _route_candidates(request.theme, origin),
             timeout=remaining_seconds,
         )
         effective_stop_count = min(request.stop_count, len(candidates))
@@ -613,6 +625,7 @@ async def _recommend_routes(
             max_routes=max_routes,
             database=database_path(),
             variation=request.variation,
+            origin_coordinates=(origin.latitude, origin.longitude),
         )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
@@ -634,9 +647,9 @@ async def _recommend_routes(
                 break
             chosen = selected[:stop_count]
             via_points = [
-                f"{origin.latitude},{origin.longitude}",
+                origin.name.removesuffix("駅"),
                 *(f"{place.latitude},{place.longitude}" for place in chosen),
-                f"{origin.latitude},{origin.longitude}",
+                origin.name.removesuffix("駅"),
             ]
             try:
                 legs, total_minutes, departure_time, arrival_time = await asyncio.wait_for(
@@ -717,12 +730,12 @@ async def _recommend_routes(
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
     for suggestion in suggestions:
         fare_via_points = [
-            f"{suggestion.origin.latitude},{suggestion.origin.longitude}",
+            suggestion.origin.name.removesuffix("駅"),
             *(
                 f"{place.latitude},{place.longitude}"
                 for place in suggestion.places
             ),
-            f"{suggestion.origin.latitude},{suggestion.origin.longitude}",
+            suggestion.origin.name.removesuffix("駅"),
         ]
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds > 0:

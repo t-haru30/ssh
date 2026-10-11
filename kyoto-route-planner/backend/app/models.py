@@ -28,11 +28,19 @@ class Origin(BaseModel):
 
 class RouteSuggestionRequest(BaseModel):
     origin: str = Field(min_length=1, max_length=80)
+    origin_latitude: Latitude | None = None
+    origin_longitude: Longitude | None = None
     theme: Theme = "all"
     stop_count: int = Field(default=3, ge=1, le=3)
     departure_date: date
     departure_time: time
     variation: int = Field(default=0, ge=0, le=2_147_483_647)
+
+    @model_validator(mode="after")
+    def validate_origin_coordinates(self):
+        if (self.origin_latitude is None) != (self.origin_longitude is None):
+            raise ValueError("出発駅の緯度・経度は両方指定してください。")
+        return self
 
 class RouteLeg(BaseModel):
     from_name: str = Field(min_length=1, max_length=200)
@@ -178,12 +186,20 @@ class PlaceSearchResponse(BaseModel):
 class ItineraryRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
     departure_station: str = Field(min_length=1, max_length=80)
+    origin_latitude: Latitude | None = None
+    origin_longitude: Longitude | None = None
     departure_date: date
     departure_time: time
     stop_count: int = Field(default=3, ge=1, le=3)
     selected_places: list[CatalogPlace] | None = Field(default=None, min_length=1, max_length=3)
     return_by: time = time(18, 0)
     stay_minutes_per_place: int = Field(default=90, ge=0, le=360)
+
+    @model_validator(mode="after")
+    def validate_origin_coordinates(self):
+        if (self.origin_latitude is None) != (self.origin_longitude is None):
+            raise ValueError("出発駅の緯度・経度は両方指定してください。")
+        return self
 
 class ItinerarySuggestion(BaseModel):
     query: ParsedPlaceQuery
@@ -205,10 +221,18 @@ class ItinerarySuggestion(BaseModel):
 class OvernightItineraryRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
     departure_station: str = Field(min_length=1, max_length=80)
+    origin_latitude: Latitude | None = None
+    origin_longitude: Longitude | None = None
     departure_date: date
     departure_time: time = time(9, 0)
     stops_per_day: int = Field(default=2, ge=1, le=3)
     hotel_query: str | None = Field(default=None, max_length=100)
+
+    @model_validator(mode="after")
+    def validate_origin_coordinates(self):
+        if (self.origin_latitude is None) != (self.origin_longitude is None):
+            raise ValueError("出発駅の緯度・経度は両方指定してください。")
+        return self
 
 class DailyItinerary(BaseModel):
     day: int

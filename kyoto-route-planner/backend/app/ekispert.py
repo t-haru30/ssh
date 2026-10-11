@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 import os
 from pathlib import Path
@@ -11,9 +11,122 @@ from fastapi import HTTPException
 
 from app.http_client import provider_timeout, request_with_retry
 from app.models import RouteLeg
+from app.places import list_origins
 
 API_BASE_URL = "https://api.ekispert.jp/v1/json"
 logger = logging.getLogger(__name__)
+GEO_STATION_URL = f"{API_BASE_URL}/geo/station"
+
+
+async def find_nearest_train_station(latitude: float, longitude: float) -> tuple[str, float, float]:
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+    key = os.getenv("EKISPERT_API_KEY", "").strip()
+    if not key:
+        raise HTTPException(
+            status_code=503,
+            detail="駅すぱあとAPIキーが設定されていません。環境変数 EKISPERT_API_KEY を設定してください。",
+        )
+
+    params = {
+        "key": key,
+        "geoPoint": f"{latitude},{longitude},wgs84,20000",
+        "type": "train",
+        "stationCount": "10",
+        "gcs": "wgs84",
+    }
+    referer = os.getenv(
+        "EKISPERT_APPLICATION_URL",
+        "http://127.0.0.1:8000",
+    ).strip()
+    try:
+        async with httpx.AsyncClient(
+            timeout=provider_timeout(10.0),
+            headers={"Referer": referer} if referer else {},
+        ) as client:
+            response = await request_with_retry(
+                client,
+                "GET",
+                GEO_STATION_URL,
+                params=params,
+            )
+    except httpx.TimeoutException as error:
+        raise HTTPException(
+            status_code=504,
+            detail="最寄り駅の検索がタイムアウトしました。時間をおいて再度お試しください。",
+        ) from error
+    except httpx.RequestError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="駅すぱあとAPIに接続できず、最寄り駅を検索できませんでした。",
+        ) from error
+
+    if response.status_code == 403:
+        raise HTTPException(
+            status_code=502,
+            detail="駅すぱあとAPIの認証に失敗しました。APIキーと登録ドメインを確認してください。",
+        )
+    if response.is_error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"駅すぱあとAPIで最寄り駅を検索できませんでした（HTTP {response.status_code}）。",
+        )
+    try:
+        payload = response.json()
+    except ValueError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="駅すぱあとAPIから不正な形式の最寄り駅データが返されました。",
+        ) from error
+
+    provider_error = _provider_error(payload)
+    if provider_error:
+        raise HTTPException(status_code=502, detail=provider_error)
+    result_set = payload.get("ResultSet") if isinstance(payload, dict) else None
+    points = result_set.get("Point") if isinstance(result_set, dict) else None
+    if isinstance(points, dict):
+        points = [points]
+    if not isinstance(points, list):
+        points = []
+
+    stations: list[tuple[float, str, float, float]] = []
+    for point in points:
+        if not isinstance(point, dict):
+            continue
+        station = point.get("Station")
+        geo_point = point.get("GeoPoint")
+        if not isinstance(station, dict) or not isinstance(geo_point, dict):
+            continue
+        if station.get("Type") != "train":
+            continue
+        name = station.get("Name")
+        try:
+            station_latitude = float(geo_point["lati_d"])
+            station_longitude = float(geo_point["longi_d"])
+            distance = float(point.get("Distance", float("inf")))
+        except (KeyError, TypeError, ValueError):
+            continue
+        if isinstance(name, str) and name.strip():
+            stations.append(
+                (distance, name.strip(), station_latitude, station_longitude)
+            )
+
+    if not stations:
+        raise HTTPException(
+            status_code=404,
+            detail="現在地から20km以内に列車駅が見つかりませんでした。",
+        )
+    _distance, name, station_latitude, station_longitude = min(stations)
+    station_name = name if name.endswith("駅") else f"{name}駅"
+    return station_name, station_latitude, station_longitude
+
+
+def _station_via_points(via_points: list[str]) -> list[str]:
+    # 駅の座標はEkispertで経路が見つからない場合があるため、登録済みの出発駅は駅名で検索する。
+    names = {
+        f"{origin.latitude},{origin.longitude}": origin.name.removesuffix("駅")
+        for origin in list_origins()
+    }
+    return [names.get(point, point) for point in via_points]
 _QUERY_KEY_PATTERN = re.compile(r"([?&]key=)[^&\s]+", re.IGNORECASE)
 
 
@@ -157,7 +270,7 @@ async def search_route(
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     params = {
         "key": key,
-        "viaList": ":".join(via_points),
+        "viaList": ":".join(_station_via_points(via_points)),
         "date": departure_date.replace("-", ""),
         "time": departure_time.replace(":", ""),
         "searchType": "departure",
@@ -230,7 +343,7 @@ async def estimate_route_fare(via_points: list[str]) -> int | None:
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     params = {
         "key": key,
-        "viaList": ":".join(via_points),
+        "viaList": ":".join(_station_via_points(via_points)),
         "searchType": "plain",
         "answerCount": "1",
         "gcs": "wgs84",

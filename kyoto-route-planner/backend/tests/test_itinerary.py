@@ -73,10 +73,10 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result.fare_yen, 540)
         self.fare_estimate.assert_awaited_once_with([
-            "34.98585,135.75877",
+            "京都",
             "34.9949,135.785",
             "35.0037,135.782",
-            "34.98585,135.75877",
+            "京都",
         ])
 
     async def test_times_out_when_place_search_exceeds_request_budget(self):
