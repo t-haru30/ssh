@@ -19,7 +19,12 @@ from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
 from app.copywriting import generate_route_copywriting
-from app.ekispert import estimate_route_fare, find_nearest_train_station, search_route
+from app.ekispert import (
+    estimate_route_fare,
+    find_nearby_stations,
+    find_nearest_train_station,
+    search_route,
+)
 from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
@@ -369,6 +374,17 @@ async def nearest_origin(
         latitude=station_latitude,
         longitude=station_longitude,
     )
+
+
+@app.get("/api/nearby-stations", response_model=list[Origin])
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("10/minute")
+async def nearby_stations(
+    request: Request,
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+) -> list[Origin]:
+    return await find_nearby_stations(latitude, longitude)
 
 
 @app.get("/api/places/status")
