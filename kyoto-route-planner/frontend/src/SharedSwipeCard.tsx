@@ -122,6 +122,12 @@ export function SharedSwipeCard({
         )}
         {hasCoverImage && (
           <>
+            {spots[0] && (
+              <div className="swipe-cover-spot" data-testid="cover-spot-name">
+                <PinIcon />
+                <strong>{spots[0].name}</strong>
+              </div>
+            )}
             <span className="swipe-cover-image-label">イメージ画像</span>
             {authorName && sourceUrl && licenseName && licenseUrl && (
               <div className="swipe-cover-credit" onPointerDown={(event) => event.stopPropagation()}>

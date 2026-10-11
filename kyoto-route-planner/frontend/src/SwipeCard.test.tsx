@@ -56,6 +56,7 @@ describe("SwipeCard image attribution", () => {
     expect(screen.getByRole("link", { name: "CC BY-SA 4.0" }).getAttribute("href"))
       .toBe("https://creativecommons.org/licenses/by-sa/4.0/");
     expect(screen.getByText("イメージ画像")).toBeTruthy();
+    expect(screen.getByTestId("cover-spot-name").textContent).toBe("庭園");
   });
 
   it("keeps the themed placeholder when image_url is null", () => {
