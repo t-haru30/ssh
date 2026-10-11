@@ -215,6 +215,8 @@ cd ..
 .\start.bat
 ```
 
+「最寄り駅を特定できませんでした」が出続ける場合は、Git pull前の古いAPIサーバーがポート8000で動いていて `/api/origins/nearest` が404になっている可能性があります。古いサーバーを終了して再起動してください。手動で起動する場合は `$env:PYTHONUTF8='1'` を設定してから `.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000` を実行します（未設定だと `.env` の読み込みで起動に失敗します）。
+
 駅すぱあとAPIの利用登録ドメインに開発用ドメインを登録してください。ローカル開発では `127.0.0.1` のような実際の利用URLを `EKISPERT_APPLICATION_URL` に設定し、`localhost` だけに寄せすぎないことが重要です。登録ドメインとローカル開発の利用条件は必要に応じて駅すぱあとAPIの窓口に確認してください。
 
 ## Google Cloud Runへの公開
