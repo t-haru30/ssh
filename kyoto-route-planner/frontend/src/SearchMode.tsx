@@ -470,14 +470,14 @@ export function SearchMode({ active }: SearchModeProps) {
     >
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">KYOTO · ONE DAY TRIP</p>
-          <h1>京都の一日を、<br /><em>よりみち</em>から。</h1>
+          <p className="eyebrow">TICKET &amp; JOURNEY</p>
+          <h1>旅の一日を、<br /><em>よりみち</em>から。</h1>
           <p className="hero-description">
             気分に合わせて行き先を選ぶと、駅すぱあとAPIが<br className="desktop-break" />
             公共交通のルートを検索します。
           </p>
         </div>
-        <div className="hero-stamp" aria-hidden="true"><span>京</span><small>WANDER<br />WITH CARE</small></div>
+        <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
       {!showIdeaDeck ? (
@@ -505,21 +505,13 @@ export function SearchMode({ active }: SearchModeProps) {
         />
       ) : null}
 
-      <section className={`route-copy-banner${suggestions.length > 0 ? " visible" : ""}`} aria-live="polite">
-        {suggestions[0]?.title ? (
-          <>
-            <p className="eyebrow">YOUR KYOTO STORY</p>
-            <h2>{suggestions[0].title}</h2>
-            {suggestions[0].story && <p>{suggestions[0].story}</p>}
-          </>
-        ) : (
-          <>
-            <p className="eyebrow">ONE TAP JOURNEY</p>
-            <h2>今の気分で、どこかへ行く。</h2>
-            <p>テーマも立ち寄り先もおまかせ。京都の寄り道をひとつ見つけます。</p>
-          </>
-        )}
-      </section>
+      {suggestions[0]?.title && (
+        <section className="route-copy-banner visible" aria-live="polite">
+          <p className="eyebrow">YOUR KYOTO STORY</p>
+          <h2>{suggestions[0].title}</h2>
+          {suggestions[0].story && <p>{suggestions[0].story}</p>}
+        </section>
+      )}
 
       {hasResult && (
         <div className="hero-map">
@@ -622,7 +614,7 @@ export function SearchMode({ active }: SearchModeProps) {
                     </option>
                   ))}
                 </select>
-                <small>スポット候補は京都駅周辺2kmから取得します。</small>
+                <small>スポット候補は出発駅の周辺から取得します。</small>
               </label>
               <label>
                 <span>出発日</span>

@@ -20,9 +20,9 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="京都よりみちルート ホーム">
+        <a className="brand" href="/" aria-label="よりみち ホーム">
           <span className="brand-mark">寄</span>
-          <span>よりみち<span className="brand-light"> / KYOTO</span></span>
+          <span>よりみち<span className="brand-light"> / JOURNEY</span></span>
         </a>
         <div className="topbar-tools">
           <button
