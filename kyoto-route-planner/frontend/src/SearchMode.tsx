@@ -62,6 +62,20 @@ async function readError(response: Response) {
   return "ルートを取得できませんでした。APIサーバーの状態を確認してください。";
 }
 
+function nearestKnownOrigin(origins: Origin[], latitude: number, longitude: number) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  let best: { origin: Origin; km: number } | null = null;
+  for (const origin of origins) {
+    const dLat = toRad(origin.latitude - latitude);
+    const dLng = toRad(origin.longitude - longitude);
+    const a = Math.sin(dLat / 2) ** 2
+      + Math.cos(toRad(latitude)) * Math.cos(toRad(origin.latitude)) * Math.sin(dLng / 2) ** 2;
+    const km = 6371 * 2 * Math.asin(Math.sqrt(a));
+    if (!best || km < best.km) best = { origin, km };
+  }
+  return best;
+}
+
 export type SearchPreset = { theme: Theme; stopCount: number; nonce: number };
 
 type SearchModeProps = {
@@ -286,9 +300,17 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           });
         } catch (cause) {
           console.error("[current-location] Nearby station lookup failed.", cause);
-          const message = "現在地周辺の駅・停留所を特定できませんでした。出発駅を手動で入力してください。";
-          setLocationError(message);
-          window.alert(message);
+          const fallback = nearestKnownOrigin(origins, latitude, longitude);
+          if (fallback) {
+            setOriginName(fallback.origin.name);
+            setLocationError(
+              `最寄り駅の自動検索に失敗したため、現在地に近い候補の「${fallback.origin.name}」（約${fallback.km.toFixed(1)}km）を選択しました。違う場合は手動で変更してください。`,
+            );
+          } else {
+            const message = "現在地周辺の駅・停留所を特定できませんでした。出発駅を手動で入力してください。";
+            setLocationError(message);
+            window.alert(message);
+          }
         } finally {
           setLocating(false);
         }
@@ -310,7 +332,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         setLocationError(message);
         window.alert(message);
       },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
+      { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
     );
   }
 
