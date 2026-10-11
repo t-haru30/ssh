@@ -25,7 +25,7 @@ from app.models import (
     RouteLeg,
 )
 from app.poi_search import search_yahoo_catalog
-from app.places import list_origins, normalize_origin_name
+from app.places import resolve_origin
 from app.search import parse_place_query
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
@@ -186,6 +186,7 @@ def _build_day_schedule(
     stay_minutes: int,
     hotel_start: bool = False,
     lunch: LunchPlan | None = None,
+    hotel_destination: bool = False,
 ) -> list[ItineraryScheduleItem]:
     schedule: list[ItineraryScheduleItem] = []
     current = start_at
@@ -265,23 +266,23 @@ def _build_day_schedule(
     ))
     hotel_check_in = (
         max(current, datetime.combine(current.date(), time(15, 0)))
-        if destination != "京都駅"
+        if hotel_destination
         else current
     )
     destination_time = (
         _clock(hotel_check_in)
-        if destination != "京都駅" or arrival is not None
+        if hotel_destination or arrival is not None
         else None
     )
     schedule.append(ItineraryScheduleItem(
         start_time=destination_time,
         end_time=destination_time,
-        title="ホテルにチェックイン" if destination != "京都駅" else destination,
+        title="ホテルにチェックイン" if hotel_destination else destination,
         detail=(
             "15:00以降にホテルへチェックインします。到着が早い場合は周辺で待機する目安です。"
-            if destination != "京都駅" else "出発駅への到着時刻の目安です。"
+            if hotel_destination else "出発駅への到着時刻の目安です。"
         ),
-        kind="hotel" if destination != "京都駅" else "travel",
+        kind="hotel" if hotel_destination else "travel",
     ))
     return schedule
 
@@ -299,17 +300,18 @@ class ItineraryCandidate:
 
 
 async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> OvernightItinerarySuggestion:
-    origin = next(
-        (
-            item
-            for item in list_origins()
-            if normalize_origin_name(item.name)
-            == normalize_origin_name(request.departure_station)
-        ),
-        None,
-    )
-    if origin is None:
-        raise HTTPException(status_code=422, detail="出発駅を選び直してください。")
+    try:
+        origin = resolve_origin(
+            request.departure_station,
+            request.origin_latitude,
+            request.origin_longitude,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail="出発駅を選び直してください。",
+        ) from error
+    search_center = (origin.latitude, origin.longitude)
 
     start_time = time_module.monotonic()
     deadline = start_time + ITINERARY_REQUEST_BUDGET_SECONDS
@@ -317,12 +319,22 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     # 1. ホテルの選定
     # lodgingカテゴリを含めて検索
     hotel_query = request.hotel_query or f"{request.query} ホテル 旅館"
-    hotel_search = await search_yahoo_catalog(hotel_query, limit=20)
+    hotel_search = await search_yahoo_catalog(
+        hotel_query,
+        limit=20,
+        center=search_center,
+        radius_m=20_000,
+    )
 
     hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place)]
 
     if not hotels:
-        fallback_search = await search_yahoo_catalog("京都駅 ホテル", limit=10)
+        fallback_search = await search_yahoo_catalog(
+            f"{origin.name} ホテル",
+            limit=10,
+            center=search_center,
+            radius_m=20_000,
+        )
         hotels = [hit.place for hit in fallback_search.results if _is_lodging(hit.place)]
 
     if not hotels:
@@ -332,7 +344,12 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         )
 
     # 2. 観光スポットの選定（宿泊施設を除外）
-    spot_search = await search_yahoo_catalog(request.query, limit=40)
+    spot_search = await search_yahoo_catalog(
+        request.query,
+        limit=40,
+        center=search_center,
+        radius_m=20_000,
+    )
     all_spots = [
         hit.place for hit in spot_search.results
         if not _is_lodging(hit.place)
@@ -381,6 +398,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         dep_time=request.departure_time,
         stay_min=90,
         deadline=deadline,
+        origin_station=origin.name,
     )
 
     # Day 2: ホテル -> 観光地 -> 出発駅
@@ -396,6 +414,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         dep_time=checkout_time,
         stay_min=90,
         deadline=deadline,
+        destination_station=origin.name,
     )
 
     day1_split = max(1, len(best_day1["places"]) // 2)
@@ -417,12 +436,14 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         origin.latitude, origin.longitude,
         selected_hotel.latitude, selected_hotel.longitude,
         request.departure_date, request.departure_time, deadline,
+        origin_station=origin.name,
     )
     best_day2 = await _add_lunch_to_route(
         best_day2, list(best_day2["places"]), day2_lunch,
         selected_hotel.latitude, selected_hotel.longitude,
         origin.latitude, origin.longitude,
         day2_date, checkout_time, deadline,
+        destination_station=origin.name,
     )
 
     days = [
@@ -438,6 +459,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
                 transit_minutes=best_day1["transit_minutes"],
                 stay_minutes=90,
                 lunch=day1_lunch,
+                hotel_destination=True,
             ),
             lunch=day1_lunch,
             transit_minutes=best_day1["transit_minutes"],
@@ -488,11 +510,16 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
             )
             continue
         try:
+            via_points = [
+                f"{latitude},{longitude}"
+                for latitude, longitude in day.coordinates
+            ]
+            if day.day == 1:
+                via_points[0] = origin.name.removesuffix("駅")
+            else:
+                via_points[-1] = origin.name.removesuffix("駅")
             day.fare_yen = await asyncio.wait_for(
-                estimate_route_fare([
-                    f"{latitude},{longitude}"
-                    for latitude, longitude in day.coordinates
-                ]),
+                estimate_route_fare(via_points),
                 timeout=remaining,
             )
         except asyncio.TimeoutError:
@@ -532,7 +559,9 @@ async def _find_best_route(
     dest_lat: float, dest_lon: float,
     spots: list[CatalogPlace],
     dep_date: date, dep_time: time,
-    stay_min: int, deadline: float
+    stay_min: int, deadline: float,
+    origin_station: str | None = None,
+    destination_station: str | None = None,
 ):
     best = None
     calls = 0
@@ -545,9 +574,9 @@ async def _find_best_route(
             break
         
         via_points = [
-            f"{origin_lat},{origin_lon}",
+            origin_station.removesuffix("駅") if origin_station else f"{origin_lat},{origin_lon}",
             *(f"{s.latitude},{s.longitude}" for s in p),
-            f"{dest_lat},{dest_lon}"
+            destination_station.removesuffix("駅") if destination_station else f"{dest_lat},{dest_lon}"
         ]
         
         try:
@@ -601,6 +630,8 @@ async def _add_lunch_to_route(
     dep_date: date,
     dep_time: time,
     deadline: float,
+    origin_station: str | None = None,
+    destination_station: str | None = None,
 ) -> dict:
     if lunch.place is None:
         return route
@@ -608,9 +639,9 @@ async def _add_lunch_to_route(
     ordered = list(places)
     via_places = ordered[:lunch_index] + [lunch.place] + ordered[lunch_index:]
     via_points = [
-        f"{origin_lat},{origin_lon}",
+        origin_station.removesuffix("駅") if origin_station else f"{origin_lat},{origin_lon}",
         *(f"{place.latitude},{place.longitude}" for place in via_places),
-        f"{dest_lat},{dest_lon}",
+        destination_station.removesuffix("駅") if destination_station else f"{dest_lat},{dest_lon}",
     ]
     remaining = deadline - time_module.monotonic()
     if remaining <= 0:
@@ -637,18 +668,17 @@ async def _add_lunch_to_route(
     return route
 
 async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
-    origin = next(
-        (
-            item
-            for item in list_origins()
-
-            if normalize_origin_name(item.name)
-            == normalize_origin_name(request.departure_station)
-        ),
-        None,
-    )
-    if origin is None:
-        raise HTTPException(status_code=422, detail="出発駅を選び直してください。")
+    try:
+        origin = resolve_origin(
+            request.departure_station,
+            request.origin_latitude,
+            request.origin_longitude,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail="出発駅を選び直してください。",
+        ) from error
     if request.departure_time >= request.return_by:
         raise HTTPException(
             status_code=422,
@@ -674,7 +704,12 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     else:
         try:
             search_result = await asyncio.wait_for(
-                search_yahoo_catalog(request.query, limit=20),
+                search_yahoo_catalog(
+                    request.query,
+                    limit=20,
+                    center=(origin.latitude, origin.longitude),
+                    radius_m=20_000,
+                ),
                 timeout=remaining_seconds,
             )
         except asyncio.TimeoutError as error:
@@ -711,9 +746,9 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             timed_out = True
             break
         via_points = [
-            f"{origin.latitude},{origin.longitude}",
+            origin.name.removesuffix("駅"),
             *(f"{place.latitude},{place.longitude}" for place in ordered_places),
-            f"{origin.latitude},{origin.longitude}",
+            origin.name.removesuffix("駅"),
         ]
         try:
             legs, transit_minutes, _departure, _arrival = await asyncio.wait_for(
@@ -800,9 +835,9 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     remaining_seconds = deadline - asyncio.get_running_loop().time()
     if remaining_seconds > 0:
         via_points = [
-            f"{origin.latitude},{origin.longitude}",
+            origin.name.removesuffix("駅"),
             *(f"{place.latitude},{place.longitude}" for place in best.places),
-            f"{origin.latitude},{origin.longitude}",
+            origin.name.removesuffix("駅"),
         ]
         try:
             fare_yen = await asyncio.wait_for(

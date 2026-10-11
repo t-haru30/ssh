@@ -81,7 +81,9 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         ))
         request = OvernightItineraryRequest(
             query="温泉でのんびり、静かな場所で美味しいものを食べたい",
-            departure_station="京都駅",
+            departure_station="高尾駅",
+            origin_latitude=35.6575,
+            origin_longitude=139.2828,
             departure_date=date(2026, 10, 9),
             departure_time=time(9, 0),
             stops_per_day=1,
@@ -101,9 +103,17 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.fare_yen, 1300)
         self.assertEqual(self.fare_estimate.await_count, 2)
         for index, day in enumerate(result.days):
+            expected_via_points = [
+                f"{latitude},{longitude}"
+                for latitude, longitude in day.coordinates
+            ]
+            if day.day == 1:
+                expected_via_points[0] = "高尾"
+            else:
+                expected_via_points[-1] = "高尾"
             self.assertEqual(
                 self.fare_estimate.await_args_list[index].args[0],
-                [f"{latitude},{longitude}" for latitude, longitude in day.coordinates],
+                expected_via_points,
             )
         self.assertEqual(result.days[0].schedule[0].start_time, "09:00")
         self.assertEqual(result.days[0].schedule[-1].kind, "hotel")
@@ -114,6 +124,12 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("要検討", result.days[0].lunch.reason)
         self.assertIn("温泉でのんびり", search.await_args_list[0].args[0])
         self.assertEqual(search.await_args_list[1].args[0], request.query)
+        for search_call in search.await_args_list[:2]:
+            self.assertEqual(
+                search_call.kwargs["center"],
+                (35.6575, 139.2828),
+            )
+            self.assertEqual(search_call.kwargs["radius_m"], 20_000)
 
     async def test_each_day_includes_a_lunch_plan_between_sightseeing(self):
         hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")

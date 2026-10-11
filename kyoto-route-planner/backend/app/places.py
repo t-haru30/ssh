@@ -13,7 +13,7 @@ ORIGINS = [
     Origin(name="京都駅", latitude=34.98585, longitude=135.75877),
     Origin(name="大阪駅", latitude=34.70248, longitude=135.49595),
     Origin(name="新大阪駅", latitude=34.73342, longitude=135.50002),
-    Origin(name="神戸三宮駅", latitude=34.69447, longitude=135.19520),
+    Origin(name="三ノ宮駅", latitude=34.69491, longitude=135.19557),
     Origin(name="奈良駅", latitude=34.68169, longitude=135.81963),
     Origin(name="名古屋駅", latitude=35.17090, longitude=136.88170),
     Origin(name="東京駅", latitude=35.68123, longitude=139.76712),
@@ -41,6 +41,25 @@ def _normalize_origin_name(value: str) -> str:
 
 def list_origins() -> list[Origin]:
     return ORIGINS.copy()
+
+
+def resolve_origin(
+    name: str,
+    latitude: float | None = None,
+    longitude: float | None = None,
+) -> Origin:
+    if latitude is not None and longitude is not None:
+        return Origin(name=name, latitude=latitude, longitude=longitude)
+    origin = next(
+        (
+            item for item in ORIGINS
+            if _normalize_origin_name(item.name) == _normalize_origin_name(name)
+        ),
+        None,
+    )
+    if origin is None:
+        raise ValueError("出発駅を選び直してください。")
+    return origin
 
 
 def calculate_place_score(place: Place, theme: Theme) -> float:
@@ -106,6 +125,7 @@ def choose_places(
     candidates: list[Place],
     database: Path | None = None,
     variation: int = 0,
+    origin_coordinates: tuple[float, float] | None = None,
 ) -> list[Place]:
     origin = next(
         (
@@ -116,6 +136,12 @@ def choose_places(
         ),
         None,
     )
+    if origin is None and origin_coordinates is not None:
+        origin = Origin(
+            name=origin_name,
+            latitude=origin_coordinates[0],
+            longitude=origin_coordinates[1],
+        )
     if origin is None:
         raise ValueError("出発駅を選び直してください。")
 
@@ -163,9 +189,16 @@ def choose_place_sets(
     max_routes: int = 3,
     database: Path | None = None,
     variation: int = 0,
+    origin_coordinates: tuple[float, float] | None = None,
 ) -> list[list[Place]]:
     first_route = choose_places(
-        theme, stop_count, origin_name, candidates, database, variation
+        theme,
+        stop_count,
+        origin_name,
+        candidates,
+        database,
+        variation,
+        origin_coordinates,
     )
     origin = next(
         (
@@ -176,6 +209,12 @@ def choose_place_sets(
         ),
         None,
     )
+    if origin is None and origin_coordinates is not None:
+        origin = Origin(
+            name=origin_name,
+            latitude=origin_coordinates[0],
+            longitude=origin_coordinates[1],
+        )
     if origin is None:
         raise ValueError("出発駅を選び直してください。")
 

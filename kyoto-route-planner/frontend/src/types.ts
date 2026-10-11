@@ -83,6 +83,8 @@ export type RouteSuggestions = {
 
 export type RouteSuggestionRequest = {
   origin: string;
+  origin_latitude?: number;
+  origin_longitude?: number;
   theme: Theme;
   stop_count: number;
   departure_date: string;
@@ -93,6 +95,8 @@ export type RouteSuggestionRequest = {
 export type OvernightItineraryRequest = {
   query: string;
   departure_station: string;
+  origin_latitude?: number;
+  origin_longitude?: number;
   departure_date: string;
   departure_time: string;
   stops_per_day: number;
