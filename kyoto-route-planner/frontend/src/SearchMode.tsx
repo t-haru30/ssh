@@ -82,6 +82,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
   const [places, setPlaces] = useState<Place[]>([]);
   const [origins, setOrigins] = useState<Origin[]>([]);
+  const [nearbyStations, setNearbyStations] = useState<Origin[]>([]);
   const [originName, setOriginName] = useState("京都駅");
   const [theme, setTheme] = useState<Theme>("all");
   const [mood, setMood] = useState("");
@@ -186,8 +187,8 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   }, []);
 
   const origin = useMemo(
-    () => origins.find((item) => item.name === originName) ?? null,
-    [originName, origins],
+    () => [...nearbyStations, ...origins].find((item) => item.name === originName) ?? null,
+    [nearbyStations, originName, origins],
   );
     const mapPlaces = useMemo(() => {
     if (isOvernight && overnightSuggestion) {
@@ -259,7 +260,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         console.log("[current-location] Coordinates received.", { latitude, longitude });
         try {
           const response = await fetchWithTimeout(
-            `/api/origins/nearest?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
+            `/api/nearby-stations?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
             {},
             INITIAL_DATA_TIMEOUT_MS,
           );
@@ -267,23 +268,25 @@ export function SearchMode({ active, preset }: SearchModeProps) {
             throw new Error(await readError(response));
           }
           const payload: unknown = await response.json();
-          if (!isOrigin(payload)) {
-            throw new Error("最寄り駅のデータ形式が不正です。");
+          if (!Array.isArray(payload) || !payload.every(isOrigin)) {
+            throw new Error("現在地周辺の駅・停留所データ形式が不正です。");
           }
-          setOrigins((current) => [
-            ...current.filter((item) => item.name !== payload.name),
-            payload,
-          ]);
-          setOriginName(payload.name);
+          if (payload.length === 0) {
+            throw new Error("現在地周辺に駅・停留所が見つかりませんでした。");
+          }
+          const stations = payload as Origin[];
+          setNearbyStations(stations);
+          setOriginName(stations[0].name);
           setLocationError(null);
-          console.log("[current-location] Departure station updated.", {
-            station: payload.name,
+          console.log("[current-location] Nearby departures loaded.", {
+            count: stations.length,
+            departure: stations[0].name,
             latitude,
             longitude,
           });
         } catch (cause) {
-          console.error("[current-location] Reverse geocoding failed.", cause);
-          const message = "最寄り駅を特定できませんでした。出発駅を手動で入力してください。";
+          console.error("[current-location] Nearby station lookup failed.", cause);
+          const message = "現在地周辺の駅・停留所を特定できませんでした。出発駅を手動で入力してください。";
           setLocationError(message);
           window.alert(message);
         } finally {
@@ -693,11 +696,22 @@ export function SearchMode({ active, preset }: SearchModeProps) {
                 <span>出発駅</span>
                 <div className="origin-input-row">
                   <select value={originName} onChange={(event) => setOriginName(event.target.value)} disabled={loading || searching || locating}>
-                  {origins.map((item) => (
-                    <option value={item.name} key={item.name}>
-                      {item.name.endsWith("駅") ? item.name : `${item.name}駅`}
-                    </option>
-                  ))}
+                    {nearbyStations.length > 0 && (
+                      <optgroup label="現在地周辺">
+                        {nearbyStations.map((item) => (
+                          <option value={item.name} key={`${item.name}:${item.latitude}:${item.longitude}`}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="主要駅">
+                      {origins.map((item) => (
+                        <option value={item.name} key={item.name}>
+                          {/[駅)）]$/.test(item.name) ? item.name : `${item.name}駅`}
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                   <button
                     className="location-button"
