@@ -193,8 +193,8 @@ def _build_day_schedule(
         schedule.append(ItineraryScheduleItem(
             start_time=_clock(current),
             end_time=_clock(current),
-            title="ホテルを出発",
-            detail="チェックアウト時刻は施設にご確認ください。",
+            title="ホテルをチェックアウトして出発",
+            detail="10:00にホテルをチェックアウトして出発します。",
             kind="hotel",
         ))
 
@@ -263,13 +263,23 @@ def _build_day_schedule(
         ),
         kind="travel",
     ))
+    hotel_check_in = (
+        max(current, datetime.combine(current.date(), time(15, 0)))
+        if destination != "京都駅"
+        else current
+    )
+    destination_time = (
+        _clock(hotel_check_in)
+        if destination != "京都駅" or arrival is not None
+        else None
+    )
     schedule.append(ItineraryScheduleItem(
-        start_time=_clock(arrival) if arrival else None,
-        end_time=_clock(arrival) if arrival else None,
-        title=destination,
+        start_time=destination_time,
+        end_time=destination_time,
+        title="ホテルにチェックイン" if destination != "京都駅" else destination,
         detail=(
-            "到着時刻の目安です。チェックイン時刻は施設にご確認ください。"
-            if destination != "京都駅" else "到着時刻の目安です。"
+            "15:00以降にホテルへチェックインします。到着が早い場合は周辺で待機する目安です。"
+            if destination != "京都駅" else "出発駅への到着時刻の目安です。"
         ),
         kind="hotel" if destination != "京都駅" else "travel",
     ))
@@ -321,14 +331,27 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
             detail=hotel_search.note or "Yahoo!ローカルサーチで宿泊施設が見つかりませんでした。",
         )
 
-    selected_hotel = hotels[0]
-
     # 2. 観光スポットの選定（宿泊施設を除外）
     spot_search = await search_yahoo_catalog(request.query, limit=40)
     all_spots = [
         hit.place for hit in spot_search.results
-        if hit.place.id != selected_hotel.id and not _is_lodging(hit.place)
+        if not _is_lodging(hit.place)
     ]
+    selected_hotel = min(
+        hotels,
+        key=lambda hotel: (
+            _distance_km(origin, hotel)
+            + (
+                sum(
+                    _distance_km(hotel, place)
+                    for place in all_spots
+                )
+                / len(all_spots)
+                if all_spots
+                else 0
+            )
+        ),
+    )
     
     required_spots = request.stops_per_day * 2
     if len(all_spots) < required_spots:

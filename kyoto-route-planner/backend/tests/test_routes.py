@@ -381,6 +381,9 @@ class RoutePlannerTests(unittest.TestCase):
             [origin["name"] for origin in client.get("/api/origins").json()],
             ["京都駅"],
         )
+        nearest = client.get("/api/origins/nearest?latitude=35.0116&longitude=135.7681")
+        self.assertEqual(nearest.status_code, 200)
+        self.assertEqual(nearest.json()["name"], "京都駅")
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
             results=[

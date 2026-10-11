@@ -295,6 +295,22 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+.origin-input-row { display: flex; align-items: stretch; gap: 8px; }
+.origin-input-row select { min-width: 0; flex: 1; }
+.location-button {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: var(--surface-muted);
+  color: var(--control-text);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.location-button:hover:not(:disabled) { border-color: var(--forest); color: var(--forest); }
+.location-button:disabled { cursor: wait; opacity: .6; }
+.location-error { color: #9b4f45; }
+
 /* 1泊2日用セクション */
 .overnight-day-section {
   margin-bottom: 40px;
