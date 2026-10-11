@@ -5,6 +5,7 @@ import type { RouteIdea } from "./SwipeCard";
 import { usePrefecture } from "./PrefectureContext";
 
 const FAVORITES_STORAGE_KEY = "kyoto-route-planner:favorites:v1";
+export const MAX_FAVORITES = 50;
 
 export type FavoriteRoute = RouteIdea & {
   id: string;
@@ -52,7 +53,19 @@ function readFavorites(): FavoritesState {
       throw new Error("保存済みルートのデータ形式が正しくありません。");
     }
     const unique = new Map(payload.map((favorite) => [favorite.id, favorite]));
-    return { favorites: [...unique.values()], error: null };
+    const favorites = [...unique.values()].slice(0, MAX_FAVORITES);
+    if (favorites.length < unique.size) {
+      try {
+        window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+      } catch (cause) {
+        const message = cause instanceof Error
+          ? cause.message
+          : "保存済みルートの上限を適用できませんでした。";
+        console.error("Failed to limit saved routes in localStorage.", cause);
+        return { favorites, error: message };
+      }
+    }
+    return { favorites, error: null };
   } catch (cause) {
     const message = cause instanceof Error
       ? cause.message
@@ -119,7 +132,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
       },
       saved_at: new Date().toISOString(),
     };
-    return persist([favorite, ...favoritesRef.current]);
+    return persist([favorite, ...favoritesRef.current].slice(0, MAX_FAVORITES));
   }, [persist, prefecture]);
 
   const removeFavorite = useCallback((id: string) => {

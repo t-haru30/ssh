@@ -60,6 +60,7 @@ describe("FavoriteRoutesPanel", () => {
     }]));
     render(<FavoriteRoutesPanel onClose={() => undefined} />, { wrapper });
 
+    expect(screen.getByText("保存数の上限は50件です。上限を超えると、古いルートから自動的に削除されます。")).toBeTruthy();
     expect(screen.getByText("京都府 (26)")).toBeTruthy();
     expect(screen.getByText("清水寺 → 高台寺")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "東山の寺院めぐりを保存から削除" }));
