@@ -9,6 +9,7 @@ import { usePrefecture } from "./PrefectureContext";
 import { useFavorites } from "./useFavorites";
 
 const LOW_CARD_COUNT = 3;
+const GUIDE_KEY = "kyoto-route-planner:swipe-guide-seen:v1";
 
 type IdeaDeckProps = {
   origin: Origin;
@@ -53,7 +54,15 @@ export function IdeaDeck({
     prefectureCode: prefecture.code,
   });
 
+  const [guideSeen, setGuideSeen] = useState(() => {
+    try { return window.localStorage.getItem(GUIDE_KEY) === "1"; } catch { return false; }
+  });
+
   function swipe(direction: Parameters<typeof handleSwipe>[0]) {
+    if (!guideSeen) {
+      setGuideSeen(true);
+      try { window.localStorage.setItem(GUIDE_KEY, "1"); } catch { /* 保存できなくても動作に影響しない */ }
+    }
     if (direction === "accept" && ideas[0]) saveFavorite(ideas[0]);
     void handleSwipe(direction);
   }
@@ -171,10 +180,12 @@ export function IdeaDeck({
         </motion.div>
       ) : (
         <>
-          <div className="idea-swipe-guide" aria-label="操作方法">
-            <span className="idea-swipe-guide-skip"><span aria-hidden="true">←</span> 左へスワイプ：スキップ</span>
-            <span className="idea-swipe-guide-accept">右へスワイプ：採用 <span aria-hidden="true">→</span></span>
-          </div>
+          {!guideSeen && (
+            <div className="idea-swipe-guide" aria-label="操作方法">
+              <span className="idea-swipe-guide-skip"><span aria-hidden="true">←</span> 左へスワイプ：スキップ</span>
+              <span className="idea-swipe-guide-accept">右へスワイプ：採用 <span aria-hidden="true">→</span></span>
+            </div>
+          )}
           <div className="idea-stage" aria-live="polite">
             <AnimatePresence custom={swipeDirection}>
               {ideas.slice(0, 3).reverse().map((idea, index) => (
