@@ -1,4 +1,6 @@
-backend/.env
+# 環境変数ファイル（シークレット）を除外
+**/.env*
+!**/.env.example
 backend/.venv/
 backend/**/__pycache__/
 **/*.py[cod]
