@@ -14,6 +14,7 @@ from app.ekispert import (
     _parse_legs,
     _redact_access_key,
     estimate_route_fare,
+    find_nearby_stations,
     find_nearest_train_station,
 )
 from app.main import (
@@ -375,6 +376,80 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(station_client.request_params["type"], "train")
         self.assertNotIn("corporationBind", station_client.request_params)
 
+    def test_station_names_are_normalized_for_any_railway_operator(self):
+        from app.ekispert import _normalize_station_name
+
+        self.assertEqual(_normalize_station_name("大手町(東京メトロ)"), "大手町駅")
+        self.assertEqual(_normalize_station_name("京橋(東京都)"), "京橋(東京都)")
+        self.assertEqual(_normalize_station_name("新宿"), "新宿駅")
+        self.assertEqual(_normalize_station_name("京都駅"), "京都駅")
+
+    def test_nearby_station_lookup_includes_all_types_sorted_and_limited(self):
+        points = []
+        for index in range(12):
+            station_type = (
+                {"text": "train", "detail": "subway"}
+                if index % 2
+                else "bus"
+            )
+            qualifier = "(東京メトロ)" if index % 2 else "(バス乗り場)"
+            points.append({
+                "Distance": str(1_000 - index * 50),
+                "Station": {
+                    "Name": f"候補{index}{qualifier}",
+                    "Type": station_type,
+                },
+                "GeoPoint": {
+                    "lati_d": str(35.0 + index / 1000),
+                    "longi_d": str(139.0 + index / 1000),
+                },
+            })
+        response = Mock(status_code=200, is_error=False)
+        response.json.return_value = {"ResultSet": {"Point": points}}
+
+        class MockStationClient:
+            request_params = None
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *_args):
+                return None
+
+            async def get(self, _url, **kwargs):
+                self.request_params = kwargs["params"]
+                return response
+
+        station_client = MockStationClient()
+        with (
+            patch.dict("os.environ", {"EKISPERT_API_KEY": "test-key"}),
+            patch("app.ekispert.load_dotenv"),
+            patch("app.ekispert.httpx.AsyncClient", return_value=station_client),
+        ):
+            stations = asyncio.run(find_nearby_stations(35.0, 139.0))
+
+        self.assertEqual(len(stations), 10)
+        self.assertEqual(
+            [station.name for station in stations],
+            [
+                "候補11駅",
+                "候補10",
+                "候補9駅",
+                "候補8",
+                "候補7駅",
+                "候補6",
+                "候補5駅",
+                "候補4",
+                "候補3駅",
+                "候補2",
+            ],
+        )
+        self.assertEqual(stations[0].latitude, 35.011)
+        self.assertEqual(station_client.request_params["geoPoint"], "35.0,139.0,wgs84,5000")
+        self.assertEqual(station_client.request_params["stationCount"], "10")
+        self.assertNotIn("type", station_client.request_params)
+        self.assertNotIn("corporationBind", station_client.request_params)
+
     def test_route_search_reports_empty_yahoo_results_without_substitute_places(self):
         client = TestClient(app)
         yahoo_response = PlaceSearchResponse(
@@ -544,6 +619,23 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(nearest.status_code, 200)
         self.assertEqual(nearest.json()["name"], "大阪駅")
         nearest_station.assert_awaited_once_with(34.703, 135.496)
+        nearby_values = [
+            Origin(name="バス停", latitude=34.702, longitude=135.495),
+            Origin(name="地下鉄駅", latitude=34.701, longitude=135.494),
+        ]
+        with patch(
+            "app.main.find_nearby_stations",
+            new=AsyncMock(return_value=nearby_values),
+        ) as nearby_search:
+            nearby = client.get(
+                "/api/nearby-stations?latitude=34.703&longitude=135.496"
+            )
+        self.assertEqual(nearby.status_code, 200)
+        self.assertEqual(
+            [item["name"] for item in nearby.json()],
+            ["バス停", "地下鉄駅"],
+        )
+        nearby_search.assert_awaited_once_with(34.703, 135.496)
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
             results=[
