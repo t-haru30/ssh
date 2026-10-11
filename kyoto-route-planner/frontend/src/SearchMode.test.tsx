@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SearchMode } from "./SearchMode";
 
 vi.mock("./LazyMapView", () => ({ LazyMapView: () => null }));
-vi.mock("./IdeaDeck", () => ({ IdeaDeck: () => null }));
 vi.mock("./RouteTimeline", () => ({
   buildDayTimeline: () => [],
   buildRouteTimeline: () => [],
@@ -56,6 +55,7 @@ describe("SearchMode nearby departures", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     render(<SearchMode active />);
+    expect(screen.queryByText("スワイプで寄り道を見つける")).toBeNull();
 
     const departureSelect = (await screen.findAllByRole("combobox"))[0];
     const locationButton = await screen.findByRole("button", { name: "現在地から探す" });

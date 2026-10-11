@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
-import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { isOrigin, isOvernightItinerary, isPlace, isRecord, isRouteSuggestions } from "./apiValidation";
 import type { Origin, Place, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
@@ -80,8 +79,6 @@ export function SearchMode({ active }: SearchModeProps) {
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
   const [isOvernight, setIsOvernight] = useState(false);
-  const [showIdeaDeck, setShowIdeaDeck] = useState(false);
-  const [ideaMapPlaces, setIdeaMapPlaces] = useState<Place[]>([]);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -573,31 +570,6 @@ export function SearchMode({ active }: SearchModeProps) {
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
-      {!showIdeaDeck ? (
-        <button
-          className="swipe-launch-button"
-          type="button"
-          onClick={() => setShowIdeaDeck(true)}
-          disabled={loading || !origin}
-        >
-          <span aria-hidden="true">♡</span>
-          スワイプで寄り道を見つける
-          <small>経路検索の前に、気になるアイデアを選ぼう</small>
-        </button>
-      ) : origin ? (
-        <IdeaDeck
-          origin={origin}
-          departureDate={departureDate}
-          departureTime={departureTime}
-          onActivePlacesChange={setIdeaMapPlaces}
-          onItineraryChange={() => undefined}
-          onClose={() => {
-            setShowIdeaDeck(false);
-            setIdeaMapPlaces([]);
-          }}
-        />
-      ) : null}
-
       {suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
           <p className="eyebrow">YOUR KYOTO STORY</p>
@@ -762,15 +734,6 @@ export function SearchMode({ active }: SearchModeProps) {
           {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
         </section>
 
-        {!hasResult && showIdeaDeck && (
-          <section className="map-card" aria-label="京都の候補地マップ">
-            <div className="map-heading">
-              <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-              <span className="map-count">{ideaMapPlaces.length} SPOTS</span>
-            </div>
-            <LazyMapView places={ideaMapPlaces} origin={origin} />
-          </section>
-        )}
       </div>
 
       {hasResult && (

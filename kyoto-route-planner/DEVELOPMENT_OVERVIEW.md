@@ -46,7 +46,7 @@
 - 「今の気分でどこかへ行く」ではランダムな条件でルートを検索します。
 - 1泊2日では気分の自然文、日ごとの立ち寄り件数を指定し、宿泊先を含む旅程を検索します。
 - 検索結果は時系列タイムラインと地図で表示します。駅すぱあと由来の経路情報を表示します。
-- Search内には従来の「スワイプで寄り道を見つける」IdeaDeckも残っています。これはDiscoverの静的カードとは別機能で、Yahoo!等のAPIを呼び出します。
+- Search画面にはスワイプ用IdeaDeckは表示しません。Discoverのカード機能は引き続き独立して利用できます。
 
 タブ切り替えでは両画面をマウントしたまま `hidden` で表示を切り替えます。MapLibreインスタンスを破棄・再生成せず、Search再表示時には地図へresizeイベントを送ります。
 
@@ -113,7 +113,6 @@ kyoto-route-planner/
 │     ├─ SearchMode.tsx          # 既存の検索フォーム、地図、結果
 │     ├─ MapView.tsx             # MapLibre地図
 │     ├─ RouteTimeline.tsx       # タイムラインと組み立て処理
-│     ├─ IdeaDeck.tsx            # Search内のAPIベースの旧アイデアUI
 │     ├─ discover/               # Discoverカード、モーダル、データ型
 │     └─ data/mock_dataset.json  # Discover用サンプルデータ
 ├─ backend/
