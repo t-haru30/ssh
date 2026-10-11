@@ -1,32 +1,17 @@
 import logging
-import os
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
-from dotenv import load_dotenv
 
 from app.cache import TTLCache
 from app.http_client import provider_timeout, request_with_retry
 
 WIKIPEDIA_API_URL = "https://ja.wikipedia.org/w/api.php"
-FLICKR_API_URL = "https://www.flickr.com/services/rest/"
 WIKIMEDIA_USER_AGENT = "KyotoYorimichiRoute/1.0 (https://github.com/t-haru30/ssh)"
 IMAGE_SEARCH_TIMEOUT_SECONDS = 4.0
 IMAGE_SEARCH_CACHE_TTL_SECONDS = 300.0
-FLICKR_COMMERCIAL_LICENSE_IDS = ("4", "5", "6", "7", "8", "9", "10")
-FLICKR_COMMERCIAL_LICENSES = frozenset(FLICKR_COMMERCIAL_LICENSE_IDS)
-FLICKR_LICENSES = {
-    "4": ("CC BY 2.0", "https://creativecommons.org/licenses/by/2.0/"),
-    "5": ("CC BY-SA 2.0", "https://creativecommons.org/licenses/by-sa/2.0/"),
-    "6": ("CC BY-ND 2.0", "https://creativecommons.org/licenses/by-nd/2.0/"),
-    "7": ("パブリックドメイン（著作権制限なし）", "https://www.flickr.com/commons/usage/"),
-    "8": ("米国政府著作物（パブリックドメイン）", "https://www.usa.gov/government-works"),
-    "9": ("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/"),
-    "10": ("Public Domain Mark 1.0", "https://creativecommons.org/publicdomain/mark/1.0/"),
-}
 _image_cache: TTLCache[str, "CommercialImage | None"] = TTLCache(
     ttl_seconds=IMAGE_SEARCH_CACHE_TTL_SECONDS,
     max_entries=512,
@@ -211,76 +196,7 @@ async def _search_wikipedia(client: httpx.AsyncClient, query: str) -> Commercial
     return None
 
 
-async def _search_flickr(
-    client: httpx.AsyncClient,
-    api_key: str,
-    query: str,
-) -> CommercialImage | None:
-    response = await request_with_retry(
-        client,
-        "GET",
-        FLICKR_API_URL,
-        params={
-            "method": "flickr.photos.search",
-            "api_key": api_key,
-            "text": query[:200],
-            "license": ",".join(FLICKR_COMMERCIAL_LICENSE_IDS),
-            "safe_search": 1,
-            "media": "photos",
-            "extras": "owner_name,url_l,license",
-            "per_page": 10,
-            "format": "json",
-            "nojsoncallback": 1,
-        },
-    )
-    if response.status_code >= 400:
-        logger.warning("Flickr image search returned HTTP %d", response.status_code)
-        return None
-    try:
-        payload = response.json()
-    except ValueError:
-        logger.warning("Flickr image search returned invalid JSON")
-        return None
-    if not isinstance(payload, dict) or payload.get("stat") != "ok":
-        return None
-    photos = payload.get("photos")
-    photo_list = photos.get("photo") if isinstance(photos, dict) else None
-    if not isinstance(photo_list, list):
-        return None
-
-    for photo in photo_list:
-        if not isinstance(photo, dict):
-            continue
-        license_id = str(photo.get("license", ""))
-        license_info = FLICKR_LICENSES.get(license_id)
-        photo_id = photo.get("id")
-        owner_id = photo.get("owner")
-        image_url = photo.get("url_l")
-        author_name = photo.get("ownername")
-        if (
-            license_id not in FLICKR_COMMERCIAL_LICENSES
-            or license_info is None
-            or not isinstance(photo_id, str)
-            or not photo_id
-            or not isinstance(owner_id, str)
-            or not owner_id
-            or not isinstance(author_name, str)
-            or not author_name.strip()
-            or not _is_https_url(image_url)
-        ):
-            continue
-        return CommercialImage(
-            image_url=image_url,
-            author_name=author_name.strip(),
-            source_url=f"https://www.flickr.com/photos/{owner_id}/{photo_id}",
-            license_name=license_info[0],
-            license_url=license_info[1],
-        )
-    return None
-
-
 async def search_commercial_image(query: str) -> CommercialImage | None:
-    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     normalized_query = " ".join(query.casefold().split())[:200]
     if not normalized_query:
         return None
@@ -288,7 +204,6 @@ async def search_commercial_image(query: str) -> CommercialImage | None:
     if cache_hit:
         return cached_image
 
-    flickr_api_key = os.getenv("FLICKR_API_KEY", "").strip()
     try:
         async with httpx.AsyncClient(
             timeout=provider_timeout(IMAGE_SEARCH_TIMEOUT_SECONDS),
@@ -299,11 +214,6 @@ async def search_commercial_image(query: str) -> CommercialImage | None:
             except httpx.HTTPError as error:
                 logger.warning("Wikipedia image search failed: %s", type(error).__name__)
                 image = None
-            if image is None and flickr_api_key:
-                try:
-                    image = await _search_flickr(client, flickr_api_key, normalized_query)
-                except httpx.HTTPError as error:
-                    logger.warning("Flickr image search failed: %s", type(error).__name__)
     except httpx.HTTPError as error:
         logger.warning("Commercial image search failed: %s", type(error).__name__)
         return None
