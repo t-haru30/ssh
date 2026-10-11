@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SavedRoutesList } from "./SavedRoutesList";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
+import type { SearchPreset } from "./SearchMode";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Onboarding, hasSeenOnboarding, markOnboardingSeen } from "./Onboarding";
 import { useFavorites } from "./useFavorites";
@@ -15,6 +16,7 @@ const tabs: { id: AppTab; label: string; caption: string }[] = [
 
 function App() {
   const [activeTab, setActiveTab] = useState<AppTab>("discover");
+  const [searchPreset, setSearchPreset] = useState<SearchPreset | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
   const { favorites, error } = useFavorites();
@@ -63,8 +65,15 @@ function App() {
         ))}
       </div>
 
-      <DiscoverMode active={activeTab === "discover"} />
-      <SearchMode active={activeTab === "search"} />
+      <DiscoverMode
+        active={activeTab === "discover"}
+        onPlanInSearch={(route) => {
+          const count = "spots" in route ? route.spots.length : route.places.length;
+          setSearchPreset({ theme: route.theme, stopCount: count, nonce: Date.now() });
+          setActiveTab("search");
+        }}
+      />
+      <SearchMode active={activeTab === "search"} preset={searchPreset} />
       {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
 
