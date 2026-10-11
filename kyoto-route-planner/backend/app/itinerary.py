@@ -632,16 +632,27 @@ def _estimated_fallback_candidate(
     mode = "walking" if total_km <= WALKING_MAX_TOTAL_KM else "driving"
     speed = WALKING_KM_PER_HOUR if mode == "walking" else DRIVING_KM_PER_HOUR
     stops = [origin, *ordered, origin]
-    legs = [
-        RouteLeg(
-            from_name=start.name,
-            to_name=end.name,
-            line_name="徒歩（概算）" if mode == "walking" else "車（概算）",
-            mode="walk" if mode == "walking" else "car",
-            duration_minutes=max(1, round(_distance_km(start, end) / speed * 60)),
+    clock = datetime.combine(request.departure_date, request.departure_time)
+    legs = []
+    for index, (start, end) in enumerate(zip(stops, stops[1:])):
+        minutes = max(1, round(_distance_km(start, end) / speed * 60))
+        departure_at = clock
+        arrival_at = departure_at + timedelta(minutes=minutes)
+        legs.append(
+            RouteLeg(
+                from_name=start.name,
+                to_name=end.name,
+                line_name="徒歩（概算）" if mode == "walking" else "車（概算）",
+                mode="walk" if mode == "walking" else "car",
+                duration_minutes=minutes,
+                departure_at=departure_at.isoformat(timespec="seconds"),
+                arrival_at=arrival_at.isoformat(timespec="seconds"),
+            )
         )
-        for start, end in zip(stops, stops[1:])
-    ]
+        is_last = index == len(stops) - 2
+        clock = arrival_at + timedelta(
+            minutes=0 if is_last else request.stay_minutes_per_place
+        )
     travel_minutes = sum(leg.duration_minutes or 0 for leg in legs)
     stay_minutes = len(ordered) * request.stay_minutes_per_place
     total_minutes = travel_minutes + stay_minutes

@@ -40,6 +40,8 @@ class RouteLeg(BaseModel):
     line_name: str = Field(min_length=1, max_length=200)
     mode: str = Field(min_length=1, max_length=80)
     duration_minutes: int | None = Field(default=None, ge=0)
+    departure_at: str | None = None
+    arrival_at: str | None = None
 
 class RouteTimelineSpot(BaseModel):
     type: Literal["spot"] = "spot"

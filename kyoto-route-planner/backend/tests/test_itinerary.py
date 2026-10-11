@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from datetime import date, time
+from datetime import date, datetime, time, timedelta
 from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
@@ -114,6 +114,7 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(len(result.legs), 3)
         self.assertEqual({leg.mode for leg in result.legs}, {"car"})
+        self.assert_timeline(result.legs, request)
         self.assertIsNone(result.fare_yen)
         self.assertIn("概算", result.note)
         self.fare_estimate.assert_not_awaited()
@@ -133,6 +134,17 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
             result = await plan_itinerary(request)
 
         self.assertEqual({leg.mode for leg in result.legs}, {"walk"})
+        self.assert_timeline(result.legs, request)
+
+    def assert_timeline(self, legs, request):
+        self.assertEqual(legs[0].departure_at, "2026-10-09T09:00:00")
+        for leg in legs:
+            departure = datetime.fromisoformat(leg.departure_at)
+            arrival = datetime.fromisoformat(leg.arrival_at)
+            self.assertEqual(arrival - departure, timedelta(minutes=leg.duration_minutes))
+        for previous, following in zip(legs, legs[1:]):
+            gap = datetime.fromisoformat(following.departure_at) - datetime.fromisoformat(previous.arrival_at)
+            self.assertEqual(gap, timedelta(minutes=request.stay_minutes_per_place))
 
     async def test_times_out_when_route_search_exceeds_budget(self):
         place = catalog_place("a", "スポットA", 35.0, 135.7)

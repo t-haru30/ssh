@@ -26,6 +26,8 @@ export type RouteLeg = {
   line_name: string;
   mode: string;
   duration_minutes: number | null;
+  departure_at?: string | null;
+  arrival_at?: string | null;
 };
 
 export type SwipeItinerary = {
