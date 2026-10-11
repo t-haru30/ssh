@@ -48,6 +48,22 @@ if (-not (Test-Path (Join-Path $backend ".env"))) {
     throw "backend\.env is missing. Copy backend\.env.example and configure the API key."
 }
 
+function Stop-PortProcess([int]$Port) {
+    $owners = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty OwningProcess -Unique
+    foreach ($owner in $owners) {
+        # --reload の親子プロセスも含めて終了する
+        & taskkill.exe /PID $owner /T /F | Out-Null
+        Write-Host "Stopped process $owner that was using port $Port."
+    }
+    for ($i = 0; $i -lt 10; $i++) {
+        if (-not (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) { return }
+        Start-Sleep -Milliseconds 500
+    }
+    throw "Port $Port is still in use."
+}
+Stop-PortProcess 8000
+
 $health = $null
 try {
     $health = Invoke-RestMethod -Uri $healthUrl -TimeoutSec 2
