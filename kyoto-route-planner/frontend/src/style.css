@@ -80,6 +80,9 @@ a { color: inherit; text-decoration: none; }
 .theme-chip.selected { border-color: var(--forest); color: var(--on-accent); background: var(--forest); }
 .theme-chip.selected span { color: #d8e5d8; }
 .form-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 12px; }
+.form-advanced { grid-column: 1 / -1; }
+.form-advanced summary { cursor: pointer; color: var(--muted); font-size: 12px; padding: 6px 0; }
+.form-advanced-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 12px; margin-top: 8px; }
 .form-fields label { display: flex; flex-direction: column; gap: 6px; color: #777e78; font-size: 10px; }
 .form-fields input, .form-fields select { width: 100%; height: 39px; border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; background: var(--surface-input); color: var(--ink); outline: none; font-size: 12px; }
 .form-fields input:focus, .form-fields select:focus { border-color: var(--focus); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 12%, transparent); }
