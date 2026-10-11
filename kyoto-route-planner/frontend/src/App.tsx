@@ -3,19 +3,26 @@ import { SavedRoutesList } from "./SavedRoutesList";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { Onboarding, hasSeenOnboarding, markOnboardingSeen } from "./Onboarding";
 import { useFavorites } from "./useFavorites";
 
 type AppTab = "discover" | "search";
 
 const tabs: { id: AppTab; label: string; caption: string }[] = [
-  { id: "discover", label: "Discover", caption: "発見" },
-  { id: "search", label: "Search", caption: "検索" },
+  { id: "discover", label: "見つける", caption: "スワイプで選ぶ" },
+  { id: "search", label: "経路を作る", caption: "乗換つきで検索" },
 ];
 
 function App() {
   const [activeTab, setActiveTab] = useState<AppTab>("discover");
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
   const { favorites, error } = useFavorites();
+
+  function closeOnboarding() {
+    markOnboardingSeen();
+    setShowOnboarding(false);
+  }
 
   return (
     <main className="app-shell">
@@ -59,6 +66,7 @@ function App() {
       <DiscoverMode active={activeTab === "discover"} />
       <SearchMode active={activeTab === "search"} />
       {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} />}
+      {showOnboarding && <Onboarding onClose={closeOnboarding} />}
 
       <footer className="footer">
         <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
