@@ -3,7 +3,7 @@ import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
 import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
-import { isOrigin, isOvernightItinerary, isPlace, isRecord, isRouteSuggestions } from "./apiValidation";
+import { isOrigin, isOvernightItinerary, isPlace, isRecord, isRouteSuggestions, normalizeOvernightItinerary } from "./apiValidation";
 import type { Origin, Place, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
@@ -267,23 +267,7 @@ export function SearchMode({ active }: SearchModeProps) {
         if (!isRecord(rawPayload) || !Array.isArray(rawPayload.days)) {
           throw new Error("宿泊ルートAPIから有効な旅程が返されませんでした。");
         }
-        const normalizedPayload = {
-          ...rawPayload,
-          days: rawPayload.days.map((day) => (
-            isRecord(day) && day.lunch == null
-              ? {
-                ...day,
-                lunch: {
-                  type: "lunch",
-                  place: null,
-                  start_time: "12:00",
-                  end_time: "13:00",
-                  reason: "昼食情報を取得できなかったため、昼食は要検討です。",
-                },
-              }
-              : day
-          )),
-        };
+        const normalizedPayload = normalizeOvernightItinerary(rawPayload);
         if (!isOvernightItinerary(normalizedPayload)) {
           throw new Error("宿泊ルートAPIから有効な旅程が返されませんでした。");
         }

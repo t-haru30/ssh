@@ -100,17 +100,43 @@ function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
 }
 
 // /api/itineraries は CatalogPlace を返し、access_point と themes を持たないため既定値を補う
+function normalizePlace(place: unknown): unknown {
+  if (!isRecord(place)) return place;
+  return {
+    ...place,
+    access_point: typeof place.access_point === "string" ? place.access_point : "",
+    themes: Array.isArray(place.themes) ? place.themes : [],
+  };
+}
+
 export function normalizeSwipeItinerary(value: unknown): unknown {
   if (!isRecord(value) || !Array.isArray(value.places)) return value;
+  return { ...value, places: value.places.map(normalizePlace) };
+}
+
+// /api/itineraries/overnight も CatalogPlace を返すため、場所の既定値と昼食情報を補う
+export function normalizeOvernightItinerary(value: unknown): unknown {
+  if (!isRecord(value) || !Array.isArray(value.days)) return value;
   return {
     ...value,
-    places: value.places.map((place) => isRecord(place)
-      ? {
-        ...place,
-        access_point: typeof place.access_point === "string" ? place.access_point : "",
-        themes: Array.isArray(place.themes) ? place.themes : [],
-      }
-      : place),
+    hotel: normalizePlace(value.hotel),
+    days: value.days.map((day) => {
+      if (!isRecord(day)) return day;
+      const lunch = isRecord(day.lunch)
+        ? { ...day.lunch, place: normalizePlace(day.lunch.place ?? null) }
+        : {
+          type: "lunch",
+          place: null,
+          start_time: "12:00",
+          end_time: "13:00",
+          reason: "昼食情報を取得できなかったため、昼食は要検討です。",
+        };
+      return {
+        ...day,
+        places: Array.isArray(day.places) ? day.places.map(normalizePlace) : day.places,
+        lunch,
+      };
+    }),
   };
 }
 
