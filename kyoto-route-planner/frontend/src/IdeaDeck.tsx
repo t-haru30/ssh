@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Origin, Place, SwipeItinerary } from "./types";
 import { SwipeCard } from "./SwipeCard";
 import { useSwipeDeck } from "./useSwipeDeck";
+import { isEstimatedLeg } from "./friendlyError";
 import { usePrefecture } from "./PrefectureContext";
 import { useFavorites } from "./useFavorites";
 
@@ -139,13 +140,27 @@ export function IdeaDeck({
           <ol className="idea-itinerary-places">
             {itinerary.places.map((place) => <li key={place.id}>{place.name}</li>)}
           </ol>
+          {itinerary.legs.some(isEstimatedLeg) && (
+            <div className="idea-estimate-notice" role="status">
+              <strong>概算の経路です</strong>
+              <span>公共交通の経路が見つからなかったため、徒歩・車の目安で表示しています。時刻や所要時間は実際と異なる場合があります。</span>
+            </div>
+          )}
           {itinerary.legs.length > 0 && (
             <ol className="idea-itinerary-legs">
               {itinerary.legs.map((leg, index) => (
-                <li key={`${leg.from_name}-${leg.to_name}-${index}`}>
+                <li
+                  key={`${leg.from_name}-${leg.to_name}-${index}`}
+                  className={isEstimatedLeg(leg) ? "estimated" : undefined}
+                >
                   <span>{leg.from_name} → {leg.to_name}</span>
-                  <strong>{leg.line_name}</strong>
-                  {leg.duration_minutes !== null && <small>{leg.duration_minutes}分</small>}
+                  <strong>
+                    {leg.line_name}
+                    {isEstimatedLeg(leg) && <em className="estimate-badge">概算</em>}
+                  </strong>
+                  {leg.duration_minutes !== null && (
+                    <small>{isEstimatedLeg(leg) ? "約" : ""}{leg.duration_minutes}分</small>
+                  )}
                 </li>
               ))}
             </ol>

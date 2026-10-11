@@ -3,6 +3,7 @@ import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
 import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
+import { toFriendlyMessage } from "./friendlyError";
 import { isOrigin, isOvernightItinerary, isPlace, isRecord, isRouteSuggestions, normalizeOvernightItinerary } from "./apiValidation";
 import type { Origin, Place, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
@@ -166,7 +167,7 @@ export function SearchMode({ active }: SearchModeProps) {
           setError(initialError);
         }
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "初期データを読み込めませんでした。");
+        setError(toFriendlyMessage(cause, "初期データを読み込めませんでした。ページを再読み込みしてください。"));
       } finally {
         setLoading(false);
       }
@@ -345,7 +346,7 @@ export function SearchMode({ active }: SearchModeProps) {
         }
       } catch (cause) {
         if (requestId !== requestIdRef.current) return;
-        setError(cause instanceof Error ? cause.message : "宿泊プランを取得できませんでした。");
+        setError(toFriendlyMessage(cause));
       } finally {
         if (requestId === requestIdRef.current) {
           activeRequestRef.current = null;
@@ -386,7 +387,7 @@ export function SearchMode({ active }: SearchModeProps) {
         if (cause instanceof DOMException && cause.name === "AbortError") {
           setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
         } else {
-          setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+          setError(toFriendlyMessage(cause));
         }
       } finally {
         if (requestId === requestIdRef.current) {
@@ -441,7 +442,7 @@ export function SearchMode({ active }: SearchModeProps) {
       if (cause instanceof DOMException && cause.name === "AbortError") {
         setError("再提案がタイムアウトしました。時間をおいて再度お試しください。");
       } else {
-        setError(cause instanceof Error ? cause.message : "別のルートを取得できませんでした。");
+        setError(toFriendlyMessage(cause));
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -481,7 +482,7 @@ export function SearchMode({ active }: SearchModeProps) {
       if (cause instanceof DOMException && cause.name === "AbortError") {
         setError("ルート検索がタイムアウトしました。時間をおいて再度お試しください。");
       } else {
-        setError(cause instanceof Error ? cause.message : "ルートを取得できませんでした。");
+        setError(toFriendlyMessage(cause));
       }
     } finally {
       if (requestId === requestIdRef.current) {
