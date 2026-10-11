@@ -613,6 +613,56 @@ async def _add_lunch_to_route(
         })
     return route
 
+WALKING_KM_PER_HOUR = 4.8
+DRIVING_KM_PER_HOUR = 25.0
+WALKING_MAX_TOTAL_KM = 5.0
+
+
+def _estimated_fallback_candidate(
+    origin: Origin,
+    places: list[CatalogPlace],
+    request: ItineraryRequest,
+) -> tuple["ItineraryCandidate", str]:
+    def loop_km(order: tuple[CatalogPlace, ...]) -> float:
+        stops = [origin, *order, origin]
+        return sum(_distance_km(a, b) for a, b in zip(stops, stops[1:]))
+
+    ordered = min(permutations(places), key=loop_km)
+    total_km = loop_km(ordered)
+    mode = "walking" if total_km <= WALKING_MAX_TOTAL_KM else "driving"
+    speed = WALKING_KM_PER_HOUR if mode == "walking" else DRIVING_KM_PER_HOUR
+    stops = [origin, *ordered, origin]
+    legs = [
+        RouteLeg(
+            from_name=start.name,
+            to_name=end.name,
+            line_name="徒歩（概算）" if mode == "walking" else "車（概算）",
+            mode="walk" if mode == "walking" else "car",
+            duration_minutes=max(1, round(_distance_km(start, end) / speed * 60)),
+        )
+        for start, end in zip(stops, stops[1:])
+    ]
+    travel_minutes = sum(leg.duration_minutes or 0 for leg in legs)
+    stay_minutes = len(ordered) * request.stay_minutes_per_place
+    total_minutes = travel_minutes + stay_minutes
+    estimated_return = datetime.combine(
+        request.departure_date, request.departure_time
+    ) + timedelta(minutes=total_minutes)
+    return_deadline = datetime.combine(request.departure_date, request.return_by)
+    return (
+        ItineraryCandidate(
+            places=ordered,
+            legs=legs,
+            transit_minutes=travel_minutes,
+            stay_minutes=stay_minutes,
+            total_minutes=total_minutes,
+            estimated_return=estimated_return,
+            feasible=estimated_return <= return_deadline,
+        ),
+        mode,
+    )
+
+
 async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
     origin = next(
         (
@@ -679,6 +729,7 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         )
 
     best: ItineraryCandidate | None = None
+    fallback_mode: str | None = None
     route_search_calls = 0
     timed_out = False
     transient_error: HTTPException | None = None
@@ -767,15 +818,14 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             )
         if transient_error is not None:
             raise transient_error
-        raise HTTPException(
-            status_code=404,
-            detail="選んだスポットを公共交通で巡る経路が見つかりませんでした。",
-        )
+        best, fallback_mode = _estimated_fallback_candidate(origin, candidates, request)
 
     feasible = best.feasible
     fare_yen: int | None = None
     remaining_seconds = deadline - asyncio.get_running_loop().time()
-    if remaining_seconds > 0:
+    if fallback_mode is not None:
+        logger.warning("No transit route found; using %s estimate", fallback_mode)
+    elif remaining_seconds > 0:
         via_points = [
             f"{origin.latitude},{origin.longitude}",
             *(f"{place.latitude},{place.longitude}" for place in best.places),
@@ -827,9 +877,16 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
         feasible=feasible,
         route_search_calls=route_search_calls,
         note=(
-            "候補はYahoo!ローカルサーチの検索結果をテーマ・距離条件で絞り込み、"
-            "候補順列ごとに駅すぱあとAPIの公共交通所要時間を比較しました。"
-            "立ち寄り先あたりの滞在時間は一律90分の仮定です。"
+            (
+                "公共交通の経路が見つからなかったため、直線距離から"
+                f"{'徒歩' if fallback_mode == 'walking' else '車'}での所要時間を概算しました。"
+                "実際の道順・所要時間は地図アプリなどでご確認ください。"
+                if fallback_mode is not None
+                else
+                "候補はYahoo!ローカルサーチの検索結果をテーマ・距離条件で絞り込み、"
+                "候補順列ごとに駅すぱあとAPIの公共交通所要時間を比較しました。"
+            )
+            + "立ち寄り先あたりの滞在時間は一律90分の仮定です。"
             "営業時間、乗車遅延、施設間の徒歩道順は考慮しません。"
             f"{feasibility_note}"
         ),
