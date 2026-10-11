@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from datetime import date, time
+from datetime import date, datetime, time, timedelta
 from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
@@ -94,6 +94,57 @@ class ItineraryPlanningTests(unittest.IsolatedAsyncioTestCase):
         with patch("app.itinerary.search_yahoo_catalog", new=slow_search):
             with self.assertRaisesRegex(HTTPException, "候補.*タイムアウト"):
                 await plan_itinerary(request)
+
+    async def test_falls_back_to_walking_estimate_when_no_transit_route(self):
+        request = ItineraryRequest(
+            query="清水寺 円山公園",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 9),
+            departure_time=time(9, 0),
+            stop_count=2,
+            selected_places=[
+                catalog_place("a", "清水寺", 34.9949, 135.7850),
+                catalog_place("b", "円山公園", 35.0037, 135.7820),
+            ],
+        )
+        no_route = AsyncMock(side_effect=HTTPException(status_code=404, detail="none"))
+
+        with patch("app.itinerary.search_route", no_route):
+            result = await plan_itinerary(request)
+
+        self.assertEqual(len(result.legs), 3)
+        self.assertEqual({leg.mode for leg in result.legs}, {"car"})
+        self.assert_timeline(result.legs, request)
+        self.assertIsNone(result.fare_yen)
+        self.assertIn("概算", result.note)
+        self.fare_estimate.assert_not_awaited()
+
+    async def test_falls_back_to_walking_for_short_loop(self):
+        request = ItineraryRequest(
+            query="近所",
+            departure_station="京都駅",
+            departure_date=date(2026, 10, 9),
+            departure_time=time(9, 0),
+            stop_count=1,
+            selected_places=[catalog_place("a", "東本願寺", 34.9915, 135.7585)],
+        )
+        no_route = AsyncMock(side_effect=HTTPException(status_code=404, detail="none"))
+
+        with patch("app.itinerary.search_route", no_route):
+            result = await plan_itinerary(request)
+
+        self.assertEqual({leg.mode for leg in result.legs}, {"walk"})
+        self.assert_timeline(result.legs, request)
+
+    def assert_timeline(self, legs, request):
+        self.assertEqual(legs[0].departure_at, "2026-10-09T09:00:00")
+        for leg in legs:
+            departure = datetime.fromisoformat(leg.departure_at)
+            arrival = datetime.fromisoformat(leg.arrival_at)
+            self.assertEqual(arrival - departure, timedelta(minutes=leg.duration_minutes))
+        for previous, following in zip(legs, legs[1:]):
+            gap = datetime.fromisoformat(following.departure_at) - datetime.fromisoformat(previous.arrival_at)
+            self.assertEqual(gap, timedelta(minutes=request.stay_minutes_per_place))
 
     async def test_times_out_when_route_search_exceeds_budget(self):
         place = catalog_place("a", "スポットA", 35.0, 135.7)

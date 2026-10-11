@@ -99,6 +99,21 @@ function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
     && typeof value.is_estimate === "boolean";
 }
 
+// /api/itineraries は CatalogPlace を返し、access_point と themes を持たないため既定値を補う
+export function normalizeSwipeItinerary(value: unknown): unknown {
+  if (!isRecord(value) || !Array.isArray(value.places)) return value;
+  return {
+    ...value,
+    places: value.places.map((place) => isRecord(place)
+      ? {
+        ...place,
+        access_point: typeof place.access_point === "string" ? place.access_point : "",
+        themes: Array.isArray(place.themes) ? place.themes : [],
+      }
+      : place),
+  };
+}
+
 export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
   return isRecord(value)
     && isOrigin(value.origin)
