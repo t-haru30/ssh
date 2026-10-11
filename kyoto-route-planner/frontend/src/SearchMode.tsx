@@ -234,16 +234,22 @@ export function SearchMode({ active }: SearchModeProps) {
   function handleUseCurrentLocation() {
     setLocationError(null);
     if (!navigator.geolocation) {
-      setLocationError("現在地を取得できませんでした。出発駅を手動で入力してください。");
+      const error = new Error("Geolocation is not supported by this browser.");
+      console.error("[current-location] Geolocation API is unavailable.", error);
+      const message = "このブラウザでは位置情報を取得できません。出発駅を手動で入力してください。";
+      setLocationError(message);
+      window.alert(message);
       return;
     }
 
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("[current-location] Coordinates received.", { latitude, longitude });
         try {
           const response = await fetchWithTimeout(
-            `/api/origins/nearest?latitude=${encodeURIComponent(coords.latitude)}&longitude=${encodeURIComponent(coords.longitude)}`,
+            `/api/origins/nearest?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
             {},
             INITIAL_DATA_TIMEOUT_MS,
           );
@@ -255,15 +261,37 @@ export function SearchMode({ active }: SearchModeProps) {
             throw new Error("最寄り駅のデータ形式が不正です。");
           }
           setOriginName(payload.name);
-        } catch {
-          setLocationError("現在地を取得できませんでした。出発駅を手動で入力してください。");
+          setLocationError(null);
+          console.log("[current-location] Departure station updated.", {
+            station: payload.name,
+            latitude,
+            longitude,
+          });
+        } catch (cause) {
+          console.error("[current-location] Reverse geocoding failed.", cause);
+          const message = "最寄り駅を特定できませんでした。出発駅を手動で入力してください。";
+          setLocationError(message);
+          window.alert(message);
         } finally {
           setLocating(false);
         }
       },
-      () => {
+      (error) => {
+        console.error("[current-location] Geolocation failed.", {
+          code: error.code,
+          message: error.message,
+          error,
+        });
+        const message = error.code === GeolocationPositionError.PERMISSION_DENIED
+          ? "位置情報が許可されていません。ブラウザの設定を確認してください。"
+          : error.code === GeolocationPositionError.POSITION_UNAVAILABLE
+            ? "位置情報を取得できません。端末の位置情報設定や通信状況を確認してください。"
+            : error.code === GeolocationPositionError.TIMEOUT
+              ? "位置情報の取得がタイムアウトしました。もう一度お試しください。"
+              : "現在地を取得できませんでした。出発駅を手動で入力してください。";
         setLocating(false);
-        setLocationError("現在地を取得できませんでした。出発駅を手動で入力してください。");
+        setLocationError(message);
+        window.alert(message);
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
     );
