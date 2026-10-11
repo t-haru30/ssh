@@ -11,6 +11,12 @@ from app.popularity import load_cached_scores
 
 ORIGINS = [
     Origin(name="京都駅", latitude=34.98585, longitude=135.75877),
+    Origin(name="大阪駅", latitude=34.70248, longitude=135.49595),
+    Origin(name="新大阪駅", latitude=34.73342, longitude=135.50002),
+    Origin(name="神戸三宮駅", latitude=34.69447, longitude=135.19520),
+    Origin(name="奈良駅", latitude=34.68169, longitude=135.81963),
+    Origin(name="名古屋駅", latitude=35.17090, longitude=136.88170),
+    Origin(name="東京駅", latitude=35.68123, longitude=139.76712),
 ]
 PROMINENT_LANDMARKS = {
     "清水寺": 45.0,

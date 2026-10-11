@@ -379,11 +379,13 @@ class RoutePlannerTests(unittest.TestCase):
         )
         self.assertEqual(
             [origin["name"] for origin in client.get("/api/origins").json()],
-            ["京都駅"],
+            ["京都駅", "大阪駅", "新大阪駅", "神戸三宮駅", "奈良駅", "名古屋駅", "東京駅"],
         )
         nearest = client.get("/api/origins/nearest?latitude=35.0116&longitude=135.7681")
         self.assertEqual(nearest.status_code, 200)
         self.assertEqual(nearest.json()["name"], "京都駅")
+        osaka = client.get("/api/origins/nearest?latitude=34.7030&longitude=135.4960")
+        self.assertEqual(osaka.json()["name"], "大阪駅")
         yahoo_response = PlaceSearchResponse(
             query=ParsedPlaceQuery(region="京都府"),
             results=[

@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 import os
 from pathlib import Path
@@ -11,9 +11,19 @@ from fastapi import HTTPException
 
 from app.http_client import provider_timeout, request_with_retry
 from app.models import RouteLeg
+from app.places import list_origins
 
 API_BASE_URL = "https://api.ekispert.jp/v1/json"
 logger = logging.getLogger(__name__)
+
+
+def _station_via_points(via_points: list[str]) -> list[str]:
+    # 駅の座標はEkispertで経路が見つからない場合があるため、登録済みの出発駅は駅名で検索する。
+    names = {
+        f"{origin.latitude},{origin.longitude}": origin.name.removesuffix("駅")
+        for origin in list_origins()
+    }
+    return [names.get(point, point) for point in via_points]
 _QUERY_KEY_PATTERN = re.compile(r"([?&]key=)[^&\s]+", re.IGNORECASE)
 
 
@@ -157,7 +167,7 @@ async def search_route(
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     params = {
         "key": key,
-        "viaList": ":".join(via_points),
+        "viaList": ":".join(_station_via_points(via_points)),
         "date": departure_date.replace("-", ""),
         "time": departure_time.replace(":", ""),
         "searchType": "departure",
@@ -230,7 +240,7 @@ async def estimate_route_fare(via_points: list[str]) -> int | None:
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     params = {
         "key": key,
-        "viaList": ":".join(via_points),
+        "viaList": ":".join(_station_via_points(via_points)),
         "searchType": "plain",
         "answerCount": "1",
         "gcs": "wgs84",
