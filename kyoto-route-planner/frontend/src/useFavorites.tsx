@@ -75,7 +75,7 @@ function readFavorites(): FavoritesState {
   }
 }
 
-function favoriteId(idea: RouteIdea, prefectureCode: string) {
+export function favoriteId(idea: RouteIdea, prefectureCode: string) {
   const placeIds = idea.places.map((place) => place.id).sort();
   return `${prefectureCode}:${placeIds.join("|")}`;
 }
