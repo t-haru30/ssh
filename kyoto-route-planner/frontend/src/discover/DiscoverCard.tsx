@@ -66,6 +66,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe }: DiscoverC
         : route.pattern === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
+      acceptLabel="しおりを開く"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
     />

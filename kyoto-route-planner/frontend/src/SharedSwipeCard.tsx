@@ -27,6 +27,7 @@ export type SharedSwipeCardProps = {
   depth: number;
   isTop: boolean;
   isProcessing?: boolean;
+  acceptLabel?: string;
   exitDirection: SharedSwipeDirection;
   onSwipe: (direction: SharedSwipeDirection) => void;
 };
@@ -56,6 +57,7 @@ export function SharedSwipeCard({
   depth,
   isTop,
   isProcessing = false,
+  acceptLabel = "行きたい",
   exitDirection,
   onSwipe,
 }: SharedSwipeCardProps) {
@@ -98,7 +100,7 @@ export function SharedSwipeCard({
       aria-busy={isProcessing}
     >
       <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>SKIP</motion.div>
-      <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>行きたい</motion.div>
+      <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>
       <div className={`swipe-cover theme-${theme}${hasCoverImage ? " has-image" : ""}`}>
         {hasCoverImage ? (
           <>

@@ -106,7 +106,7 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
       <div className="discover-heading">
         <p className="eyebrow">DISCOVER</p>
         <h2>直感で選ぶ、都道府県のよりみち</h2>
-        <p>右にスワイプで詳細を表示、左でスキップ。</p>
+        <p>右にスワイプでしおりを開く、左でスキップ。</p>
       </div>
       <label className="prefecture-picker">
         都道府県
@@ -163,7 +163,7 @@ export function DiscoverMode({ active }: DiscoverModeProps) {
       <div className="discover-actions">
         <button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={loading || stack.length === 0} aria-label="スキップ">✕</button>
         <span className="discover-progress">{Math.min(index + 1, routes.length)} / {routes.length}</span>
-        <button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={loading || stack.length === 0} aria-label="行きたい">♡</button>
+        <button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={loading || stack.length === 0} aria-label="しおりを開く">♡</button>
       </div>
 
       {selected && <RouteDetailModal route={selected} onClose={() => setSelected(null)} />}

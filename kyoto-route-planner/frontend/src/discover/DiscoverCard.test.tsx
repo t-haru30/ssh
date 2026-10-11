@@ -59,5 +59,6 @@ describe("DiscoverCard", () => {
     expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
     expect(screen.getByText("清水寺", { selector: "strong" })).toBeTruthy();
     expect(screen.getByText("寺院")).toBeTruthy();
+    expect(screen.getByText("しおりを開く", { selector: ".swipe-stamp.accept" })).toBeTruthy();
   });
 });
