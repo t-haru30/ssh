@@ -11,12 +11,13 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import type { Origin, Place, RouteLeg } from "./types";
 import type { GeoJSONSource } from "maplibre-gl";
 
-const mapStyle = "https://tiles.openfreemap.org/styles/positron";
+const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
 const kyotoCenter: [number, number] = [135.7681, 35.004];
 
 export type MapViewProps = {
   places: Place[];
   origin: Origin | null;
+  returnTo?: Origin | null;
   coordinates?: [number, number][];
   legs?: RouteLeg[];
   fitDuration?: number;
@@ -33,6 +34,7 @@ type MarkerLocation = {
   themes: Place["themes"];
   order: number | null;
   isOrigin: boolean;
+  isReturn?: boolean;
 };
 
 type MapCoordinate = [number, number];
@@ -145,15 +147,15 @@ function getModeIcon(mode: string) {
 }
 
 function createSpotMarker(location: MarkerLocation) {
-  const icon = location.isOrigin
+  const icon = location.isOrigin || location.isReturn
     ? categoryIcons.origin
     : getCategoryIcon(location.category, location.name, location.themes);
   const element = document.createElement("div");
-  element.className = location.isOrigin ? "map-illustration-marker map-illustration-origin" : "map-illustration-marker";
+  element.className = location.isOrigin || location.isReturn ? "map-illustration-marker map-illustration-origin" : "map-illustration-marker";
   element.style.position = "absolute";
   element.dataset.spotId = location.id;
   element.setAttribute("role", "img");
-  element.setAttribute("aria-label", `${icon.label}: ${location.name}`);
+  element.setAttribute("aria-label", `${location.isReturn ? "帰着地" : icon.label}: ${location.name}`);
   element.innerHTML = `<span class="map-marker-art" style="--marker-color:${icon.color};--marker-background:${icon.background}">${iconSvg(icon.svg)}</span>${location.order === null ? "" : `<span class="map-marker-order">${location.order}</span>`}`;
   return element;
 }
@@ -219,6 +221,7 @@ function createRouteArrowImage() {
 export function MapView({
   places,
   origin,
+  returnTo = origin,
   coordinates = [],
   legs = [],
   fitDuration = 350,
@@ -228,8 +231,8 @@ export function MapView({
   const mapRef = useRef<MapLibre | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const mapLoadedRef = useRef(false);
-  const propsRef = useRef({ places, origin, coordinates, legs, fitDuration });
-  propsRef.current = { places, origin, coordinates, legs, fitDuration };
+  const propsRef = useRef({ places, origin, returnTo, coordinates, legs, fitDuration });
+  propsRef.current = { places, origin, returnTo, coordinates, legs, fitDuration };
   const syncMapRef = useRef<() => void>(() => {});
 
   useEffect(() => {
@@ -317,6 +320,7 @@ export function MapView({
       const current = propsRef.current;
       const currentPlaces = current.places;
       const currentOrigin = current.origin;
+      const currentReturnTo = current.returnTo;
       const routeCoordinates = current.coordinates.map(toMapCoordinate);
       const currentLegs = current.legs;
 
@@ -347,6 +351,16 @@ export function MapView({
           isOrigin: false,
         })),
       ];
+      if (currentReturnTo && (!currentOrigin || currentOrigin.latitude !== currentReturnTo.latitude || currentOrigin.longitude !== currentReturnTo.longitude)) {
+        const colocated = locations.find(location => location.latitude === currentReturnTo.latitude && location.longitude === currentReturnTo.longitude);
+        if (colocated) {
+          colocated.isReturn = true;
+          colocated.name = currentReturnTo.name;
+        } else locations.push({
+          id: "return", name: currentReturnTo.name, longitude: currentReturnTo.longitude, latitude: currentReturnTo.latitude,
+          category: "station", themes: [], order: null, isOrigin: false, isReturn: true,
+        });
+      }
 
       const locatedMarkers = locations.map((location) => ({
         location,
@@ -359,7 +373,9 @@ export function MapView({
 
       for (const { location, coordinate } of locatedMarkers) {
         const element = createSpotMarker(location);
-        const popupText = location.isOrigin
+        const popupText = location.isReturn
+          ? `帰着地 · ${location.name}`
+          : location.isOrigin
           ? `出発地 · ${location.name}`
           : [
             `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`,
@@ -405,7 +421,7 @@ export function MapView({
     };
     syncMapRef.current();
 
-  }, [origin, places, coordinates, legs]);
+  }, [origin, returnTo, places, coordinates, legs]);
 
   useEffect(() => {
     markersRef.current.forEach((marker) => {
@@ -413,7 +429,7 @@ export function MapView({
       const isActive = activeSpotId !== null && element.dataset.spotId === activeSpotId;
       element.classList.toggle("is-active", isActive);
     });
-  }, [activeSpotId, origin, places, coordinates, legs]);
+  }, [activeSpotId, origin, returnTo, places, coordinates, legs]);
 
   return (
     <div className="map-frame">

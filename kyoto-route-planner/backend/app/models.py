@@ -30,16 +30,40 @@ class RouteSuggestionRequest(BaseModel):
     origin: str = Field(min_length=1, max_length=80)
     origin_latitude: Latitude | None = None
     origin_longitude: Longitude | None = None
+    return_to: str | None = Field(default=None, min_length=1, max_length=80)
+    return_latitude: Latitude | None = None
+    return_longitude: Longitude | None = None
     theme: Theme = "all"
     stop_count: int = Field(default=3, ge=1, le=3)
     departure_date: date
     departure_time: time
     variation: int = Field(default=0, ge=0, le=2_147_483_647)
+    selected_places: list[Place] | None = Field(default=None, min_length=1, max_length=8)
+
+    @field_validator("return_to")
+    @classmethod
+    def validate_return_name(cls, value: str | None) -> str | None:
+        if value is not None:
+            value = value.strip()
+            if not value:
+                raise ValueError("帰着地の名前を指定してください。")
+        return value
+
+    @field_validator("selected_places")
+    @classmethod
+    def validate_selected_places(cls, value):
+        if value is not None and len({place.id for place in value}) != len(value):
+            raise ValueError("同じスポットを重複して指定できません。")
+        return value
 
     @model_validator(mode="after")
     def validate_origin_coordinates(self):
         if (self.origin_latitude is None) != (self.origin_longitude is None):
             raise ValueError("出発駅の緯度・経度は両方指定してください。")
+        if (self.return_latitude is None) != (self.return_longitude is None):
+            raise ValueError("帰着地の緯度・経度は両方指定してください。")
+        if self.return_latitude is not None and self.return_to is None:
+            raise ValueError("帰着地の座標には名前も指定してください。")
         return self
 
 class RouteLeg(BaseModel):
@@ -78,6 +102,7 @@ RouteTimelineItem = Annotated[
 class RouteSuggestion(BaseModel):
     places: list[Place]
     origin: Origin
+    return_to: Origin | None = None
     legs: list[RouteLeg]
     fare_yen: int | None = Field(default=None, ge=0)
     title: str | None = None
@@ -159,6 +184,14 @@ class ParsedPlaceQuery(BaseModel):
 
 class PlaceSearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
+    center_latitude: Latitude | None = None
+    center_longitude: Longitude | None = None
+
+    @model_validator(mode="after")
+    def validate_center(self):
+        if (self.center_latitude is None) != (self.center_longitude is None):
+            raise ValueError("検索中心の緯度・経度は両方指定してください。")
+        return self
 
 class CatalogPlace(BaseModel):
     id: str = Field(min_length=1, max_length=200)

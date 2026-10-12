@@ -1,0 +1,5 @@
+.gcloudignore
+.git
+.gitignore
+# Apply the project's exclusions to source uploads, including .local and .env.
+#!include:.gitignore

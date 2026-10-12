@@ -39,7 +39,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe }: DiscoverC
     <SharedSwipeCard
       theme={route.theme}
       title={route.title}
-      description={isIdea ? route.story : undefined}
+      description={isIdea ? route.story : `${route.spots.length}か所をつないで、この街を少し深く。`}
       summary={isIdea
         ? `${route.places.length}か所のスポットを巡るよりみち`
         : `⏱ 総所要時間 約${formatMinutes(route.estimated_minutes)}`}

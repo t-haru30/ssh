@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:08.632496+00:00",
+  "generated_at": "2026-10-12T03:37:40.749907+00:00",
   "area": "kumamoto",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-kumamoto-01",
@@ -69,65 +69,6 @@
       "pattern": "half_day",
       "theme": "history",
       "title": "熊本県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 164,
-      "total_score": 46.7,
-      "center": [
-        32.399345,
-        130.327952
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-12850012154",
-          "name": "天草市立御所浦恐竜の島博物館",
-          "category": "博物館",
-          "lat": 32.3376001,
-          "lng": 130.3379611,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-8760507294",
-          "name": "棚底城跡",
-          "category": "史跡",
-          "lat": 32.4148847,
-          "lng": 130.3338114,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-8772735573",
-          "name": "油すましどんの墓",
-          "category": "観光名所",
-          "lat": 32.4455502,
-          "lng": 130.3120835,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          32.3376001,
-          130.3379611
-        ],
-        [
-          32.4148847,
-          130.3338114
-        ],
-        [
-          32.4455502,
-          130.3120835
-        ]
-      ]
-    },
-    {
-      "id": "osm-kumamoto-03",
-      "area": "kumamoto",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "熊本県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 168,
       "total_score": 46.7,
       "center": [
@@ -178,6 +119,65 @@
         [
           32.987829,
           130.8160512
+        ]
+      ]
+    },
+    {
+      "id": "osm-kumamoto-03",
+      "area": "kumamoto",
+      "pattern": "half_day",
+      "theme": "history",
+      "title": "熊本県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 152,
+      "total_score": 50.0,
+      "center": [
+        32.813957,
+        130.722241
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423808143",
+          "name": "熊本国際民藝館",
+          "category": "博物館",
+          "lat": 32.83001,
+          "lng": 130.756443,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423808453",
+          "name": "熊本市立熊本博物館",
+          "category": "博物館",
+          "lat": 32.808624,
+          "lng": 130.6993427,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4693003290",
+          "name": "現代美術館",
+          "category": "博物館",
+          "lat": 32.8032369,
+          "lng": 130.7109376,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.83001,
+          130.756443
+        ],
+        [
+          32.808624,
+          130.6993427
+        ],
+        [
+          32.8032369,
+          130.7109376
         ]
       ]
     },
@@ -274,31 +274,31 @@
       "pattern": "full_day",
       "theme": "history",
       "title": "熊本県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 291,
-      "total_score": 48.0,
+      "estimated_minutes": 281,
+      "total_score": 42.0,
       "center": [
-        32.814393,
-        130.716716
+        32.808049,
+        130.699009
       ],
       "spots": [
         {
-          "place_id": "osm-node-1423808143",
-          "name": "熊本国際民藝館",
+          "place_id": "osm-node-1423802761",
+          "name": "島田美術館",
           "category": "博物館",
-          "lat": 32.83001,
-          "lng": 130.756443,
+          "lat": 32.809728,
+          "lng": 130.686067,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423808453",
-          "name": "熊本市立熊本博物館",
+          "place_id": "osm-node-1423808780",
+          "name": "熊本県立美術館",
           "category": "博物館",
-          "lat": 32.808624,
-          "lng": 130.6993427,
+          "lat": 32.807451,
+          "lng": 130.7004739,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
@@ -312,13 +312,13 @@
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-4693003290",
-          "name": "現代美術館",
-          "category": "博物館",
-          "lat": 32.8032369,
-          "lng": 130.7109376,
+          "place_id": "osm-node-2753126214",
+          "name": "北岡神社",
+          "category": "観光名所",
+          "lat": 32.792974,
+          "lng": 130.6916459,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
@@ -334,20 +334,20 @@
       ],
       "coordinates": [
         [
-          32.83001,
-          130.756443
+          32.809728,
+          130.686067
         ],
         [
-          32.808624,
-          130.6993427
+          32.807451,
+          130.7004739
         ],
         [
           32.8561107,
           130.7266227
         ],
         [
-          32.8032369,
-          130.7109376
+          32.792974,
+          130.6916459
         ],
         [
           32.7739819,

@@ -1,6 +1,6 @@
 import { SharedSwipeCard } from "./SharedSwipeCard";
 import type { SharedSwipeDirection } from "./SharedSwipeCard";
-import type { Place } from "./types";
+import type { Origin, Place } from "./types";
 
 export type SwipeDirection = SharedSwipeDirection;
 
@@ -11,6 +11,8 @@ export type RouteIdea = {
   title: string;
   story: string;
   places: Place[];
+  origin?: Origin;
+  dwell_minutes?: Record<string, number>;
   image_url: string | null;
   author_name: string | null;
   source_url: string | null;

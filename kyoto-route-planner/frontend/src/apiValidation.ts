@@ -158,7 +158,7 @@ export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
     && typeof value.note === "string";
 }
 
-export function isRouteIdea(value: unknown): value is RouteIdea {
+function isRouteIdeaWithin(value: unknown, minimumPlaces: number, maximumPlaces: number): value is RouteIdea {
   return isRecord(value)
     && isTheme(value.theme)
     && (value.prefecture_code === undefined
@@ -192,11 +192,20 @@ export function isRouteIdea(value: unknown): value is RouteIdea {
         && typeof value.license_url === "string"
       ))
     && Array.isArray(value.places)
-    && value.places.length >= 2
-    && value.places.length <= 3
+    && value.places.length >= minimumPlaces
+    && value.places.length <= maximumPlaces
     && value.places.every(isPlace)
     && (value.copywriting_source === "gemini" || value.copywriting_source === "fallback")
     && typeof value.note === "string";
+}
+
+export function isRouteIdea(value: unknown): value is RouteIdea {
+  return isRouteIdeaWithin(value, 2, 3);
+}
+
+// Saved Discover routes may contain more stops than the lightweight idea API.
+export function isSavedRouteIdea(value: unknown): value is RouteIdea {
+  return isRouteIdeaWithin(value, 1, 8);
 }
 
 export function isRouteIdeaBatch(
@@ -230,6 +239,8 @@ function isRouteSuggestion(value: unknown): value is RouteSuggestion {
     && value.places.length > 0
     && value.places.every(isPlace)
     && isOrigin(value.origin)
+    && (value.return_to === undefined || value.return_to === null || isOrigin(value.return_to))
+    && (value.reasons === undefined || (isRecord(value.reasons) && Object.values(value.reasons).every(reason => typeof reason === "string")))
     && Array.isArray(value.legs)
     && value.legs.every(isRouteLeg)
     && (value.fare_yen === undefined

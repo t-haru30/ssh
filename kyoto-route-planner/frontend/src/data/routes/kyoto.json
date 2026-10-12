@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:59.795088+00:00",
+  "generated_at": "2026-10-12T03:37:04.826806+00:00",
   "area": "kyoto",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-kyoto-01",

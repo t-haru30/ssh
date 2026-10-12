@@ -1,9 +1,17 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SearchMode } from "./SearchMode";
+import { readJourneyDraft } from "./journeyDraft";
+import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
+import { serializeJourneyFile } from "./journeyFile";
 
 vi.mock("./LazyMapView", () => ({ LazyMapView: () => null }));
 vi.mock("./IdeaDeck", () => ({ IdeaDeck: () => null }));
+vi.mock("./localPlaces", () => ({ localPlaces: [
+  { id: "local-park", name: "駅前公園", latitude: 34.987, longitude: 135.76, category: "公園", description: "", access_point: "", themes: ["nature"] },
+  { id: "local-cafe", name: "川辺カフェ", latitude: 34.988, longitude: 135.761, category: "カフェ", description: "", access_point: "", themes: ["food"] },
+  { id: "local-museum", name: "小さな美術館", latitude: 34.989, longitude: 135.762, category: "美術館", description: "", access_point: "", themes: ["history"] },
+] }));
 vi.mock("./RouteTimeline", () => ({
   buildDayTimeline: () => [],
   buildRouteTimeline: () => [],
@@ -11,20 +19,23 @@ vi.mock("./RouteTimeline", () => ({
   withRouteLegs: (items: unknown) => items,
 }));
 
+beforeEach(() => window.localStorage.clear());
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  window.localStorage.clear();
 });
 
 describe("SearchMode nearby departures", () => {
   it("loads nearby station and stop options and submits the selected coordinates", async () => {
     const origins = [
-      { name: "京都駅", latitude: 35.0, longitude: 135.0 },
+      { name: "京都駅", latitude: 34.9858, longitude: 135.7588 },
       { name: "大阪駅", latitude: 34.7, longitude: 135.5 },
     ];
     const nearbyStations = [
-      { name: "最寄りバス停", latitude: 35.001, longitude: 135.001 },
-      { name: "周辺地下鉄駅", latitude: 35.002, longitude: 135.002 },
+      { name: "最寄りバス停", latitude: 34.986, longitude: 135.759 },
+      { name: "周辺地下鉄駅", latitude: 34.987, longitude: 135.76 },
     ];
     let submittedRequest: Record<string, unknown> | null = null;
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -62,22 +73,186 @@ describe("SearchMode nearby departures", () => {
     await waitFor(() => expect((locationButton as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(locationButton);
 
-    const nearbyGroup = await screen.findByRole("group", { name: "現在地周辺" });
-    await waitFor(() => expect((departureSelect as HTMLSelectElement).value).toBe("最寄りバス停"));
-    expect(nearbyGroup.textContent).toContain("最寄りバス停");
-    expect(screen.getByRole("group", { name: "主要駅" }).textContent).toContain("京都駅");
+    await waitFor(() => expect((departureSelect as HTMLSelectElement).selectedOptions[0].textContent).toBe("最寄りバス停"));
+    expect(within(departureSelect).getByRole("option", { name: "周辺地下鉄駅" })).toBeTruthy();
+    expect(within(departureSelect).getByRole("option", { name: "京都駅" })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/nearby-stations?latitude=35.123&longitude=135.456",
       expect.anything(),
     );
 
-    fireEvent.change(departureSelect, { target: { value: "周辺地下鉄駅" } });
-    fireEvent.click(screen.getByRole("button", { name: /旅のしおりを作る/ }));
+    fireEvent.change(departureSelect, { target: { value: (within(departureSelect).getByRole("option", { name: "周辺地下鉄駅" }) as HTMLOptionElement).value } });
+    fireEvent.click(screen.getByRole("button", { name: /この条件で旅程を提案する/ }));
+    expect(submittedRequest).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: /交通経路を再検索/ }));
     await waitFor(() => expect(submittedRequest).not.toBeNull());
     expect(submittedRequest).toMatchObject({
       origin: "周辺地下鉄駅",
-      origin_latitude: 35.002,
-      origin_longitude: 135.002,
+      origin_latitude: 34.987,
+      origin_longitude: 135.76,
+      return_to: "周辺地下鉄駅",
+      return_latitude: 34.987,
+      return_longitude: 135.76,
     });
+  });
+});
+
+describe("SearchMode local initial proposal", () => {
+  const origins = [
+    { name: "京都駅", latitude: 34.9858, longitude: 135.7588 },
+    { name: "帰着駅", latitude: 34.99, longitude: 135.763 },
+  ];
+  it("applies initial constraints, multiple preferences and destination before any transit request", async () => {
+    let submitted: Record<string, unknown> | null = null;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "/api/routes") {
+        submitted = JSON.parse(String(init?.body));
+        return { ok: false, json: async () => ({ detail: "test complete" }) };
+      }
+      return { ok: true, json: async () => origins };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<SearchMode active />);
+    await waitFor(() => expect((screen.getByRole("button", { name: /この条件で旅程を提案する/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole("checkbox", { name: "出発駅に戻る" }));
+    const returnSelect = screen.getByRole("combobox", { name: "帰着駅" });
+    fireEvent.change(returnSelect, { target: { value: (within(returnSelect).getByRole("option", { name: "帰着駅" }) as HTMLOptionElement).value } });
+    fireEvent.change(screen.getByLabelText(/使える時間（分）/), { target: { value: "140" } });
+    fireEvent.change(screen.getByLabelText(/1人あたりの予算（円）/), { target: { value: "500" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: /食/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /カフェ/ }));
+    fireEvent.click(screen.getByRole("button", { name: /この条件で旅程を提案する/ }));
+    expect(await screen.findByRole("heading", { name: "駅前公園" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "川辺カフェ" })).toBeNull();
+    expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("140");
+    expect((screen.getByLabelText("1人あたりの予算（円）") as HTMLInputElement).value).toBe("500");
+    expect(screen.getAllByText(/帰着駅/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/登録カテゴリ「公園」.*希望の自然/)).toBeTruthy();
+    expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);
+    fireEvent.click(screen.getByRole("button", { name: /交通経路を再検索/ }));
+    await waitFor(() => expect(submitted).not.toBeNull());
+    expect(submitted).toMatchObject({ return_to: "帰着駅", return_latitude: 34.99, return_longitude: 135.763 });
+    expect((submitted as unknown as { selected_places: { id: string }[] }).selected_places.some(place => place.id === "local-cafe")).toBe(false);
+  });
+  it("keeps the form and entered conditions when no feasible initial proposal exists", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => origins }));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<SearchMode active />);
+    await waitFor(() => expect((screen.getByRole("button", { name: /この条件で旅程を提案する/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.change(screen.getByLabelText(/使える時間（分）/), { target: { value: "30" } });
+    fireEvent.change(screen.getByLabelText(/1人あたりの予算（円）/), { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("button", { name: /この条件で旅程を提案する/ }));
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", expect.stringContaining("初期案がありません"));
+    expect((screen.getByLabelText(/使える時間（分）/) as HTMLInputElement).value).toBe("30");
+    expect(screen.getByRole("button", { name: /この条件で旅程を提案する/ })).toBeTruthy();
+    expect(fetchMock.mock.calls).toHaveLength(1);
+  });
+});
+
+describe("SearchMode selected route", () => {
+  it("previews JSON without replacing the journey, then restores completed visits and independent return without external search", async () => {
+    const origin = { name: "出発駅", latitude: 34.9858, longitude: 135.7588 };
+    const returnTo = { name: "帰る駅", latitude: 34.99, longitude: 135.763 };
+    const place = { ...origin, id: "import-place", name: "読み込む庭園", category: "公園", description: "", access_point: "", themes: [] };
+    const route = { origin, return_to: returnTo, places: [place], legs: [], total_minutes: 10, fare_yen: 300, departure_time: "09:00", arrival_time: null, title: "保存した旅", story: null, note: "" };
+    const plan = completeNextStop(scheduleTrip({ departureTime: "09:00", availableMinutes: 240, budget: 2500, preferences: ["nature"] }, origin, "2099-10-12", [newTripStop(place, 45)], { route, date: "2099-10-12", time: "09:00" }, null, returnTo));
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [origin] })); vi.stubGlobal("fetch", fetchMock);
+    render(<SearchMode active />);
+    await waitFor(() => expect((screen.getByRole("combobox", { name: "出発駅" }) as HTMLSelectElement).disabled).toBe(false));
+    const file = new File([""], "journey.json", { type: "application/json" });
+    Object.defineProperty(file, "text", { value: async () => serializeJourneyFile(plan, "保存した旅") });
+    fireEvent.change(screen.getByLabelText("旅程のJSONファイル"), { target: { files: [file] } });
+    await screen.findByRole("dialog", { name: "読み込む旅程を確認" });
+    expect(screen.queryByRole("heading", { name: "読み込む庭園" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "この旅程を読み込む" }));
+    await screen.findByRole("heading", { name: "読み込む庭園" });
+    await waitFor(() => expect(readJourneyDraft()?.plan.stops[0].completed).toBe(true));
+    expect(readJourneyDraft()?.plan.returnTo).toEqual(returnTo);
+    expect(readJourneyDraft()?.plan.input).toMatchObject({ availableMinutes: 240, budget: 2500, preferences: ["nature"] });
+    expect(readJourneyDraft()?.plan.estimatedTravel).toBe(true);
+    expect((screen.getByRole("button", { name: "読み込む庭園を削除" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
+    expect(screen.getByRole("combobox", { name: "出発駅" }).closest("fieldset")?.disabled).toBe(true);
+    expect((screen.getByLabelText("出発日") as HTMLInputElement).disabled).toBe(true);
+    expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);
+  });
+
+  it("selects a same-name station by prefecture and sends its exact coordinates as the return point", async () => {
+    const origin = { name: "京都駅", latitude: 34.9858, longitude: 135.7588 };
+    const place = { ...origin, id: "p", name: "公園", category: "公園", description: "", access_point: "", themes: [] };
+    let submitted: Record<string, unknown> | null = null;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.startsWith("/api/stations/search")) return { ok: true, json: async () => [
+        { name: "大久保駅", latitude: 35.7, longitude: 139.7, code: "1", prefecture: "東京都", lines: [] },
+        { name: "大久保駅", latitude: 34.87, longitude: 135.77, code: "2", prefecture: "京都府", lines: [] },
+      ] };
+      if (url === "/api/routes") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
+      return { ok: true, json: async () => [origin] };
+    }); vi.stubGlobal("fetch", fetchMock);
+    render(<SearchMode active preset={{ theme: "nature", stopCount: 1, nonce: 8, places: [place], origin, title: "公園の旅", dwellMinutes: {} }} />);
+    await screen.findByRole("heading", { name: "公園" });
+    fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "出発駅に戻る" }));
+    const picker = screen.getByRole("group", { name: "帰着駅" });
+    fireEvent.click(within(picker).getByRole("button", { name: "駅名で探す" }));
+    fireEvent.change(within(picker).getByLabelText("駅名を入力"), { target: { value: "大久保" } });
+    expect(fetchMock.mock.calls.some(call => String(call[0]).startsWith("/api/stations/search"))).toBe(false);
+    fireEvent.click(within(picker).getByRole("button", { name: "駅を検索" }));
+    fireEvent.click(await within(picker).findByRole("button", { name: /大久保駅.*京都府/ }));
+    fireEvent.click(screen.getByRole("button", { name: /交通経路を再検索/ }));
+    await waitFor(() => expect(submitted).not.toBeNull());
+    expect(submitted).toMatchObject({ return_to: "大久保駅（京都府）", return_latitude: 34.87, return_longitude: 135.77 });
+  });
+  it("retains the last valid saved schedule while departure date or time is cleared", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [{ name: "京都駅", latitude: 34.9858, longitude: 135.7588 }] })));
+    const place = { id: "p", name: "公園", latitude: 34.987, longitude: 135.76, category: "公園", description: "", access_point: "", themes: [] };
+    render(<SearchMode active preset={{ theme: "nature", stopCount: 1, nonce: 2, places: [place], origin: { name: "京都駅", latitude: 34.9858, longitude: 135.7588 }, title: "公園の旅", dwellMinutes: {} }} />);
+    await screen.findByRole("heading", { name: "公園" });
+    await waitFor(() => expect(readJourneyDraft()).not.toBeNull());
+    const before = readJourneyDraft()!;
+    fireEvent.change(screen.getByLabelText("出発日"), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText("出発時刻"), { target: { value: "" } });
+    expect(screen.getByRole("heading", { name: "公園" })).toBeTruthy();
+    expect(readJourneyDraft()?.plan.date).toBe(before.plan.date);
+    expect(readJourneyDraft()?.plan.input.departureTime).toBe(before.plan.input.departureTime);
+    expect((screen.getByRole("button", { name: /交通経路を再検索/ }) as HTMLButtonElement).disabled).toBe(true);
+    cleanup();
+    render(<SearchMode active />);
+    expect(await screen.findByRole("heading", { name: "公園" })).toBeTruthy();
+    expect(screen.getByText(/前回の旅程を復元しました/)).toBeTruthy();
+  });
+  it("submits the selected area and exact spots instead of a new theme-based search", async () => {
+    const picked = ["上野公園", "庭園"].map((name, index) => ({ id: `selected-${index}`, name, latitude: 35.7 + index * .01, longitude: 139.77, category: "公園", description: "", access_point: "", themes: [] }));
+    let submitted: Record<string, unknown> | null = null;
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/routes") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
+      const data = url === "/api/origins" ? [{ name: "京都駅", latitude: 35, longitude: 135 }] : url === "/api/places/status" ? { warning: null, state: "success" } : [];
+      return { ok: true, json: async () => data };
+    }));
+    render(<SearchMode active preset={{ theme: "nature", stopCount: 2, nonce: 1, places: picked, origin: { name: "東京都・エリア中心", latitude: 35.68, longitude: 139.76 }, title: "東京の旅", dwellMinutes: { "selected-0": 45 } }} />);
+    const refresh = await screen.findByRole("button", { name: /交通経路を再検索/ });
+    await waitFor(() => expect((refresh as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(refresh);
+    await waitFor(() => expect(submitted).not.toBeNull());
+    expect(submitted).toMatchObject({ origin: "東京都・エリア中心", origin_latitude: 35.68, origin_longitude: 139.76, selected_places: picked });
+    expect(screen.getByRole("heading", { name: "上野公園" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
+    fireEvent.click(screen.getByRole("button", { name: "上野公園を固定" }));
+    fireEvent.click(screen.getByRole("button", { name: "庭園を削除" }));
+    fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
+    fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
+    fireEvent.click(screen.getByRole("button", { name: "1泊2日" }));
+    fireEvent.click(screen.getByRole("button", { name: "日帰り" }));
+    expect(await screen.findByRole("button", { name: "上野公園の固定を解除" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "庭園" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
+    cleanup();
+    render(<SearchMode active />);
+    expect(await screen.findByRole("button", { name: "上野公園の固定を解除" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "庭園" })).toBeNull();
+    expect(screen.getByText(/前回の旅程を復元しました/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
   });
 });

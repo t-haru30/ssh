@@ -10,7 +10,7 @@ import sys
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
-from scripts.generate_prefecture_routes import AREAS, _distance, _lunch_radius, _travel_minutes
+from scripts.generate_prefecture_routes import AREAS, _distance, _lunch_radius, _travel_minutes, on_main_landmass
 
 
 def validate_dataset(path: Path) -> dict[str, object]:
@@ -36,6 +36,8 @@ def validate_dataset(path: Path) -> dict[str, object]:
         for spot in spots:
             if not (24 <= spot["lat"] <= 46.5 and 122 <= spot["lng"] <= 146.5):
                 errors.append(f"{route.get('id')}:{spot['name']}:japan_bounds")
+            elif not on_main_landmass(config.code, spot["lat"], spot["lng"]):
+                errors.append(f"{route.get('id')}:{spot['name']}:off_main_landmass")
         for first, second in zip(spots, spots[1:]):
             distance = _distance((first["lat"], first["lng"]), (second["lat"], second["lng"]))
             if distance > config.max_leg_km:

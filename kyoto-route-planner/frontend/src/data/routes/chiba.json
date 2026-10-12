@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:50.162864+00:00",
+  "generated_at": "2026-10-12T03:36:32.847081+00:00",
   "area": "chiba",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-chiba-01",

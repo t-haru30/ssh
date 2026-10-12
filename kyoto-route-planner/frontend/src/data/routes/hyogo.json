@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:01.973411+00:00",
+  "generated_at": "2026-10-12T03:37:10.455805+00:00",
   "area": "hyogo",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-hyogo-01",
@@ -128,11 +128,11 @@
       "pattern": "half_day",
       "theme": "history",
       "title": "兵庫県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 172,
       "total_score": 50.0,
       "center": [
-        34.699554,
-        135.266512
+        34.713584,
+        135.277617
       ],
       "spots": [
         {
@@ -146,11 +146,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12541374174",
-          "name": "神戸市立小磯記念美術館",
+          "place_id": "osm-node-1423053101",
+          "name": "俵美術館",
           "category": "博物館",
-          "lat": 34.6928224,
-          "lng": 135.2672258,
+          "lat": 34.734912,
+          "lng": 135.30054,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -172,8 +172,8 @@
           135.1866147
         ],
         [
-          34.6928224,
-          135.2672258
+          34.734912,
+          135.30054
         ],
         [
           34.7199497,
@@ -274,11 +274,11 @@
       "pattern": "full_day",
       "theme": "history",
       "title": "兵庫県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 280,
-      "total_score": 48.0,
+      "estimated_minutes": 292,
+      "total_score": 46.0,
       "center": [
-        34.724779,
-        135.37131
+        34.742291,
+        135.388073
       ],
       "spots": [
         {
@@ -322,13 +322,13 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423053101",
-          "name": "俵美術館",
-          "category": "博物館",
-          "lat": 34.734912,
-          "lng": 135.30054,
+          "place_id": "osm-node-11862339372",
+          "name": "松尾神社",
+          "category": "観光名所",
+          "lat": 34.822472,
+          "lng": 135.3843549,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
@@ -350,8 +350,8 @@
           135.3620365
         ],
         [
-          34.734912,
-          135.30054
+          34.822472,
+          135.3843549
         ]
       ]
     }

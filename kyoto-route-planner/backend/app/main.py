@@ -29,6 +29,8 @@ from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
+from app.venue_evidence import EvidenceRequest, VenueEvidence, evidence_status, fetch_venue_evidence
+from app.station_search import StationCandidate, search_stations
 from app.models import (
     ItineraryRequest,
     ItinerarySuggestion,
@@ -79,7 +81,9 @@ def _build_route_timeline(
     places: list[Place],
     departure_time: str,
     total_minutes: int | None,
+    return_to: Origin | None = None,
 ) -> list[RouteTimelineItem]:
+    destination = return_to or origin
     departure = datetime_time.fromisoformat(departure_time)
     current_minutes = departure.hour * 60 + departure.minute
     timeline: list[RouteTimelineItem] = [
@@ -93,7 +97,7 @@ def _build_route_timeline(
     points = [
         (origin.latitude, origin.longitude),
         *((place.latitude, place.longitude) for place in places),
-        (origin.latitude, origin.longitude),
+        (destination.latitude, destination.longitude),
     ]
     distances = [
         _distance_km(start, end)
@@ -153,7 +157,7 @@ def _build_route_timeline(
     timeline.append(
         RouteTimelineTransit(
             from_name=places[-1].name if places else origin.name,
-            to_name=origin.name,
+            to_name=destination.name,
             start_time=return_start if return_duration is not None else None,
             end_time=(
                 _format_timeline_time(current_minutes)
@@ -166,7 +170,7 @@ def _build_route_timeline(
     timeline.append(
         RouteTimelineSpot(
             role="finish",
-            name=origin.name,
+            name=destination.name,
             category="帰着",
             time=(
                 _format_timeline_time(current_minutes)
@@ -387,6 +391,26 @@ async def nearby_stations(
     return await find_nearby_stations(latitude, longitude)
 
 
+@app.get("/api/recommendations/status")
+def recommendations_status():
+    return evidence_status()
+
+
+@app.get("/api/stations/search", response_model=list[StationCandidate])
+@limiter.limit("6/minute")
+async def stations_search(request: Request, q: Annotated[str, Query(min_length=1, max_length=80)]):
+    try:
+        return await asyncio.wait_for(search_stations(q), timeout=20)
+    except asyncio.TimeoutError:
+        raise HTTPException(504, "駅検索がタイムアウトしました。駅名を詳しくして再度お試しください。") from None
+
+
+@app.post("/api/recommendations/evidence", response_model=VenueEvidence)
+@limiter.limit("6/minute")
+async def recommendations_evidence(request: Request, body: EvidenceRequest):
+    return await fetch_venue_evidence(body.place)
+
+
 @app.get("/api/places/status")
 def places_status():
     return get_yahoo_search_status()
@@ -399,7 +423,10 @@ async def search_place_catalog(
     request: Request,
     payload: PlaceSearchRequest,
 ) -> PlaceSearchResponse:
-    return await search_yahoo_catalog(payload.query)
+    center = (payload.center_latitude, payload.center_longitude) if payload.center_latitude is not None else None
+    if center is None:
+        return await search_yahoo_catalog(payload.query)
+    return await search_yahoo_catalog(payload.query, center=center, radius_m=20_000)
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)
@@ -614,6 +641,14 @@ async def _provide_idea_batch(
     )
 
 
+def _selected_origin_point(origin: Origin) -> str:
+    # Station coordinates can differ by rounding between saved cards and the catalog.
+    for known in list_origins():
+        if known.name == origin.name and _distance_km((origin.latitude, origin.longitude), (known.latitude, known.longitude)) < 0.1:
+            return known.name.removesuffix("駅")
+    return f"{origin.latitude},{origin.longitude}"
+
+
 async def _recommend_routes(
     request: RouteSuggestionRequest,
     max_routes: int = 1,
@@ -625,24 +660,39 @@ async def _recommend_routes(
             request.origin_latitude,
             request.origin_longitude,
         )
+        if request.return_to is None:
+            destination = origin
+        else:
+            try:
+                destination = resolve_origin(
+                    request.return_to,
+                    request.return_latitude,
+                    request.return_longitude,
+                )
+            except (StopIteration, ValueError) as error:
+                raise ValueError("帰着地を選び直してください。") from error
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds <= 0:
             raise asyncio.TimeoutError
-        candidates, candidate_note = await asyncio.wait_for(
-            _route_candidates(request.theme, origin),
-            timeout=remaining_seconds,
-        )
-        effective_stop_count = min(request.stop_count, len(candidates))
-        selected_sets = choose_place_sets(
-            request.theme,
-            effective_stop_count,
-            request.origin,
-            candidates,
-            max_routes=max_routes,
-            database=database_path(),
-            variation=request.variation,
-            origin_coordinates=(origin.latitude, origin.longitude),
-        )
+        if request.selected_places is not None:
+            selected_sets = [request.selected_places]
+            candidate_note = "利用者が選んだスポットと順序を保持しています。"
+        else:
+            candidates, candidate_note = await asyncio.wait_for(
+                _route_candidates(request.theme, origin),
+                timeout=remaining_seconds,
+            )
+            effective_stop_count = min(request.stop_count, len(candidates))
+            selected_sets = choose_place_sets(
+                request.theme,
+                effective_stop_count,
+                request.origin,
+                candidates,
+                max_routes=max_routes,
+                database=database_path(),
+                variation=request.variation,
+                origin_coordinates=(origin.latitude, origin.longitude),
+            )
     except (StopIteration, ValueError) as error:
         raise HTTPException(status_code=422, detail=str(error) or "出発駅を選び直してください。") from error
     except asyncio.TimeoutError as error:
@@ -651,21 +701,24 @@ async def _recommend_routes(
             detail="ルート候補の取得がタイムアウトしました。時間をおいて再度お試しください。",
         ) from error
 
+    origin_point = _selected_origin_point(origin) if request.selected_places is not None else origin.name.removesuffix("駅")
+    destination_point = _selected_origin_point(destination) if request.return_to is not None else origin_point
     suggestions: list[RouteSuggestion] = []
     timed_out = False
     transient_error: HTTPException | None = None
     for selected in selected_sets[:max_routes]:
         last_error: HTTPException | None = None
-        for stop_count in range(len(selected), 0, -1):
+        counts = [len(selected)] if request.selected_places is not None else range(len(selected), 0, -1)
+        for stop_count in counts:
             remaining_seconds = deadline - time.monotonic()
             if remaining_seconds <= 0:
                 timed_out = True
                 break
             chosen = selected[:stop_count]
             via_points = [
-                origin.name.removesuffix("駅"),
+                origin_point,
                 *(f"{place.latitude},{place.longitude}" for place in chosen),
-                origin.name.removesuffix("駅"),
+                destination_point,
             ]
             try:
                 legs, total_minutes, departure_time, arrival_time = await asyncio.wait_for(
@@ -682,16 +735,21 @@ async def _recommend_routes(
                     if total_minutes is not None
                     else None
                 )
-                if estimated_return is not None and estimated_return.time() > DAY_TRIP_RETURN_BY:
+                if request.selected_places is None and estimated_return is not None and estimated_return.time() > DAY_TRIP_RETURN_BY:
                     last_error = HTTPException(
                         status_code=422,
-                        detail="19:00までに出発駅へ戻れるルートが見つかりませんでした。",
+                        detail=(
+                            "19:00までに出発駅へ戻れるルートが見つかりませんでした。"
+                            if request.return_to is None
+                            else f"19:00までに{destination.name}へ到着できるルートが見つかりませんでした。"
+                        ),
                     )
                     continue
                 suggestions.append(
                     RouteSuggestion(
                         places=chosen,
                         origin=origin,
+                        return_to=destination,
                         legs=legs,
                         total_minutes=total_minutes,
                         departure_time=departure_time or request.departure_time.strftime("%H:%M"),
@@ -701,11 +759,12 @@ async def _recommend_routes(
                             chosen,
                             departure_time or request.departure_time.strftime("%H:%M"),
                             total_minutes,
+                            return_to=destination,
                         ),
                         coordinates=[
                             [origin.latitude, origin.longitude],
                             *[[p.latitude, p.longitude] for p in chosen],
-                            [origin.latitude, origin.longitude],
+                            [destination.latitude, destination.longitude],
                         ],
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
@@ -746,12 +805,12 @@ async def _recommend_routes(
         raise HTTPException(status_code=404, detail="指定した条件の経路を見つけられませんでした。")
     for suggestion in suggestions:
         fare_via_points = [
-            suggestion.origin.name.removesuffix("駅"),
+            origin_point,
             *(
                 f"{place.latitude},{place.longitude}"
                 for place in suggestion.places
             ),
-            suggestion.origin.name.removesuffix("駅"),
+            destination_point,
         ]
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds > 0:
@@ -771,7 +830,7 @@ async def _recommend_routes(
             logger.warning("Ekispert fare estimate skipped: request budget exhausted")
 
         try:
-            copywriting = await generate_route_copywriting(suggestion.places, request.theme)
+            copywriting = await generate_route_copywriting(suggestion.places, request.theme) if request.selected_places is None else None
         except HTTPException as error:
             logger.warning(
                 "Gemini route copywriting failed; using fallback copy: status=%s",
@@ -789,7 +848,7 @@ async def _recommend_routes(
             suggestion.story = (
                 f"{theme_label}をテーマに、{place_names}を巡るルートです。"
             )
-            if not os.getenv("GEMINI_API_KEY", "").strip():
+            if request.selected_places is None and not os.getenv("GEMINI_API_KEY", "").strip():
                 suggestion.note += " GEMINI_API_KEY未設定のため、簡易タイトルと説明を使用しています。"
         else:
             suggestion.title = copywriting.title

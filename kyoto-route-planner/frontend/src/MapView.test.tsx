@@ -8,6 +8,7 @@ const mapTestState = vi.hoisted(() => ({
   markerPositions: [] as number[][],
   routeData: null as unknown,
   fitBoundsCalls: 0,
+  boundsPositions: [] as number[][],
   layers: [] as Array<Record<string, unknown>>,
   transitMarkers: [] as Array<{ label: string | null; position: number[] }>,
   markerAnchors: [] as Array<{ label: string | null; anchor: string | undefined; position: string | undefined }>,
@@ -79,7 +80,8 @@ vi.mock("maplibre-gl", () => {
   }
 
   class MockBounds {
-    extend() {
+    extend(position: number[]) {
+      mapTestState.boundsPositions.push(position);
       return this;
     }
   }
@@ -122,6 +124,7 @@ afterEach(() => {
   mapTestState.markerPositions = [];
   mapTestState.routeData = null;
   mapTestState.fitBoundsCalls = 0;
+  mapTestState.boundsPositions = [];
   mapTestState.layers = [];
   mapTestState.transitMarkers = [];
   mapTestState.markerAnchors = [];
@@ -138,6 +141,28 @@ beforeEach(() => {
 });
 
 describe("MapView", () => {
+  it("adds an accessible distinct return destination and includes it in map bounds", () => {
+    render(<MapView places={[makePlace("庭園", 35, 135.02)]} origin={makeOrigin("京都駅", 35, 135)} returnTo={makeOrigin("大阪駅", 34.7, 135.5)} />);
+    act(() => mapTestState.loadHandler?.());
+    expect(mapTestState.markerAnchors).toContainEqual({ label: "帰着地: 大阪駅", anchor: "bottom", position: "absolute" });
+    expect(mapTestState.boundsPositions).toContainEqual([135.5, 34.7]);
+    expect(mapTestState.markerPositions).toHaveLength(3);
+  });
+
+  it("does not duplicate a return marker at the departure coordinates", () => {
+    render(<MapView places={[]} origin={makeOrigin("京都駅", 35, 135)} returnTo={makeOrigin("京都駅南口", 35, 135)} />);
+    act(() => mapTestState.loadHandler?.());
+    expect(mapTestState.markerPositions).toEqual([[135, 35]]);
+    expect(mapTestState.markerAnchors.map(marker => marker.label)).toEqual(["出発地: 京都駅"]);
+  });
+
+  it("shares one marker when a stop is also the return destination", () => {
+    render(<MapView places={[makePlace("終点の庭園", 35.1, 135.2)]} origin={makeOrigin("京都駅", 35, 135)} returnTo={makeOrigin("終点の庭園", 35.1, 135.2)} />);
+    act(() => mapTestState.loadHandler?.());
+    expect(mapTestState.markerPositions).toHaveLength(2);
+    expect(mapTestState.markerAnchors.map(marker => marker.label)).toContain("帰着地: 終点の庭園");
+  });
+
   it("applies the latest props when the map finishes loading", () => {
     const firstPlace = makePlace("初期候補", 35, 135);
     const latestPlace = makePlace("最新候補", 35.5, 135.5);

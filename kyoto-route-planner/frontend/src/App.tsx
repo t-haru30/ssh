@@ -1,38 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SavedRoutesList } from "./SavedRoutesList";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
 import type { SearchPreset } from "./SearchMode";
+import { routeSelection } from "./routeSelection";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Onboarding, hasSeenOnboarding, markOnboardingSeen } from "./Onboarding";
 import { useFavorites } from "./useFavorites";
+import { readJourneyDraft } from "./journeyDraft";
+import { TripDialog } from "./DayTripEditor";
 
 type AppTab = "discover" | "search";
+const ACTIVE_TAB_STORAGE_KEY = "kyoto-route-planner:active-tab:v1";
 
 const tabs: { id: AppTab; label: string; caption: string }[] = [
-  { id: "discover", label: "見つける", caption: "スワイプで選ぶ" },
-  { id: "search", label: "経路を作る", caption: "乗換つきで検索" },
+  { id: "discover", label: "見つける", caption: "気分から旅を探す" },
+  { id: "search", label: "旅をつくる", caption: "私のしおりを編集" },
 ];
 
 function App() {
-  const [activeTab, setActiveTab] = useState<AppTab>("discover");
+  const [activeTab, setActiveTab] = useState<AppTab>(() => {
+    try { const saved = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY); if (saved === "search" || saved === "discover") return saved; } catch { /* Storage can be disabled. */ }
+    return readJourneyDraft() ? "search" : "discover";
+  });
   const [searchPreset, setSearchPreset] = useState<SearchPreset | null>(null);
+  const [pendingPreset, setPendingPreset] = useState<{ selection: SearchPreset; currentTitle: string } | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
   const { favorites, error } = useFavorites();
+
+  useEffect(() => { try { localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab); } catch { /* Keep the app usable without storage. */ } }, [activeTab]);
 
   function closeOnboarding() {
     markOnboardingSeen();
     setShowOnboarding(false);
   }
+  function planInSearch(route: Parameters<typeof routeSelection>[0]) {
+    const selection = routeSelection(route);
+    const current = readJourneyDraft();
+    const samePlaces = current && current.plan.stops.length === selection.places.length
+      && current.plan.stops.every((stop, index) => stop.place.id === selection.places[index].id
+        && stop.place.latitude === selection.places[index].latitude && stop.place.longitude === selection.places[index].longitude);
+    if (current && !samePlaces) { setPendingPreset({ selection, currentTitle: current.title }); return; }
+    openPlanner(samePlaces ? null : selection);
+  }
+  function openPlanner(selection: SearchPreset | null) {
+    if (selection) setSearchPreset(selection);
+    setActiveTab("search");
+    setShowFavorites(false);
+    window.scrollTo?.({ top: 0, behavior: "smooth" });
+  }
 
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="よりみち ホーム">
+        <button type="button" className="brand" onClick={() => setActiveTab("discover")} aria-label="よりみち ホーム">
           <span className="brand-mark">寄</span>
-          <span>よりみち<span className="brand-light"> / JOURNEY</span></span>
-        </a>
+          <span>よりみち<span className="brand-light"> 小さな旅のしおり</span></span>
+        </button>
         <div className="topbar-tools">
           <button
             className="favorites-open-button"
@@ -42,7 +67,7 @@ function App() {
           >
             ♥ 保存済み <span>{favorites.length}</span>
           </button>
-          <span className="sample-label"><span /> 駅すぱあと経路検索</span>
+          <button type="button" className="help-button" onClick={() => setShowOnboarding(true)} aria-label="使い方を見る">?</button>
           <ThemeSwitcher />
         </div>
       </header>
@@ -57,8 +82,16 @@ function App() {
             role="tab"
             aria-selected={activeTab === tab.id}
             aria-controls={`panel-${tab.id}`}
+            tabIndex={activeTab === tab.id ? 0 : -1}
             className={activeTab === tab.id ? "active" : ""}
             onClick={() => setActiveTab(tab.id)}
+            onKeyDown={event => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const next = event.key === "Home" ? "discover" : event.key === "End" ? "search" : activeTab === "discover" ? "search" : "discover";
+              setActiveTab(next);
+              document.getElementById(`tab-${next}`)?.focus();
+            }}
           >
             {tab.label}<small>{tab.caption}</small>
           </button>
@@ -67,20 +100,26 @@ function App() {
 
       <DiscoverMode
         active={activeTab === "discover"}
-        onPlanInSearch={(route) => {
-          const count = "spots" in route ? route.spots.length : route.places.length;
-          setSearchPreset({ theme: route.theme, stopCount: count, nonce: Date.now() });
-          setActiveTab("search");
-        }}
+        onPlanInSearch={planInSearch}
       />
       <SearchMode active={activeTab === "search"} preset={searchPreset} />
-      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} />}
+      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
+      {pendingPreset && <TripDialog title="編集中のしおりを置き換えますか？" onClose={() => setPendingPreset(null)}>
+        <p>新しいルートを選ぶと、このブラウザの下書きが置き換わります。残しておきたい予定は、先に「しおりを見る」からコピーできます。</p>
+        <dl className="trip-comparison"><div><dt>現在の旅</dt><dd>{pendingPreset.currentTitle}</dd></div><div><dt>新しい旅</dt><dd>{pendingPreset.selection.title}</dd></div></dl>
+        <div className="trip-dialog-actions"><button type="button" className="trip-primary" onClick={() => { openPlanner(pendingPreset.selection); setPendingPreset(null); }}>新しいルートで編集する</button><button type="button" onClick={() => setPendingPreset(null)}>今の下書きを残す</button></div>
+      </TripDialog>}
 
       <footer className="footer">
-        <p>POI：Yahoo! JAPAN API　·　地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
-        <p>検索の候補地取得にはYahoo! Local Searchを利用します。DiscoverとSearchの事前サンプルモードは候補生成の外部APIを使いません（採用後の経路検索を除く）。</p>
-        <p>スポットの順番は近接性による候補です。実際の徒歩道順・営業状況は各施設の公式情報をご確認ください。</p>
+        <p className="footer-signature">よりみち <span>まだ知らない一日へ。</span></p>
+        <div className="mobile-preferences"><ThemeSwitcher /></div>
+        <p>旅程と費用は目安です。お出かけ前に、営業時間・料金・運行情報をご確認ください。</p>
+        <details><summary>地図と情報について</summary>
+          <p>スポット検索：Yahoo! JAPAN API · 経路検索：駅すぱあと · 地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
+          <p>「見つける」のルートは事前に用意した旅のアイデアです。地図の線はスポット間の目安で、実際の道順とは異なります。</p>
+          <p>編集中の旅程と保存済みルートは、このブラウザに保存されます。</p>
+        </details>
       </footer>
     </main>
   );

@@ -1,0 +1,153 @@
+.trip-editor { color: var(--ink); min-width: 0; padding: clamp(18px, 3vw, 32px); background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 8px 30px color-mix(in srgb, var(--ink) 4%, transparent); }
+.trip-controls { border: 0; margin: 0; padding: 0; min-width: 0; }
+.trip-heading { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.trip-heading h3 { font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: clamp(20px, 3vw, 27px); margin: 0; line-height: 1.6; letter-spacing: .025em; }
+.trip-heading h3:focus { outline: none; }
+.trip-lock-count, .trip-fixed-badge { white-space: nowrap; font-size: 12px; border-radius: 99px; padding: 6px 10px; color: var(--forest); background: var(--surface-muted); }
+.trip-intro, .trip-travel-note { font-size: 12px; line-height: 1.9; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); }
+.trip-overview { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 24px 0 10px; font-size: 12px; line-height: 1.7; }
+.trip-overview > span:last-child { color: var(--forest); font-size: 11px; font-weight: 600; }
+.trip-conditions { margin: 18px 0 0; padding: 20px; background: color-mix(in srgb, var(--surface-muted) 65%, var(--paper)); border: 1px solid var(--line); border-radius: 12px; }
+.trip-conditions-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 5px 12px; margin-bottom: 16px; }
+.trip-conditions-heading h4 { font-size: 14px; margin: 0; }
+.trip-conditions-heading span { color: color-mix(in srgb, var(--ink) 65%, var(--paper)); font-size: 11px; line-height: 1.6; }
+.trip-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.trip-editor label, .trip-dialog label { display: flex; flex-direction: column; gap: 7px; font-size: 12px; line-height: 1.6; min-width: 0; }
+.trip-editor input, .trip-dialog input { width: 100%; min-width: 0; padding: 10px 12px; min-height: 44px; background: var(--surface-input); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; font-size: 16px; }
+.trip-editor small, .trip-dialog small { color: color-mix(in srgb, var(--ink) 68%, var(--paper)); font-size: 11px; line-height: 1.7; }
+.trip-cost-details { margin: 12px 0; font-size: 12px; }
+.trip-cost-details summary { padding: 9px 0; cursor: pointer; line-height: 1.7; }
+.trip-cost-details p { color: var(--muted); line-height: 1.8; }
+.trip-editor button, .trip-dialog button, .trip-start-over { min-height: 44px; padding: 10px 14px; font-size: 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--paper); line-height: 1.5; transition: border-color .15s, background .15s; }
+.trip-editor button:hover:not(:disabled), .trip-dialog button:hover:not(:disabled) { border-color: var(--forest); }
+.trip-editor button:disabled, .trip-dialog button:disabled { cursor: not-allowed; opacity: .48; }
+.trip-editor .trip-primary, .trip-dialog .trip-primary { background: var(--forest); color: var(--on-accent); border-color: var(--forest); }
+.trip-conditions > .trip-primary { width: 100%; display: flex; justify-content: center; align-items: center; gap: 16px; font-weight: 600; }
+.trip-editor :is(button, input, textarea, summary):focus-visible, .trip-dialog :is(button, input, textarea):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.trip-offline-note { display: block; margin-top: 10px; }
+.trip-pending { font-size: 11px; line-height: 1.8; margin: 12px 0 0; color: var(--forest); }
+.trip-live-message { color: var(--forest); font-size: 12px; line-height: 1.8; margin: 0; }
+.trip-live-message.has-message { margin-top: 14px; padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--forest); background: var(--surface-muted); }
+.trip-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 16px; }
+.trip-summary > div { display: flex; flex-direction: column; gap: 7px; padding: 18px; background: color-mix(in srgb, var(--forest) 4%, var(--paper)); border: 1px solid color-mix(in srgb, var(--forest) 15%, var(--line)); border-radius: 12px; }
+.trip-summary strong { font-size: clamp(19px, 2.5vw, 26px); font-weight: 600; color: var(--forest); font-variant-numeric: tabular-nums; line-height: 1.6; }
+.trip-summary span { font-size: 11px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); line-height: 1.7; }
+.trip-summary strong > span { font-size: .7em; color: inherit; }
+.trip-summary strong em { display: inline-block; margin-left: 8px; font-size: 10px; color: var(--ink); font-style: normal; font-weight: 400; }
+.trip-meter { height: 5px; margin: 6px 0 3px; background: color-mix(in srgb, var(--forest) 12%, var(--paper)); border-radius: 999px; overflow: hidden; }
+.trip-meter i { display: block; height: 100%; background: var(--forest); border-radius: inherit; }
+.trip-summary .is-over .trip-meter i { background: var(--accent); }
+.trip-summary .is-over strong { color: var(--ink); }
+.trip-warnings { border: 1px solid var(--line); background: color-mix(in srgb, var(--accent-soft) 55%, var(--paper)); color: var(--ink); padding: 12px 16px; border-radius: 9px; font-size: 12px; line-height: 1.8; margin: 16px 0; }
+.trip-warnings.is-urgent { border-color: var(--accent); }
+.trip-warnings summary { font-weight: 600; cursor: pointer; }
+.trip-warnings ul { padding-left: 19px; margin: 7px 0; }
+.trip-warnings p { margin-bottom: 0; }
+.trip-error { color: #a43128; padding: 10px; border: 1px solid currentColor; border-radius: 5px; font-size: 13px; }
+.trip-method-details { margin: 15px 0 26px; border-bottom: 1px solid var(--line); padding-bottom: 15px; }
+.trip-method-details > summary { cursor: pointer; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); font-size: 11px; padding: 5px 0; line-height: 1.8; }
+.trip-method-details > div { margin-top: 10px; padding: 0 12px; border-left: 2px solid var(--line); }
+.trip-timeline-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0 15px; }
+.trip-timeline-heading h4 { margin: 0; font-size: 15px; }
+.trip-timeline-note { margin: -5px 0 16px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); font-size: 11px; line-height: 1.8; }
+.trip-timeline-heading button { min-height: 36px; border: 0; background: transparent; padding: 8px 0 8px 10px; color: var(--forest); font-size: 11px; }
+.trip-departure { display: flex; align-items: center; gap: 15px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px; }
+.trip-departure time { color: var(--forest); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.trip-departure > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.trip-departure strong { font-size: 12px; }
+.trip-departure span { color: var(--muted); font-size: 10px; line-height: 1.7; }
+.trip-departure > span { font-size: 9px; letter-spacing: .12em; }
+.trip-stops { list-style: none; margin: 0 0 20px; padding: 0; }
+.trip-stop { position: relative; }
+.trip-leg { position: relative; margin: 0 0 0 25px; padding: 17px 0 17px 18px; border-left: 1px dashed color-mix(in srgb, var(--forest) 35%, var(--line)); font-size: 11px; line-height: 1.7; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); }
+.trip-stop > article { border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--paper); }
+.trip-stop.is-locked > article { border-color: var(--forest); box-shadow: inset 4px 0 var(--forest); }
+.trip-stop-header { display: flex; align-items: start; gap: 12px; }
+.trip-stop-header > div { flex: 1; min-width: 0; }
+.trip-stop-header h4 { font-size: 18px; margin: 6px 0; overflow-wrap: anywhere; line-height: 1.6; }
+.trip-stop-header time { color: var(--forest); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.trip-stop-number { display: grid; place-items: center; border-radius: 50%; background: var(--forest); color: var(--on-accent); width: 28px; height: 28px; flex: 0 0 28px; font-size: 12px; }
+.trip-stop-meta { font-size: 11px; color: color-mix(in srgb, var(--ink) 72%, var(--paper)); line-height: 1.9; margin: 10px 0 0 40px; }
+.trip-place-details { margin: 8px 0 0 40px; font-size: 11px; color: color-mix(in srgb, var(--ink) 72%, var(--paper)); line-height: 1.9; }
+.trip-place-details summary { cursor: pointer; padding: 5px 0; }
+.trip-place-details p { margin: 8px 0; overflow-wrap: anywhere; }
+.trip-fixed-help { font-size: 10px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); line-height: 1.8; margin: 10px 0 0; }
+.trip-stop-actions, .trip-footer-actions, .trip-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.trip-stop-actions .trip-pin.active { color: var(--forest); background: var(--surface-muted); border-color: var(--forest); }
+.trip-stop-edit { border-top: 1px dashed var(--line); margin-top: 16px; padding-top: 16px; }
+.trip-editor label.trip-checkbox { flex-direction: row; align-items: center; margin: 15px 0 8px; }
+.trip-checkbox input { width: 20px; min-height: 20px; }
+.trip-return { display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--forest); border-radius: 0 9px 9px 0; background: color-mix(in srgb, var(--forest) 4%, var(--paper)); padding: 16px 18px; font-size: 13px; line-height: 1.8; }
+.trip-return > span { color: var(--muted); font-size: 11px; }
+.trip-return strong { overflow-wrap: anywhere; }
+.trip-return time { color: var(--forest); font-size: 17px; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.trip-empty { margin: 18px 0; padding: 28px 16px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
+.trip-empty > span { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 12px; border-radius: 50%; background: var(--surface-muted); color: var(--forest); font-size: 24px; }
+.trip-empty h4 { margin: 0 0 10px; font-size: 16px; }
+.trip-empty p { font-size: 12px; color: var(--muted); line-height: 1.9; }
+.trip-footer-actions > button:first-child { flex: 1; border-style: dashed; color: var(--forest); background: color-mix(in srgb, var(--forest) 3%, var(--paper)); }
+.trip-bookmark { width: 100%; border: 1px solid var(--line); background: var(--surface-input); color: var(--ink); border-radius: 8px; padding: 14px; resize: vertical; min-height: 220px; font: inherit; font-size: 12px; line-height: 1.9; }
+.trip-copy-status { color: var(--forest); min-height: 1.8em; }
+.trip-dialog-backdrop { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; padding: 20px; background: rgba(12, 25, 19, .58); }
+.trip-dialog { width: min(620px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; padding: clamp(18px, 4vw, 28px); border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 14px 60px rgba(0, 0, 0, .25); outline: none; }
+.trip-dialog > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.trip-dialog h3 { margin: 0; font-size: 19px; }
+.trip-dialog p { font-size: 12px; line-height: 1.8; }
+.trip-comparison { background: var(--surface-muted); border-radius: 8px; padding: 14px; font-size: 12px; }
+.trip-comparison > div { display: grid; grid-template-columns: 45px minmax(0, 1fr); gap: 10px; margin: 10px 0; line-height: 1.8; }
+.trip-comparison dd { margin: 0; overflow-wrap: anywhere; }
+.trip-change-list { font-size: 13px; line-height: 1.9; padding-left: 20px; }
+.trip-candidate-search { display: flex; gap: 8px; align-items: end; margin-top: 16px; }
+.trip-candidate-search label { flex: 1; }
+.trip-candidates { display: grid; gap: 10px; }
+.trip-candidates button { display: flex; flex-direction: column; align-items: start; text-align: left; gap: 5px; }
+.trip-candidates button span { color: var(--forest); font-size: 11px; }
+.trip-selected-note { border-left: 3px solid var(--forest); padding: 12px; background: var(--surface-muted); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.trip-selected-note strong { display: block; margin-bottom: 4px; }
+.search-mode:has(.trip-editor) .hero-map { position: relative; height: 300px; min-height: 220px; margin: 18px auto; max-width: 880px; border-radius: 10px; overflow: hidden; z-index: 1; }
+.trip-start-over { margin-top: 14px; }
+@media (max-width: 520px) {
+  .trip-heading { flex-wrap: wrap; }
+  .trip-conditions { padding: 13px; }
+  .trip-field-grid { gap: 10px; }
+  .trip-summary { grid-template-columns: 1fr; }
+  .trip-summary > div { padding: 15px 17px; }
+  .trip-stop > article { padding: 16px 13px; }
+  .trip-stop-header { gap: 8px; flex-wrap: wrap; }
+  .trip-fixed-badge { margin-left: 36px; }
+  .trip-stop-actions button { flex: 1 1 auto; }
+  .trip-stop-meta, .trip-place-details { margin-left: 0; }
+  .trip-departure { padding: 14px; gap: 12px; }
+  .trip-departure > span { display: none; }
+  .trip-footer-actions > button { flex: 1 1 100%; }
+  .trip-dialog-backdrop { padding: 10px; }
+  .trip-dialog { max-height: calc(100dvh - 20px); }
+  .trip-dialog-actions { flex-direction: column; }
+  .trip-candidate-search { align-items: stretch; flex-direction: column; }
+  .search-mode:has(.trip-editor) .hero-map { height: 230px; }
+}
+@media (max-width: 360px) {
+  html body { min-width: 0; }
+  .app-shell .topbar { flex-wrap: wrap; height: auto; min-height: 76px; padding: 10px 0; gap: 10px; }
+  .app-shell .topbar-tools { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+  .trip-field-grid { grid-template-columns: 1fr; }
+}
+
+.trip-recommendation { margin: 14px 0 0 40px; padding: 12px 14px; background: var(--surface-muted); border-radius: 8px; font-size: 12px; line-height: 1.8; }
+.trip-recommendation strong { color: var(--forest); font-size: 11px; }
+.trip-recommendation p { margin: 5px 0; overflow-wrap: anywhere; }
+.trip-completed-note { padding: 12px 14px; background: var(--surface-muted); border-radius: 10px; font-size: 12px; line-height: 1.8; color: var(--forest); }
+.trip-completed-badge { margin-left: auto; padding: 5px 9px; border-radius: 20px; background: #e5eee3; color: #365a3d; font-size: 11px; white-space: nowrap; }
+.trip-stop.is-completed > article { border-color: #a8bda8; background: color-mix(in srgb, var(--forest) 2%, var(--paper)); }
+.trip-visit-button, .trip-visit-undo { margin-top: 12px; font-size: 12px; }
+.trip-visit-button { color: var(--forest); border-color: #b9cdb6; background: #f4f7f0; }
+.trip-visit-undo { color: var(--muted); background: transparent; border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.journey-file-controls { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; max-width: 880px; margin: 12px auto 22px; }
+.journey-file-controls > button { border: 1px solid var(--line); border-radius: 9px; padding: 10px 13px; min-height: 40px; color: var(--forest); background: var(--paper); font: inherit; font-size: 12px; cursor: pointer; }
+.journey-file-controls > button:disabled { opacity: .5; cursor: wait; }
+.journey-file-controls > [role="alert"] { flex-basis: 100%; color: #93482c; font-size: 12px; }
+.journey-file-controls dl { padding: 14px; background: var(--surface-muted); border-radius: 10px; font-size: 12px; }
+.journey-file-controls dt { color: var(--muted); margin-top: 10px; }
+.journey-file-controls dd { margin: 4px 0 8px; overflow-wrap: anywhere; }
+.trip-station-fields > small { display: block; margin-top: 8px; line-height: 1.8; }
+@media (max-width: 520px) { .trip-recommendation { margin-left: 0; } }

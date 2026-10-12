@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:11.229583+00:00",
+  "generated_at": "2026-10-12T03:37:49.302550+00:00",
   "area": "okinawa",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-okinawa-01",
@@ -126,41 +126,41 @@
       "id": "osm-okinawa-03",
       "area": "okinawa",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "沖縄県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 143,
-      "total_score": 46.7,
+      "theme": "nature",
+      "title": "沖縄県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 164,
+      "total_score": 43.3,
       "center": [
-        25.94628,
-        131.292999
+        26.447717,
+        127.775738
       ],
       "spots": [
         {
-          "place_id": "osm-node-12825214275",
-          "name": "開拓主故玉置半右衛門君之碑",
+          "place_id": "osm-node-13481938613",
+          "name": "谷茶前の碑",
           "category": "史跡",
-          "lat": 25.9535382,
-          "lng": 131.2873654,
+          "lat": 26.4669441,
+          "lng": 127.8236349,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12825312900",
-          "name": "開拓主故玉置半右衛門君之碑",
+          "place_id": "osm-node-10083176140",
+          "name": "仲泊遺跡第三貝塚",
           "category": "史跡",
-          "lat": 25.9410747,
-          "lng": 131.2890374,
+          "lat": 26.4357105,
+          "lng": 127.7916597,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4268164880",
-          "name": "大東宮",
-          "category": "観光名所",
-          "lat": 25.9442258,
-          "lng": 131.3025931,
+          "place_id": "osm-node-602936534",
+          "name": "残波岬",
+          "category": "展望地",
+          "lat": 26.4404961,
+          "lng": 127.7119195,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -168,16 +168,16 @@
       ],
       "coordinates": [
         [
-          25.9535382,
-          131.2873654
+          26.4669441,
+          127.8236349
         ],
         [
-          25.9410747,
-          131.2890374
+          26.4357105,
+          127.7916597
         ],
         [
-          25.9442258,
-          131.3025931
+          26.4404961,
+          127.7119195
         ]
       ]
     },

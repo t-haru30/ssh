@@ -1,0 +1,14 @@
+.station-search { border: 1px solid #d8e0df; border-radius: 12px; padding: 12px; min-width: 0; margin: 8px 0; }
+.station-search legend { font-weight: 700; padding: 0 4px; }
+.station-search p { margin: 6px 0; font-size: .85rem; }
+.station-search-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+.station-search-default { display: flex; align-items: center; gap: 8px; }
+.station-search-default select { flex: 1; min-width: 0; }
+.station-search-default button { white-space: nowrap; font-size: .85rem; }
+.station-search-panel { margin-top: 10px; }
+.station-search-controls input { min-width: 120px; flex: 1; }
+.station-search-results { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 6px; max-height: 250px; overflow-y: auto; }
+.station-search-results button { width: 100%; text-align: left; padding: 9px; border: 1px solid #d8e0df; border-radius: 8px; background: #fff; color: #183d37; }
+.station-search-results small { display: block; margin-top: 3px; }
+.station-search button:focus-visible, .station-search input:focus-visible { outline: 3px solid #168777; outline-offset: 2px; }
+.station-search-results button[aria-pressed="true"] { background: #e9f5f0; border-color: #168777; }

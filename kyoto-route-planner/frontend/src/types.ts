@@ -1,4 +1,5 @@
 export type Theme = "all" | "history" | "temple" | "nature" | "food";
+export type Preference = "nature" | "culture" | "food" | "coffee" | "shopping";
 
 export type Place = {
   id: string;
@@ -66,6 +67,8 @@ export type RouteTimelineItem = RouteTimelineSpot | RouteTimelineTransit;
 export type RouteSuggestion = {
   places: Place[];
   origin: Origin;
+  return_to?: Origin | null;
+  reasons?: Record<string, string>;
   legs: RouteLeg[];
   fare_yen?: number | null;
   title: string | null;
@@ -87,11 +90,15 @@ export type RouteSuggestionRequest = {
   origin: string;
   origin_latitude?: number;
   origin_longitude?: number;
+  return_to?: string;
+  return_latitude?: number;
+  return_longitude?: number;
   theme: Theme;
   stop_count: number;
   departure_date: string;
   departure_time: string;
   variation?: number;
+  selected_places?: Place[];
 };
 
 export type OvernightItineraryRequest = {

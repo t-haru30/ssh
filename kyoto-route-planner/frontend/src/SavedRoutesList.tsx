@@ -7,6 +7,7 @@ const NEAR_LIMIT_MARGIN = 5;
 
 type SavedRoutesListProps = {
   onClose: () => void;
+  onPlanInSearch?: React.ComponentProps<typeof RouteDetailModal>["onPlanInSearch"];
 };
 
 function formatSavedDate(value: string) {
@@ -14,7 +15,7 @@ function formatSavedDate(value: string) {
   return Number.isNaN(date.getTime()) ? "" : `${date.getMonth() + 1}/${date.getDate()}保存`;
 }
 
-export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
+export function SavedRoutesList({ onClose, onPlanInSearch }: SavedRoutesListProps) {
   const { favorites, error, removeFavorite, togglePin } = useFavorites();
   const [detail, setDetail] = useState<FavoriteRoute | null>(null);
   const [prefectureFilter, setPrefectureFilter] = useState("all");
@@ -163,7 +164,7 @@ export function SavedRoutesList({ onClose }: SavedRoutesListProps) {
           )}
         </section>
       </div>
-      {detail && <RouteDetailModal route={detail} onClose={() => setDetail(null)} />}
+      {detail && <RouteDetailModal route={detail} onClose={() => setDetail(null)} onPlanInSearch={onPlanInSearch} />}
     </>
   );
 }

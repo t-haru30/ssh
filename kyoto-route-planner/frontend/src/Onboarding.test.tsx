@@ -17,7 +17,7 @@ describe("Onboarding", () => {
     let closed = 0;
     render(<Onboarding onClose={() => { closed += 1; }} />);
     expect(screen.getByRole("dialog", { name: "はじめての使い方" })).toBeTruthy();
-    expect(screen.getByText("経路を作る")).toBeTruthy();
+    expect(screen.getByText("自分の予定に整える")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "はじめる" }));
     fireEvent.keyDown(window, { key: "Escape" });
