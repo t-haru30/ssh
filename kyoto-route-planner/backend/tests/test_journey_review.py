@@ -49,7 +49,7 @@ class JourneyReviewTests(unittest.IsolatedAsyncioTestCase):
         async def source(p):
             order.append("source" + p.id)
             return description()
-        async def search(p, *, official):
+        async def search(p, *, official, official_url=None):
             self.assertTrue(official)
             order.append("search" + p.id)
             return VenueEvidence(place_id=p.id, status="unverified")
@@ -66,6 +66,13 @@ class JourneyReviewTests(unittest.IsolatedAsyncioTestCase):
         self.search_mock.assert_not_awaited()
         self.assertEqual(result.results[0].missing_fields, [])
         self.assertEqual(result.results[0].steps[0].status, "ready")
+
+    async def test_only_checked_official_source_hint_is_forwarded(self):
+        for status in ("verified", "link_only", "unavailable"):
+            self.source_mock.return_value = OfficialPlaceInfo(status=status, note="fixture", url="https://museum.example/guide")
+            await review.review_journey(request(1))
+            self.assertEqual(self.search_mock.await_args.kwargs["official_url"],
+                             "https://museum.example/guide" if status in ("verified", "link_only") else None)
 
     async def test_disabled_ai_still_reads_sources(self):
         with patch.object(review, "configured", return_value=False):

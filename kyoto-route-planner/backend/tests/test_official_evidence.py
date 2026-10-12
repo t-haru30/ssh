@@ -1,4 +1,5 @@
 """Official search stays live and separate from the free official-page cache."""
+import asyncio
 import copy
 import os
 import ssl
@@ -113,6 +114,20 @@ class OfficialEvidenceParsingTests(unittest.TestCase):
         self.assertNotIn("private", prompt)
         self.assertNotIn("secret", prompt)
 
+    def test_checked_official_url_is_quoted_context_with_independent_verification(self):
+        prompt = evidence.official_prompt(PLACE, URL)
+        self.assertIn('"known_official_url": "' + URL + '"', prompt)
+        self.assertIn("独立に照合", prompt)
+        self.assertIn("各事実に検索の出典", prompt)
+
+    def test_unsafe_hints_are_ignored_and_default_prompt_is_unchanged(self):
+        default = evidence.official_prompt(PLACE)
+        for url in (None, "http://museum.example/", "file:///guide", "https://127.0.0.1/",
+                    "https://192.168.1.2/", "https://localhost/", "https://user:secret@museum.example/",
+                    "https://museum.internal/", "https://museum.example:8443/"):
+            with self.subTest(url=url):
+                self.assertEqual(evidence.official_prompt(PLACE, url), default)
+
 
 class OfficialEvidenceApiTests(unittest.TestCase):
     def setUp(self):
@@ -128,6 +143,14 @@ class OfficialEvidenceApiTests(unittest.TestCase):
         self.mock_factory = self.factory.start()
         self.mock_factory.return_value.__aenter__.return_value = self.provider
         self.addCleanup(self.factory.stop)
+
+    def test_checked_source_hint_reaches_google_search_request(self):
+        with patch.dict(os.environ, self.environment):
+            result = asyncio.run(evidence.fetch_venue_evidence(PLACE, official=True, official_url=URL))
+        self.assertEqual(result.status, "ready")
+        text = self.provider.post.await_args.kwargs["json"]["contents"][0]["parts"][0]["text"]
+        self.assertIn('"known_official_url": "' + URL + '"', text)
+        self.provider.post.assert_awaited_once()
 
     def test_live_official_search_uses_shared_key_and_google_tool_without_crawling_or_cache(self):
         with patch.dict(os.environ, self.environment), patch("app.official_place_info._fetch_url", new=AsyncMock()) as crawler:

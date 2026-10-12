@@ -92,7 +92,8 @@ async def review_journey(payload: JourneyReviewRequest) -> JourneyReviewResponse
                     continue
                 searches += 1
                 try:
-                    result.evidence = await asyncio.wait_for(fetch_venue_evidence(place, official=True), min(SEARCH_SECONDS, remaining))
+                    official_url = result.official.url if result.official and result.official.status in ("verified", "link_only") else None
+                    result.evidence = await asyncio.wait_for(fetch_venue_evidence(place, official=True, official_url=official_url), min(SEARCH_SECONDS, remaining))
                     usable = bool(result.evidence.status == "ready" and result.evidence.sources and result.evidence.citations)
                     result.steps.append(ReviewStep(label="不足項目を出典付き検索で確認", status="needs_check" if usable else "unavailable"))
                 except Exception:

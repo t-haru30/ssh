@@ -295,8 +295,15 @@ def evidence_prompt(place: Place) -> str:
     )
 
 
-def official_prompt(place: Place) -> str:
+def official_prompt(place: Place, official_url: str | None = None) -> str:
     venue = {"name": place.name, "address": place.address, "latitude": place.latitude, "longitude": place.longitude}
+    source_hint = ""
+    if public_https(official_url):
+        venue["known_official_url"] = official_url
+        source_hint = (
+            "known_official_urlがある場合は、既に確認した公式ページの参考URLです。その利用案内をGoogle検索で優先して確認してください。"
+            "参考URLだけで対象一致や情報の正しさを判断せず、施設名・所在地・位置を独立に照合し、各事実に検索の出典を付けてください。"
+        )
     return (
         "日本の施設の訪問案内を調べます。必ずGoogle検索を実行し、施設自身または運営自治体の公式サイトの利用案内を確認してください。"
         "Wikipedia・旅行紹介サイト・口コミサイトを営業時間や休館日の根拠にしないでください。自治体サイト内の施設ページも公式です。\n"
@@ -311,11 +318,11 @@ def official_prompt(place: Place) -> str:
         "すべての事実に公式ページの検索出典を付けてください。最終入館を閉館時間から推測しないでください。"
         "項目が不明なら『公式サイトで確認できませんでした。』、注意点が不明なら『訪問前に公式情報を確認してください。』としてください。"
         "引用せず短く要約し、営業時間・休館日・料金を創作しないでください。\n検索対象データ："
-        + json.dumps(venue, ensure_ascii=False)
+        + source_hint + json.dumps(venue, ensure_ascii=False)
     )
 
 
-async def fetch_venue_evidence(place: Place, *, official: bool = False) -> VenueEvidence:
+async def fetch_venue_evidence(place: Place, *, official: bool = False, official_url: str | None = None) -> VenueEvidence:
     global _used, _active
     subject = "公式案内" if official else "口コミ・公開情報"
     if not configured():
@@ -343,7 +350,7 @@ async def fetch_venue_evidence(place: Place, *, official: bool = False) -> Venue
             response = await asyncio.wait_for(client.post(
                 f"https://{API_HOST}/v1beta/models/{model}:generateContent",
                 headers={"x-goog-api-key": gemini_api_key()},
-                json={"contents": [{"parts": [{"text": official_prompt(place) if official else evidence_prompt(place)}]}],
+                json={"contents": [{"parts": [{"text": official_prompt(place, official_url) if official else evidence_prompt(place)}]}],
                       "tools": [{"google_search": {}}],
                       "generationConfig": generation},
             ), timeout=45)
