@@ -62,7 +62,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
       setRoutes([]);
       setError("選択した都道府県のサンプルルートが見つかりません。");
     } else {
-      setRoutes(dataset.routes);
+      setRoutes(dataset.routes.filter((route) => route.spots.length > 0));
       setIndex(0);
     }
     setLoading(false);
@@ -129,7 +129,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
     <div className="tab-panel discover-mode" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
       <div className="discover-heading">
         <p className="eyebrow">DISCOVER</p>
-        <h2>直感で選ぶ、都道府県のよりみち</h2>
+        <h2>直感で選ぶ、都道府県のConcierGO</h2>
         <p>右にスワイプでしおりを開く、左でスキップ。</p>
       </div>
       <label className="prefecture-picker">
@@ -180,6 +180,12 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
           <div className="discover-empty">
             <strong>すべてのルートを見ました</strong>
             <button type="button" className="regenerate-button" onClick={() => setIndex(0)}>最初から見直す ↻</button>
+          </div>
+        )}
+        {!loading && !error && routes.length === 0 && (
+          <div className="discover-empty" role="status">
+            <strong>スポットが見つかりませんでした</strong>
+            <span>都道府県を選び直してください。</span>
           </div>
         )}
       </div>

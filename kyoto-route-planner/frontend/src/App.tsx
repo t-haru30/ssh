@@ -46,9 +46,9 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="よりみち ホーム">
+        <a className="brand" href="/" aria-label="ConcierGO ホーム">
           <span className="brand-mark">寄</span>
-          <span>よりみち<span className="brand-light"> / JOURNEY</span></span>
+          <span>ConcierGO<span className="brand-light"> / JOURNEY</span></span>
         </a>
         <div className="topbar-tools">
           <button
@@ -91,7 +91,15 @@ function App() {
         }}
       />
       <SearchMode active={activeTab === "search"} preset={searchPreset} />
-      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} />}
+      {showFavorites && (
+        <SavedRoutesList
+          onClose={() => setShowFavorites(false)}
+          onGoHome={() => {
+            setShowFavorites(false);
+            setActiveTab("discover");
+          }}
+        />
+      )}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
 
       <footer className="footer">

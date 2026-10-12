@@ -55,6 +55,13 @@ function modeIcon(mode: string) {
   return "›";
 }
 
+function transitLineIcon(line: string) {
+  if (/バス|bus/i.test(line)) return "🚌";
+  if (/徒歩|walk/i.test(line)) return "🚶";
+  if (/電車|鉄道|jr|線|train/i.test(line)) return "🚆";
+  return "🚉";
+}
+
 function buildDistanceSegments(
   origin: Origin,
   places: Place[],
@@ -208,8 +215,8 @@ export function withRouteLegs(
       return {
         ...item,
         summary: item.duration_minutes === null
-          ? "公共交通・徒歩で移動"
-          : `公共交通・徒歩で約${formatDuration(item.duration_minutes)}`,
+          ? "移動"
+          : `移動 約${formatDuration(item.duration_minutes)}`,
         legs,
         detailsLabel: "全区間の駅すぱあと経路詳細",
       };
@@ -251,8 +258,8 @@ export function buildDayTimeline(
         duration_minutes: duration,
         is_estimate: true,
         summary: duration === null
-          ? "公共交通・徒歩で移動"
-          : `公共交通・徒歩で約${formatDuration(duration)}`,
+          ? "移動"
+          : `移動 約${formatDuration(duration)}`,
         detail: scheduleItem.detail,
       };
       if (!assignedLegs && day.legs.length > 0) {
@@ -364,10 +371,21 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
                 </time>
                 <span className="timeline-marker transit-marker" aria-hidden="true">↗</span>
                 <div className="timeline-transit-copy">
-                  <strong>{item.summary ?? "公共交通・徒歩で移動"}</strong>
+                  <strong>
+                    {item.transit_line
+                      ? `${transitLineIcon(item.transit_line)} ${item.transit_line}`
+                      : item.summary ?? "交通機関"}
+                  </strong>
                   <span>{item.from_name} <b>→</b> {item.to_name}</span>
+                  {item.start_time && item.end_time && (
+                    <span className="timeline-transit-duration">
+                      {item.is_estimate ? "目安" : "運行時刻"} {item.start_time}〜{item.end_time}
+                    </span>
+                  )}
                   {minutes !== null && minutes > 0 && (
-                    <span className="timeline-transit-duration">移動 約{formatDuration(minutes)}</span>
+                    <span className="timeline-transit-duration">
+                      {item.is_estimate ? "移動 約" : "所要"}{formatDuration(minutes)}
+                    </span>
                   )}
                   {item.detail && <small>{item.detail}</small>}
                   {item.legs && item.legs.length > 0 && (
