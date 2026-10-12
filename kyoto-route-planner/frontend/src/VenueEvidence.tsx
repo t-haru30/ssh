@@ -129,7 +129,7 @@ export function VenueEvidence({ place }: { place: Place }) {
     </> : <>
       <p className="venue-evidence-intro">口コミや公式情報から、魅力と注意点を短くまとめます。</p>
       <button type="button" className="venue-evidence-button" onClick={investigate} disabled={busy} aria-label={`${place.name}の口コミ・公開情報を調べる`}>{busy ? "口コミ・公開情報を調べています…" : error || result ? "もう一度調べる" : "口コミ・公開情報を調べる"}<span aria-hidden="true">{busy ? "◌" : "↗"}</span></button>
-      <p className="venue-evidence-footnote">押した施設だけ外部検索します · 検索・生成のAPI利用料金がかかる場合があります</p>
+      <p className="venue-evidence-footnote">この行き先だけをAIで調べます。調べた情報の出典も確認できます。</p>
       {busy && <p className="venue-evidence-status" role="status">施設・支店を照合し、公開情報を探しています。</p>}
       {result && <p className="venue-evidence-status" role="status">{result.message}</p>}
     </>}

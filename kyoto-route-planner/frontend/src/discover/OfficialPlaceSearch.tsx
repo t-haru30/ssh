@@ -45,7 +45,7 @@ export function OfficialPlaceSearch({ place }: { place: Place }) {
   const bodyStart = evidence?.text.includes("\n\n") ? evidence.text.indexOf("\n\n") + 2 : 0;
   const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`${place.name} ${place.address ?? ""} 公式 開館時間 休館日 料金`)}`;
   return <section className="venue-evidence" aria-label={`${place.name}の公式案内を検索`} aria-busy={current.busy}>
-    <div className="venue-evidence-heading"><strong>公式サイト・開館時間の確認</strong></div>
+    <div className="venue-evidence-heading"><strong>AIで公式案内を確認</strong></div>
     {current.busy ? <p className="venue-evidence-status" role="status">Google検索で公式サイト・開館時間を確認しています…</p>
       : evidence?.status === "ready" ? <>
         <p className="venue-evidence-label" role="status">公式情報のAI要約</p>
@@ -57,6 +57,6 @@ export function OfficialPlaceSearch({ place }: { place: Place }) {
       </> : evidence && <p className="venue-evidence-status" role="status">{evidence.message || (evidence.status === "unconfigured" ? "公式案内の検索は現在利用できません。施設名の検索リンクからご確認ください。" : "この施設の公式情報を十分に確認できませんでした。施設名の検索リンクからご確認ください。")}</p>}
     {current.error && <p className="venue-evidence-status is-error" role="alert">{current.error}</p>}
     <a href={searchUrl} target="_blank" rel="noopener noreferrer">施設名で公式案内を探す <span aria-hidden="true">↗</span></a>
-    {!current.busy && <button type="button" className="venue-evidence-button" onClick={() => setAttempt(value => value + 1)}>公式案内をもう一度検索する <span aria-hidden="true">↗</span></button>}
+    {!current.busy && <button type="button" className="venue-evidence-button" onClick={() => setAttempt(value => value + 1)}>公式案内をもう一度検索する <span aria-hidden="true">↻</span></button>}
   </section>;
 }

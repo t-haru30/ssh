@@ -11,6 +11,15 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.localStorage.clear();
 function renderDiscoverMode(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function count() { return Number(screen.getByText(/^[0-9]+件の候補$/).textContent?.replace("件の候補", "")); }
 describe("DiscoverMode dynamic facilities", () => {
+  it("moves from the introduction to candidates and back to conditions without generating another route", () => {
+    const fetchMock = vi.fn().mockResolvedValue(illustrationResponse); vi.stubGlobal("fetch", fetchMock);
+    renderDiscoverMode();
+    fireEvent.click(screen.getByRole("button", { name: /旅の候補を見る/ }));
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "京都府周辺の旅のプラン" }));
+    fireEvent.click(screen.getByRole("button", { name: /条件を変更/ }));
+    expect(document.activeElement?.className).toBe("discover-filters");
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(0);
+  });
   it("composes local facilities without requesting the discovery API or using the five canned routes", () => {
     const fetchMock = vi.fn().mockResolvedValue(illustrationResponse); vi.stubGlobal("fetch", fetchMock); renderDiscoverMode();
     expect(screen.getByRole("heading", { name: "京都府周辺の旅のプラン" })).toBeTruthy();

@@ -1,6 +1,7 @@
 import { clockMinutes, distanceKm, newTripStop, scheduleTrip } from "./dayTrip";
 import type { TripInput, TripPlan } from "./dayTrip";
 import { preferenceMatches, preferenceReason } from "./tripPreferences";
+import { distinctVenues } from "./venueIdentity";
 import type { Origin, Place, RouteSuggestion } from "./types";
 
 export type InitialTripOptions = {
@@ -42,7 +43,7 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
   const byId = (a: Place, b: Place) => a.id.localeCompare(b.id, "en");
   const candidates = [...new Map(options.candidates.filter(place => Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
     && distanceKm(origin, place) <= (options.radiusKm ?? 50)).map(place => [place.id, place])).values()];
-  const ranked = [...candidates].sort((a, b) => relevance(b) - relevance(a) || proximity(a) - proximity(b) || byId(a, b));
+  const ranked = distinctVenues([...candidates].sort((a, b) => relevance(b) - relevance(a) || proximity(a) - proximity(b) || byId(a, b)));
   // Preserve affordable and nearby alternatives even if many higher-ranked
   // candidates have the same theme. At most 14 places enter the exhaustive search.
   const shortlist: Place[] = [];
@@ -52,7 +53,7 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
     add(matching[0]);
     add([...matching].sort((a, b) => (spending(a) ?? 0) - (spending(b) ?? 0) || proximity(a) - proximity(b) || byId(a, b))[0]);
   }
-  for (const place of [...candidates].sort((a, b) => proximity(a) - proximity(b) || byId(a, b)).slice(0, 3)) add(place);
+  for (const place of [...ranked].sort((a, b) => proximity(a) - proximity(b) || byId(a, b)).slice(0, 3)) add(place);
   for (const place of ranked) add(place);
   const makePlan = (places: Place[]) => {
     const source: RouteSuggestion = { origin, return_to: returnTo, places, legs: [], fare_yen: null,

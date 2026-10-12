@@ -5,6 +5,8 @@ only after the user adopts a suggestion. The bundled OSM pool is not exhaustive.
 """
 import asyncio
 import os
+import re
+import unicodedata
 from fastapi import HTTPException
 from hashlib import sha256
 from math import asin, cos, radians, sin, sqrt, ceil
@@ -51,6 +53,22 @@ def place_themes(place: CatalogPlace) -> list[Theme]:
     return sorted(themes)
 
 
+def venue_name(name: str) -> str:
+    name = unicodedata.normalize("NFKC", name).strip()
+    name = re.sub(r"^[東西南北]+から見た(.+)の眺め$", r"\1", name)
+    return re.sub(r"\s+", "", name).lower()
+
+
+def distinct_venues(places: list[CatalogPlace]) -> list[CatalogPlace]:
+    """Conservative identity for automatic composition, never saved itineraries."""
+    result: list[CatalogPlace] = []
+    for place in places:
+        if not any(venue_name(place.name) == venue_name(other.name)
+                   and distance_km(place, other) <= 0.3 for other in result):
+            result.append(place)
+    return result
+
+
 def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, ...] | None = None) -> dict:
     try:
         pool = places if places is not None else load_public_places()
@@ -63,6 +81,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         and not is_unsuitable_place(place)
         and distance_km(request.origin, place) <= request.radius_km),
         key=lambda place: (distance_km(request.origin, place), place.id))
+    candidates = distinct_venues(candidates)
     # Search the nearest neighbourhood first, then widen only within the user's cap.
     radii = sorted({min(5, request.radius_km), min(20, request.radius_km), request.radius_km})
     effective_radius = radii[-1]

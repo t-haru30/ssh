@@ -161,13 +161,7 @@ export function SharedSwipeCard({
         <span className="swipe-cover-badge">{coverBadge}</span>
       </div>
       <div className="swipe-card-copy">
-        {hasCoverImage && photoPlaceName && <div className="route-photo-credit" onPointerDown={event => event.stopPropagation()}>
-          <span>写真: <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">{authorName}</a></span>
-          <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">写真の出典</a>
-          <a href={licenseUrl ?? undefined} target="_blank" rel="noopener noreferrer">{licenseName}</a>
-          <small>カードに合わせて写真の一部を表示しています</small>
-        </div>}
-        {imageStatus && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
+        {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
         <h3 title={title}>{title}</h3>
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
@@ -200,6 +194,12 @@ export function SharedSwipeCard({
             <li className="swipe-spot-more">ほか{spots.length - MAX_VISIBLE_SPOTS}か所（詳細で確認）</li>
           )}
         </ul>
+        {hasCoverImage && photoPlaceName && <div className="route-photo-credit" aria-label="写真のクレジット" onPointerDown={event => event.stopPropagation()}>
+          <span>写真: <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">{authorName}</a></span>
+          <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">写真の出典</a>
+          <a href={licenseUrl ?? undefined} target="_blank" rel="noopener noreferrer">{licenseName}</a>
+          <span className="route-photo-crop">一部トリミング</span>
+        </div>}
       </div>
     </motion.article>
   );

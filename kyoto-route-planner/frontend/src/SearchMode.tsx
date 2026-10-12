@@ -246,11 +246,17 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const editorTime = validTime ? departureTime : dayTripPlan?.input.departureTime ?? "09:00";
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
+  const [resultView, setResultView] = useState<"timeline" | "map">("timeline");
   const timelineAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFormCollapsed(hasResult);
+    setResultView("timeline");
   }, [hasResult]);
+
+  useEffect(() => {
+    if (resultView === "map") window.dispatchEvent(new Event("resize"));
+  }, [resultView]);
 
   // Scroll Spy: 画面中央の帯に入ったスポットをハイライトする
   useEffect(() => {
@@ -575,6 +581,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   return (
     <div
       className={`tab-panel search-mode${hasResult ? " search-mode--result" : ""}`}
+      data-result-view={resultView}
       id="panel-search"
       role="tabpanel"
       aria-labelledby="tab-search"
@@ -604,7 +611,14 @@ export function SearchMode({ active, preset }: SearchModeProps) {
       )}
 
       {hasResult && (
-        <div className="hero-map">
+        <div className="journey-view-switch" role="group" aria-label="旅程と地図の表示切り替え">
+          <button type="button" aria-pressed={resultView === "timeline"} aria-controls="journey-timeline" onClick={() => setResultView("timeline")}>旅程を見る</button>
+          <button type="button" aria-pressed={resultView === "map"} aria-controls="journey-map" onClick={() => setResultView("map")}>地図を見る</button>
+        </div>
+      )}
+
+      {hasResult && (
+        <div className="hero-map" id="journey-map">
           <LazyMapView
             places={mapPlaces}
             origin={isOvernight ? overnightSuggestion?.origin ?? origin : dayTripPlan?.origin ?? origin}
@@ -763,7 +777,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
       {searching && <div className="journey-loading-overlay"><ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} onCancel={() => { requestIdRef.current += 1; activeRequestRef.current?.abort(); setSearching(false); }} /></div>}
       {hasResult && (
-        <div className="timeline-area" ref={timelineAreaRef}>
+        <div className="timeline-area" ref={timelineAreaRef} id="journey-timeline">
           {!isOvernight && <div className="journey-save-status" role="status">
             <span aria-hidden="true">{draftSaved ? "✓" : "!"}</span>
             <span>{draftRestored ? "前回の旅程を復元しました。続きから編集できます。" : draftSaved ? "このブラウザに自動保存しています。次回も続きから。" : "このブラウザには保存できません。しおりをコピーして残してください。"}</span>

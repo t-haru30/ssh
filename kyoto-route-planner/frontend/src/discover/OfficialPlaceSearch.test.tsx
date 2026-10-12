@@ -38,7 +38,7 @@ describe("OfficialPlaceSearch", () => {
     expect(match.textContent).toContain("施設確認：試験美術館");
     expect(match.textContent).not.toContain("開館時間は");
     expect(screen.getByRole("link", { name: /\[1\] 試験美術館の公式案内/ }).getAttribute("href")).toBe(ready.sources[0].url);
-    expect(view.container.querySelector(".venue-search-suggestions")?.shadowRoot?.textContent).toBe("Google検索");
+    await waitFor(() => expect(view.container.querySelector(".venue-search-suggestions")?.shadowRoot?.textContent).toBe("Google検索"));
     expect(screen.getByText(/訪問前に出典の公式案内をご確認/)).toBeTruthy();
     expect(persist).not.toHaveBeenCalled();
     view.rerender(<StrictMode><OfficialPlaceSearch place={{ ...place }} /></StrictMode>);

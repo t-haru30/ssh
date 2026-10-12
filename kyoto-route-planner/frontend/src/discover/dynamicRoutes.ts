@@ -1,5 +1,6 @@
 import { distanceKm } from "../dayTrip";
 import { localPlaces } from "../localPlaces";
+import { distinctVenues } from "../venueIdentity";
 import { facilityThemes, isUnsuitablePlace } from "../placeThemes";
 import type { Origin, Theme } from "../types";
 import type { DatasetRoute, RouteDatasetIndexEntry } from "./datasetTypes";
@@ -11,9 +12,9 @@ const themeTitles: Record<Theme, string> = { all: "街歩き", history: "歴史�
 
 /** Offline composition from deduplicated facilities, with a hard geographic cap. */
 export function composeLocalRoutes({ entry, origin, theme, course, radius, crossPrefecture, variation }: DiscoverConditions, pool = localPlaces): DatasetRoute[] {
-  let candidates = pool.filter(p => !isUnsuitablePlace(p) && (crossPrefecture || p.tags?.area === entry.id)
+  let candidates = distinctVenues(pool.filter(p => !isUnsuitablePlace(p) && (crossPrefecture || p.tags?.area === entry.id)
     && (theme === "all" || facilityThemes(p).includes(theme)) && !/ホテル|旅館|宿泊/.test(p.category)
-    && distanceKm(origin, p) <= radius).sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
+    && distanceKm(origin, p) <= radius).sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id)));
   for (const r of [...new Set([Math.min(5, radius), Math.min(20, radius), radius])]) {
     const nearby = candidates.filter(p => distanceKm(origin, p) <= r);
     if (nearby.length >= 6) { candidates = nearby; break; }

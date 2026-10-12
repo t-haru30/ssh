@@ -31,6 +31,7 @@ from app.ekispert import (
 from app.fallback_ideas import FALLBACK_DATASET_PATH, load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
+from app.journey_review import JourneyReviewRequest, JourneyReviewResponse, review_journey
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
 from app.place_description import PlaceDescription, fetch_place_description
 from app.place_photos import PhotoRequest, PhotoResponse, fetch_route_photo
@@ -681,6 +682,13 @@ async def recommend_overnight_itinerary(
 ) -> OvernightItinerarySuggestion:
     return await plan_overnight_itinerary(payload)
 
+
+
+@app.post("/api/journey/review", response_model=JourneyReviewResponse)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("2/minute")
+async def review_departure_information(request: Request, payload: JourneyReviewRequest) -> JourneyReviewResponse:
+    return await review_journey(payload)
 
 
 @app.post("/api/routes", response_model=RouteSuggestions)

@@ -111,6 +111,24 @@ describe("overnight favorite UI", () => {
 });
 
 describe("SearchMode nearby departures", () => {
+  it("switches between map and itinerary without replacing the draft or requesting transport", async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [savedRoute.origin] }));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<SearchMode active preset={{ theme: "history", stopCount: 1, nonce: 777,
+      places: [{ ...savedRoute.places[0], themes: ["history"] }], origin: savedRoute.origin,
+      title: "表示切り替えの旅", dwellMinutes: {} }} />);
+    const timeline = await screen.findByRole("button", { name: "旅程を見る" });
+    const map = screen.getByRole("button", { name: "地図を見る" });
+    await waitFor(() => expect(readJourneyDraft()).not.toBeNull());
+    const before = readJourneyDraft()!.plan;
+    expect(timeline.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(map);
+    expect(map.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(timeline);
+    expect(timeline.getAttribute("aria-pressed")).toBe("true");
+    expect(readJourneyDraft()!.plan).toEqual(before);
+    expect(fetchMock.mock.calls.every(call => String(call[0]) === "/api/origins")).toBe(true);
+  });
   it("loads nearby station and stop options and submits the selected coordinates", async () => {
     const origins = [
       { name: "京都駅", latitude: 34.9858, longitude: 135.7588 },

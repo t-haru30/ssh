@@ -63,7 +63,10 @@ class OvernightBoundsTests(unittest.IsolatedAsyncioTestCase):
     async def test_catalog_timeout_is_part_of_shared_budget(self):
         async def slow(*args, **kwargs):
             await asyncio.sleep(1)
-        with patch("app.itinerary.search_yahoo_catalog", side_effect=slow), patch("app.itinerary.time_module.monotonic", return_value=10):
+        # Replace the application's module reference, not time.monotonic itself:
+        # asyncio's selector loop uses that shared clock to expire its timers.
+        with patch("app.itinerary.search_yahoo_catalog", side_effect=slow), patch("app.itinerary.time_module") as clock:
+            clock.monotonic.return_value = 10
             with self.assertRaises(HTTPException) as error:
                 await _catalog_with_deadline("query", 10.01)
         self.assertEqual(error.exception.status_code, 504)

@@ -47,6 +47,9 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const [generating, setGenerating] = useState(false);
   const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const filtersRef = useRef<HTMLElement>(null);
   const entry = indexEntries.find(item => item.id === area)!;
   const origin = useMemo(() => localOrigins[area] ?? ({ name: `${entry.name}・エリア中心`, latitude: entry.center[0], longitude: entry.center[1] }), [entry, area]);
   const conditionsKey = `${area}:${theme}:${pattern}:${radius}:${crossPrefecture}:${variation}`;
@@ -114,7 +117,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
 
   return <div className="tab-panel discover-mode" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
     <section className="discover-hero" aria-labelledby="discover-title">
-      <div className="discover-hero-copy"><p className="eyebrow">A LITTLE DETOUR, A NEW DISCOVERY</p><h1 id="discover-title">次の休日、<br />心が向くほうへ。</h1><p>行きたい街と、いまの気分から。<br />ConcierGOで、あなたらしい旅を見つけよう。</p><span className="discover-hero-note">47都道府県から探す、小さな旅のきっかけ</span></div>
+      <div className="discover-hero-copy"><p className="eyebrow">A LITTLE DETOUR, A NEW DISCOVERY</p><h1 id="discover-title">次の休日、<br />心が向くほうへ。</h1><p>行き先選びから、時間と予算の調整まで。<br />あなただけの旅を、一冊のしおりに。</p><button type="button" className="discover-hero-action" onClick={() => { resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); resultsHeadingRef.current?.focus({ preventScroll: true }); }}>旅の候補を見る <span aria-hidden="true">↓</span></button><span className="discover-hero-note">47都道府県に対応 · 施設の公式情報はAIが検索をお手伝い</span></div>
       <div className="discover-hero-art" aria-hidden="true"><img src="/images/yorimichi-journey.webp" alt="" /><span className="discover-art-image-caption">いつもの日常から、少し遠くへ。</span></div>
     </section>
     <section className="discover-destinations" aria-label="おすすめの行き先">
@@ -124,8 +127,9 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
         return <button key={destination.area} type="button" className={`discover-destination destination-${destination.area}`} aria-pressed={area === destination.area} onClick={() => chooseArea(destination.area)}><span className="discover-destination-mark" aria-hidden="true">{destination.mark}</span><span><strong>{entry?.name}</strong><small>{destination.caption}</small></span><span aria-hidden="true">↗</span></button>;
       })}</div>
     </section>
+    <ol className="journey-flow" aria-label="旅づくりの流れ"><li><span>01</span><div><strong>気になる旅を見つける</strong><small>街と気分から、行き先の候補を。</small></div></li><li><span>02</span><div><strong>自分の予定に整える</strong><small>時間・予算に合わせて、自由に編集。</small></div></li><li><span>03</span><div><strong>確認して、出かける</strong><small>交通・公式情報を確認し、しおりを保存。</small></div></li></ol>
     <section className="discover-workspace" aria-label="旅の候補を探す">
-      <aside className="discover-filters"><p className="eyebrow">MAKE IT YOURS</p><h2>どんな旅にしよう？</h2>
+      <aside className="discover-filters" ref={filtersRef} tabIndex={-1}><p className="eyebrow">MAKE IT YOURS</p><h2>どんな旅にしよう？</h2>
         <label className="prefecture-picker">都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(entry => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</select></label>
         <fieldset className="discover-filter-group"><legend>いまの気分</legend><div className="discover-theme-options">{themes.map(item => <button type="button" key={item.id} aria-pressed={theme === item.id} onClick={() => { setTheme(item.id); setNotice(null); }}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</div></fieldset>
         <fieldset className="discover-filter-group"><legend>使える時間</legend><div className="discover-duration-options">{([{ id: "all", label: "指定なし" }, { id: "half_day", label: "半日" }, { id: "full_day", label: "1日" }] as const).map(item => <button key={item.id} type="button" aria-pressed={pattern === item.id} onClick={() => { setPattern(item.id); setNotice(null); }}>{item.label}</button>)}</div></fieldset>
@@ -138,8 +142,9 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
         <button type="button" className="discover-refresh" onClick={() => setVariation(v => v + 1)} disabled={generating}>別の組み合わせを見る ↻</button>
         <div className="discover-howto"><span aria-hidden="true">♡</span><strong>ひらめきを、旅のしおりに。</strong><p>気になるルートを保存したら、出発地や滞在時間を調整して、自分だけの旅に。</p></div>
       </aside>
-      <div className="discover-results"><header className="discover-results-heading"><div><p className="eyebrow">YOUR DISCOVERIES</p><h2>{areaName}{crossPrefecture ? "周辺" : "内"}の旅のプラン</h2></div><span className="discover-result-count">{routes.length}件の候補</span></header>
+      <div className="discover-results" ref={resultsRef}><header className="discover-results-heading"><div><p className="eyebrow">YOUR DISCOVERIES</p><h2 ref={resultsHeadingRef} tabIndex={-1}>{areaName}{crossPrefecture ? "周辺" : "内"}の旅のプラン</h2></div><span className="discover-result-count">{routes.length}件の候補</span></header>
         <p className="discover-fallback-status" role="status">{theme === "all" ? "すべての気分" : themes.find(item => item.id === theme)?.label} · {pattern === "all" ? "時間の指定なし" : pattern === "half_day" ? "半日コース" : "1日コース"}</p>
+        <div className="discover-conditions-summary"><span>{origin.name}発 · 半径{radius}km</span><button type="button" onClick={() => { filtersRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); filtersRef.current?.focus({ preventScroll: true }); }}>条件を変更 <span aria-hidden="true">↑</span></button></div>
         {generating && <ProgressStatus title="あなたの旅を組み立てています" steps={ROUTE_STEPS} onCancel={() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); }} />}
         <div className="discover-stack" aria-busy={generating}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件の候補は、まだありません</strong><p>気分や時間を変えると、新しいConcierGOが見つかるかも。</p><button type="button" className="idea-primary-button" onClick={() => { setTheme("all"); setPattern("all"); }}>すべての候補を見る</button></div>}
@@ -148,7 +153,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
         <div className="discover-actions"><button type="button" className="discover-action undo" onClick={undo} disabled={!history.length} aria-label="1つ前に戻す">↶</button><button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length} aria-label="スキップ"><span aria-hidden="true">↗</span>次の候補</button><button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={!stack.length} aria-label="しおりを開く"><span aria-hidden="true">♡</span>保存して詳細を見る</button></div>
         <div className="discover-deck-meta"><span className="discover-progress">{Math.min(index + 1, routes.length)} / {routes.length}</span>{stack[0] && <button type="button" onClick={() => setSelected(stack[0])}>保存せずに詳細を見る →</button>}</div>
         {notice && <div className="discover-toast" role="status"><span>{notice}</span>{history.length > 0 && <button type="button" onClick={undo}>元に戻す</button>}</div>}
-        <p className="discover-data-note">{remote?.key === conditionsKey ? remote.note : `施設候補から条件に合わせて作成しました。半径${radius}km以内で検索範囲を自動調整します。候補が少ない場合はスポット数を減らします。移動時間は推定です。`}</p>
+        <details className="discover-data-note"><summary>移動時間・提案の範囲について</summary><p>{remote?.key === conditionsKey ? remote.note : `施設候補から条件に合わせて作成しました。半径${radius}km以内で検索範囲を自動調整します。候補が少ない場合はスポット数を減らします。移動時間は推定です。`}</p></details>
         {onPlanInSearch && <button type="button" className="idea-primary-button discover-plan-button" disabled={generating || !routes.length} onClick={() => { const likedIndex = history.map(item => item.liked).lastIndexOf(true); const route = selected ?? (likedIndex >= 0 ? routes[likedIndex] : stack[0]) ?? routes[0]; if (route) { setSelected(null); onPlanInSearch(route, true); } }}>この条件で乗換つきの経路を作る <span aria-hidden="true">→</span></button>}
       </div>
     </section>

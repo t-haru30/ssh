@@ -1,0 +1,30 @@
+.journey-review { margin: 24px 0; padding: 22px; border: 1px solid color-mix(in srgb, var(--forest) 25%, var(--line)); border-radius: 16px; background: color-mix(in srgb, var(--forest) 4%, var(--paper)); }
+.journey-review-heading { display: flex; align-items: flex-start; gap: 12px; }
+.journey-review-heading > span { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--forest); color: var(--on-accent); }
+.journey-review h4, .journey-review h5 { margin: 0; color: var(--forest); }
+.journey-review h4 { font-size: 16px; }
+.journey-review p { font-size: 13px; line-height: 1.8; }
+.journey-review-heading p { margin: 4px 0 0; }
+.journey-review-intro { margin: 14px 0; }
+.journey-review-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.journey-review button { min-height: 44px; }
+.journey-review-notice { color: var(--muted); }
+.journey-review-results { display: grid; gap: 14px; margin: 16px 0; padding: 0; list-style: none; }
+.journey-review-results > li { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.journey-review-result-title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.journey-review h5 { font-size: 15px; }
+.journey-review-result-title > span { border-radius: 99px; padding: 4px 9px; font-size: 12px; }
+.journey-review-result-title .needs-check { background: #fff0d4; color: #725014; }
+.journey-review-result-title .is-ready { background: var(--surface-muted); color: var(--forest); }
+.journey-review dl { margin: 12px 0; }
+.journey-review dl > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.7; }
+.journey-review dt { color: var(--muted); }
+.journey-review dd { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.journey-review a { color: var(--forest); font-size: 13px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.journey-review summary { padding: 10px 0; min-height: 44px; cursor: pointer; font-size: 13px; color: var(--forest); }
+.journey-review-steps ol { display: grid; gap: 8px; padding-left: 20px; margin: 0 0 12px; }
+.journey-review-steps li { font-size: 12px; line-height: 1.8; }
+.journey-review-steps strong { display: block; font-weight: 500; color: var(--muted); }
+.journey-review-evidence { padding-top: 12px; border-top: 1px solid var(--line); }
+.journey-review :is(a, button, summary):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+@media (max-width: 480px) { .journey-review { padding: 16px; } .journey-review-results > li { padding: 14px; } .journey-review dl > div { grid-template-columns: 1fr; gap: 3px; } }

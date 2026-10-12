@@ -28,6 +28,8 @@ describe("destination introductions", () => {
     expect(await screen.findByText(official.description)).toBeTruthy();
     expect(screen.queryByText(article.description)).toBeNull();
     expect(screen.getByText(official.highlights[0])).toBeTruthy();
+    expect(within(screen.getByRole("region", { name: "施設の見どころ" })).getByText(official.highlights[0])).toBeTruthy();
+    expect(within(screen.getByRole("region", { name: "この旅でのおすすめポイント" })).queryByText(official.highlights[0])).toBeNull();
     expect(screen.getByText("前の立ち寄り先から近い場所です。")).toBeTruthy();
     for (const link of screen.getAllByRole("link", { name: "施設の公式紹介" })) expect(link.getAttribute("href")).toBe(official.description_source_url);
     const guide = screen.getByRole("region", { name: "訪問前の確認" });

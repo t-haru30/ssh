@@ -113,10 +113,13 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], en
     <div className="place-details-facts"><span>{place.category}</span>{stayMinutes !== undefined && <span>滞在の目安 {stayMinutes}分</span>}</div>
     {place.address && <p className="place-details-address">{place.address}</p>}
     {hasRouteNote && <div className="place-route-reason"><h4>旅のポイント</h4><p>{routeNote}</p></div>}
-    {(recommendations.length > 0 || Boolean(official?.highlights.length)) && <div className="place-recommendation"><h4>この場所をおすすめする理由</h4>
-      <ul>{[...(official?.highlights ?? []), ...recommendations].map((reason, index) => <li key={index}>{reason}</li>)}</ul>
-      {Boolean(official?.highlights.length) && <p className="place-details-source">見どころの参考：<a href={official!.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a></p>}
-    </div>}
+    {recommendations.length > 0 && <section className="place-recommendation" aria-label="この旅でのおすすめポイント"><h4>この旅でのおすすめポイント</h4>
+      <ul>{recommendations.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+    </section>}
+    {Boolean(official?.highlights.length) && <section className="place-official-highlights" aria-label="施設の見どころ"><h4>施設の見どころ</h4>
+      <ul>{official!.highlights.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+      <p className="place-details-source">見どころの参考：<a href={official!.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a></p>
+    </section>}
     {detailsLoading ? <p role="status" className="place-details-status">この場所の説明を確認しています…</p>
       : official?.description ? <div className="place-details-description"><h4>この場所について</h4><p>{official.description}</p><p className="place-details-source">出典：<a href={official.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a>をもとに作成</p></div>
       : introduction ? <div className="place-details-description"><h4>この場所について</h4><p>{introduction.description}</p>
