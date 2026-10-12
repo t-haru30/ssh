@@ -263,12 +263,12 @@ async def fetch_venue_evidence(place: Place) -> VenueEvidence:
     global _used, _active
     if not configured():
         return VenueEvidence(place_id=place.id, status="unconfigured",
-            message="ネット上の口コミ・公開情報を調べるには、ローカルの個人用Gemini APIキーの設定が必要です。")
+            message="口コミ・公開情報を調べる機能は、現在有効になっていません。")
     async with _budget_lock:
         if _active:
             raise HTTPException(429, "別の施設を調べています。完了してからお試しください。")
         if _used >= REQUEST_LIMIT:
-            raise HTTPException(429, "この起動中の取得上限（20回）に達しました。個人用APIの利用量を確認してください。")
+            raise HTTPException(429, "口コミ・公開情報の取得上限に達しました。現在この機能を利用できません。")
         _used += 1  # Count failed requests, too; no automatic retry or hidden extra generation.
         _active = True
     try:
@@ -291,7 +291,7 @@ async def fetch_venue_evidence(place: Place) -> VenueEvidence:
                       "generationConfig": generation},
             )
         if response.status_code in (401, 403):
-            raise HTTPException(503, "個人用Gemini APIキーの権限と、検索機能の利用設定を確認してください。")
+            raise HTTPException(503, "口コミ・公開情報を調べる機能を利用できません。管理者へお問い合わせください。")
         if response.status_code == 429:
             raise HTTPException(429, "Gemini APIの利用上限に達しています。利用量・課金設定を確認し、時間をおいてお試しください。")
         if response.status_code != 200:

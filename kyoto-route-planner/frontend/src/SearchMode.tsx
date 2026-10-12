@@ -757,7 +757,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
             <button className="submit-button" type="submit" disabled={searching || loading || !validDeparture}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>{!isOvernight ? hasResult ? "選んだスポットの交通経路を検索" : "この条件で旅程を提案する" : "旅のしおりを作る"} <span>↗</span></>}
             </button>
-            <p className="form-footnote">{isOvernight ? "宿泊プランの検索は外部APIを利用します。" : "日帰りの提案・編集はこの端末内で計算します。交通経路の検索ボタンを押すと、個人用APIで公共交通を確認します。"}</p>
+            <p className="form-footnote">{isOvernight ? "宿泊プランの検索は外部APIを利用します。" : "日帰りの提案・編集はこの端末内で計算します。交通経路の検索ボタンを押すと、外部APIで公共交通を確認します。"}</p>
           </form>
 
           {searching && <ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} />}

@@ -132,7 +132,6 @@ export function VenueEvidence({ place }: { place: Place }) {
       <p className="venue-evidence-footnote">押した施設だけ外部検索します · 検索・生成のAPI利用料金がかかる場合があります</p>
       {busy && <p className="venue-evidence-status" role="status">施設・支店を照合し、公開情報を探しています。</p>}
       {result && <p className="venue-evidence-status" role="status">{result.message}</p>}
-      {result?.status === "unconfigured" && <details className="venue-evidence-setup"><summary>ローカルで有効にする方法</summary><p><a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer">Google AI Studio</a>で個人用キーを取得し、<code>.local/personal-api.env</code> の末尾に <code>RECOMMENDATION_GEMINI_API_KEY=自分のキー</code> を追加して保存します。その後 <code>.local/start-app.ps1 -PersonalApi -Restart</code> で再起動してください。検索・生成の利用料金がかかる場合があります。</p></details>}
     </>}
     {error && <p className="venue-evidence-status is-error" role="alert">{error}</p>}
   </section>;

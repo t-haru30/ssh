@@ -4,11 +4,7 @@
 
 ## 構成
 
-共同サーバーへの接続を遮断したローカル環境での口コミ・公開情報の要約機能と、手本に対して残る差分は [推薦理由の根拠とローカル設定](docs/recommendation-evidence.md) を参照してください。
-
-訪問済み予定の保護、日帰り旅程のJSON保存・復元、駅名検索の操作は [ローカルの旅程編集](docs/local-journey-features.md) を参照してください。
-
-チームへの変更説明、最新mainの統合内容、Cloud Runへの反映と戻し方は [引き継ぎ資料](docs/team-handoff.md) にまとめています。
+旅程の編集・訪問記録・JSON保存・駅名検索は [日帰り旅程の操作](docs/day-trip-guide.md)、口コミ・公開情報のAI要約は [機能とサーバー設定](docs/recommendation-evidence.md) を参照してください。
 
 - `frontend/`: React、TypeScript、Vite、MapLibre GL JS
 - `backend/`: FastAPI。Yahoo! JAPAN APIによるPOI検索、駅すぱあとAPIによる経路検索
