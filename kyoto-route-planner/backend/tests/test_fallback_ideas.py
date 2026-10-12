@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
@@ -35,6 +36,11 @@ class FallbackIdeaTests(unittest.TestCase):
         self.assertGreaterEqual(len(ideas), 5)
         self.assertTrue(all(idea.prefecture_code == "26" for idea in ideas))
         self.assertTrue(all(idea.prefecture_name == "京都府" for idea in ideas))
+
+    def test_missing_dataset_returns_no_fallback_cards(self):
+        missing_path = Path(__file__).with_name("missing-fallback-dataset.json")
+        with self.assertLogs("app.fallback_ideas", level="ERROR"):
+            self.assertEqual(load_fallback_ideas(missing_path), [])
 
     def test_selection_filters_theme_and_does_not_repeat_cards(self):
         ideas = load_fallback_ideas()

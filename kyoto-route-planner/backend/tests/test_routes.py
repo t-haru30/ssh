@@ -103,6 +103,66 @@ class RoutePlannerTests(unittest.TestCase):
         self.search_places_patch.stop()
         self.fare_estimate_patch.stop()
 
+    def test_health_reports_missing_fallback_dataset(self):
+        with (
+            TestClient(app) as client,
+            patch("app.main.FALLBACK_DATASET_PATH") as dataset_path,
+        ):
+            dataset_path.is_file.return_value = False
+            response = client.get("/api/health")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "degraded")
+        self.assertEqual(response.json()["fallback_dataset"], "missing")
+
+    def test_route_timeline_accepts_zero_and_one_spot(self):
+        origin = Origin(name="京都駅", latitude=34.98585, longitude=135.75877)
+        empty_timeline = _build_route_timeline(origin, [], "09:00", 30)
+        single_timeline = _build_route_timeline(origin, sample_places()[:1], "09:00", 30)
+
+        self.assertEqual([item.role for item in empty_timeline if hasattr(item, "role")], ["start", "finish"])
+        self.assertEqual(
+            [item.role for item in single_timeline if hasattr(item, "role")],
+            ["start", "stop", "finish"],
+        )
+
+    def test_route_search_with_no_spots_returns_validation_response(self):
+        with (
+            TestClient(app) as client,
+            patch("app.main._route_candidates", new=AsyncMock(return_value=([], "empty"))),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "nature",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-12",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("スポット", response.json()["detail"])
+
+    def test_route_selection_deduplicates_duplicate_spot_ids(self):
+        candidates = sample_places()
+        duplicate = candidates[0].model_copy(update={"name": "重複データ"})
+        second_nature_spot = candidates[0].model_copy(
+            update={"id": "yahoo-unique-nature", "name": "別の自然公園"},
+        )
+
+        selected = choose_places(
+            "nature",
+            2,
+            "京都駅",
+            [candidates[0], duplicate, second_nature_spot],
+            origin_coordinates=(34.98585, 135.75877),
+        )
+
+        self.assertEqual(len(selected), 2)
+        self.assertEqual(len({place.id for place in selected}), 2)
+
     def test_route_generation_uses_yahoo_places(self):
         client = TestClient(app)
         yahoo_response = PlaceSearchResponse(
@@ -672,7 +732,11 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(
             client.get("/api/health").json(),
-            {"status": "ok", "route_timeline_version": "1"},
+            {
+                "status": "ok",
+                "fallback_dataset": "available",
+                "route_timeline_version": "1",
+            },
         )
         self.assertEqual(
             [origin["name"] for origin in client.get("/api/origins").json()],

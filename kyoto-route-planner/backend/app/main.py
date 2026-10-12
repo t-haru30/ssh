@@ -25,7 +25,7 @@ from app.ekispert import (
     find_nearest_train_station,
     search_route,
 )
-from app.fallback_ideas import load_fallback_ideas, select_fallback_ideas
+from app.fallback_ideas import FALLBACK_DATASET_PATH, load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
@@ -330,7 +330,12 @@ limiter = Limiter(
     storage_uri=RATE_LIMIT_STORAGE_URI,
     swallow_errors=False,
 )
-app = FastAPI(title="京都よりみちルート", version="1.0.0", lifespan=lifespan)
+app = FastAPI(
+    title="ConcierGO",
+    description="ConcierGO travel route planning API.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
@@ -478,8 +483,10 @@ async def _route_candidates(
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
+    fallback_dataset_exists = FALLBACK_DATASET_PATH.is_file()
     return {
-        "status": "ok",
+        "status": "ok" if fallback_dataset_exists else "degraded",
+        "fallback_dataset": "available" if fallback_dataset_exists else "missing",
         "route_timeline_version": str(ROUTE_TIMELINE_VERSION),
     }
 

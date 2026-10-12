@@ -107,6 +107,32 @@ describe("SearchMode nearby departures", () => {
     });
   });
 
+  it("shows an empty-route fallback and allows retrying the search", async () => {
+    const routeRequests = vi.fn();
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/routes")) {
+        routeRequests();
+        return { ok: true, json: async () => ({ routes: [] }) } as Response;
+      }
+      if (url.includes("/api/origins")) {
+        return { ok: true, json: async () => [{ name: "京都駅", latitude: 35, longitude: 135 }] } as Response;
+      }
+      if (url.includes("/api/places/status")) {
+        return { ok: true, json: async () => ({ warning: null, state: "success" }) } as Response;
+      }
+      return { ok: true, json: async () => [] } as Response;
+    }));
+
+    render(<SearchMode active />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /旅のしおりを作る/ }));
+    expect((await screen.findByRole("alert")).textContent).toContain("スポットが見つかりませんでした");
+
+    fireEvent.click(screen.getByRole("button", { name: "再試行" }));
+    await waitFor(() => expect(routeRequests).toHaveBeenCalledTimes(2));
+  });
+
   it("restores a saved route and form, then persists form changes", async () => {
       window.localStorage.setItem(SAVED_PLAN_STORAGE_KEY, JSON.stringify({
         suggestions: [savedRoute],

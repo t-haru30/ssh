@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, PointerEvent as ReactPointerEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
-import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, buildRouteTimeline, RouteTimeline, withRouteLegs } from "./RouteTimeline";
 import { toFriendlyMessage } from "./friendlyError";
 import { OVERNIGHT_STEPS, ProgressStatus, ROUTE_STEPS } from "./ProgressStatus";
@@ -63,7 +62,6 @@ function isSavedPlan(value: unknown): value is {
 } {
   return isRecord(value)
     && Array.isArray(value.suggestions)
-    && value.suggestions.length > 0
     && isRouteSuggestions({ routes: value.suggestions })
     && (value.overnightSuggestion === null || isOvernightItinerary(value.overnightSuggestion));
 }
@@ -145,8 +143,6 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [departureDate, setDepartureDate] = useState(localDateInputValue);
     const [departureTime, setDepartureTime] = useState("09:00");
   const [isOvernight, setIsOvernight] = useState(false);
-  const [showIdeaDeck, setShowIdeaDeck] = useState(false);
-  const [ideaMapPlaces, setIdeaMapPlaces] = useState<Place[]>([]);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>([]);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -161,6 +157,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [hasRestoredSavedState, setHasRestoredSavedState] = useState(false);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const routeSwipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
 
   useEffect(() => {
@@ -555,7 +552,11 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         }
 
         if (requestId === requestIdRef.current) {
-          setSuggestions(payload.routes);
+          if (payload.routes.length === 0) {
+            setError("スポットが見つかりませんでした。条件を変えて再試行してください。");
+          } else {
+            setSuggestions(payload.routes);
+          }
         }
       } catch (cause) {
         if (requestId !== requestIdRef.current) return;
@@ -611,7 +612,11 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
       if (requestId === requestIdRef.current) {
-        setSuggestions(payload.routes);
+        if (payload.routes.length === 0) {
+          setError("スポットが見つかりませんでした。条件を変えて再試行してください。");
+        } else {
+          setSuggestions(payload.routes);
+        }
         window.requestAnimationFrame(() => {
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
@@ -659,7 +664,11 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
       if (requestId === requestIdRef.current) {
-        setSuggestions(payload.routes);
+        if (payload.routes.length === 0) {
+          setError("スポットが見つかりませんでした。条件を変えて再試行してください。");
+        } else {
+          setSuggestions(payload.routes);
+        }
       }
     } catch (cause) {
       if (requestId !== requestIdRef.current) return;
@@ -708,7 +717,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">TICKET &amp; JOURNEY</p>
-          <h1>旅の一日を、<br /><em>よりみち</em>から。</h1>
+          <h1>旅の一日を、<br /><em>ConcierGO</em>から。</h1>
           <p className="hero-description">
             気分に合わせて行き先を選ぶと、駅すぱあとAPIが<br className="desktop-break" />
             公共交通のルートを検索します。
@@ -716,31 +725,6 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         </div>
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
       </section>
-
-      {!showIdeaDeck ? (
-        <button
-          className="swipe-launch-button"
-          type="button"
-          onClick={() => setShowIdeaDeck(true)}
-          disabled={loading || !origin}
-        >
-          <span aria-hidden="true">♡</span>
-          スワイプで寄り道を見つける
-          <small>経路検索の前に、気になるアイデアを選ぼう</small>
-        </button>
-      ) : origin ? (
-        <IdeaDeck
-          origin={origin}
-          departureDate={departureDate}
-          departureTime={departureTime}
-          onActivePlacesChange={setIdeaMapPlaces}
-          onItineraryChange={() => undefined}
-          onClose={() => {
-            setShowIdeaDeck(false);
-            setIdeaMapPlaces([]);
-          }}
-        />
-      ) : null}
 
       {suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
@@ -803,13 +787,13 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           </div>
 
           {!isOvernight && (
-            <button className="random-button random-button-primary" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
+            <button className="random-button random-button-primary nowrap" type="button" onClick={() => void handleRandomRoute()} disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> おまかせルートを探しています</> : <>今の気分でどこかへ行く <span>✳</span></>}
             </button>
           )}
 
 
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             {isOvernight && (
               <label className="mood-input">
                 <span>今日の気分</span>
@@ -864,7 +848,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
                     </optgroup>
                   </select>
                   <button
-                    className="location-button"
+                    className="location-button nowrap"
                     type="button"
                     onClick={handleUseCurrentLocation}
                     disabled={loading || searching || locating}
@@ -900,35 +884,42 @@ export function SearchMode({ active, preset }: SearchModeProps) {
               </details>
             </div>
 
-            <button className="submit-button" type="submit" disabled={searching || loading}>
+            <button className="submit-button nowrap" type="submit" disabled={searching || loading}>
               {searching ? <><span className="button-spinner" /> 実際の経路を検索しています</> : <>旅のしおりを作る <span>↗</span></>}
             </button>
             <p className="form-footnote">検索ボタンまたはおまかせボタンを押した時だけ、駅すぱあとAPIに問い合わせます。</p>
           </form>
 
           {searching && <ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} />}
-          {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
+          {error && (
+            <div className="error-panel" role="alert">
+              <strong>ルートを表示できません</strong>
+              <span>{error}</span>
+              <button
+                className="error-retry-button nowrap"
+                type="button"
+                onClick={() => formRef.current?.requestSubmit()}
+                disabled={searching || loading}
+              >
+                再試行
+              </button>
+            </div>
+          )}
           {placeSourceState === "loading" && <p className="status-message" role="status">Yahoo! Local Searchから候補地を読み込んでいます…</p>}
           {placeSourceWarning && <div className="error-panel" role="status"><strong>Yahoo! Local Searchの検索状況</strong><span>{placeSourceWarning}</span></div>}
-          {placeSourceState === "success" && !placeSourceWarning && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
+          {placeSourceState === "success" && !placeSourceWarning && places.length > 0 && <p className="status-message" role="status">Yahoo! Local Searchの候補地を表示しています。</p>}
+          {placeSourceState === "success" && places.length === 0 && (
+            <p className="status-message" role="status">スポットが見つかりませんでした。条件を変えて再試行してください。</p>
+          )}
         </section>
 
-        {!hasResult && showIdeaDeck && (
-          <section className="map-card" aria-label="京都の候補地マップ">
-            <div className="map-heading">
-              <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-              <span className="map-count">{ideaMapPlaces.length} SPOTS</span>
-            </div>
-            <LazyMapView places={ideaMapPlaces} origin={origin} />
-          </section>
-        )}
       </div>
 
       {hasResult && (
         <div className="timeline-area" ref={timelineAreaRef}>
           <section className="results-section" aria-live="polite">
             <div className="section-heading results-heading">
-              <div><p className="eyebrow">ROUTE IDEA</p><h2>今日のよりみちルート</h2></div>
+              <div><p className="eyebrow">ROUTE IDEA</p><h2>今日のConcierGOルート</h2></div>
               <span className="result-date">{departureDate}</span>
             </div>
             {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}

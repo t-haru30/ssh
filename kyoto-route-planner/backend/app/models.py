@@ -97,7 +97,7 @@ class RouteSuggestion(BaseModel):
     coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class RouteSuggestions(BaseModel):
-    routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
+    routes: list[RouteSuggestion] = Field(max_length=3)
 
 class RouteIdeaResponse(BaseModel):
     theme: Theme
