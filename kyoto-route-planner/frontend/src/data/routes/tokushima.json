@@ -1,20 +1,59 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:26.591597+00:00",
+  "generated_at": "2026-10-12T04:55:55.120939+00:00",
   "area": "tokushima",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-tokushima-01",
       "area": "tokushima",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "all",
-      "title": "徳島県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 171,
+      "title": "徳島県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 384,
+      "legs": [
+        {
+          "from": "徳島駅",
+          "to": "牟岐城跡",
+          "distance_km": 46.53,
+          "mode": "car",
+          "minutes": 104
+        },
+        {
+          "from": "牟岐城跡",
+          "to": "大里松原海岸",
+          "distance_km": 8.78,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "大里松原海岸",
+          "to": "海蔵寺",
+          "distance_km": 8.68,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "海蔵寺",
+          "to": "徳島駅",
+          "distance_km": 46.68,
+          "mode": "car",
+          "minutes": 105
+        }
+      ],
+      "start": {
+        "name": "徳島駅",
+        "lat": 34.0742,
+        "lng": 134.5517,
+        "to_first_km": 46.5,
+        "from_last_km": 46.7
+      },
       "total_score": 43.3,
       "center": [
-        33.615301,
-        134.364591
+        33.647958,
+        134.405301
       ],
       "spots": [
         {
@@ -38,11 +77,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-11828526720",
-          "name": "宍喰八幡神社",
+          "place_id": "osm-node-11860265455",
+          "name": "海蔵寺",
           "category": "観光名所",
-          "lat": 33.5698183,
-          "lng": 134.3029415,
+          "lat": 33.6677893,
+          "lng": 134.4250725,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -58,8 +97,8 @@
           134.3664783
         ],
         [
-          33.5698183,
-          134.3029415
+          33.6677893,
+          134.4250725
         ]
       ]
     },
@@ -67,9 +106,47 @@
       "id": "osm-tokushima-02",
       "area": "tokushima",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "徳島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 149,
+      "estimated_minutes": 168,
+      "legs": [
+        {
+          "from": "徳島駅",
+          "to": "徳島城跡",
+          "distance_km": 0.28,
+          "mode": "walk",
+          "minutes": 6
+        },
+        {
+          "from": "徳島城跡",
+          "to": "モラエス館",
+          "distance_km": 1.78,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "モラエス館",
+          "to": "徳島市天狗久資料館",
+          "distance_km": 4.18,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "徳島市天狗久資料館",
+          "to": "徳島駅",
+          "distance_km": 5.43,
+          "mode": "car",
+          "minutes": 13
+        }
+      ],
+      "start": {
+        "name": "徳島駅",
+        "lat": 34.0742,
+        "lng": 134.5517,
+        "to_first_km": 0.3,
+        "from_last_km": 5.4
+      },
       "total_score": 50.0,
       "center": [
         34.071482,
@@ -126,41 +203,79 @@
       "id": "osm-tokushima-03",
       "area": "tokushima",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "徳島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 176,
-      "total_score": 43.3,
+      "estimated_minutes": 192,
+      "legs": [
+        {
+          "from": "徳島駅",
+          "to": "徳島市立考古資料館",
+          "distance_km": 7.75,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "徳島市立考古資料館",
+          "to": "徳島県立博物館",
+          "distance_km": 5.73,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "徳島県立博物館",
+          "to": "阿波十郎兵衛屋敷",
+          "distance_km": 7.84,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "阿波十郎兵衛屋敷",
+          "to": "徳島駅",
+          "distance_km": 3.55,
+          "mode": "car",
+          "minutes": 8
+        }
+      ],
+      "start": {
+        "name": "徳島駅",
+        "lat": 34.0742,
+        "lng": 134.5517,
+        "to_first_km": 7.7,
+        "from_last_km": 3.5
+      },
+      "total_score": 50.0,
       "center": [
-        33.949875,
-        133.781013
+        34.064023,
+        134.526425
       ],
       "spots": [
         {
-          "place_id": "osm-node-1423657546",
-          "name": "平家屋敷民俗資料館",
+          "place_id": "osm-node-1423658101",
+          "name": "徳島市立考古資料館",
           "category": "博物館",
-          "lat": 33.8827888,
-          "lng": 133.7808864,
+          "lat": 34.060711,
+          "lng": 134.469186,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-13329557501",
-          "name": "Oboke Village Viewpoint",
-          "category": "展望地",
-          "lat": 33.9373687,
-          "lng": 133.7531605,
+          "place_id": "osm-node-1423658173",
+          "name": "徳島県立博物館",
+          "category": "博物館",
+          "lat": 34.039859,
+          "lng": 134.5260421,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423661439",
-          "name": "阿波池田うだつの家・阿波池田たばこ資料館",
+          "place_id": "osm-node-266977554",
+          "name": "阿波十郎兵衛屋敷",
           "category": "博物館",
-          "lat": 34.0294665,
-          "lng": 133.8089918,
+          "lat": 34.0914976,
+          "lng": 134.5840471,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -168,16 +283,16 @@
       ],
       "coordinates": [
         [
-          33.8827888,
-          133.7808864
+          34.060711,
+          134.469186
         ],
         [
-          33.9373687,
-          133.7531605
+          34.039859,
+          134.5260421
         ],
         [
-          34.0294665,
-          133.8089918
+          34.0914976,
+          134.5840471
         ]
       ]
     },
@@ -185,9 +300,61 @@
       "id": "osm-tokushima-04",
       "area": "tokushima",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "徳島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 294,
+      "estimated_minutes": 391,
+      "legs": [
+        {
+          "from": "徳島駅",
+          "to": "千福寺",
+          "distance_km": 22.0,
+          "mode": "car",
+          "minutes": 50
+        },
+        {
+          "from": "千福寺",
+          "to": "第22番札所 平等寺",
+          "distance_km": 10.04,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "第22番札所 平等寺",
+          "to": "大菩薩峠",
+          "distance_km": 4.01,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "大菩薩峠",
+          "to": "津峯神社",
+          "distance_km": 5.14,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "津峯神社",
+          "to": "皇子神社",
+          "distance_km": 4.18,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "皇子神社",
+          "to": "徳島駅",
+          "distance_km": 20.91,
+          "mode": "car",
+          "minutes": 47
+        }
+      ],
+      "start": {
+        "name": "徳島駅",
+        "lat": 34.0742,
+        "lng": 134.5517,
+        "to_first_km": 22.0,
+        "from_last_km": 20.9
+      },
       "total_score": 42.0,
       "center": [
         33.883903,
@@ -272,9 +439,61 @@
       "id": "osm-tokushima-05",
       "area": "tokushima",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "nature",
       "title": "徳島県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 305,
+      "estimated_minutes": 427,
+      "legs": [
+        {
+          "from": "徳島駅",
+          "to": "潮吹休憩所",
+          "distance_km": 32.83,
+          "mode": "car",
+          "minutes": 74
+        },
+        {
+          "from": "潮吹休憩所",
+          "to": "たちばな観音",
+          "distance_km": 10.64,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "たちばな観音",
+          "to": "大菩薩峠",
+          "distance_km": 3.18,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "大菩薩峠",
+          "to": "橘湾展望地",
+          "distance_km": 3.19,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "橘湾展望地",
+          "to": "第21番札所 太龍寺",
+          "distance_km": 10.83,
+          "mode": "car",
+          "minutes": 25
+        },
+        {
+          "from": "第21番札所 太龍寺",
+          "to": "徳島駅",
+          "distance_km": 21.49,
+          "mode": "car",
+          "minutes": 48
+        }
+      ],
+      "start": {
+        "name": "徳島駅",
+        "lat": 34.0742,
+        "lng": 134.5517,
+        "to_first_km": 32.8,
+        "from_last_km": 21.5
+      },
       "total_score": 36.0,
       "center": [
         33.854379,

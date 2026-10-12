@@ -8,7 +8,7 @@
 
 訪問済み予定の保護、日帰り旅程のJSON保存・復元、駅名検索の操作は [ローカルの旅程編集](docs/local-journey-features.md) を参照してください。
 
-チームへの変更説明、最新mainとの未統合部分、Cloud Runへの反映と戻し方は [引き継ぎ資料](docs/team-handoff.md) にまとめています。
+チームへの変更説明、最新mainの統合内容、Cloud Runへの反映と戻し方は [引き継ぎ資料](docs/team-handoff.md) にまとめています。
 
 - `frontend/`: React、TypeScript、Vite、MapLibre GL JS
 - `backend/`: FastAPI。Yahoo! JAPAN APIによるPOI検索、駅すぱあとAPIによる経路検索

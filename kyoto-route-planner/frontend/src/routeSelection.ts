@@ -13,7 +13,8 @@ export function routeSelection(route: DatasetRoute | RouteIdea): SearchPreset {
     ? prefectureIndex.prefectures.find(item => item.id === route.area)
     : prefectureIndex.prefectures.find(item => item.prefecture_code === route.prefecture_code);
   const center = "center" in route ? route.center : entry?.center ?? [places[0].latitude, places[0].longitude];
-  const origin: Origin = "places" in route && route.origin ? route.origin : entry?.id === "kyoto"
+  const origin: Origin = "spots" in route ? { name: route.start.name, latitude: route.start.lat, longitude: route.start.lng }
+    : route.origin ? route.origin : entry?.id === "kyoto"
     ? { name: "京都駅", latitude: 34.98585, longitude: 135.75877 }
     : { name: `${entry?.name ?? ("prefecture_name" in route ? route.prefecture_name : undefined) ?? "選んだ地域"}・エリア中心`, latitude: center[0], longitude: center[1] };
   return { theme: route.theme, stopCount: places.length, nonce: Date.now(), places, origin, title: route.title,

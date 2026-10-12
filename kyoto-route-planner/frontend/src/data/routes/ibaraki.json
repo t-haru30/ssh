@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:24.813553+00:00",
+  "generated_at": "2026-10-12T04:55:30.570997+00:00",
   "area": "ibaraki",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-ibaraki-01",
       "area": "ibaraki",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "茨城県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 171,
+      "estimated_minutes": 290,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "松倉山大聖院清水寺",
+          "distance_km": 23.77,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "松倉山大聖院清水寺",
+          "to": "御岩神社",
+          "distance_km": 7.28,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "御岩神社",
+          "to": "日立シビックセンター科学館",
+          "distance_km": 8.35,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "日立シビックセンター科学館",
+          "to": "水戸駅",
+          "distance_km": 29.36,
+          "mode": "car",
+          "minutes": 66
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 23.8,
+        "from_last_km": 29.4
+      },
       "total_score": 48.3,
       "center": [
         36.600581,
@@ -67,68 +106,47 @@
       "id": "osm-ibaraki-02",
       "area": "ibaraki",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "茨城県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 187,
-      "total_score": 43.3,
-      "center": [
-        36.004209,
-        139.955571
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1166402855",
-          "name": "茨城自然博物館",
-          "category": "博物館",
-          "lat": 36.0052666,
-          "lng": 139.9162248,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2722750108",
-          "name": "八坂神社",
-          "category": "観光名所",
-          "lat": 35.9466933,
-          "lng": 139.997808,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4936514405",
-          "name": "大生郷天満宮",
-          "category": "観光名所",
-          "lat": 36.0606685,
-          "lng": 139.9526789,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          36.0052666,
-          139.9162248
-        ],
-        [
-          35.9466933,
-          139.997808
-        ],
-        [
-          36.0606685,
-          139.9526789
-        ]
-      ]
-    },
-    {
-      "id": "osm-ibaraki-03",
-      "area": "ibaraki",
-      "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "茨城県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 180,
+      "estimated_minutes": 299,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "真壁城",
+          "distance_km": 34.55,
+          "mode": "car",
+          "minutes": 77
+        },
+        {
+          "from": "真壁城",
+          "to": "石切山脈",
+          "distance_km": 14.02,
+          "mode": "car",
+          "minutes": 32
+        },
+        {
+          "from": "石切山脈",
+          "to": "笠間城",
+          "distance_km": 5.63,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "笠間城",
+          "to": "水戸駅",
+          "distance_km": 18.75,
+          "mode": "car",
+          "minutes": 42
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 34.5,
+        "from_last_km": 18.8
+      },
       "total_score": 50.0,
       "center": [
         36.344178,
@@ -182,12 +200,161 @@
       ]
     },
     {
+      "id": "osm-ibaraki-03",
+      "area": "ibaraki",
+      "pattern": "half_day",
+      "course": "full_day",
+      "theme": "history",
+      "title": "茨城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 388,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "土浦城",
+          "distance_km": 40.43,
+          "mode": "car",
+          "minutes": 91
+        },
+        {
+          "from": "土浦城",
+          "to": "牛久大仏",
+          "distance_km": 11.55,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "牛久大仏",
+          "to": "茨城県つくば美術館",
+          "distance_km": 14.95,
+          "mode": "car",
+          "minutes": 34
+        },
+        {
+          "from": "茨城県つくば美術館",
+          "to": "水戸駅",
+          "distance_km": 45.62,
+          "mode": "car",
+          "minutes": 102
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 40.4,
+        "from_last_km": 45.6
+      },
+      "total_score": 50.0,
+      "center": [
+        36.050808,
+        140.176887
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2501459454",
+          "name": "土浦城",
+          "category": "史跡",
+          "lat": 36.0849706,
+          "lng": 140.1982903,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-332552286",
+          "name": "牛久大仏",
+          "category": "史跡",
+          "lat": 35.9826452,
+          "lng": 140.2202483,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5470739382",
+          "name": "茨城県つくば美術館",
+          "category": "博物館",
+          "lat": 36.0848074,
+          "lng": 140.1121226,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0849706,
+          140.1982903
+        ],
+        [
+          35.9826452,
+          140.2202483
+        ],
+        [
+          36.0848074,
+          140.1121226
+        ]
+      ]
+    },
+    {
       "id": "osm-ibaraki-04",
       "area": "ibaraki",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "茨城県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 270,
+      "estimated_minutes": 499,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "根本寺",
+          "distance_km": 46.86,
+          "mode": "car",
+          "minutes": 105
+        },
+        {
+          "from": "根本寺",
+          "to": "鹿島神宮",
+          "distance_km": 1.1,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "鹿島神宮",
+          "to": "サイゼリヤ",
+          "distance_km": 1.21,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "鹿島神宮",
+          "distance_km": 1.32,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "鹿島神宮",
+          "to": "息栖神社",
+          "distance_km": 9.18,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "息栖神社",
+          "to": "水戸駅",
+          "distance_km": 55.59,
+          "mode": "car",
+          "minutes": 124
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 46.9,
+        "from_last_km": 55.6
+      },
       "total_score": 38.0,
       "center": [
         35.950199,
@@ -272,9 +439,61 @@
       "id": "osm-ibaraki-05",
       "area": "ibaraki",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "茨城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 301,
+      "estimated_minutes": 490,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "坂戸神社",
+          "distance_km": 44.78,
+          "mode": "car",
+          "minutes": 100
+        },
+        {
+          "from": "坂戸神社",
+          "to": "神栖民俗資料館",
+          "distance_km": 10.02,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "神栖民俗資料館",
+          "to": "サイゼリヤ",
+          "distance_km": 7.26,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "剣聖塚原卜傳先生像",
+          "distance_km": 1.65,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "剣聖塚原卜傳先生像",
+          "to": "郷土資料館",
+          "distance_km": 7.29,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "郷土資料館",
+          "to": "水戸駅",
+          "distance_km": 39.82,
+          "mode": "car",
+          "minutes": 89
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 44.8,
+        "from_last_km": 39.8
+      },
       "total_score": 32.0,
       "center": [
         35.969777,

@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:49.302550+00:00",
+  "generated_at": "2026-10-12T04:56:02.126924+00:00",
   "area": "okinawa",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-okinawa-01",
       "area": "okinawa",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 156,
+      "estimated_minutes": 175,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "沖縄県立第二高等女学校跡;白梅の乙女たち",
+          "distance_km": 0.68,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "沖縄県立第二高等女学校跡;白梅の乙女たち",
+          "to": "首里城",
+          "distance_km": 4.27,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "首里城",
+          "to": "豊見城グスク",
+          "distance_km": 4.61,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "豊見城グスク",
+          "to": "旭橋駅",
+          "distance_km": 2.64,
+          "mode": "car",
+          "minutes": 6
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 0.7,
+        "from_last_km": 2.6
+      },
       "total_score": 50.0,
       "center": [
         26.208168,
@@ -67,9 +106,47 @@
       "id": "osm-okinawa-02",
       "area": "okinawa",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 147,
+      "estimated_minutes": 222,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "北谷町立博物館",
+          "distance_km": 15.01,
+          "mode": "car",
+          "minutes": 34
+        },
+        {
+          "from": "北谷町立博物館",
+          "to": "沖縄市戦後文化資料展示室 ヒストリート",
+          "distance_km": 4.04,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "沖縄市戦後文化資料展示室 ヒストリート",
+          "to": "沖縄こどもの国",
+          "distance_km": 1.23,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "沖縄こどもの国",
+          "to": "旭橋駅",
+          "distance_km": 18.14,
+          "mode": "car",
+          "minutes": 41
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 15.0,
+        "from_last_km": 18.1
+      },
       "total_score": 46.7,
       "center": [
         26.329566,
@@ -126,9 +203,47 @@
       "id": "osm-okinawa-03",
       "area": "okinawa",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "nature",
       "title": "沖縄県の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 164,
+      "estimated_minutes": 294,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "谷茶前の碑",
+          "distance_km": 31.98,
+          "mode": "car",
+          "minutes": 72
+        },
+        {
+          "from": "谷茶前の碑",
+          "to": "仲泊遺跡第三貝塚",
+          "distance_km": 4.71,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "仲泊遺跡第三貝塚",
+          "to": "残波岬",
+          "distance_km": 7.96,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "残波岬",
+          "to": "旭橋駅",
+          "distance_km": 25.68,
+          "mode": "car",
+          "minutes": 58
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 32.0,
+        "from_last_km": 25.7
+      },
       "total_score": 43.3,
       "center": [
         26.447717,
@@ -185,9 +300,61 @@
       "id": "osm-okinawa-04",
       "area": "okinawa",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 267,
+      "estimated_minutes": 298,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "玉城朝薫の墓",
+          "distance_km": 6.14,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "玉城朝薫の墓",
+          "to": "浦添市美術館",
+          "distance_km": 1.7,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "浦添市美術館",
+          "to": "スターバックス",
+          "distance_km": 6.12,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "スターバックス",
+          "to": "琉球新報 新聞博物館",
+          "distance_km": 2.71,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "琉球新報 新聞博物館",
+          "to": "天久宮",
+          "distance_km": 0.73,
+          "mode": "walk",
+          "minutes": 14
+        },
+        {
+          "from": "天久宮",
+          "to": "旭橋駅",
+          "distance_km": 1.96,
+          "mode": "car",
+          "minutes": 5
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 6.1,
+        "from_last_km": 2.0
+      },
       "total_score": 42.0,
       "center": [
         26.232395,
@@ -272,9 +439,61 @@
       "id": "osm-okinawa-05",
       "area": "okinawa",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "沖縄県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 265,
+      "estimated_minutes": 283,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "出雲大社 沖縄分社",
+          "distance_km": 3.46,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "出雲大社 沖縄分社",
+          "to": "臨海寺",
+          "distance_km": 2.32,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "臨海寺",
+          "to": "スターバックス",
+          "distance_km": 3.09,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "スターバックス",
+          "to": "不屈館",
+          "distance_km": 1.25,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "不屈館",
+          "to": "末吉宮",
+          "distance_km": 4.02,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "末吉宮",
+          "to": "旭橋駅",
+          "distance_km": 4.35,
+          "mode": "car",
+          "minutes": 10
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 3.5,
+        "from_last_km": 4.4
+      },
       "total_score": 40.0,
       "center": [
         26.226358,

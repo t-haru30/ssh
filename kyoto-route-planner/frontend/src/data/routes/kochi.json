@@ -1,75 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:32.721324+00:00",
+  "generated_at": "2026-10-12T04:55:56.846734+00:00",
   "area": "kochi",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-kochi-01",
       "area": "kochi",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "高知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
-      "total_score": 46.7,
-      "center": [
-        33.174746,
-        133.073019
-      ],
-      "spots": [
+      "estimated_minutes": 249,
+      "legs": [
         {
-          "place_id": "osm-node-10814207005",
-          "name": "海洋堂かっぱ館",
-          "category": "博物館",
-          "lat": 33.1625581,
-          "lng": 133.0380991,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "高知駅",
+          "to": "佐川町立青山文庫",
+          "distance_km": 24.86,
+          "mode": "car",
+          "minutes": 56
         },
         {
-          "place_id": "osm-node-1746665094",
-          "name": "海洋堂ホビー館四万十",
-          "category": "博物館",
-          "lat": 33.1530096,
-          "lng": 133.0449105,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "佐川町立青山文庫",
+          "to": "第35番札所 清滝寺",
+          "distance_km": 11.32,
+          "mode": "car",
+          "minutes": 26
         },
         {
-          "place_id": "osm-node-12190170104",
-          "name": "旧都築半平邸",
-          "category": "観光名所",
-          "lat": 33.2086704,
-          "lng": 133.1360471,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "第35番札所 清滝寺",
+          "to": "土佐山内家宝物資料館",
+          "distance_km": 12.25,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "土佐山内家宝物資料館",
+          "to": "高知駅",
+          "distance_km": 1.77,
+          "mode": "car",
+          "minutes": 4
         }
       ],
-      "coordinates": [
-        [
-          33.1625581,
-          133.0380991
-        ],
-        [
-          33.1530096,
-          133.0449105
-        ],
-        [
-          33.2086704,
-          133.1360471
-        ]
-      ]
-    },
-    {
-      "id": "osm-kochi-02",
-      "area": "kochi",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "高知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 189,
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 24.9,
+        "from_last_km": 1.8
+      },
       "total_score": 46.7,
       "center": [
         33.521876,
@@ -123,12 +103,50 @@
       ]
     },
     {
-      "id": "osm-kochi-03",
+      "id": "osm-kochi-02",
       "area": "kochi",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "高知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 185,
+      "title": "高知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 312,
+      "legs": [
+        {
+          "from": "高知駅",
+          "to": "香美市立やなせたかし記念館・アンパンマンミュージアム",
+          "distance_km": 23.93,
+          "mode": "car",
+          "minutes": 54
+        },
+        {
+          "from": "香美市立やなせたかし記念館・アンパンマンミュージアム",
+          "to": "香美市立吉井勇記念館",
+          "distance_km": 9.39,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "香美市立吉井勇記念館",
+          "to": "定福寺",
+          "distance_km": 12.57,
+          "mode": "car",
+          "minutes": 29
+        },
+        {
+          "from": "定福寺",
+          "to": "高知駅",
+          "distance_km": 32.64,
+          "mode": "car",
+          "minutes": 73
+        }
+      ],
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 23.9,
+        "from_last_km": 32.6
+      },
       "total_score": 46.7,
       "center": [
         33.715635,
@@ -182,64 +200,82 @@
       ]
     },
     {
-      "id": "osm-kochi-04",
+      "id": "osm-kochi-03",
       "area": "kochi",
-      "pattern": "full_day",
-      "theme": "nature",
-      "title": "高知県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 280,
-      "total_score": 34.0,
+      "pattern": "half_day",
+      "course": "full_day",
+      "theme": "history",
+      "title": "高知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 429,
+      "legs": [
+        {
+          "from": "高知駅",
+          "to": "道の駅ゆすはら",
+          "distance_km": 58.97,
+          "mode": "car",
+          "minutes": 132
+        },
+        {
+          "from": "道の駅ゆすはら",
+          "to": "四万十川源流之碑",
+          "distance_km": 13.2,
+          "mode": "car",
+          "minutes": 30
+        },
+        {
+          "from": "四万十川源流之碑",
+          "to": "吉村虎太郎像",
+          "distance_km": 6.82,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "吉村虎太郎像",
+          "to": "高知駅",
+          "distance_km": 51.79,
+          "mode": "car",
+          "minutes": 116
+        }
+      ],
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 59.0,
+        "from_last_km": 51.8
+      },
+      "total_score": 36.7,
       "center": [
-        32.937853,
-        132.716909
+        33.408,
+        133.014211
       ],
       "spots": [
         {
-          "place_id": "osm-node-1423734251",
-          "name": "宿毛市立宿毛歴史館",
-          "category": "博物館",
-          "lat": 32.938777,
-          "lng": 132.730371,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4434097289",
-          "name": "第39番札所 延光寺",
-          "category": "観光名所",
-          "lat": 32.9613141,
-          "lng": 132.7740727,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10179718977",
-          "name": "宿毛の海鮮小屋",
-          "category": "飲食店",
-          "lat": 32.9286608,
-          "lng": 132.7136202,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-10251688490",
-          "name": "元気盛森展望台",
+          "place_id": "osm-node-8179662717",
+          "name": "道の駅ゆすはら",
           "category": "展望地",
-          "lat": 32.9170198,
-          "lng": 132.6898128,
+          "lat": 33.3882422,
+          "lng": 132.9451612,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4176351612",
+          "name": "四万十川源流之碑",
+          "category": "史跡",
+          "lat": 33.4414352,
+          "lng": 133.0723001,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10858037378",
-          "name": "茶偓跡",
-          "category": "展望地",
-          "lat": 32.9434934,
-          "lng": 132.6766667,
+          "place_id": "osm-node-5447130632",
+          "name": "吉村虎太郎像",
+          "category": "史跡",
+          "lat": 33.3943212,
+          "lng": 133.0251708,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -247,24 +283,155 @@
       ],
       "coordinates": [
         [
-          32.938777,
-          132.730371
+          33.3882422,
+          132.9451612
         ],
         [
-          32.9613141,
-          132.7740727
+          33.4414352,
+          133.0723001
         ],
         [
-          32.9286608,
-          132.7136202
+          33.3943212,
+          133.0251708
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-04",
+      "area": "kochi",
+      "pattern": "full_day",
+      "course": "full_day",
+      "theme": "all",
+      "title": "高知県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 453,
+      "legs": [
+        {
+          "from": "高知駅",
+          "to": "ひょうたん桜",
+          "distance_km": 34.74,
+          "mode": "car",
+          "minutes": 78
+        },
+        {
+          "from": "ひょうたん桜",
+          "to": "鎌井田放水口",
+          "distance_km": 6.5,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "鎌井田放水口",
+          "to": "CAFE and BEEFかる。",
+          "distance_km": 7.56,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "CAFE and BEEFかる。",
+          "to": "中津渓谷",
+          "distance_km": 6.21,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "中津渓谷",
+          "to": "安徳天皇陵参考地",
+          "distance_km": 7.22,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "安徳天皇陵参考地",
+          "to": "高知駅",
+          "distance_km": 31.9,
+          "mode": "car",
+          "minutes": 72
+        }
+      ],
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 34.7,
+        "from_last_km": 31.9
+      },
+      "total_score": 24.0,
+      "center": [
+        33.572307,
+        133.180901
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13707028101",
+          "name": "ひょうたん桜",
+          "category": "観光名所",
+          "lat": 33.5880575,
+          "lng": 133.1694126,
+          "stay_minutes": 45,
+          "score": 20.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3920902041",
+          "name": "鎌井田放水口",
+          "category": "観光名所",
+          "lat": 33.5697281,
+          "lng": 133.2360735,
+          "stay_minutes": 45,
+          "score": 20.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10110831067",
+          "name": "CAFE and BEEFかる。",
+          "category": "飲食店",
+          "lat": 33.6069803,
+          "lng": 133.1678247,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-5537378623",
+          "name": "中津渓谷",
+          "category": "観光名所",
+          "lat": 33.5609988,
+          "lng": 133.1297313,
+          "stay_minutes": 45,
+          "score": 20.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3920902037",
+          "name": "安徳天皇陵参考地",
+          "category": "史跡",
+          "lat": 33.5357687,
+          "lng": 133.2014633,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.5880575,
+          133.1694126
         ],
         [
-          32.9170198,
-          132.6898128
+          33.5697281,
+          133.2360735
         ],
         [
-          32.9434934,
-          132.6766667
+          33.6069803,
+          133.1678247
+        ],
+        [
+          33.5609988,
+          133.1297313
+        ],
+        [
+          33.5357687,
+          133.2014633
         ]
       ]
     },
@@ -272,9 +439,61 @@
       "id": "osm-kochi-05",
       "area": "kochi",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "高知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 270,
+      "estimated_minutes": 308,
+      "legs": [
+        {
+          "from": "高知駅",
+          "to": "中山高陽先生誕生地碑",
+          "distance_km": 0.91,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "中山高陽先生誕生地碑",
+          "to": "槇村浩生誕の地碑",
+          "distance_km": 0.5,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "槇村浩生誕の地碑",
+          "to": "銀龍閣",
+          "distance_km": 2.41,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "銀龍閣",
+          "to": "高知市立龍馬の生まれたまち記念館",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "高知市立龍馬の生まれたまち記念館",
+          "to": "第32番札所 禅師峰寺",
+          "distance_km": 8.7,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "第32番札所 禅師峰寺",
+          "to": "高知駅",
+          "distance_km": 7.75,
+          "mode": "car",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 0.9,
+        "from_last_km": 7.7
+      },
       "total_score": 38.0,
       "center": [
         33.552625,

@@ -23,9 +23,12 @@ const route: DatasetRoute = {
   id: "kyoto-route",
   area: "京都",
   pattern: "half_day",
+  course: "half_day",
   theme: "temple",
   title: "寺院と庭園を巡る",
   estimated_minutes: 150,
+  legs: [],
+  start: { name: "京都駅", lat: 34.985849, lng: 135.758766, to_first_km: 1, from_last_km: 1 },
   total_score: 10,
   center: [135.76, 35.0],
   spots: [{

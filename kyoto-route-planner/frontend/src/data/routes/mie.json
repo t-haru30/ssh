@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:00.209403+00:00",
+  "generated_at": "2026-10-12T04:55:45.256810+00:00",
   "area": "mie",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-mie-01",
       "area": "mie",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "三重県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
+      "title": "三重県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 380,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "横山展望台",
+          "distance_km": 51.95,
+          "mode": "car",
+          "minutes": 116
+        },
+        {
+          "from": "横山展望台",
+          "to": "伊勢現代美術館",
+          "distance_km": 9.78,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "伊勢現代美術館",
+          "to": "愛洲の館",
+          "distance_km": 1.85,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "愛洲の館",
+          "to": "津駅",
+          "distance_km": 45.62,
+          "mode": "car",
+          "minutes": 102
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 52.0,
+        "from_last_km": 45.6
+      },
       "total_score": 43.3,
       "center": [
         34.342583,
@@ -67,9 +106,47 @@
       "id": "osm-mie-02",
       "area": "mie",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "三重県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 196,
+      "title": "三重県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 328,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "パラミタミュージアム",
+          "distance_km": 31.05,
+          "mode": "car",
+          "minutes": 70
+        },
+        {
+          "from": "パラミタミュージアム",
+          "to": "庄野宿資料館",
+          "distance_km": 14.62,
+          "mode": "car",
+          "minutes": 33
+        },
+        {
+          "from": "庄野宿資料館",
+          "to": "澄懐堂美術館",
+          "distance_km": 12.31,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "澄懐堂美術館",
+          "to": "津駅",
+          "distance_km": 27.53,
+          "mode": "car",
+          "minutes": 62
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 31.1,
+        "from_last_km": 27.5
+      },
       "total_score": 50.0,
       "center": [
         34.954202,
@@ -126,9 +203,47 @@
       "id": "osm-mie-03",
       "area": "mie",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "三重県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 157,
+      "estimated_minutes": 194,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "松浦武四郎記念館",
+          "distance_km": 10.16,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "松浦武四郎記念館",
+          "to": "津城",
+          "distance_km": 8.31,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "津城",
+          "to": "四天王寺",
+          "distance_km": 1.18,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "四天王寺",
+          "to": "津駅",
+          "distance_km": 0.7,
+          "mode": "walk",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 10.2,
+        "from_last_km": 0.7
+      },
       "total_score": 46.7,
       "center": [
         34.695884,
@@ -185,9 +300,61 @@
       "id": "osm-mie-04",
       "area": "mie",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "三重県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 276,
+      "estimated_minutes": 414,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "伊勢河崎商人館",
+          "distance_km": 32.47,
+          "mode": "car",
+          "minutes": 73
+        },
+        {
+          "from": "伊勢河崎商人館",
+          "to": "式年遷宮記念神宮美術館",
+          "distance_km": 1.27,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "式年遷宮記念神宮美術館",
+          "to": "マクドナルド",
+          "distance_km": 2.33,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "マクドナルド",
+          "to": "皇學館大学佐川記念神道博物館",
+          "distance_km": 2.62,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "皇學館大学佐川記念神道博物館",
+          "to": "田丸城跡",
+          "distance_km": 9.01,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "田丸城跡",
+          "to": "津駅",
+          "distance_km": 29.13,
+          "mode": "car",
+          "minutes": 65
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 32.5,
+        "from_last_km": 29.1
+      },
       "total_score": 46.0,
       "center": [
         34.493175,
@@ -272,9 +439,61 @@
       "id": "osm-mie-05",
       "area": "mie",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "三重県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 295,
+      "estimated_minutes": 456,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "光明寺",
+          "distance_km": 33.18,
+          "mode": "car",
+          "minutes": 74
+        },
+        {
+          "from": "光明寺",
+          "to": "太江寺",
+          "distance_km": 7.07,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "太江寺",
+          "to": "マクドナルド",
+          "distance_km": 6.2,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "マクドナルド",
+          "to": "倭姬宮",
+          "distance_km": 2.49,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "倭姬宮",
+          "to": "マコンデ美術館",
+          "distance_km": 8.12,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "マコンデ美術館",
+          "to": "津駅",
+          "distance_km": 38.63,
+          "mode": "car",
+          "minutes": 87
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 33.2,
+        "from_last_km": 38.6
+      },
       "total_score": 42.0,
       "center": [
         34.495444,

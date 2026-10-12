@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:07.843512+00:00",
+  "generated_at": "2026-10-12T04:55:48.469246+00:00",
   "area": "osaka",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-osaka-01",
       "area": "osaka",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "大阪府の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 153,
+      "estimated_minutes": 195,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "清水寺",
+          "distance_km": 5.42,
+          "mode": "public_transport",
+          "minutes": 25
+        },
+        {
+          "from": "清水寺",
+          "to": "有栖山 清水寺",
+          "distance_km": 0.11,
+          "mode": "walk",
+          "minutes": 3
+        },
+        {
+          "from": "有栖山 清水寺",
+          "to": "大阪城天守閣",
+          "distance_km": 3.74,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "大阪城天守閣",
+          "to": "大阪駅",
+          "distance_km": 3.21,
+          "mode": "public_transport",
+          "minutes": 15
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 5.4,
+        "from_last_km": 3.2
+      },
       "total_score": 66.7,
       "center": [
         34.666222,
@@ -67,9 +106,47 @@
       "id": "osm-osaka-02",
       "area": "osaka",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "nature",
       "title": "大阪府の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 176,
+      "estimated_minutes": 213,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "伏見稲荷大社 摂津淡路稲荷教会",
+          "distance_km": 4.86,
+          "mode": "public_transport",
+          "minutes": 22
+        },
+        {
+          "from": "伏見稲荷大社 摂津淡路稲荷教会",
+          "to": "キッズプラザ大阪",
+          "distance_km": 4.36,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "キッズプラザ大阪",
+          "to": "ミザック下水道科学館OSAKA",
+          "distance_km": 4.54,
+          "mode": "public_transport",
+          "minutes": 21
+        },
+        {
+          "from": "ミザック下水道科学館OSAKA",
+          "to": "大阪駅",
+          "distance_km": 3.22,
+          "mode": "public_transport",
+          "minutes": 15
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 4.9,
+        "from_last_km": 3.2
+      },
       "total_score": 55.0,
       "center": [
         34.713873,
@@ -126,9 +203,47 @@
       "id": "osm-osaka-03",
       "area": "osaka",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "大阪府の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 158,
+      "title": "大阪府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 314,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "舊丹南藩主高木主水正陣屋址碑",
+          "distance_km": 16.88,
+          "mode": "public_transport",
+          "minutes": 76
+        },
+        {
+          "from": "舊丹南藩主高木主水正陣屋址碑",
+          "to": "埴生坂本陵",
+          "distance_km": 3.85,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "埴生坂本陵",
+          "to": "アイセルシュラホール",
+          "distance_km": 1.02,
+          "mode": "public_transport",
+          "minutes": 5
+        },
+        {
+          "from": "アイセルシュラホール",
+          "to": "大阪駅",
+          "distance_km": 17.77,
+          "mode": "public_transport",
+          "minutes": 80
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 16.9,
+        "from_last_km": 17.8
+      },
       "total_score": 50.0,
       "center": [
         34.560603,
@@ -185,9 +300,61 @@
       "id": "osm-osaka-04",
       "area": "osaka",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "大阪府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 298,
+      "estimated_minutes": 322,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "大阪府立 上方演芸資料館",
+          "distance_km": 4.26,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "大阪府立 上方演芸資料館",
+          "to": "湯木美術館",
+          "distance_km": 2.55,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "湯木美術館",
+          "to": "銀のさら",
+          "distance_km": 2.53,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "銀のさら",
+          "to": "造幣博物館",
+          "distance_km": 4.02,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "造幣博物館",
+          "to": "南蛮文化館",
+          "distance_km": 3.11,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "南蛮文化館",
+          "to": "大阪駅",
+          "distance_km": 0.86,
+          "mode": "public_transport",
+          "minutes": 4
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 4.3,
+        "from_last_km": 0.9
+      },
       "total_score": 50.0,
       "center": [
         34.691188,
@@ -272,9 +439,61 @@
       "id": "osm-osaka-05",
       "area": "osaka",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "大阪府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 288,
+      "estimated_minutes": 305,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "大阪くらしの今昔館",
+          "distance_km": 1.67,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "大阪くらしの今昔館",
+          "to": "大阪歴史博物館",
+          "distance_km": 3.21,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "大阪歴史博物館",
+          "to": "銀のさら",
+          "distance_km": 4.3,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "銀のさら",
+          "to": "蛸の松",
+          "distance_km": 1.28,
+          "mode": "public_transport",
+          "minutes": 6
+        },
+        {
+          "from": "蛸の松",
+          "to": "くすりの道修町資料館",
+          "distance_km": 1.51,
+          "mode": "public_transport",
+          "minutes": 7
+        },
+        {
+          "from": "くすりの道修町資料館",
+          "to": "大阪駅",
+          "distance_km": 1.8,
+          "mode": "public_transport",
+          "minutes": 9
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 1.7,
+        "from_last_km": 1.8
+      },
       "total_score": 50.0,
       "center": [
         34.694842,

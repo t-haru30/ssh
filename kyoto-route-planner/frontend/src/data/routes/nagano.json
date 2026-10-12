@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:51.583991+00:00",
+  "generated_at": "2026-10-12T04:55:41.657088+00:00",
   "area": "nagano",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-nagano-01",
       "area": "nagano",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "長野県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 151,
+      "estimated_minutes": 187,
+      "legs": [
+        {
+          "from": "長野駅",
+          "to": "清水寺",
+          "distance_km": 9.75,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "清水寺",
+          "to": "清水寺観音堂",
+          "distance_km": 0.42,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "清水寺観音堂",
+          "to": "長野飛行場跡地",
+          "distance_km": 6.62,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "長野飛行場跡地",
+          "to": "長野駅",
+          "distance_km": 2.98,
+          "mode": "car",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "長野駅",
+        "lat": 36.643,
+        "lng": 138.1884,
+        "to_first_km": 9.8,
+        "from_last_km": 3.0
+      },
       "total_score": 66.7,
       "center": [
         36.600958,
@@ -67,9 +106,47 @@
       "id": "osm-nagano-02",
       "area": "nagano",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "長野県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 188,
+      "title": "長野県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 396,
+      "legs": [
+        {
+          "from": "長野駅",
+          "to": "浅間縄文ミュージアム",
+          "distance_km": 45.67,
+          "mode": "car",
+          "minutes": 102
+        },
+        {
+          "from": "浅間縄文ミュージアム",
+          "to": "小諸城",
+          "distance_km": 8.0,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "小諸城",
+          "to": "田崎美術館",
+          "distance_km": 15.28,
+          "mode": "car",
+          "minutes": 35
+        },
+        {
+          "from": "田崎美術館",
+          "to": "長野駅",
+          "distance_km": 47.42,
+          "mode": "car",
+          "minutes": 106
+        }
+      ],
+      "start": {
+        "name": "長野駅",
+        "lat": 36.643,
+        "lng": 138.1884,
+        "to_first_km": 45.7,
+        "from_last_km": 47.4
+      },
       "total_score": 50.0,
       "center": [
         36.335729,
@@ -126,9 +203,47 @@
       "id": "osm-nagano-03",
       "area": "nagano",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "長野県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 169,
+      "title": "長野県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 373,
+      "legs": [
+        {
+          "from": "長野駅",
+          "to": "松本市立博物館",
+          "distance_km": 49.4,
+          "mode": "car",
+          "minutes": 111
+        },
+        {
+          "from": "松本市立博物館",
+          "to": "田淵行男記念館",
+          "distance_km": 11.59,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "田淵行男記念館",
+          "to": "安曇野高橋節郎記念美術館",
+          "distance_km": 3.42,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "安曇野高橋節郎記念美術館",
+          "to": "長野駅",
+          "distance_km": 41.63,
+          "mode": "car",
+          "minutes": 93
+        }
+      ],
+      "start": {
+        "name": "長野駅",
+        "lat": 36.643,
+        "lng": 138.1884,
+        "to_first_km": 49.4,
+        "from_last_km": 41.6
+      },
       "total_score": 50.0,
       "center": [
         36.305207,
@@ -185,9 +300,61 @@
       "id": "osm-nagano-04",
       "area": "nagano",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "長野県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 316,
+      "estimated_minutes": 351,
+      "legs": [
+        {
+          "from": "長野駅",
+          "to": "松代城",
+          "distance_km": 8.6,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "松代城",
+          "to": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
+          "distance_km": 12.31,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
+          "to": "澤正",
+          "distance_km": 7.6,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "澤正",
+          "to": "武井神社",
+          "distance_km": 6.59,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "武井神社",
+          "to": "北野美術館",
+          "distance_km": 7.09,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "北野美術館",
+          "to": "長野駅",
+          "distance_km": 6.39,
+          "mode": "car",
+          "minutes": 15
+        }
+      ],
+      "start": {
+        "name": "長野駅",
+        "lat": 36.643,
+        "lng": 138.1884,
+        "to_first_km": 8.6,
+        "from_last_km": 6.4
+      },
       "total_score": 44.0,
       "center": [
         36.626277,
@@ -272,9 +439,61 @@
       "id": "osm-nagano-05",
       "area": "nagano",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "長野県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 316,
+      "estimated_minutes": 362,
+      "legs": [
+        {
+          "from": "長野駅",
+          "to": "西宮神社",
+          "distance_km": 1.6,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "西宮神社",
+          "to": "南向塚古墳",
+          "distance_km": 2.74,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "南向塚古墳",
+          "to": "澤正",
+          "distance_km": 7.36,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "澤正",
+          "to": "市村神社",
+          "distance_km": 5.42,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "市村神社",
+          "to": "荒砥城",
+          "distance_km": 17.49,
+          "mode": "car",
+          "minutes": 39
+        },
+        {
+          "from": "荒砥城",
+          "to": "長野駅",
+          "distance_km": 18.74,
+          "mode": "car",
+          "minutes": 42
+        }
+      ],
+      "start": {
+        "name": "長野駅",
+        "lat": 36.643,
+        "lng": 138.1884,
+        "to_first_km": 1.6,
+        "from_last_km": 18.7
+      },
       "total_score": 40.0,
       "center": [
         36.604653,

@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:47.043674+00:00",
+  "generated_at": "2026-10-12T04:56:01.415556+00:00",
   "area": "kagoshima",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-kagoshima-01",
       "area": "kagoshima",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 180,
+      "estimated_minutes": 235,
+      "legs": [
+        {
+          "from": "鹿児島中央駅",
+          "to": "皇徳寺跡",
+          "distance_km": 5.14,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "皇徳寺跡",
+          "to": "上日置駅",
+          "distance_km": 14.36,
+          "mode": "car",
+          "minutes": 32
+        },
+        {
+          "from": "上日置駅",
+          "to": "吉利駅",
+          "distance_km": 5.54,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "吉利駅",
+          "to": "鹿児島中央駅",
+          "distance_km": 19.06,
+          "mode": "car",
+          "minutes": 43
+        }
+      ],
+      "start": {
+        "name": "鹿児島中央駅",
+        "lat": 31.584,
+        "lng": 130.5414,
+        "to_first_km": 5.1,
+        "from_last_km": 19.1
+      },
       "total_score": 50.0,
       "center": [
         31.578975,
@@ -67,9 +106,47 @@
       "id": "osm-kagoshima-02",
       "area": "kagoshima",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "鹿児島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 164,
+      "title": "鹿児島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 357,
+      "legs": [
+        {
+          "from": "鹿児島中央駅",
+          "to": "長崎鼻",
+          "distance_km": 47.81,
+          "mode": "car",
+          "minutes": 107
+        },
+        {
+          "from": "長崎鼻",
+          "to": "考古博物館・時遊館CoCCoはしむれ",
+          "distance_km": 10.08,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "考古博物館・時遊館CoCCoはしむれ",
+          "to": "薩摩伝承館",
+          "distance_km": 2.51,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "薩摩伝承館",
+          "to": "鹿児島中央駅",
+          "distance_km": 38.33,
+          "mode": "car",
+          "minutes": 86
+        }
+      ],
+      "start": {
+        "name": "鹿児島中央駅",
+        "lat": 31.584,
+        "lng": 130.5414,
+        "to_first_km": 47.8,
+        "from_last_km": 38.3
+      },
       "total_score": 50.0,
       "center": [
         31.213517,
@@ -126,9 +203,47 @@
       "id": "osm-kagoshima-03",
       "area": "kagoshima",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 173,
+      "estimated_minutes": 212,
+      "legs": [
+        {
+          "from": "鹿児島中央駅",
+          "to": "松原小学校跡",
+          "distance_km": 1.5,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "松原小学校跡",
+          "to": "仙巌園",
+          "distance_km": 4.08,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "仙巌園",
+          "to": "黒神埋没鳥居",
+          "distance_km": 12.5,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "黒神埋没鳥居",
+          "to": "鹿児島中央駅",
+          "distance_km": 15.61,
+          "mode": "car",
+          "minutes": 35
+        }
+      ],
+      "start": {
+        "name": "鹿児島中央駅",
+        "lat": 31.584,
+        "lng": 130.5414,
+        "to_first_km": 1.5,
+        "from_last_km": 15.6
+      },
       "total_score": 50.0,
       "center": [
         31.596911,
@@ -185,9 +300,61 @@
       "id": "osm-kagoshima-04",
       "area": "kagoshima",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 289,
+      "estimated_minutes": 320,
+      "legs": [
+        {
+          "from": "鹿児島中央駅",
+          "to": "8・6豪雨災害之碑",
+          "distance_km": 0.67,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "8・6豪雨災害之碑",
+          "to": "がんがら橋",
+          "distance_km": 1.34,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "がんがら橋",
+          "to": "ふぁみり庵はいから亭",
+          "distance_km": 5.71,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "ふぁみり庵はいから亭",
+          "to": "不断光院",
+          "distance_km": 4.33,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "不断光院",
+          "to": "潮見橋",
+          "distance_km": 10.01,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "潮見橋",
+          "to": "鹿児島中央駅",
+          "distance_km": 8.05,
+          "mode": "car",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "鹿児島中央駅",
+        "lat": 31.584,
+        "lng": 130.5414,
+        "to_first_km": 0.7,
+        "from_last_km": 8.1
+      },
       "total_score": 46.0,
       "center": [
         31.584078,
@@ -272,9 +439,61 @@
       "id": "osm-kagoshima-05",
       "area": "kagoshima",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "鹿児島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 265,
+      "estimated_minutes": 282,
+      "legs": [
+        {
+          "from": "鹿児島中央駅",
+          "to": "鹿児島城",
+          "distance_km": 2.1,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "鹿児島城",
+          "to": "南洲翁終焉之地之碑",
+          "distance_km": 0.31,
+          "mode": "walk",
+          "minutes": 6
+        },
+        {
+          "from": "南洲翁終焉之地之碑",
+          "to": "ふぁみり庵はいから亭",
+          "distance_km": 3.98,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "ふぁみり庵はいから亭",
+          "to": "鹿児島神社",
+          "distance_km": 4.09,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "鹿児島神社",
+          "to": "南洲神社",
+          "distance_km": 1.86,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "南洲神社",
+          "to": "鹿児島中央駅",
+          "distance_km": 3.0,
+          "mode": "car",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "鹿児島中央駅",
+        "lat": 31.584,
+        "lng": 130.5414,
+        "to_first_km": 2.1,
+        "from_last_km": 3.0
+      },
       "total_score": 42.0,
       "center": [
         31.610273,

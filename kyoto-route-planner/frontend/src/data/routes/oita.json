@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:43.001889+00:00",
+  "generated_at": "2026-10-12T04:56:00.197789+00:00",
   "area": "oita",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-oita-01",
       "area": "oita",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "大分県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 149,
+      "estimated_minutes": 160,
+      "legs": [
+        {
+          "from": "大分駅",
+          "to": "大分県立埋蔵文化財センター",
+          "distance_km": 2.67,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "大分県立埋蔵文化財センター",
+          "to": "元町石仏",
+          "distance_km": 2.66,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "元町石仏",
+          "to": "浄土寺",
+          "distance_km": 3.52,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "浄土寺",
+          "to": "大分駅",
+          "distance_km": 1.95,
+          "mode": "car",
+          "minutes": 5
+        }
+      ],
+      "start": {
+        "name": "大分駅",
+        "lat": 33.2336,
+        "lng": 131.6065,
+        "to_first_km": 2.7,
+        "from_last_km": 1.9
+      },
       "total_score": 43.3,
       "center": [
         33.234007,
@@ -67,9 +106,47 @@
       "id": "osm-oita-02",
       "area": "oita",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "nature",
       "title": "大分県の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 167,
+      "estimated_minutes": 250,
+      "legs": [
+        {
+          "from": "大分駅",
+          "to": "狭霧台",
+          "distance_km": 21.05,
+          "mode": "car",
+          "minutes": 47
+        },
+        {
+          "from": "狭霧台",
+          "to": "大分香りの博物館",
+          "distance_km": 11.44,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "大分香りの博物館",
+          "to": "八幡竃門神社",
+          "distance_km": 2.33,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "八幡竃門神社",
+          "to": "大分駅",
+          "distance_km": 15.87,
+          "mode": "car",
+          "minutes": 36
+        }
+      ],
+      "start": {
+        "name": "大分駅",
+        "lat": 33.2336,
+        "lng": 131.6065,
+        "to_first_km": 21.0,
+        "from_last_km": 15.9
+      },
       "total_score": 46.7,
       "center": [
         33.301526,
@@ -126,9 +203,47 @@
       "id": "osm-oita-03",
       "area": "oita",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "history",
-      "title": "大分県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 138,
+      "title": "大分県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 400,
+      "legs": [
+        {
+          "from": "大分駅",
+          "to": "福澤諭吉旧居",
+          "distance_km": 56.69,
+          "mode": "car",
+          "minutes": 127
+        },
+        {
+          "from": "福澤諭吉旧居",
+          "to": "中津城",
+          "distance_km": 0.43,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "中津城",
+          "to": "闇無浜神社",
+          "distance_km": 0.87,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "闇無浜神社",
+          "to": "大分駅",
+          "distance_km": 56.8,
+          "mode": "car",
+          "minutes": 127
+        }
+      ],
+      "start": {
+        "name": "大分駅",
+        "lat": 33.2336,
+        "lng": 131.6065,
+        "to_first_km": 56.7,
+        "from_last_km": 56.8
+      },
       "total_score": 43.3,
       "center": [
         33.608332,
@@ -185,9 +300,61 @@
       "id": "osm-oita-04",
       "area": "oita",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "大分県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 298,
+      "estimated_minutes": 462,
+      "legs": [
+        {
+          "from": "大分駅",
+          "to": "岡城",
+          "distance_km": 34.74,
+          "mode": "car",
+          "minutes": 78
+        },
+        {
+          "from": "岡城",
+          "to": "鳥屋城",
+          "distance_km": 9.7,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "鳥屋城",
+          "to": "道の駅あさじ",
+          "distance_km": 5.71,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "道の駅あさじ",
+          "to": "旧竹田荘",
+          "distance_km": 6.57,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "旧竹田荘",
+          "to": "津賀牟礼城",
+          "distance_km": 3.45,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "津賀牟礼城",
+          "to": "大分駅",
+          "distance_km": 38.58,
+          "mode": "car",
+          "minutes": 86
+        }
+      ],
+      "start": {
+        "name": "大分駅",
+        "lat": 33.2336,
+        "lng": 131.6065,
+        "to_first_km": 34.7,
+        "from_last_km": 38.6
+      },
       "total_score": 38.0,
       "center": [
         32.984917,
@@ -272,9 +439,61 @@
       "id": "osm-oita-05",
       "area": "oita",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "大分県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 293,
+      "estimated_minutes": 424,
+      "legs": [
+        {
+          "from": "大分駅",
+          "to": "朝倉文夫記念館",
+          "distance_km": 27.4,
+          "mode": "car",
+          "minutes": 62
+        },
+        {
+          "from": "朝倉文夫記念館",
+          "to": "竹田市立歴史資料館",
+          "distance_km": 8.43,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "竹田市立歴史資料館",
+          "to": "道の駅あさじ",
+          "distance_km": 6.59,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "道の駅あさじ",
+          "to": "豊後大野市歴史民俗資料館",
+          "distance_km": 4.0,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "豊後大野市歴史民俗資料館",
+          "to": "豊後大野市清川歴史民俗資料室",
+          "distance_km": 4.12,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "豊後大野市清川歴史民俗資料室",
+          "to": "大分駅",
+          "distance_km": 30.7,
+          "mode": "car",
+          "minutes": 69
+        }
+      ],
+      "start": {
+        "name": "大分駅",
+        "lat": 33.2336,
+        "lng": 131.6065,
+        "to_first_km": 27.4,
+        "from_last_km": 30.7
+      },
       "total_score": 34.0,
       "center": [
         32.987186,

@@ -26,12 +26,78 @@ from app.places import calculate_place_score
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-GENERATOR_VERSION = "osm-deterministic-v2"
+GENERATOR_VERSION = "osm-deterministic-v4"
+# Legs up to this straight-line distance are walked (about 15 minutes).
+WALK_MAX_KM = 0.8
+# Routes depart at 09:00; one that returns after 14:00 is shown as a full-day course.
+DEPARTURE_MINUTES = 9 * 60
+FULL_DAY_RETURN_MINUTES = 14 * 60
+
+
+def course_for(pattern: str, estimated_minutes: int) -> str:
+    if pattern == "full_day" or DEPARTURE_MINUTES + estimated_minutes > FULL_DAY_RETURN_MINUTES:
+        return "full_day"
+    return "half_day"
 BOUNDARIES_PATH = BACKEND_DIR / "data" / "boundaries" / "jpn-adm1.geojson"
 EARTH_RADIUS_KM = 6371.0
 LUNCH_RADIUS_BY_MODE = {"car": 8.0, "public_transport": 5.0, "walk": 2.0}
 GRID_ROWS = 4
 GRID_COLUMNS = 4
+# Every route starts and ends at the central station of the prefectural capital.
+# Candidates must lie within this radius; it widens stepwise only when a prefecture cannot fill five routes.
+START_RADIUS_KM = {"car": 60.0, "public_transport": 20.0, "walk": 5.0}
+START_RADIUS_STEPS = (1.0, 1.5, 2.0, 3.0)
+
+# area id -> (station name, latitude, longitude)
+STATIONS: dict[str, tuple[str, float, float]] = {
+    "hokkaido": ("札幌駅", 43.0686, 141.3508),
+    "aomori": ("青森駅", 40.82887, 140.73357),
+    "iwate": ("盛岡駅", 39.7013, 141.1363),
+    "miyagi": ("仙台駅", 38.2606, 140.8824),
+    "akita": ("秋田駅", 39.7173, 140.1288),
+    "yamagata": ("山形駅", 38.2485, 140.3277),
+    "fukushima": ("福島駅", 37.7541, 140.4592),
+    "ibaraki": ("水戸駅", 36.3711, 140.4764),
+    "tochigi": ("宇都宮駅", 36.5592, 139.8985),
+    "gunma": ("前橋駅", 36.38321, 139.07264),
+    "saitama": ("大宮駅", 35.9065, 139.6240),
+    "chiba": ("千葉駅", 35.6130, 140.1135),
+    "tokyo": ("東京駅", 35.6812, 139.7671),
+    "kanagawa": ("横浜駅", 35.4658, 139.6224),
+    "niigata": ("新潟駅", 37.9122, 139.0617),
+    "toyama": ("富山駅", 36.7012, 137.2132),
+    "ishikawa": ("金沢駅", 36.5781, 136.6478),
+    "fukui": ("福井駅", 36.0620, 136.2227),
+    "yamanashi": ("甲府駅", 35.6670, 138.5686),
+    "nagano": ("長野駅", 36.6430, 138.1884),
+    "gifu": ("岐阜駅", 35.4097, 136.7564),
+    "shizuoka": ("静岡駅", 34.9718, 138.3890),
+    "aichi": ("名古屋駅", 35.1709, 136.8815),
+    "mie": ("津駅", 34.73399, 136.51026),
+    "shiga": ("大津駅", 35.00376, 135.86411),
+    "kyoto": ("京都駅", 34.9858, 135.7588),
+    "osaka": ("大阪駅", 34.7025, 135.4959),
+    "hyogo": ("三ノ宮駅", 34.6945, 135.1953),
+    "nara": ("奈良駅", 34.6815, 135.8190),
+    "wakayama": ("和歌山駅", 34.23221, 135.19158),
+    "tottori": ("鳥取駅", 35.49399, 134.22594),
+    "shimane": ("松江駅", 35.46418, 133.06285),
+    "okayama": ("岡山駅", 34.6666, 133.9181),
+    "hiroshima": ("広島駅", 34.3977, 132.4753),
+    "yamaguchi": ("山口駅", 34.17261, 131.48083),
+    "tokushima": ("徳島駅", 34.0742, 134.5517),
+    "kagawa": ("高松駅", 34.3505, 134.0467),
+    "ehime": ("松山駅", 33.83993, 132.75074),
+    "kochi": ("高知駅", 33.5675, 133.5436),
+    "fukuoka": ("博多駅", 33.5897, 130.4207),
+    "saga": ("佐賀駅", 33.26418, 130.29736),
+    "nagasaki": ("長崎駅", 32.75239, 129.86892),
+    "kumamoto": ("熊本駅", 32.7900, 130.6890),
+    "oita": ("大分駅", 33.2336, 131.6065),
+    "miyazaki": ("宮崎駅", 31.91575, 131.43195),
+    "kagoshima": ("鹿児島中央駅", 31.5840, 130.5414),
+    "okinawa": ("旭橋駅", 26.21185, 127.67546),
+}
 
 
 @dataclass(frozen=True)
@@ -538,21 +604,43 @@ def _spot(candidate: dict[str, Any], role: str) -> dict[str, Any]:
     }
 
 
+def _leg_mode(distance_km: float, mode: str) -> str:
+    return "walk" if distance_km <= WALK_MAX_KM else mode
+
+
+def build_legs(config: AreaConfig, station: tuple[str, float, float], spots: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Legs of one route: station -> first spot, spot -> spot, last spot -> station."""
+    points = [(station[0], station[1], station[2])]
+    points += [(spot["name"], spot["lat"], spot["lng"]) for spot in spots]
+    points.append(points[0])
+    legs = []
+    for first, second in zip(points, points[1:]):
+        distance = _distance((first[1], first[2]), (second[1], second[2]))
+        mode = _leg_mode(distance, config.mode)
+        legs.append({
+            "from": first[0],
+            "to": second[0],
+            "distance_km": round(distance, 2),
+            "mode": mode,
+            "minutes": _travel_minutes(distance, mode),
+        })
+    return legs
+
+
 def _route(config: AreaConfig, index: int, pattern: str, ordered: list[dict[str, Any]], spots: list[dict[str, Any]]) -> dict[str, Any]:
-    travel = sum(
-        _travel_minutes(
-            _distance((first["lat"], first["lng"]), (second["lat"], second["lng"])),
-            config.mode,
-        )
-        for first, second in zip(spots, spots[1:])
-    )
+    station_name, station_lat, station_lng = STATIONS[config.id]
+    to_first_km = _distance((station_lat, station_lng), (spots[0]["lat"], spots[0]["lng"]))
+    from_last_km = _distance((spots[-1]["lat"], spots[-1]["lng"]), (station_lat, station_lng))
+    legs = build_legs(config, STATIONS[config.id], spots)
+    travel = sum(leg["minutes"] for leg in legs)
     stay = sum(spot["stay_minutes"] for spot in spots)
+    course = course_for(pattern, stay + travel)
     theme = max(
         (item["place"].themes[0] for item in ordered),
         key=lambda value: (sum(value == item["place"].themes[0] for item in ordered), value),
     )
     theme_label = {"nature": "自然", "history": "歴史", "temple": "寺社", "food": "グルメ", "all": "名所"}[theme]
-    title = f"{config.name}の{theme_label}スポットをめぐる{('半日' if pattern == 'half_day' else '一日')}ルート"
+    title = f"{config.name}の{theme_label}スポットをめぐる{('一日' if course == 'full_day' else '半日')}ルート"
     center = (
         round(sum(spot["lat"] for spot in spots) / len(spots), 6),
         round(sum(spot["lng"] for spot in spots) / len(spots), 6),
@@ -561,9 +649,18 @@ def _route(config: AreaConfig, index: int, pattern: str, ordered: list[dict[str,
         "id": f"osm-{config.id}-{index + 1:02d}",
         "area": config.id,
         "pattern": pattern,
+        "course": course,
         "theme": theme,
         "title": title,
         "estimated_minutes": stay + travel,
+        "legs": legs,
+        "start": {
+            "name": station_name,
+            "lat": station_lat,
+            "lng": station_lng,
+            "to_first_km": round(to_first_km, 1),
+            "from_last_km": round(from_last_km, 1),
+        },
         "total_score": round(sum(spot["score"] for spot in spots) / len(spots), 1),
         "center": list(center),
         "spots": spots,
@@ -577,15 +674,32 @@ def generate_area(config: AreaConfig) -> dict[str, Any]:
     foods = _dedupe([item for element in food_elements if (item := _to_candidate(element, True)) is not None])
     candidates = _restrict_to_main_landmass(config, candidates)
     foods = _restrict_to_main_landmass(config, foods)
-    # Rank by score and trim so selection stays fast on dense prefectures (e.g. Tokyo).
-    candidates = sorted(candidates, key=lambda item: (-item["score"], item["place"].id))[:MAX_TOURISM_CANDIDATES]
-    foods = sorted(foods, key=lambda item: (-item["score"], item["place"].id))[:MAX_FOOD_CANDIDATES]
-    routes = _select_routes(config, candidates, foods)
+    _, station_lat, station_lng = STATIONS[config.id]
+    base_radius = START_RADIUS_KM[config.mode]
+    last_error: RuntimeError | None = None
+    for step in START_RADIUS_STEPS:
+        radius = base_radius * step
+        near = [c for c in candidates if _distance((station_lat, station_lng), (c["place"].latitude, c["place"].longitude)) <= radius]
+        near_foods = [f for f in foods if _distance((station_lat, station_lng), (f["place"].latitude, f["place"].longitude)) <= radius]
+        # Rank by score and trim so selection stays fast on dense prefectures (e.g. Tokyo).
+        near = sorted(near, key=lambda item: (-item["score"], item["place"].id))[:MAX_TOURISM_CANDIDATES]
+        near_foods = sorted(near_foods, key=lambda item: (-item["score"], item["place"].id))[:MAX_FOOD_CANDIDATES]
+        try:
+            routes = _select_routes(config, near, near_foods)
+        except RuntimeError as error:
+            last_error = error
+            continue
+        if step > 1.0:
+            print(f"note: {config.id}: start radius widened to {radius:.0f} km", file=sys.stderr)
+        break
+    else:
+        raise RuntimeError(f"{config.id}: no routes within {base_radius * START_RADIUS_STEPS[-1]:.0f} km of the station: {last_error}")
     return {
         "version": 1,
         "generated_at": datetime.now(UTC).isoformat(),
         "area": config.id,
         "generator_version": GENERATOR_VERSION,
+        "start_radius_km": radius,
         "routes": routes,
     }
 

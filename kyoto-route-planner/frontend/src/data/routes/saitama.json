@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:30.728860+00:00",
+  "generated_at": "2026-10-12T04:55:32.648487+00:00",
   "area": "saitama",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-saitama-01",
       "area": "saitama",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "埼玉県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 180,
+      "estimated_minutes": 214,
+      "legs": [
+        {
+          "from": "大宮駅",
+          "to": "寿能城跡",
+          "distance_km": 2.14,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "寿能城跡",
+          "to": "代山城跡",
+          "distance_km": 6.67,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "代山城跡",
+          "to": "さいたま市立浦和博物館",
+          "distance_km": 3.14,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "さいたま市立浦和博物館",
+          "to": "大宮駅",
+          "distance_km": 5.14,
+          "mode": "public_transport",
+          "minutes": 24
+        }
+      ],
+      "start": {
+        "name": "大宮駅",
+        "lat": 35.9065,
+        "lng": 139.624,
+        "to_first_km": 2.1,
+        "from_last_km": 5.1
+      },
       "total_score": 50.0,
       "center": [
         35.905043,
@@ -67,9 +106,47 @@
       "id": "osm-saitama-02",
       "area": "saitama",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "埼玉県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 174,
+      "estimated_minutes": 206,
+      "legs": [
+        {
+          "from": "大宮駅",
+          "to": "さいたま市立漫画会館",
+          "distance_km": 2.24,
+          "mode": "public_transport",
+          "minutes": 11
+        },
+        {
+          "from": "さいたま市立漫画会館",
+          "to": "さいたま市青少年宇宙科学館",
+          "distance_km": 6.62,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "さいたま市青少年宇宙科学館",
+          "to": "埼玉県立近代美術館",
+          "distance_km": 1.97,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "埼玉県立近代美術館",
+          "to": "大宮駅",
+          "distance_km": 4.45,
+          "mode": "public_transport",
+          "minutes": 21
+        }
+      ],
+      "start": {
+        "name": "大宮駅",
+        "lat": 35.9065,
+        "lng": 139.624,
+        "to_first_km": 2.2,
+        "from_last_km": 4.4
+      },
       "total_score": 50.0,
       "center": [
         35.889193,
@@ -126,9 +203,47 @@
       "id": "osm-saitama-03",
       "area": "saitama",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "埼玉県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 184,
+      "estimated_minutes": 279,
+      "legs": [
+        {
+          "from": "大宮駅",
+          "to": "さいたま文学館",
+          "distance_km": 11.48,
+          "mode": "public_transport",
+          "minutes": 52
+        },
+        {
+          "from": "さいたま文学館",
+          "to": "氷川神社",
+          "distance_km": 3.7,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "氷川神社",
+          "to": "諏訪神社",
+          "distance_km": 6.9,
+          "mode": "public_transport",
+          "minutes": 32
+        },
+        {
+          "from": "諏訪神社",
+          "to": "大宮駅",
+          "distance_km": 9.46,
+          "mode": "public_transport",
+          "minutes": 43
+        }
+      ],
+      "start": {
+        "name": "大宮駅",
+        "lat": 35.9065,
+        "lng": 139.624,
+        "to_first_km": 11.5,
+        "from_last_km": 9.5
+      },
       "total_score": 43.3,
       "center": [
         35.995972,
@@ -185,61 +300,113 @@
       "id": "osm-saitama-04",
       "area": "saitama",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "埼玉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 314,
-      "total_score": 50.0,
+      "estimated_minutes": 446,
+      "legs": [
+        {
+          "from": "大宮駅",
+          "to": "八潮市立資料館",
+          "distance_km": 19.85,
+          "mode": "public_transport",
+          "minutes": 90
+        },
+        {
+          "from": "八潮市立資料館",
+          "to": "百代橋",
+          "distance_km": 2.51,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "百代橋",
+          "to": "寺田軒",
+          "distance_km": 2.0,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "寺田軒",
+          "to": "回向院",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "回向院",
+          "to": "川口市立科学館",
+          "distance_km": 7.8,
+          "mode": "public_transport",
+          "minutes": 36
+        },
+        {
+          "from": "川口市立科学館",
+          "to": "大宮駅",
+          "distance_km": 12.31,
+          "mode": "public_transport",
+          "minutes": 56
+        }
+      ],
+      "start": {
+        "name": "大宮駅",
+        "lat": 35.9065,
+        "lng": 139.624,
+        "to_first_km": 19.9,
+        "from_last_km": 12.3
+      },
+      "total_score": 46.0,
       "center": [
-        36.117594,
-        139.455513
+        35.830237,
+        139.7914
       ],
       "spots": [
         {
-          "place_id": "osm-node-1420192352",
-          "name": "埼玉県立さきたま史跡の博物館",
+          "place_id": "osm-node-1420190894",
+          "name": "八潮市立資料館",
           "category": "博物館",
-          "lat": 36.125121,
-          "lng": 139.4756819,
+          "lat": 35.826432,
+          "lng": 139.820914,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420203385",
-          "name": "行田市郷土博物館",
-          "category": "博物館",
-          "lat": 36.137865,
-          "lng": 139.453279,
+          "place_id": "osm-node-5886897885",
+          "name": "百代橋",
+          "category": "展望地",
+          "lat": 35.8444397,
+          "lng": 139.8040542,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12873701507",
-          "name": "馬車道",
+          "place_id": "osm-node-10948376172",
+          "name": "寺田軒",
           "category": "飲食店",
-          "lat": 36.1079586,
-          "lng": 139.4573858,
+          "lat": 35.8264897,
+          "lng": 139.8057923,
           "stay_minutes": 60,
-          "score": 50.0,
+          "score": 40.0,
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-257072641",
-          "name": "忍城御三階櫓",
-          "category": "史跡",
-          "lat": 36.1377719,
-          "lng": 139.4540666,
+          "place_id": "osm-node-12193797588",
+          "name": "回向院",
+          "category": "観光名所",
+          "lat": 35.826149,
+          "lng": 139.8063806,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5762464155",
-          "name": "長島記念館",
+          "place_id": "osm-node-1420171658",
+          "name": "川口市立科学館",
           "category": "博物館",
-          "lat": 36.0792548,
-          "lng": 139.4371511,
+          "lat": 35.8276765,
+          "lng": 139.7198599,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -247,24 +414,24 @@
       ],
       "coordinates": [
         [
-          36.125121,
-          139.4756819
+          35.826432,
+          139.820914
         ],
         [
-          36.137865,
-          139.453279
+          35.8444397,
+          139.8040542
         ],
         [
-          36.1079586,
-          139.4573858
+          35.8264897,
+          139.8057923
         ],
         [
-          36.1377719,
-          139.4540666
+          35.826149,
+          139.8063806
         ],
         [
-          36.0792548,
-          139.4371511
+          35.8276765,
+          139.7198599
         ]
       ]
     },
@@ -272,61 +439,113 @@
       "id": "osm-saitama-05",
       "area": "saitama",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "埼玉県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 286,
-      "total_score": 42.0,
+      "estimated_minutes": 450,
+      "legs": [
+        {
+          "from": "大宮駅",
+          "to": "浄捷寺",
+          "distance_km": 17.83,
+          "mode": "public_transport",
+          "minutes": 81
+        },
+        {
+          "from": "浄捷寺",
+          "to": "傑傳寺",
+          "distance_km": 3.41,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "傑傳寺",
+          "to": "寺田軒",
+          "distance_km": 4.19,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "寺田軒",
+          "to": "草加神社",
+          "distance_km": 0.49,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "草加神社",
+          "to": "宝厳院",
+          "distance_km": 4.84,
+          "mode": "public_transport",
+          "minutes": 22
+        },
+        {
+          "from": "宝厳院",
+          "to": "大宮駅",
+          "distance_km": 13.58,
+          "mode": "public_transport",
+          "minutes": 62
+        }
+      ],
+      "start": {
+        "name": "大宮駅",
+        "lat": 35.9065,
+        "lng": 139.624,
+        "to_first_km": 17.8,
+        "from_last_km": 13.6
+      },
+      "total_score": 40.0,
       "center": [
-        36.094287,
-        139.456633
+        35.829625,
+        139.782197
       ],
       "spots": [
         {
-          "place_id": "osm-node-12869909234",
-          "name": "袋神社",
+          "place_id": "osm-node-12193797591",
+          "name": "浄捷寺",
           "category": "観光名所",
-          "lat": 36.0991902,
-          "lng": 139.4692082,
+          "lat": 35.8289062,
+          "lng": 139.7971696,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12876838402",
-          "name": "吹上神社",
+          "place_id": "osm-node-4395978047",
+          "name": "傑傳寺",
           "category": "観光名所",
-          "lat": 36.1055645,
-          "lng": 139.4499438,
+          "lat": 35.8279289,
+          "lng": 139.7593419,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12873701507",
-          "name": "馬車道",
+          "place_id": "osm-node-10948376172",
+          "name": "寺田軒",
           "category": "飲食店",
-          "lat": 36.1079586,
-          "lng": 139.4573858,
+          "lat": 35.8264897,
+          "lng": 139.8057923,
           "stay_minutes": 60,
-          "score": 50.0,
+          "score": 40.0,
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-12879363203",
-          "name": "宝養寺",
+          "place_id": "osm-node-4396009152",
+          "name": "草加神社",
           "category": "観光名所",
-          "lat": 36.1043476,
-          "lng": 139.4683691,
+          "lat": 35.8275706,
+          "lng": 139.8005179,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1948257546",
-          "name": "吉見観音",
+          "place_id": "osm-node-12709313821",
+          "name": "宝厳院",
           "category": "観光名所",
-          "lat": 36.0543752,
-          "lng": 139.43826,
+          "lat": 35.8372306,
+          "lng": 139.7481619,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -334,24 +553,24 @@
       ],
       "coordinates": [
         [
-          36.0991902,
-          139.4692082
+          35.8289062,
+          139.7971696
         ],
         [
-          36.1055645,
-          139.4499438
+          35.8279289,
+          139.7593419
         ],
         [
-          36.1079586,
-          139.4573858
+          35.8264897,
+          139.8057923
         ],
         [
-          36.1043476,
-          139.4683691
+          35.8275706,
+          139.8005179
         ],
         [
-          36.0543752,
-          139.43826
+          35.8372306,
+          139.7481619
         ]
       ]
     }

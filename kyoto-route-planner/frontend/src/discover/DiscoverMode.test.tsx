@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { PrefectureProvider } from "../PrefectureContext";
 import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
+import hokkaidoDataset from "../data/routes/hokkaido.json";
 
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 
@@ -50,7 +51,7 @@ describe("DiscoverMode", () => {
       prefecture_code: "01",
       prefecture_name: nextOption.textContent,
       copywriting_source: "fallback",
-      origin: expect.objectContaining({ name: "北海道・エリア中心" }),
+      origin: { name: hokkaidoDataset.routes[0].start.name, latitude: hokkaidoDataset.routes[0].start.lat, longitude: hokkaidoDataset.routes[0].start.lng },
       dwell_minutes: expect.any(Object),
     });
   });
@@ -109,5 +110,15 @@ describe("DiscoverMode", () => {
     expect((screen.getByRole("button", { name: "しおりを開く" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "すべての候補を見る" }));
     expect(screen.getByText("5件の候補")).toBeTruthy();
+  });
+
+  it("filters by actual course length when an original half-day route returns after 14:00", () => {
+    renderDiscoverMode();
+    fireEvent.change(screen.getByRole("combobox", { name: "都道府県" }), { target: { value: "aichi" } });
+    fireEvent.click(screen.getByRole("button", { name: "半日" }));
+    expect(screen.getByText("1件の候補")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "1日" }));
+    expect(screen.getByText("4件の候補")).toBeTruthy();
+    expect(screen.getAllByText("1日コース").length).toBeGreaterThan(0);
   });
 });

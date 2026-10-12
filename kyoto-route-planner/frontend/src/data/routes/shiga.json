@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:02.238596+00:00",
+  "generated_at": "2026-10-12T04:55:46.050514+00:00",
   "area": "shiga",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-shiga-01",
       "area": "shiga",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 158,
+      "estimated_minutes": 189,
+      "legs": [
+        {
+          "from": "大津駅",
+          "to": "第廿五番 新清水寺",
+          "distance_km": 10.34,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "第廿五番 新清水寺",
+          "to": "第十六番　清水寺",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "第十六番　清水寺",
+          "to": "大津城跡",
+          "distance_km": 9.54,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "大津城跡",
+          "to": "大津駅",
+          "distance_km": 0.93,
+          "mode": "car",
+          "minutes": 3
+        }
+      ],
+      "start": {
+        "name": "大津駅",
+        "lat": 35.00376,
+        "lng": 135.86411,
+        "to_first_km": 10.3,
+        "from_last_km": 0.9
+      },
       "total_score": 66.7,
       "center": [
         35.068562,
@@ -67,9 +106,47 @@
       "id": "osm-shiga-02",
       "area": "shiga",
       "pattern": "half_day",
+      "course": "full_day",
       "theme": "nature",
-      "title": "滋賀県の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 137,
+      "title": "滋賀県の自然スポットをめぐる一日ルート",
+      "estimated_minutes": 393,
+      "legs": [
+        {
+          "from": "大津駅",
+          "to": "長浜タワービル",
+          "distance_km": 55.59,
+          "mode": "car",
+          "minutes": 124
+        },
+        {
+          "from": "長浜タワービル",
+          "to": "長浜市曳山博物館",
+          "distance_km": 0.23,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "長浜市曳山博物館",
+          "to": "長浜旧開知学校",
+          "distance_km": 0.25,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "長浜旧開知学校",
+          "to": "大津駅",
+          "distance_km": 55.57,
+          "mode": "car",
+          "minutes": 124
+        }
+      ],
+      "start": {
+        "name": "大津駅",
+        "lat": 35.00376,
+        "lng": 135.86411,
+        "to_first_km": 55.6,
+        "from_last_km": 55.6
+      },
       "total_score": 50.0,
       "center": [
         35.380146,
@@ -126,9 +203,47 @@
       "id": "osm-shiga-03",
       "area": "shiga",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 174,
+      "estimated_minutes": 242,
+      "legs": [
+        {
+          "from": "大津駅",
+          "to": "栗東歴史民俗博物館",
+          "distance_km": 13.27,
+          "mode": "car",
+          "minutes": 30
+        },
+        {
+          "from": "栗東歴史民俗博物館",
+          "to": "滋賀県立美術館",
+          "distance_km": 8.04,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "滋賀県立美術館",
+          "to": "ミホミュージアム",
+          "distance_km": 9.15,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "ミホミュージアム",
+          "to": "大津駅",
+          "distance_km": 17.02,
+          "mode": "car",
+          "minutes": 38
+        }
+      ],
+      "start": {
+        "name": "大津駅",
+        "lat": 35.00376,
+        "lng": 135.86411,
+        "to_first_km": 13.3,
+        "from_last_km": 17.0
+      },
       "total_score": 50.0,
       "center": [
         34.967759,
@@ -185,9 +300,61 @@
       "id": "osm-shiga-04",
       "area": "shiga",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 297,
+      "estimated_minutes": 337,
+      "legs": [
+        {
+          "from": "大津駅",
+          "to": "守山市立埋蔵文化財センター",
+          "distance_km": 16.47,
+          "mode": "car",
+          "minutes": 37
+        },
+        {
+          "from": "守山市立埋蔵文化財センター",
+          "to": "伊豆神社",
+          "distance_km": 6.54,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "伊豆神社",
+          "to": "道の駅草津",
+          "distance_km": 4.87,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "道の駅草津",
+          "to": "滋賀院",
+          "distance_km": 6.56,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "滋賀院",
+          "to": "滋賀県立琵琶湖文化館",
+          "distance_km": 6.85,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "滋賀県立琵琶湖文化館",
+          "to": "大津駅",
+          "distance_km": 1.02,
+          "mode": "car",
+          "minutes": 3
+        }
+      ],
+      "start": {
+        "name": "大津駅",
+        "lat": 35.00376,
+        "lng": 135.86411,
+        "to_first_km": 16.5,
+        "from_last_km": 1.0
+      },
       "total_score": 44.0,
       "center": [
         35.073342,
@@ -272,9 +439,61 @@
       "id": "osm-shiga-05",
       "area": "shiga",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "滋賀県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 287,
+      "estimated_minutes": 307,
+      "legs": [
+        {
+          "from": "大津駅",
+          "to": "唐崎神社",
+          "distance_km": 4.94,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "唐崎神社",
+          "to": "生源寺",
+          "distance_km": 2.71,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "生源寺",
+          "to": "道の駅草津",
+          "distance_km": 6.28,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "道の駅草津",
+          "to": "那波加神社",
+          "distance_km": 4.76,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "那波加神社",
+          "to": "近江神宮時計博物館",
+          "distance_km": 6.71,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "近江神宮時計博物館",
+          "to": "大津駅",
+          "distance_km": 3.31,
+          "mode": "car",
+          "minutes": 8
+        }
+      ],
+      "start": {
+        "name": "大津駅",
+        "lat": 35.00376,
+        "lng": 135.86411,
+        "to_first_km": 4.9,
+        "from_last_km": 3.3
+      },
       "total_score": 42.0,
       "center": [
         35.060894,

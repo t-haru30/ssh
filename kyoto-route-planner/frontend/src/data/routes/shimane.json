@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:18.226266+00:00",
+  "generated_at": "2026-10-12T04:55:52.323533+00:00",
   "area": "shimane",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-shimane-01",
       "area": "shimane",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "島根県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "estimated_minutes": 240,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "清水寺宝物館",
+          "distance_km": 20.99,
+          "mode": "car",
+          "minutes": 47
+        },
+        {
+          "from": "清水寺宝物館",
+          "to": "清水寺光明閣",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "清水寺光明閣",
+          "to": "中村元記念館",
+          "distance_km": 14.26,
+          "mode": "car",
+          "minutes": 32
+        },
+        {
+          "from": "中村元記念館",
+          "to": "松江駅",
+          "distance_km": 10.48,
+          "mode": "car",
+          "minutes": 24
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 21.0,
+        "from_last_km": 10.5
+      },
       "total_score": 60.0,
       "center": [
         35.43268,
@@ -67,68 +106,47 @@
       "id": "osm-shimane-02",
       "area": "shimane",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "島根県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 143,
-      "total_score": 51.7,
-      "center": [
-        35.113628,
-        132.443447
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-7460556285",
-          "name": "清水寺",
-          "category": "観光名所",
-          "lat": 35.1049642,
-          "lng": 132.4369639,
-          "stay_minutes": 45,
-          "score": 65.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423618360",
-          "name": "石見銀山資料館",
-          "category": "博物館",
-          "lat": 35.122164,
-          "lng": 132.448042,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1184306054",
-          "name": "石見銀山遺跡",
-          "category": "史跡",
-          "lat": 35.113757,
-          "lng": 132.445335,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.1049642,
-          132.4369639
-        ],
-        [
-          35.122164,
-          132.448042
-        ],
-        [
-          35.113757,
-          132.445335
-        ]
-      ]
-    },
-    {
-      "id": "osm-shimane-03",
-      "area": "shimane",
-      "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "島根県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 177,
+      "estimated_minutes": 219,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "島根大学総合博物館アシカル",
+          "distance_km": 2.47,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "島根大学総合博物館アシカル",
+          "to": "出雲かんべの里",
+          "distance_km": 6.9,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "出雲かんべの里",
+          "to": "月山富田城",
+          "distance_km": 11.42,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "月山富田城",
+          "to": "松江駅",
+          "distance_km": 15.97,
+          "mode": "car",
+          "minutes": 36
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 2.5,
+        "from_last_km": 16.0
+      },
       "total_score": 46.7,
       "center": [
         35.424017,
@@ -182,12 +200,161 @@
       ]
     },
     {
+      "id": "osm-shimane-03",
+      "area": "shimane",
+      "pattern": "half_day",
+      "course": "full_day",
+      "theme": "history",
+      "title": "島根県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 322,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "出雲科学館",
+          "distance_km": 29.21,
+          "mode": "car",
+          "minutes": 66
+        },
+        {
+          "from": "出雲科学館",
+          "to": "平田城",
+          "distance_km": 9.9,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "平田城",
+          "to": "今岡美術館",
+          "distance_km": 11.96,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "今岡美術館",
+          "to": "松江駅",
+          "distance_km": 31.49,
+          "mode": "car",
+          "minutes": 71
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 29.2,
+        "from_last_km": 31.5
+      },
+      "total_score": 46.7,
+      "center": [
+        35.384294,
+        132.776366
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423609168",
+          "name": "出雲科学館",
+          "category": "博物館",
+          "lat": 35.361965,
+          "lng": 132.7659592,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9895373033",
+          "name": "平田城",
+          "category": "史跡",
+          "lat": 35.4398271,
+          "lng": 132.8188322,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423608640",
+          "name": "今岡美術館",
+          "category": "博物館",
+          "lat": 35.35109,
+          "lng": 132.7443067,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.361965,
+          132.7659592
+        ],
+        [
+          35.4398271,
+          132.8188322
+        ],
+        [
+          35.35109,
+          132.7443067
+        ]
+      ]
+    },
+    {
       "id": "osm-shimane-04",
       "area": "shimane",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "島根県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 294,
+      "estimated_minutes": 323,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "岩屋後古墳",
+          "distance_km": 4.99,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "岩屋後古墳",
+          "to": "金崎古墳群",
+          "distance_km": 7.33,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "金崎古墳群",
+          "to": "Y'sキッチン",
+          "distance_km": 2.68,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "Y'sキッチン",
+          "to": "丹花庵古墳",
+          "distance_km": 5.6,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "丹花庵古墳",
+          "to": "戦没者慰霊碑",
+          "distance_km": 7.84,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "戦没者慰霊碑",
+          "to": "松江駅",
+          "distance_km": 7.47,
+          "mode": "car",
+          "minutes": 17
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 5.0,
+        "from_last_km": 7.5
+      },
       "total_score": 36.0,
       "center": [
         35.456323,
@@ -272,9 +439,61 @@
       "id": "osm-shimane-05",
       "area": "shimane",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "島根県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 283,
+      "estimated_minutes": 331,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "大山代神社跡地",
+          "distance_km": 1.69,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "大山代神社跡地",
+          "to": "源助柱記念碑",
+          "distance_km": 2.4,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "源助柱記念碑",
+          "to": "Y'sキッチン",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "Y'sキッチン",
+          "to": "松江城碑",
+          "distance_km": 0.58,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "松江城碑",
+          "to": "大成古墳",
+          "distance_km": 14.85,
+          "mode": "car",
+          "minutes": 34
+        },
+        {
+          "from": "大成古墳",
+          "to": "松江駅",
+          "distance_km": 13.55,
+          "mode": "car",
+          "minutes": 31
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 1.7,
+        "from_last_km": 13.6
+      },
       "total_score": 32.0,
       "center": [
         35.458635,

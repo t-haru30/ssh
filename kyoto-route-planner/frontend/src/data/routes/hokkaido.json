@@ -1,134 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:09.771074+00:00",
+  "generated_at": "2026-10-12T04:55:24.886858+00:00",
   "area": "hokkaido",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-hokkaido-01",
       "area": "hokkaido",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "北海道の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 210,
-      "total_score": 43.3,
-      "center": [
-        43.765443,
-        143.012509
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-11049028605",
-          "name": "遠軽町埋蔵文化財センター",
-          "category": "博物館",
-          "lat": 43.8864092,
-          "lng": 143.1928061,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5603040033",
-          "name": "層雲峡",
-          "category": "観光名所",
-          "lat": 43.727881,
-          "lng": 142.951303,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3600728446",
-          "name": "大雪山",
-          "category": "観光名所",
-          "lat": 43.6820387,
-          "lng": 142.8934189,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          43.8864092,
-          143.1928061
-        ],
-        [
-          43.727881,
-          142.951303
-        ],
-        [
-          43.6820387,
-          142.8934189
-        ]
-      ]
-    },
-    {
-      "id": "osm-hokkaido-02",
-      "area": "hokkaido",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "北海道の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 231,
-      "total_score": 40.0,
-      "center": [
-        43.421208,
-        141.385593
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-11311153766",
-          "name": "はまます郷土資料館",
-          "category": "博物館",
-          "lat": 43.6125979,
-          "lng": 141.3740094,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10077473597",
-          "name": "厚田展望台",
-          "category": "展望地",
-          "lat": 43.4058027,
-          "lng": 141.4324888,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4506513689",
-          "name": "いしかり砂丘の風資料館",
-          "category": "博物館",
-          "lat": 43.2452222,
-          "lng": 141.3502814,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          43.6125979,
-          141.3740094
-        ],
-        [
-          43.4058027,
-          141.4324888
-        ],
-        [
-          43.2452222,
-          141.3502814
-        ]
-      ]
-    },
-    {
-      "id": "osm-hokkaido-03",
-      "area": "hokkaido",
-      "pattern": "half_day",
+      "course": "half_day",
       "theme": "nature",
       "title": "北海道の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 175,
+      "estimated_minutes": 232,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "サンピアザ水族館",
+          "distance_km": 10.45,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "サンピアザ水族館",
+          "to": "札幌市交通資料館",
+          "distance_km": 9.44,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "札幌市交通資料館",
+          "to": "白旗山",
+          "distance_km": 7.83,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "白旗山",
+          "to": "札幌駅",
+          "distance_km": 14.55,
+          "mode": "car",
+          "minutes": 33
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 10.4,
+        "from_last_km": 14.5
+      },
       "total_score": 50.0,
       "center": [
         42.996804,
@@ -182,12 +103,258 @@
       ]
     },
     {
+      "id": "osm-hokkaido-02",
+      "area": "hokkaido",
+      "pattern": "half_day",
+      "course": "full_day",
+      "theme": "history",
+      "title": "北海道の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 376,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "幌内線記念之碑",
+          "distance_km": 40.22,
+          "mode": "car",
+          "minutes": 90
+        },
+        {
+          "from": "幌内線記念之碑",
+          "to": "幌内線 弥生駅跡",
+          "distance_km": 12.21,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "幌内線 弥生駅跡",
+          "to": "幌内線 幾春別駅跡",
+          "distance_km": 1.22,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "幌内線 幾春別駅跡",
+          "to": "札幌駅",
+          "distance_km": 53.6,
+          "mode": "car",
+          "minutes": 120
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 40.2,
+        "from_last_km": 53.6
+      },
+      "total_score": 50.0,
+      "center": [
+        43.24617,
+        141.900089
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13204586617",
+          "name": "幌内線記念之碑",
+          "category": "史跡",
+          "lat": 43.2208692,
+          "lng": 141.8004969,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13227890558",
+          "name": "幌内線 弥生駅跡",
+          "category": "史跡",
+          "lat": 43.2567486,
+          "lng": 141.9429275,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13227890976",
+          "name": "幌内線 幾春別駅跡",
+          "category": "史跡",
+          "lat": 43.2608916,
+          "lng": 141.9568415,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.2208692,
+          141.8004969
+        ],
+        [
+          43.2567486,
+          141.9429275
+        ],
+        [
+          43.2608916,
+          141.9568415
+        ]
+      ]
+    },
+    {
+      "id": "osm-hokkaido-03",
+      "area": "hokkaido",
+      "pattern": "half_day",
+      "course": "half_day",
+      "theme": "history",
+      "title": "北海道の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 208,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "札幌市水道記念館",
+          "distance_km": 4.34,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "札幌市水道記念館",
+          "to": "札幌市アイヌ文化交流センター",
+          "distance_km": 11.37,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "札幌市アイヌ文化交流センター",
+          "to": "札幌宮の森美術館",
+          "distance_km": 11.87,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "札幌宮の森美術館",
+          "to": "札幌駅",
+          "distance_km": 4.13,
+          "mode": "car",
+          "minutes": 10
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 4.3,
+        "from_last_km": 4.1
+      },
+      "total_score": 50.0,
+      "center": [
+        43.019595,
+        141.283641
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1784718847",
+          "name": "札幌市水道記念館",
+          "category": "博物館",
+          "lat": 43.0330672,
+          "lng": 141.3286403,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2546424687",
+          "name": "札幌市アイヌ文化交流センター",
+          "category": "博物館",
+          "lat": 42.9688912,
+          "lng": 141.2197237,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3570781324",
+          "name": "札幌宮の森美術館",
+          "category": "博物館",
+          "lat": 43.0568261,
+          "lng": 141.3025599,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          43.0330672,
+          141.3286403
+        ],
+        [
+          42.9688912,
+          141.2197237
+        ],
+        [
+          43.0568261,
+          141.3025599
+        ]
+      ]
+    },
+    {
       "id": "osm-hokkaido-04",
       "area": "hokkaido",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 326,
+      "estimated_minutes": 430,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "小樽市立 小樽美術館",
+          "distance_km": 31.81,
+          "mode": "car",
+          "minutes": 71
+        },
+        {
+          "from": "小樽市立 小樽美術館",
+          "to": "小樽オルゴール堂",
+          "distance_km": 0.91,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "小樽オルゴール堂",
+          "to": "民宿青塚食堂",
+          "distance_km": 5.15,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "民宿青塚食堂",
+          "to": "金融資料館",
+          "distance_km": 4.64,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "金融資料館",
+          "to": "神威岳",
+          "distance_km": 26.59,
+          "mode": "car",
+          "minutes": 60
+        },
+        {
+          "from": "神威岳",
+          "to": "札幌駅",
+          "distance_km": 14.46,
+          "mode": "car",
+          "minutes": 33
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 31.8,
+        "from_last_km": 14.5
+      },
       "total_score": 44.0,
       "center": [
         43.164918,
@@ -272,9 +439,61 @@
       "id": "osm-hokkaido-05",
       "area": "hokkaido",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 318,
+      "estimated_minutes": 412,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "市立小樽文学館",
+          "distance_km": 31.81,
+          "mode": "car",
+          "minutes": 71
+        },
+        {
+          "from": "市立小樽文学館",
+          "to": "メルヘン交差点",
+          "distance_km": 0.9,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "メルヘン交差点",
+          "to": "民宿青塚食堂",
+          "distance_km": 5.14,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "民宿青塚食堂",
+          "to": "追分節名歌碑",
+          "distance_km": 0.48,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "追分節名歌碑",
+          "to": "白い恋人パーク",
+          "distance_km": 27.0,
+          "mode": "car",
+          "minutes": 61
+        },
+        {
+          "from": "白い恋人パーク",
+          "to": "札幌駅",
+          "distance_km": 6.8,
+          "mode": "car",
+          "minutes": 16
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 31.8,
+        "from_last_km": 6.8
+      },
       "total_score": 40.0,
       "center": [
         43.190181,

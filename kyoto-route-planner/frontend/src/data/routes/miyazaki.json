@@ -1,16 +1,55 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:44.661033+00:00",
+  "generated_at": "2026-10-12T04:56:00.453817+00:00",
   "area": "miyazaki",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-miyazaki-01",
       "area": "miyazaki",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 183,
+      "estimated_minutes": 292,
+      "legs": [
+        {
+          "from": "宮崎駅",
+          "to": "宮崎県立西都原考古博物館",
+          "distance_km": 23.76,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "宮崎県立西都原考古博物館",
+          "to": "高鍋町歴史総合資料館",
+          "distance_km": 11.3,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "高鍋町歴史総合資料館",
+          "to": "千畑古墳",
+          "distance_km": 9.66,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "千畑古墳",
+          "to": "宮崎駅",
+          "distance_km": 25.08,
+          "mode": "car",
+          "minutes": 56
+        }
+      ],
+      "start": {
+        "name": "宮崎駅",
+        "lat": 31.91575,
+        "lng": 131.43195,
+        "to_first_km": 23.8,
+        "from_last_km": 25.1
+      },
       "total_score": 46.7,
       "center": [
         32.12915,
@@ -67,9 +106,47 @@
       "id": "osm-miyazaki-02",
       "area": "miyazaki",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 181,
+      "estimated_minutes": 240,
+      "legs": [
+        {
+          "from": "宮崎駅",
+          "to": "綾城",
+          "distance_km": 19.82,
+          "mode": "car",
+          "minutes": 45
+        },
+        {
+          "from": "綾城",
+          "to": "天ケ城歴史民俗資料館",
+          "distance_km": 6.24,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "天ケ城歴史民俗資料館",
+          "to": "蓮ヶ池横穴群",
+          "distance_km": 14.31,
+          "mode": "car",
+          "minutes": 32
+        },
+        {
+          "from": "蓮ヶ池横穴群",
+          "to": "宮崎駅",
+          "distance_km": 5.98,
+          "mode": "car",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "宮崎駅",
+        "lat": 31.91575,
+        "lng": 131.43195,
+        "to_first_km": 19.8,
+        "from_last_km": 6.0
+      },
       "total_score": 40.0,
       "center": [
         31.977933,
@@ -126,9 +203,47 @@
       "id": "osm-miyazaki-03",
       "area": "miyazaki",
       "pattern": "half_day",
+      "course": "half_day",
       "theme": "all",
       "title": "宮崎県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 189,
+      "estimated_minutes": 285,
+      "legs": [
+        {
+          "from": "宮崎駅",
+          "to": "飫肥城",
+          "distance_km": 32.8,
+          "mode": "car",
+          "minutes": 74
+        },
+        {
+          "from": "飫肥城",
+          "to": "猪八重渓谷",
+          "distance_km": 11.13,
+          "mode": "car",
+          "minutes": 25
+        },
+        {
+          "from": "猪八重渓谷",
+          "to": "木花神社",
+          "distance_km": 12.58,
+          "mode": "car",
+          "minutes": 29
+        },
+        {
+          "from": "木花神社",
+          "to": "宮崎駅",
+          "distance_km": 9.79,
+          "mode": "car",
+          "minutes": 22
+        }
+      ],
+      "start": {
+        "name": "宮崎駅",
+        "lat": 31.91575,
+        "lng": 131.43195,
+        "to_first_km": 32.8,
+        "from_last_km": 9.8
+      },
       "total_score": 40.0,
       "center": [
         31.728136,
@@ -185,86 +300,138 @@
       "id": "osm-miyazaki-04",
       "area": "miyazaki",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 272,
+      "estimated_minutes": 480,
+      "legs": [
+        {
+          "from": "宮崎駅",
+          "to": "シゴナナの動輪",
+          "distance_km": 41.31,
+          "mode": "car",
+          "minutes": 93
+        },
+        {
+          "from": "シゴナナの動輪",
+          "to": "戦傷病者之碑",
+          "distance_km": 0.96,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "戦傷病者之碑",
+          "to": "北諸",
+          "distance_km": 6.86,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "北諸",
+          "to": "殉職自衛官之碑",
+          "distance_km": 6.86,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "殉職自衛官之碑",
+          "to": "東霧島神社",
+          "distance_km": 13.89,
+          "mode": "car",
+          "minutes": 31
+        },
+        {
+          "from": "東霧島神社",
+          "to": "宮崎駅",
+          "distance_km": 35.98,
+          "mode": "car",
+          "minutes": 81
+        }
+      ],
+      "start": {
+        "name": "宮崎駅",
+        "lat": 31.91575,
+        "lng": 131.43195,
+        "to_first_km": 41.3,
+        "from_last_km": 36.0
+      },
       "total_score": 32.0,
       "center": [
-        32.597488,
-        131.658
+        31.74818,
+        131.066964
       ],
       "spots": [
         {
-          "place_id": "osm-node-3777522186",
-          "name": "三福寺",
-          "category": "観光名所",
-          "lat": 32.5828767,
-          "lng": 131.6657124,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10111740264",
-          "name": "戦没者記念碑",
+          "place_id": "osm-node-12783524378",
+          "name": "シゴナナの動輪",
           "category": "史跡",
-          "lat": 32.6144846,
-          "lng": 131.6264329,
+          "lat": 31.723067,
+          "lng": 131.0581653,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10130130859",
-          "name": "桝元",
+          "place_id": "osm-node-12844100764",
+          "name": "戦傷病者之碑",
+          "category": "史跡",
+          "lat": 31.7210023,
+          "lng": 131.048331,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10298247423",
+          "name": "北諸",
           "category": "飲食店",
-          "lat": 32.5873912,
-          "lng": 131.6772638,
+          "lat": 31.7304798,
+          "lng": 131.1199936,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-10188743769",
-          "name": "道路開通記念碑など",
+          "place_id": "osm-node-12844100765",
+          "name": "殉職自衛官之碑",
           "category": "史跡",
-          "lat": 32.601199,
-          "lng": 131.6633022,
+          "lat": 31.7209332,
+          "lng": 131.0483766,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10235138659",
-          "name": "堤防記念碑",
-          "category": "史跡",
-          "lat": 32.6014881,
-          "lng": 131.6572884,
+          "place_id": "osm-node-6877968486",
+          "name": "東霧島神社",
+          "category": "観光名所",
+          "lat": 31.8454173,
+          "lng": 131.0599526,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          32.5828767,
-          131.6657124
+          31.723067,
+          131.0581653
         ],
         [
-          32.6144846,
-          131.6264329
+          31.7210023,
+          131.048331
         ],
         [
-          32.5873912,
-          131.6772638
+          31.7304798,
+          131.1199936
         ],
         [
-          32.601199,
-          131.6633022
+          31.7209332,
+          131.0483766
         ],
         [
-          32.6014881,
-          131.6572884
+          31.8454173,
+          131.0599526
         ]
       ]
     },
@@ -272,61 +439,113 @@
       "id": "osm-miyazaki-05",
       "area": "miyazaki",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 303,
+      "estimated_minutes": 463,
+      "legs": [
+        {
+          "from": "宮崎駅",
+          "to": "軍馬建立碑",
+          "distance_km": 42.22,
+          "mode": "car",
+          "minutes": 95
+        },
+        {
+          "from": "軍馬建立碑",
+          "to": "満州事変戦没者合祀碑",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "満州事変戦没者合祀碑",
+          "to": "北諸",
+          "distance_km": 6.87,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "北諸",
+          "to": "済南事変戦死者之碑",
+          "distance_km": 6.82,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "済南事変戦死者之碑",
+          "to": "旧衛成地埋葬者合祀碑",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "旧衛成地埋葬者合祀碑",
+          "to": "宮崎駅",
+          "distance_km": 42.17,
+          "mode": "car",
+          "minutes": 94
+        }
+      ],
+      "start": {
+        "name": "宮崎駅",
+        "lat": 31.91575,
+        "lng": 131.43195,
+        "to_first_km": 42.2,
+        "from_last_km": 42.2
+      },
       "total_score": 30.0,
       "center": [
-        32.589457,
-        131.66552
+        31.722861,
+        131.062896
       ],
       "spots": [
         {
-          "place_id": "osm-node-10269109889",
-          "name": "高平山牧場開発10周年記念ベンチ",
+          "place_id": "osm-node-12844100766",
+          "name": "軍馬建立碑",
           "category": "史跡",
-          "lat": 32.6015563,
-          "lng": 131.6263931,
+          "lat": 31.7210131,
+          "lng": 131.0483994,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423869593",
-          "name": "延岡市市民会館内藤記念館",
-          "category": "博物館",
-          "lat": 32.581665,
-          "lng": 131.658671,
+          "place_id": "osm-node-12844100767",
+          "name": "満州事変戦没者合祀碑",
+          "category": "史跡",
+          "lat": 31.7209504,
+          "lng": 131.0482471,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10130130859",
-          "name": "桝元",
+          "place_id": "osm-node-10298247423",
+          "name": "北諸",
           "category": "飲食店",
-          "lat": 32.5873912,
-          "lng": 131.6772638,
+          "lat": 31.7304798,
+          "lng": 131.1199936,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-1423883763",
-          "name": "西郷隆盛宿陣跡資料館（西郷南洲翁寓居跡）",
-          "category": "博物館",
-          "lat": 32.6526439,
-          "lng": 131.6885463,
+          "place_id": "osm-node-12844100768",
+          "name": "済南事変戦死者之碑",
+          "category": "史跡",
+          "lat": 31.7209384,
+          "lng": 131.0488164,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4659517089",
-          "name": "一ケ岡中央公園展望台",
-          "category": "展望地",
-          "lat": 32.5240275,
-          "lng": 131.6767261,
+          "place_id": "osm-node-12844100769",
+          "name": "旧衛成地埋葬者合祀碑",
+          "category": "史跡",
+          "lat": 31.7209213,
+          "lng": 131.0490243,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -334,24 +553,24 @@
       ],
       "coordinates": [
         [
-          32.6015563,
-          131.6263931
+          31.7210131,
+          131.0483994
         ],
         [
-          32.581665,
-          131.658671
+          31.7209504,
+          131.0482471
         ],
         [
-          32.5873912,
-          131.6772638
+          31.7304798,
+          131.1199936
         ],
         [
-          32.6526439,
-          131.6885463
+          31.7209384,
+          131.0488164
         ],
         [
-          32.5240275,
-          131.6767261
+          31.7209213,
+          131.0490243
         ]
       ]
     }

@@ -40,7 +40,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const [selected, setSelected] = useState<DatasetRoute | RouteIdea | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const allRoutes = datasetsByArea.get(area)?.routes ?? [];
-  const routes = useMemo(() => allRoutes.filter(route => (theme === "all" || route.theme === theme) && (pattern === "all" || route.pattern === pattern)), [allRoutes, theme, pattern]);
+  const routes = useMemo(() => allRoutes.filter(route => (theme === "all" || route.theme === theme) && (pattern === "all" || route.course === pattern)), [allRoutes, theme, pattern]);
   const collectionKey = `${area}:${theme}:${pattern}`;
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);

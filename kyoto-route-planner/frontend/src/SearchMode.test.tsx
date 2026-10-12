@@ -5,6 +5,31 @@ import { readJourneyDraft } from "./journeyDraft";
 import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
 import { serializeJourneyFile } from "./journeyFile";
 
+const SAVED_PLAN_STORAGE_KEY = "kyoto-route-planner:saved-plan:v1";
+const SEARCH_FORM_STORAGE_KEY = "kyoto-route-planner:search-form:v1";
+const savedRoute = {
+  places: [{
+    id: "saved-spot",
+    name: "保存済みスポット",
+    category: "文化",
+    description: "保存された候補地",
+    access_point: "",
+    latitude: 35,
+    longitude: 135,
+    themes: ["history"],
+  }],
+  origin: { name: "京都駅", latitude: 35, longitude: 135 },
+  legs: [],
+  title: "保存済みルート",
+  story: "前回の検索結果",
+  total_minutes: null,
+  departure_time: "09:00",
+  arrival_time: null,
+  timeline: [],
+  note: "テスト用",
+  coordinates: [],
+};
+
 vi.mock("./LazyMapView", () => ({ LazyMapView: () => null }));
 vi.mock("./IdeaDeck", () => ({ IdeaDeck: () => null }));
 vi.mock("./localPlaces", () => ({ localPlaces: [
@@ -93,6 +118,83 @@ describe("SearchMode nearby departures", () => {
       return_to: "周辺地下鉄駅",
       return_latitude: 34.987,
       return_longitude: 135.76,
+    });
+  });
+
+  it("restores a saved route and form, then persists form changes", async () => {
+      window.localStorage.setItem(SAVED_PLAN_STORAGE_KEY, JSON.stringify({
+        suggestions: [savedRoute],
+        overnightSuggestion: null,
+      }));
+      window.localStorage.setItem(SEARCH_FORM_STORAGE_KEY, JSON.stringify({
+        originName: "大阪駅",
+        nearbyStations: [],
+        theme: "history",
+        mood: "静かな場所",
+        stopCount: 2,
+        departureDate: "2026-10-13",
+        departureTime: "10:30",
+        isOvernight: false,
+        regenerationCount: 0,
+      }));
+      vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        const json = url.includes("/api/origins")
+          ? [
+            { name: "京都駅", latitude: 35, longitude: 135 },
+            { name: "大阪駅", latitude: 34.7, longitude: 135.5 },
+          ]
+          : url.includes("/api/places/status")
+            ? { warning: null, state: "success" }
+            : [];
+        return { ok: true, json: async () => json } as Response;
+      }));
+
+      render(<SearchMode active />);
+
+      expect(await screen.findByRole("heading", { name: "保存済みルート" })).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
+      await waitFor(() => expect((screen.getByRole("combobox", { name: "出発駅" }) as HTMLSelectElement).selectedOptions[0].textContent).toBe("大阪駅"));
+      expect(screen.getByRole("checkbox", { name: /文化/ })).toHaveProperty("checked", true);
+      expect(screen.getByLabelText("出発日")).toHaveProperty("value", "2026-10-13");
+      await waitFor(() => expect(readJourneyDraft()?.plan.stops[0].place.id).toBe("saved-spot"));
+      expect(window.localStorage.getItem(SAVED_PLAN_STORAGE_KEY)).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: "1泊2日" }));
+      await waitFor(() => {
+        const savedForm = JSON.parse(window.localStorage.getItem(SEARCH_FORM_STORAGE_KEY) ?? "{}");
+        expect(savedForm.isOvernight).toBe(true);
+      });
+      expect(screen.getByRole("button", { name: /歴史・文化/ }).getAttribute("aria-pressed")).toBe("true");
+      expect(screen.getByRole("textbox")).toHaveProperty("value", "静かな場所");
+  });
+
+  it("saves route results returned by the route API", async () => {
+      window.localStorage.setItem(SAVED_PLAN_STORAGE_KEY, JSON.stringify({ suggestions: [savedRoute], overnightSuggestion: null }));
+      vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("/api/routes")) {
+          return { ok: true, json: async () => ({ routes: [savedRoute] }) } as Response;
+        }
+        const json = url.includes("/api/origins")
+          ? [{ name: "京都駅", latitude: 35, longitude: 135 }]
+          : url.includes("/api/places/status")
+            ? { warning: null, state: "success" }
+            : [];
+        return { ok: true, json: async () => json } as Response;
+      }));
+
+      render(<SearchMode active />);
+      const search = await screen.findByRole("button", { name: /交通経路を再検索/ });
+      await waitFor(() => expect(search).toHaveProperty("disabled", false));
+      fireEvent.click(search);
+
+      await waitFor(() => {
+        const draft = readJourneyDraft();
+        expect(draft?.title).toBe("保存済みルート");
+        expect(draft?.plan.transport.date).toBeTruthy();
+        expect(draft?.plan.stops[0].place.name).toBe("保存済みスポット");
+        expect(window.localStorage.getItem(SAVED_PLAN_STORAGE_KEY)).toBeNull();
     });
   });
 });
