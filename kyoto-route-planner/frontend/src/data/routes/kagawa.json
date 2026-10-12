@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:55.913476+00:00",
+  "generated_at": "2026-10-12T06:26:14.856293+00:00",
   "area": "kagawa",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "kagawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "香川県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 278,
       "legs": [
@@ -100,14 +99,14 @@
           34.2912754,
           133.7923195
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagawa-02",
       "area": "kagawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "香川県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 180,
       "legs": [
@@ -197,14 +196,14 @@
           34.350028,
           134.050386
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagawa-03",
       "area": "kagawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "all",
       "title": "香川県の名所スポットをめぐる半日ルート",
       "estimated_minutes": 195,
       "legs": [
@@ -294,162 +293,30 @@
           34.3483635,
           134.1143083
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-kagawa-04",
       "area": "kagawa",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
-      "title": "香川県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 296,
+      "title": "香川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 265,
       "legs": [
         {
           "from": "高松駅",
-          "to": "厄除不動明王院",
-          "distance_km": 2.2,
-          "mode": "car",
-          "minutes": 5
-        },
-        {
-          "from": "厄除不動明王院",
           "to": "高松市歴史資料館",
-          "distance_km": 0.91,
+          "distance_km": 1.34,
           "mode": "car",
           "minutes": 3
         },
         {
           "from": "高松市歴史資料館",
-          "to": "プロント",
-          "distance_km": 1.52,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "プロント",
-          "to": "別格19 寶幢山 香西寺",
-          "distance_km": 5.01,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "別格19 寶幢山 香西寺",
-          "to": "法華寺",
-          "distance_km": 5.1,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "法華寺",
-          "to": "高松駅",
-          "distance_km": 8.95,
-          "mode": "car",
-          "minutes": 20
-        }
-      ],
-      "start": {
-        "name": "高松駅",
-        "lat": 34.3505,
-        "lng": 134.0467,
-        "to_first_km": 2.2,
-        "from_last_km": 9.0
-      },
-      "total_score": 38.0,
-      "center": [
-        34.338084,
-        134.013578
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-13113940502",
-          "name": "厄除不動明王院",
-          "category": "観光名所",
-          "lat": 34.3374557,
-          "lng": 134.0286212,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423746357",
-          "name": "高松市歴史資料館",
-          "category": "博物館",
-          "lat": 34.3440309,
-          "lng": 134.0344437,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10039830101",
-          "name": "プロント",
-          "category": "飲食店",
-          "lat": 34.3514971,
-          "lng": 134.0483508,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4796738631",
-          "name": "別格19 寶幢山 香西寺",
-          "category": "観光名所",
-          "lat": 34.347619,
-          "lng": 133.9939302,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4806012072",
-          "name": "法華寺",
-          "category": "観光名所",
-          "lat": 34.309815,
-          "lng": 133.9625435,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.3374557,
-          134.0286212
-        ],
-        [
-          34.3440309,
-          134.0344437
-        ],
-        [
-          34.3514971,
-          134.0483508
-        ],
-        [
-          34.347619,
-          133.9939302
-        ],
-        [
-          34.309815,
-          133.9625435
-        ]
-      ]
-    },
-    {
-      "id": "osm-kagawa-05",
-      "area": "kagawa",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "香川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 299,
-      "legs": [
-        {
-          "from": "高松駅",
           "to": "香川大学博物館",
-          "distance_km": 1.1,
-          "mode": "car",
-          "minutes": 3
+          "distance_km": 0.36,
+          "mode": "walk",
+          "minutes": 7
         },
         {
           "from": "香川大学博物館",
@@ -460,46 +327,49 @@
         },
         {
           "from": "左甚五郎美術館",
-          "to": "プロント",
-          "distance_km": 0.5,
-          "mode": "walk",
-          "minutes": 10
+          "to": "厄除不動明王院",
+          "distance_km": 2.4,
+          "mode": "car",
+          "minutes": 6
         },
         {
-          "from": "プロント",
-          "to": "松島小学校跡",
-          "distance_km": 1.79,
+          "from": "厄除不動明王院",
+          "to": "麺やkyo",
+          "distance_km": 0.84,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "麺やkyo",
+          "to": "高松駅",
+          "distance_km": 1.55,
           "mode": "car",
           "minutes": 4
-        },
-        {
-          "from": "松島小学校跡",
-          "to": "大善寺",
-          "distance_km": 8.85,
-          "mode": "car",
-          "minutes": 20
-        },
-        {
-          "from": "大善寺",
-          "to": "高松駅",
-          "distance_km": 8.2,
-          "mode": "car",
-          "minutes": 19
         }
       ],
       "start": {
         "name": "高松駅",
         "lat": 34.3505,
         "lng": 134.0467,
-        "to_first_km": 1.1,
-        "from_last_km": 8.2
+        "to_first_km": 1.3,
+        "from_last_km": 1.5
       },
-      "total_score": 34.0,
+      "total_score": 36.0,
       "center": [
-        34.338209,
-        134.034686
+        34.342323,
+        134.038082
       ],
       "spots": [
+        {
+          "place_id": "osm-node-1423746357",
+          "name": "高松市歴史資料館",
+          "category": "博物館",
+          "lat": 34.3440309,
+          "lng": 134.0344437,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-9950690258",
           "name": "香川大学博物館",
@@ -521,15 +391,115 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10039830101",
-          "name": "プロント",
+          "place_id": "osm-node-13113940502",
+          "name": "厄除不動明王院",
+          "category": "観光名所",
+          "lat": 34.3374557,
+          "lng": 134.0286212,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13127298085",
+          "name": "麺やkyo",
           "category": "飲食店",
-          "lat": 34.3514971,
-          "lng": 134.0483508,
+          "lat": 34.3387999,
+          "lng": 134.0375705,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「厄除不動明王院」から徒歩目安約11分です。"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3440309,
+          134.0344437
+        ],
+        [
+          34.343472,
+          134.0382589
+        ],
+        [
+          34.347857,
+          134.0515155
+        ],
+        [
+          34.3374557,
+          134.0286212
+        ],
+        [
+          34.3387999,
+          134.0375705
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-kagawa-05",
+      "area": "kagawa",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "香川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 292,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "松島小学校跡",
+          "distance_km": 1.83,
+          "mode": "car",
+          "minutes": 5
         },
+        {
+          "from": "松島小学校跡",
+          "to": "高松城外濠の常盤橋と高札場の辻跡",
+          "distance_km": 1.25,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "高松城外濠の常盤橋と高札場の辻跡",
+          "to": "高松港発祥の地",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "高松港発祥の地",
+          "to": "別格19 寶幢山 香西寺",
+          "distance_km": 5.71,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "別格19 寶幢山 香西寺",
+          "to": "富裕楼",
+          "distance_km": 0.48,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "富裕楼",
+          "to": "高松駅",
+          "distance_km": 4.55,
+          "mode": "car",
+          "minutes": 11
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 1.8,
+        "from_last_km": 4.6
+      },
+      "total_score": 32.0,
+      "center": [
+        34.346569,
+        134.031939
+      ],
+      "spots": [
         {
           "place_id": "osm-node-10296506905",
           "name": "松島小学校跡",
@@ -541,38 +511,70 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4806012076",
-          "name": "大善寺",
+          "place_id": "osm-node-10301891766",
+          "name": "高松城外濠の常盤橋と高札場の辻跡",
+          "category": "史跡",
+          "lat": 34.3461777,
+          "lng": 134.0505941,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10310141374",
+          "name": "高松港発祥の地",
+          "category": "史跡",
+          "lat": 34.348158,
+          "lng": 134.0561491,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4796738631",
+          "name": "別格19 寶幢山 香西寺",
           "category": "観光名所",
-          "lat": 34.3083393,
-          "lng": 133.9733831,
+          "lat": 34.347619,
+          "lng": 133.9939302,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2347689119",
+          "name": "富裕楼",
+          "category": "飲食店",
+          "lat": 34.3510091,
+          "lng": 133.9971018,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「別格19 寶幢山 香西寺」から徒歩目安約6分です。"
         }
       ],
       "coordinates": [
-        [
-          34.343472,
-          134.0382589
-        ],
-        [
-          34.347857,
-          134.0515155
-        ],
-        [
-          34.3514971,
-          134.0483508
-        ],
         [
           34.3398791,
           134.0619193
         ],
         [
-          34.3083393,
-          133.9733831
+          34.3461777,
+          134.0505941
+        ],
+        [
+          34.348158,
+          134.0561491
+        ],
+        [
+          34.347619,
+          133.9939302
+        ],
+        [
+          34.3510091,
+          133.9971018
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

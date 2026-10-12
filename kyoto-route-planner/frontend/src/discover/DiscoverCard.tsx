@@ -41,7 +41,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe }: DiscoverC
       title={route.title}
       description={isIdea ? route.story : `${route.spots.length}か所をつないで、この街を少し深く。`}
       summary={isIdea
-        ? `${route.places.length}か所のスポットを巡るよりみち`
+        ? `${route.places.length}か所のスポットを巡るConcierGO`
         : `⏱ 総所要時間 約${formatMinutes(route.estimated_minutes)}`}
       spots={isIdea
         ? route.places.map((place) => ({

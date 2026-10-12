@@ -92,7 +92,7 @@ describe("DiscoverMode", () => {
     const view = renderDiscoverMode();
     fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
     fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
-    expect(screen.getByText("1 / 3")).toBeTruthy();
+    expect(screen.getByText("1 / 2")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
     fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
     expect(screen.getByText("2 / 5")).toBeTruthy();
@@ -100,7 +100,7 @@ describe("DiscoverMode", () => {
     view.rerender(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
     expect(screen.getByText("2 / 5")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
-    expect(screen.getByText("2 / 3")).toBeTruthy();
+    expect(screen.getByText("2 / 2")).toBeTruthy();
   });
 
   it("shows an actionable empty state when the chosen theme has no routes", () => {

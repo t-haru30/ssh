@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:49.596709+00:00",
+  "generated_at": "2026-10-12T06:26:08.305069+00:00",
   "area": "hyogo",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "hyogo",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "兵庫県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 288,
       "legs": [
@@ -100,16 +99,16 @@
           34.9727541,
           135.0823071
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hyogo-02",
       "area": "hyogo",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "all",
       "title": "兵庫県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 321,
+      "estimated_minutes": 381,
       "legs": [
         {
           "from": "三ノ宮駅",
@@ -127,10 +126,17 @@
         },
         {
           "from": "高売布神社",
-          "to": "蓮花寺",
+          "to": "昼食: 要検討",
           "distance_km": 2.57,
           "mode": "car",
           "minutes": 6
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "蓮花寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "蓮花寺",
@@ -147,10 +153,10 @@
         "to_first_km": 41.2,
         "from_last_km": 27.7
       },
-      "total_score": 43.3,
+      "total_score": 32.5,
       "center": [
-        34.985435,
-        135.264018
+        34.972997,
+        135.265372
       ],
       "spots": [
         {
@@ -172,6 +178,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-hyogo-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 34.9356821,
+          "lng": 135.2694336,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-11111386419",
@@ -196,15 +213,19 @@
         [
           34.9356821,
           135.2694336
+        ],
+        [
+          34.9356821,
+          135.2694336
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-hyogo-03",
       "area": "hyogo",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "兵庫県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 207,
       "legs": [
@@ -294,16 +315,16 @@
           34.7199497,
           135.345695
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hyogo-04",
       "area": "hyogo",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "兵庫県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 381,
+      "estimated_minutes": 373,
       "legs": [
         {
           "from": "三ノ宮駅",
@@ -314,31 +335,31 @@
         },
         {
           "from": "世界の貯金箱博物館",
-          "to": "遊女塚",
-          "distance_km": 4.19,
-          "mode": "car",
-          "minutes": 10
-        },
-        {
-          "from": "遊女塚",
-          "to": "ホリーズカフェ",
-          "distance_km": 3.6,
-          "mode": "car",
-          "minutes": 9
-        },
-        {
-          "from": "ホリーズカフェ",
           "to": "尼崎市立歴史博物館",
-          "distance_km": 0.46,
+          "distance_km": 0.69,
           "mode": "walk",
-          "minutes": 9
+          "minutes": 13
         },
         {
           "from": "尼崎市立歴史博物館",
-          "to": "伊丹市昆虫館",
-          "distance_km": 8.82,
+          "to": "村山実銅像",
+          "distance_km": 1.8,
           "mode": "car",
-          "minutes": 20
+          "minutes": 5
+        },
+        {
+          "from": "村山実銅像",
+          "to": "まゆげの",
+          "distance_km": 8.3,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "まゆげの",
+          "to": "伊丹市昆虫館",
+          "distance_km": 1.29,
+          "mode": "car",
+          "minutes": 3
         },
         {
           "from": "伊丹市昆虫館",
@@ -355,10 +376,10 @@
         "to_first_km": 20.1,
         "from_last_km": 21.2
       },
-      "total_score": 48.0,
+      "total_score": 46.0,
       "center": [
-        34.736161,
-        135.419559
+        34.750733,
+        135.40599
       ],
       "spots": [
         {
@@ -372,26 +393,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4314988139",
-          "name": "遊女塚",
-          "category": "史跡",
-          "lat": 34.7394828,
-          "lng": 135.449502,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10138925425",
-          "name": "ホリーズカフェ",
-          "category": "飲食店",
-          "lat": 34.7188328,
-          "lng": 135.4191494,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-4441763434",
           "name": "尼崎市立歴史博物館",
           "category": "博物館",
@@ -400,6 +401,27 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5915558992",
+          "name": "村山実銅像",
+          "category": "史跡",
+          "lat": 34.7296517,
+          "lng": 135.4125978,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12005745750",
+          "name": "まゆげの",
+          "category": "飲食店",
+          "lat": 34.8015223,
+          "lng": 135.3882075,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「伊丹市昆虫館」から徒歩目安約17分です。"
         },
         {
           "place_id": "osm-node-1423052008",
@@ -418,161 +440,163 @@
           135.4134125
         ],
         [
-          34.7394828,
-          135.449502
-        ],
-        [
-          34.7188328,
-          135.4191494
-        ],
-        [
           34.7149245,
           135.4208108
-        ],
-        [
-          34.7913093,
-          135.3949205
-        ]
-      ]
-    },
-    {
-      "id": "osm-hyogo-05",
-      "area": "hyogo",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "兵庫県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 377,
-      "legs": [
-        {
-          "from": "三ノ宮駅",
-          "to": "甲子園歴史館",
-          "distance_km": 15.53,
-          "mode": "car",
-          "minutes": 35
-        },
-        {
-          "from": "甲子園歴史館",
-          "to": "村山実銅像",
-          "distance_km": 4.71,
-          "mode": "car",
-          "minutes": 11
-        },
-        {
-          "from": "村山実銅像",
-          "to": "ホリーズカフェ",
-          "distance_km": 1.34,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "ホリーズカフェ",
-          "to": "甲子園歴史館",
-          "distance_km": 5.22,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "甲子園歴史館",
-          "to": "松尾神社",
-          "distance_km": 11.58,
-          "mode": "car",
-          "minutes": 26
-        },
-        {
-          "from": "松尾神社",
-          "to": "三ノ宮駅",
-          "distance_km": 22.38,
-          "mode": "car",
-          "minutes": 50
-        }
-      ],
-      "start": {
-        "name": "三ノ宮駅",
-        "lat": 34.6945,
-        "lng": 135.1953,
-        "to_first_km": 15.5,
-        "from_last_km": 22.4
-      },
-      "total_score": 46.0,
-      "center": [
-        34.742291,
-        135.388073
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-4726202079",
-          "name": "甲子園歴史館",
-          "category": "博物館",
-          "lat": 34.720559,
-          "lng": 135.3622255,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5915558992",
-          "name": "村山実銅像",
-          "category": "史跡",
-          "lat": 34.7296517,
-          "lng": 135.4125978,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10138925425",
-          "name": "ホリーズカフェ",
-          "category": "飲食店",
-          "lat": 34.7188328,
-          "lng": 135.4191494,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-9690847709",
-          "name": "甲子園歴史館",
-          "category": "博物館",
-          "lat": 34.7199394,
-          "lng": 135.3620365,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11862339372",
-          "name": "松尾神社",
-          "category": "観光名所",
-          "lat": 34.822472,
-          "lng": 135.3843549,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.720559,
-          135.3622255
         ],
         [
           34.7296517,
           135.4125978
         ],
         [
-          34.7188328,
-          135.4191494
+          34.8015223,
+          135.3882075
         ],
         [
-          34.7199394,
-          135.3620365
-        ],
-        [
-          34.822472,
-          135.3843549
+          34.7913093,
+          135.3949205
         ]
-      ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-hyogo-05",
+      "area": "hyogo",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "兵庫県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 362,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "木市呉服店跡",
+          "distance_km": 20.13,
+          "mode": "car",
+          "minutes": 45
+        },
+        {
+          "from": "木市呉服店跡",
+          "to": "記念植樹",
+          "distance_km": 1.38,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "記念植樹",
+          "to": "着船橋跡",
+          "distance_km": 0.53,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "着船橋跡",
+          "to": "ホリーズカフェ",
+          "distance_km": 2.44,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "ホリーズカフェ",
+          "to": "遊女塚",
+          "distance_km": 1.6,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "遊女塚",
+          "to": "三ノ宮駅",
+          "distance_km": 23.77,
+          "mode": "car",
+          "minutes": 53
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 20.1,
+        "from_last_km": 23.8
+      },
+      "total_score": 36.0,
+      "center": [
+        34.725156,
+        135.430214
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10050419004",
+          "name": "木市呉服店跡",
+          "category": "史跡",
+          "lat": 34.7199539,
+          "lng": 135.4132879,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10779185105",
+          "name": "記念植樹",
+          "category": "史跡",
+          "lat": 34.7181083,
+          "lng": 135.4282121,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11380929971",
+          "name": "着船橋跡",
+          "category": "史跡",
+          "lat": 34.713398,
+          "lng": 135.4271324,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6815180156",
+          "name": "ホリーズカフェ",
+          "category": "飲食店",
+          "lat": 34.7348361,
+          "lng": 135.4329355,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch",
+          "reason": "次の予定地「遊女塚」から徒歩目安約20分です。"
+        },
+        {
+          "place_id": "osm-node-4314988139",
+          "name": "遊女塚",
+          "category": "史跡",
+          "lat": 34.7394828,
+          "lng": 135.449502,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.7199539,
+          135.4132879
+        ],
+        [
+          34.7181083,
+          135.4282121
+        ],
+        [
+          34.713398,
+          135.4271324
+        ],
+        [
+          34.7348361,
+          135.4329355
+        ],
+        [
+          34.7394828,
+          135.449502
+        ]
+      ],
+      "theme": "history"
     }
   ]
 }

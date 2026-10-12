@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:45.256810+00:00",
+  "generated_at": "2026-10-12T06:26:03.598190+00:00",
   "area": "mie",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,9 +10,8 @@
       "area": "mie",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "三重県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 380,
+      "estimated_minutes": 443,
       "legs": [
         {
           "from": "津駅",
@@ -23,10 +22,17 @@
         },
         {
           "from": "横山展望台",
-          "to": "伊勢現代美術館",
-          "distance_km": 9.78,
+          "to": "大衆食堂　丸魚",
+          "distance_km": 10.16,
           "mode": "car",
-          "minutes": 22
+          "minutes": 23
+        },
+        {
+          "from": "大衆食堂　丸魚",
+          "to": "伊勢現代美術館",
+          "distance_km": 0.82,
+          "mode": "car",
+          "minutes": 2
         },
         {
           "from": "伊勢現代美術館",
@@ -50,10 +56,10 @@
         "to_first_km": 52.0,
         "from_last_km": 45.6
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        34.342583,
-        136.731386
+        34.343802,
+        136.721049
       ],
       "spots": [
         {
@@ -65,6 +71,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4162444523",
+          "name": "大衆食堂　丸魚",
+          "category": "飲食店",
+          "lat": 34.3474588,
+          "lng": 136.6900358,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「伊勢現代美術館」から徒歩目安約11分です。"
         },
         {
           "place_id": "osm-node-1420977064",
@@ -93,6 +110,10 @@
           136.7990173
         ],
         [
+          34.3474588,
+          136.6900358
+        ],
+        [
           34.340491,
           136.6930334
         ],
@@ -100,16 +121,16 @@
           34.355392,
           136.702108
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-mie-02",
       "area": "mie",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "三重県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 328,
+      "estimated_minutes": 391,
       "legs": [
         {
           "from": "津駅",
@@ -127,10 +148,17 @@
         },
         {
           "from": "庄野宿資料館",
-          "to": "澄懐堂美術館",
-          "distance_km": 12.31,
+          "to": "REDS' BURGER DINER",
+          "distance_km": 12.45,
           "mode": "car",
           "minutes": 28
+        },
+        {
+          "from": "REDS' BURGER DINER",
+          "to": "澄懐堂美術館",
+          "distance_km": 0.16,
+          "mode": "walk",
+          "minutes": 3
         },
         {
           "from": "澄懐堂美術館",
@@ -147,10 +175,10 @@
         "to_first_km": 31.1,
         "from_last_km": 27.5
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        34.954202,
-        136.544511
+        34.957098,
+        136.563293
       ],
       "spots": [
         {
@@ -174,6 +202,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-14091423233",
+          "name": "REDS' BURGER DINER",
+          "category": "飲食店",
+          "lat": 34.9657844,
+          "lng": 136.6196362,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「澄懐堂美術館」から徒歩目安約2分です。"
+        },
+        {
           "place_id": "osm-node-1420993937",
           "name": "澄懐堂美術館",
           "category": "博物館",
@@ -194,17 +233,21 @@
           136.5256316
         ],
         [
+          34.9657844,
+          136.6196362
+        ],
+        [
           34.9652568,
           136.6180274
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-mie-03",
       "area": "mie",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "三重県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 194,
       "legs": [
@@ -294,51 +337,191 @@
           34.727713,
           136.509788
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-mie-04",
       "area": "mie",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "三重県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 414,
+      "estimated_minutes": 403,
       "legs": [
         {
           "from": "津駅",
-          "to": "伊勢河崎商人館",
-          "distance_km": 32.47,
+          "to": "式年遷宮記念神宮美術館",
+          "distance_km": 33.73,
           "mode": "car",
-          "minutes": 73
+          "minutes": 76
         },
         {
-          "from": "伊勢河崎商人館",
-          "to": "式年遷宮記念神宮美術館",
-          "distance_km": 1.27,
+          "from": "式年遷宮記念神宮美術館",
+          "to": "皇學館大学佐川記念神道博物館",
+          "distance_km": 0.36,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "皇學館大学佐川記念神道博物館",
+          "to": "光明寺",
+          "distance_km": 0.98,
           "mode": "car",
           "minutes": 3
         },
         {
-          "from": "式年遷宮記念神宮美術館",
-          "to": "マクドナルド",
-          "distance_km": 2.33,
+          "from": "光明寺",
+          "to": "つたや",
+          "distance_km": 0.83,
           "mode": "car",
-          "minutes": 6
+          "minutes": 2
         },
         {
-          "from": "マクドナルド",
-          "to": "皇學館大学佐川記念神道博物館",
-          "distance_km": 2.62,
-          "mode": "car",
-          "minutes": 6
+          "from": "つたや",
+          "to": "伊勢河崎商人館",
+          "distance_km": 0.08,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "皇學館大学佐川記念神道博物館",
+          "from": "伊勢河崎商人館",
+          "to": "津駅",
+          "distance_km": 32.47,
+          "mode": "car",
+          "minutes": 73
+        }
+      ],
+      "start": {
+        "name": "津駅",
+        "lat": 34.73399,
+        "lng": 136.51026,
+        "to_first_km": 33.7,
+        "from_last_km": 32.5
+      },
+      "total_score": 40.0,
+      "center": [
+        34.490565,
+        136.72025
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420988340",
+          "name": "式年遷宮記念神宮美術館",
+          "category": "博物館",
+          "lat": 34.486637,
+          "lng": 136.723526,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420997772",
+          "name": "皇學館大学佐川記念神道博物館",
+          "category": "博物館",
+          "lat": 34.4841168,
+          "lng": 136.7260283,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1878709373",
+          "name": "光明寺",
+          "category": "観光名所",
+          "lat": 34.488839,
+          "lng": 136.7170558,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5139013394",
+          "name": "つたや",
+          "category": "飲食店",
+          "lat": 34.4962928,
+          "lng": 136.7171152,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「伊勢河崎商人館」から徒歩目安約2分です。"
+        },
+        {
+          "place_id": "osm-node-2028461919",
+          "name": "伊勢河崎商人館",
+          "category": "博物館",
+          "lat": 34.4969394,
+          "lng": 136.7175261,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.486637,
+          136.723526
+        ],
+        [
+          34.4841168,
+          136.7260283
+        ],
+        [
+          34.488839,
+          136.7170558
+        ],
+        [
+          34.4962928,
+          136.7171152
+        ],
+        [
+          34.4969394,
+          136.7175261
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-mie-05",
+      "area": "mie",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "三重県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 411,
+      "legs": [
+        {
+          "from": "津駅",
+          "to": "倭姬宮",
+          "distance_km": 33.85,
+          "mode": "car",
+          "minutes": 76
+        },
+        {
+          "from": "倭姬宮",
+          "to": "お伊勢まいり資料館",
+          "distance_km": 2.02,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "お伊勢まいり資料館",
+          "to": "神宮徴古館・農業館",
+          "distance_km": 2.1,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "神宮徴古館・農業館",
+          "to": "昼食: 要検討",
+          "distance_km": 8.89,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "昼食: 要検討",
           "to": "田丸城跡",
-          "distance_km": 9.01,
-          "mode": "car",
-          "minutes": 21
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "田丸城跡",
@@ -352,54 +535,55 @@
         "name": "津駅",
         "lat": 34.73399,
         "lng": 136.51026,
-        "to_first_km": 32.5,
+        "to_first_km": 33.8,
         "from_last_km": 29.1
       },
-      "total_score": 46.0,
+      "total_score": 30.0,
       "center": [
-        34.493175,
-        136.703847
+        34.483877,
+        136.685633
       ],
       "spots": [
         {
-          "place_id": "osm-node-2028461919",
-          "name": "伊勢河崎商人館",
-          "category": "博物館",
-          "lat": 34.4969394,
-          "lng": 136.7175261,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1420988340",
-          "name": "式年遷宮記念神宮美術館",
-          "category": "博物館",
-          "lat": 34.486637,
-          "lng": 136.723526,
+          "place_id": "osm-node-6470496188",
+          "name": "倭姬宮",
+          "category": "観光名所",
+          "lat": 34.4852112,
+          "lng": 136.7233418,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2019311979",
-          "name": "マクドナルド",
-          "category": "飲食店",
-          "lat": 34.5075857,
-          "lng": 136.7241009,
+          "place_id": "osm-node-1420974907",
+          "name": "お伊勢まいり資料館",
+          "category": "博物館",
+          "lat": 34.46707,
+          "lng": 136.723857,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420999015",
+          "name": "神宮徴古館・農業館",
+          "category": "博物館",
+          "lat": 34.485915,
+          "lng": 136.72486,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-mie-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 34.4905956,
+          "lng": 136.6280537,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1420997772",
-          "name": "皇學館大学佐川記念神道博物館",
-          "category": "博物館",
-          "lat": 34.4841168,
-          "lng": 136.7260283,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-5311844750",
@@ -414,165 +598,27 @@
       ],
       "coordinates": [
         [
-          34.4969394,
-          136.7175261
+          34.4852112,
+          136.7233418
         ],
         [
-          34.486637,
-          136.723526
+          34.46707,
+          136.723857
         ],
         [
-          34.5075857,
-          136.7241009
+          34.485915,
+          136.72486
         ],
         [
-          34.4841168,
-          136.7260283
+          34.4905956,
+          136.6280537
         ],
         [
           34.4905956,
           136.6280537
         ]
-      ]
-    },
-    {
-      "id": "osm-mie-05",
-      "area": "mie",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "all",
-      "title": "三重県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 456,
-      "legs": [
-        {
-          "from": "津駅",
-          "to": "光明寺",
-          "distance_km": 33.18,
-          "mode": "car",
-          "minutes": 74
-        },
-        {
-          "from": "光明寺",
-          "to": "太江寺",
-          "distance_km": 7.07,
-          "mode": "car",
-          "minutes": 16
-        },
-        {
-          "from": "太江寺",
-          "to": "マクドナルド",
-          "distance_km": 6.2,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "マクドナルド",
-          "to": "倭姬宮",
-          "distance_km": 2.49,
-          "mode": "car",
-          "minutes": 6
-        },
-        {
-          "from": "倭姬宮",
-          "to": "マコンデ美術館",
-          "distance_km": 8.12,
-          "mode": "car",
-          "minutes": 19
-        },
-        {
-          "from": "マコンデ美術館",
-          "to": "津駅",
-          "distance_km": 38.63,
-          "mode": "car",
-          "minutes": 87
-        }
       ],
-      "start": {
-        "name": "津駅",
-        "lat": 34.73399,
-        "lng": 136.51026,
-        "to_first_km": 33.2,
-        "from_last_km": 38.6
-      },
-      "total_score": 42.0,
-      "center": [
-        34.495444,
-        136.753563
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1878709373",
-          "name": "光明寺",
-          "category": "観光名所",
-          "lat": 34.488839,
-          "lng": 136.7170558,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3921515661",
-          "name": "太江寺",
-          "category": "観光名所",
-          "lat": 34.5048364,
-          "lng": 136.7916793,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2019311979",
-          "name": "マクドナルド",
-          "category": "飲食店",
-          "lat": 34.5075857,
-          "lng": 136.7241009,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-6470496188",
-          "name": "倭姬宮",
-          "category": "観光名所",
-          "lat": 34.4852112,
-          "lng": 136.7233418,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1420975633",
-          "name": "マコンデ美術館",
-          "category": "博物館",
-          "lat": 34.490748,
-          "lng": 136.811637,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.488839,
-          136.7170558
-        ],
-        [
-          34.5048364,
-          136.7916793
-        ],
-        [
-          34.5075857,
-          136.7241009
-        ],
-        [
-          34.4852112,
-          136.7233418
-        ],
-        [
-          34.490748,
-          136.811637
-        ]
-      ]
+      "theme": "history"
     }
   ]
 }

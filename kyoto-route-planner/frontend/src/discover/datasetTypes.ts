@@ -9,6 +9,7 @@ export type DatasetSpot = {
   stay_minutes: number;
   score: number;
   role: "stop" | "lunch";
+  reason?: string;
 };
 
 export type DatasetStart = {

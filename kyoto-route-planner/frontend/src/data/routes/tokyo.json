@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:35.999326+00:00",
+  "generated_at": "2026-10-12T06:25:53.227807+00:00",
   "area": "tokyo",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "tokyo",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "東京都の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 202,
       "legs": [
@@ -100,14 +99,14 @@
           35.681744,
           139.822264
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-tokyo-02",
       "area": "tokyo",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "all",
       "title": "東京都の名所スポットをめぐる半日ルート",
       "estimated_minutes": 272,
       "legs": [
@@ -197,14 +196,14 @@
           35.8012724,
           139.7926685
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-tokyo-03",
       "area": "tokyo",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "東京都の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 201,
       "legs": [
@@ -294,103 +293,73 @@
           35.6613939,
           139.7005702
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-tokyo-04",
       "area": "tokyo",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "東京都の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 369,
+      "estimated_minutes": 380,
       "legs": [
         {
           "from": "東京駅",
-          "to": "久米美術館",
-          "distance_km": 7.02,
-          "mode": "public_transport",
-          "minutes": 32
-        },
-        {
-          "from": "久米美術館",
-          "to": "物流博物館",
-          "distance_km": 1.7,
-          "mode": "public_transport",
-          "minutes": 8
-        },
-        {
-          "from": "物流博物館",
-          "to": "日高屋",
-          "distance_km": 3.17,
-          "mode": "public_transport",
-          "minutes": 15
-        },
-        {
-          "from": "日高屋",
           "to": "大田区立郷土博物館",
-          "distance_km": 1.8,
+          "distance_km": 11.5,
           "mode": "public_transport",
-          "minutes": 9
+          "minutes": 52
         },
         {
           "from": "大田区立郷土博物館",
-          "to": "東京科学大学博物館",
-          "distance_km": 3.1,
-          "mode": "public_transport",
-          "minutes": 14
+          "to": "磨墨塚",
+          "distance_km": 0.5,
+          "mode": "walk",
+          "minutes": 10
         },
         {
-          "from": "東京科学大学博物館",
-          "to": "東京駅",
-          "distance_km": 11.13,
+          "from": "磨墨塚",
+          "to": "八景天祖神社",
+          "distance_km": 1.06,
           "mode": "public_transport",
-          "minutes": 51
+          "minutes": 5
+        },
+        {
+          "from": "八景天祖神社",
+          "to": "古賀",
+          "distance_km": 2.46,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "古賀",
+          "to": "本妙院",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "本妙院",
+          "to": "東京駅",
+          "distance_km": 12.92,
+          "mode": "public_transport",
+          "minutes": 59
         }
       ],
       "start": {
         "name": "東京駅",
         "lat": 35.6812,
         "lng": 139.7671,
-        "to_first_km": 7.0,
-        "from_last_km": 11.1
+        "to_first_km": 11.5,
+        "from_last_km": 12.9
       },
-      "total_score": 50.0,
+      "total_score": 42.0,
       "center": [
-        35.612176,
-        139.712876
+        35.583106,
+        139.712579
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1420766554",
-          "name": "久米美術館",
-          "category": "博物館",
-          "lat": 35.634545,
-          "lng": 139.714759,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1420789431",
-          "name": "物流博物館",
-          "category": "博物館",
-          "lat": 35.629097,
-          "lng": 139.732315,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10873319012",
-          "name": "日高屋",
-          "category": "飲食店",
-          "lat": 35.6019232,
-          "lng": 139.7218399,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-1420774303",
           "name": "大田区立郷土博物館",
@@ -402,150 +371,42 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1993056420",
-          "name": "東京科学大学博物館",
-          "category": "博物館",
-          "lat": 35.6067834,
-          "lng": 139.6847988,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.634545,
-          139.714759
-        ],
-        [
-          35.629097,
-          139.732315
-        ],
-        [
-          35.6019232,
-          139.7218399
-        ],
-        [
-          35.5885312,
-          139.7106663
-        ],
-        [
-          35.6067834,
-          139.6847988
-        ]
-      ]
-    },
-    {
-      "id": "osm-tokyo-05",
-      "area": "tokyo",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "東京都の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 371,
-      "legs": [
-        {
-          "from": "東京駅",
-          "to": "荏原 畠山美術館",
-          "distance_km": 6.54,
-          "mode": "public_transport",
-          "minutes": 30
-        },
-        {
-          "from": "荏原 畠山美術館",
-          "to": "目黒寄生虫館",
-          "distance_km": 1.83,
-          "mode": "public_transport",
-          "minutes": 9
-        },
-        {
-          "from": "目黒寄生虫館",
-          "to": "日高屋",
-          "distance_km": 3.58,
-          "mode": "public_transport",
-          "minutes": 17
-        },
-        {
-          "from": "日高屋",
-          "to": "目黒区美術館",
-          "distance_km": 3.89,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "目黒区美術館",
-          "to": "サレジオ教会",
-          "distance_km": 2.51,
-          "mode": "public_transport",
-          "minutes": 12
-        },
-        {
-          "from": "サレジオ教会",
-          "to": "東京駅",
-          "distance_km": 9.94,
-          "mode": "public_transport",
-          "minutes": 45
-        }
-      ],
-      "start": {
-        "name": "東京駅",
-        "lat": 35.6812,
-        "lng": 139.7671,
-        "to_first_km": 6.5,
-        "from_last_km": 9.9
-      },
-      "total_score": 48.0,
-      "center": [
-        35.624141,
-        139.710022
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1420790339",
-          "name": "荏原 畠山美術館",
-          "category": "博物館",
-          "lat": 35.632242,
-          "lng": 139.726938,
+          "place_id": "osm-node-4721726859",
+          "name": "磨墨塚",
+          "category": "史跡",
+          "lat": 35.5863271,
+          "lng": 139.7154374,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420790484",
-          "name": "目黒寄生虫館",
-          "category": "博物館",
-          "lat": 35.6317,
-          "lng": 139.706666,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10873319012",
-          "name": "日高屋",
-          "category": "飲食店",
-          "lat": 35.6019232,
-          "lng": 139.7218399,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1733357504",
-          "name": "目黒区美術館",
-          "category": "博物館",
-          "lat": 35.6349252,
-          "lng": 139.7076759,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1045010436",
-          "name": "サレジオ教会",
+          "place_id": "osm-node-1896518223",
+          "name": "八景天祖神社",
           "category": "観光名所",
-          "lat": 35.6199167,
-          "lng": 139.6869902,
+          "lat": 35.5885135,
+          "lng": 139.7268674,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10218932152",
+          "name": "古賀",
+          "category": "飲食店",
+          "lat": 35.5756826,
+          "lng": 139.7046839,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「本妙院」から徒歩目安約2分です。"
+        },
+        {
+          "place_id": "osm-node-10218932134",
+          "name": "本妙院",
+          "category": "観光名所",
+          "lat": 35.576477,
+          "lng": 139.705241,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -553,26 +414,167 @@
       ],
       "coordinates": [
         [
-          35.632242,
-          139.726938
+          35.5885312,
+          139.7106663
         ],
         [
-          35.6317,
-          139.706666
+          35.5863271,
+          139.7154374
         ],
         [
-          35.6019232,
-          139.7218399
+          35.5885135,
+          139.7268674
         ],
         [
-          35.6349252,
-          139.7076759
+          35.5756826,
+          139.7046839
         ],
         [
-          35.6199167,
-          139.6869902
+          35.576477,
+          139.705241
         ]
-      ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-tokyo-05",
+      "area": "tokyo",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "東京都の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 336,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "NHKスタジオパーク",
+          "distance_km": 6.62,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "NHKスタジオパーク",
+          "to": "國學院大學博物館",
+          "distance_km": 1.65,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "國學院大學博物館",
+          "to": "戸栗美術館",
+          "distance_km": 1.76,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "戸栗美術館",
+          "to": "タリーズコーヒー",
+          "distance_km": 3.63,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "タリーズコーヒー",
+          "to": "TOTOギャラリー・間",
+          "distance_km": 0.77,
+          "mode": "walk",
+          "minutes": 15
+        },
+        {
+          "from": "TOTOギャラリー・間",
+          "to": "東京駅",
+          "distance_km": 3.94,
+          "mode": "public_transport",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 6.6,
+        "from_last_km": 3.9
+      },
+      "total_score": 50.0,
+      "center": [
+        35.662599,
+        139.712076
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1177156758",
+          "name": "NHKスタジオパーク",
+          "category": "テーマパーク",
+          "lat": 35.6651148,
+          "lng": 139.6965929,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420771752",
+          "name": "國學院大學博物館",
+          "category": "博物館",
+          "lat": 35.6562172,
+          "lng": 139.7112005,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420780494",
+          "name": "戸栗美術館",
+          "category": "博物館",
+          "lat": 35.6614398,
+          "lng": 139.6927998,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3626069601",
+          "name": "タリーズコーヒー",
+          "category": "飲食店",
+          "lat": 35.6627158,
+          "lng": 139.7329488,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch",
+          "reason": "次の予定地「TOTOギャラリー・間」から徒歩目安約10分です。"
+        },
+        {
+          "place_id": "osm-node-11563440614",
+          "name": "TOTOギャラリー・間",
+          "category": "博物館",
+          "lat": 35.6675053,
+          "lng": 139.7268378,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6651148,
+          139.6965929
+        ],
+        [
+          35.6562172,
+          139.7112005
+        ],
+        [
+          35.6614398,
+          139.6927998
+        ],
+        [
+          35.6627158,
+          139.7329488
+        ],
+        [
+          35.6675053,
+          139.7268378
+        ]
+      ],
+      "theme": "history"
     }
   ]
 }

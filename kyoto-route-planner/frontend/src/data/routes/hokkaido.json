@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:24.886858+00:00",
+  "generated_at": "2026-10-12T06:25:41.951505+00:00",
   "area": "hokkaido",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "hokkaido",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "北海道の自然スポットをめぐる半日ルート",
       "estimated_minutes": 232,
       "legs": [
@@ -100,16 +99,16 @@
           42.9489208,
           141.423019
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-hokkaido-02",
       "area": "hokkaido",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 376,
+      "estimated_minutes": 439,
       "legs": [
         {
           "from": "札幌駅",
@@ -127,9 +126,16 @@
         },
         {
           "from": "幌内線 弥生駅跡",
-          "to": "幌内線 幾春別駅跡",
-          "distance_km": 1.22,
+          "to": "古母里（廃業）",
+          "distance_km": 1.34,
           "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "古母里（廃業）",
+          "to": "幌内線 幾春別駅跡",
+          "distance_km": 0.12,
+          "mode": "walk",
           "minutes": 3
         },
         {
@@ -147,10 +153,10 @@
         "to_first_km": 40.2,
         "from_last_km": 53.6
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        43.24617,
-        141.900089
+        43.24993,
+        141.914626
       ],
       "spots": [
         {
@@ -174,6 +180,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-1897894350",
+          "name": "古母里（廃業）",
+          "category": "飲食店",
+          "lat": 43.2612088,
+          "lng": 141.9582377,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「幌内線 幾春別駅跡」から徒歩目安約2分です。"
+        },
+        {
           "place_id": "osm-node-13227890976",
           "name": "幌内線 幾春別駅跡",
           "category": "史跡",
@@ -194,17 +211,21 @@
           141.9429275
         ],
         [
+          43.2612088,
+          141.9582377
+        ],
+        [
           43.2608916,
           141.9568415
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hokkaido-03",
       "area": "hokkaido",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "北海道の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 208,
       "legs": [
@@ -294,242 +315,73 @@
           43.0568261,
           141.3025599
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hokkaido-04",
       "area": "hokkaido",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 430,
+      "estimated_minutes": 403,
       "legs": [
         {
           "from": "札幌駅",
-          "to": "小樽市立 小樽美術館",
-          "distance_km": 31.81,
+          "to": "追分節名歌碑",
+          "distance_km": 33.51,
           "mode": "car",
-          "minutes": 71
+          "minutes": 75
         },
         {
-          "from": "小樽市立 小樽美術館",
-          "to": "小樽オルゴール堂",
-          "distance_km": 0.91,
-          "mode": "car",
-          "minutes": 3
+          "from": "追分節名歌碑",
+          "to": "北海浜節民謡碑",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "小樽オルゴール堂",
-          "to": "民宿青塚食堂",
-          "distance_km": 5.15,
-          "mode": "car",
-          "minutes": 12
+          "from": "北海浜節民謡碑",
+          "to": "ニセコ積丹小樽海岸国定公園",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "民宿青塚食堂",
-          "to": "金融資料館",
-          "distance_km": 4.64,
+          "from": "ニセコ積丹小樽海岸国定公園",
+          "to": "センチュリー スープカレー＆インドネパールカレー",
+          "distance_km": 4.8,
           "mode": "car",
           "minutes": 11
         },
         {
-          "from": "金融資料館",
-          "to": "神威岳",
-          "distance_km": 26.59,
-          "mode": "car",
-          "minutes": 60
+          "from": "センチュリー スープカレー＆インドネパールカレー",
+          "to": "小樽市立 小樽美術館",
+          "distance_km": 0.18,
+          "mode": "walk",
+          "minutes": 4
         },
         {
-          "from": "神威岳",
+          "from": "小樽市立 小樽美術館",
           "to": "札幌駅",
-          "distance_km": 14.46,
-          "mode": "car",
-          "minutes": 33
-        }
-      ],
-      "start": {
-        "name": "札幌駅",
-        "lat": 43.0686,
-        "lng": 141.3508,
-        "to_first_km": 31.8,
-        "from_last_km": 14.5
-      },
-      "total_score": 44.0,
-      "center": [
-        43.164918,
-        141.043855
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-462763881",
-          "name": "小樽市立 小樽美術館",
-          "category": "博物館",
-          "lat": 43.1966451,
-          "lng": 141.0002996,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1256671137",
-          "name": "小樽オルゴール堂",
-          "category": "観光名所",
-          "lat": 43.1905785,
-          "lng": 141.007792,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2479929794",
-          "name": "民宿青塚食堂",
-          "category": "飲食店",
-          "lat": 43.2366044,
-          "lng": 141.0148332,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-462763241",
-          "name": "金融資料館",
-          "category": "博物館",
-          "lat": 43.1962697,
-          "lng": 141.0003253,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1433205471",
-          "name": "神威岳",
-          "category": "展望地",
-          "lat": 43.0044944,
-          "lng": 141.1960264,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          43.1966451,
-          141.0002996
-        ],
-        [
-          43.1905785,
-          141.007792
-        ],
-        [
-          43.2366044,
-          141.0148332
-        ],
-        [
-          43.1962697,
-          141.0003253
-        ],
-        [
-          43.0044944,
-          141.1960264
-        ]
-      ]
-    },
-    {
-      "id": "osm-hokkaido-05",
-      "area": "hokkaido",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 412,
-      "legs": [
-        {
-          "from": "札幌駅",
-          "to": "市立小樽文学館",
           "distance_km": 31.81,
           "mode": "car",
           "minutes": 71
-        },
-        {
-          "from": "市立小樽文学館",
-          "to": "メルヘン交差点",
-          "distance_km": 0.9,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "メルヘン交差点",
-          "to": "民宿青塚食堂",
-          "distance_km": 5.14,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "民宿青塚食堂",
-          "to": "追分節名歌碑",
-          "distance_km": 0.48,
-          "mode": "walk",
-          "minutes": 9
-        },
-        {
-          "from": "追分節名歌碑",
-          "to": "白い恋人パーク",
-          "distance_km": 27.0,
-          "mode": "car",
-          "minutes": 61
-        },
-        {
-          "from": "白い恋人パーク",
-          "to": "札幌駅",
-          "distance_km": 6.8,
-          "mode": "car",
-          "minutes": 16
         }
       ],
       "start": {
         "name": "札幌駅",
         "lat": 43.0686,
         "lng": 141.3508,
-        "to_first_km": 31.8,
-        "from_last_km": 6.8
+        "to_first_km": 33.5,
+        "from_last_km": 31.8
       },
-      "total_score": 40.0,
+      "total_score": 34.0,
       "center": [
-        43.190181,
-        141.060724
+        43.221258,
+        141.006024
       ],
       "spots": [
-        {
-          "place_id": "osm-node-5841733786",
-          "name": "市立小樽文学館",
-          "category": "博物館",
-          "lat": 43.1968801,
-          "lng": 141.000351,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6038918589",
-          "name": "メルヘン交差点",
-          "category": "観光名所",
-          "lat": 43.1906873,
-          "lng": 141.0075101,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2479929794",
-          "name": "民宿青塚食堂",
-          "category": "飲食店",
-          "lat": 43.2366044,
-          "lng": 141.0148332,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-10129673461",
           "name": "追分節名歌碑",
@@ -541,38 +393,210 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2422507432",
-          "name": "白い恋人パーク",
-          "category": "博物館",
-          "lat": 43.0886903,
-          "lng": 141.2716802,
+          "place_id": "osm-node-10745066425",
+          "name": "北海浜節民謡碑",
+          "category": "史跡",
+          "lat": 43.2380592,
+          "lng": 141.0094571,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10745066441",
+          "name": "ニセコ積丹小樽海岸国定公園",
+          "category": "史跡",
+          "lat": 43.2381435,
+          "lng": 141.0094702,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12137551101",
+          "name": "センチュリー スープカレー＆インドネパールカレー",
+          "category": "飲食店",
+          "lat": 43.1953971,
+          "lng": 141.0016448,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「小樽市立 小樽美術館」から徒歩目安約3分です。"
+        },
+        {
+          "place_id": "osm-node-462763881",
+          "name": "小樽市立 小樽美術館",
+          "category": "博物館",
+          "lat": 43.1966451,
+          "lng": 141.0002996,
+          "stay_minutes": 45,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          43.1968801,
-          141.000351
-        ],
-        [
-          43.1906873,
-          141.0075101
-        ],
-        [
-          43.2366044,
-          141.0148332
-        ],
-        [
           43.238043,
           141.0092469
         ],
         [
-          43.0886903,
-          141.2716802
+          43.2380592,
+          141.0094571
+        ],
+        [
+          43.2381435,
+          141.0094702
+        ],
+        [
+          43.1953971,
+          141.0016448
+        ],
+        [
+          43.1966451,
+          141.0002996
         ]
-      ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-hokkaido-05",
+      "area": "hokkaido",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "北海道の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 286,
+      "legs": [
+        {
+          "from": "札幌駅",
+          "to": "札幌市埋蔵文化財センター",
+          "distance_km": 4.37,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "札幌市埋蔵文化財センター",
+          "to": "妙覚寺",
+          "distance_km": 3.47,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "妙覚寺",
+          "to": "札幌伏見稲荷神社",
+          "distance_km": 2.15,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "札幌伏見稲荷神社",
+          "to": "宮部金吾記念館",
+          "distance_km": 3.57,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "宮部金吾記念館",
+          "to": "ドトールコーヒーショップ",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "ドトールコーヒーショップ",
+          "to": "札幌駅",
+          "distance_km": 0.55,
+          "mode": "walk",
+          "minutes": 11
+        }
+      ],
+      "start": {
+        "name": "札幌駅",
+        "lat": 43.0686,
+        "lng": 141.3508,
+        "to_first_km": 4.4,
+        "from_last_km": 0.6
+      },
+      "total_score": 42.0,
+      "center": [
+        43.047798,
+        141.331956
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-6216051054",
+          "name": "札幌市埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 43.0300283,
+          "lng": 141.3403502,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3810662310",
+          "name": "妙覚寺",
+          "category": "観光名所",
+          "lat": 43.0453858,
+          "lng": 141.3031246,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3887704767",
+          "name": "札幌伏見稲荷神社",
+          "category": "観光名所",
+          "lat": 43.0349657,
+          "lng": 141.3253697,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4252013090",
+          "name": "宮部金吾記念館",
+          "category": "博物館",
+          "lat": 43.0639263,
+          "lng": 141.3442756,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1669503980",
+          "name": "ドトールコーヒーショップ",
+          "category": "飲食店",
+          "lat": 43.0646819,
+          "lng": 141.3466597,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「宮部金吾記念館」から徒歩目安約3分です。"
+        }
+      ],
+      "coordinates": [
+        [
+          43.0300283,
+          141.3403502
+        ],
+        [
+          43.0453858,
+          141.3031246
+        ],
+        [
+          43.0349657,
+          141.3253697
+        ],
+        [
+          43.0639263,
+          141.3442756
+        ],
+        [
+          43.0646819,
+          141.3466597
+        ]
+      ],
+      "theme": "history"
     }
   ]
 }

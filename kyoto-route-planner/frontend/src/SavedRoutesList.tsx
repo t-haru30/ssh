@@ -8,6 +8,7 @@ const NEAR_LIMIT_MARGIN = 5;
 type SavedRoutesListProps = {
   onClose: () => void;
   onPlanInSearch?: React.ComponentProps<typeof RouteDetailModal>["onPlanInSearch"];
+  onGoHome?: () => void;
 };
 
 function formatSavedDate(value: string) {
@@ -15,7 +16,7 @@ function formatSavedDate(value: string) {
   return Number.isNaN(date.getTime()) ? "" : `${date.getMonth() + 1}/${date.getDate()}保存`;
 }
 
-export function SavedRoutesList({ onClose, onPlanInSearch }: SavedRoutesListProps) {
+export function SavedRoutesList({ onClose, onPlanInSearch, onGoHome }: SavedRoutesListProps) {
   const { favorites, error, removeFavorite, togglePin } = useFavorites();
   const [detail, setDetail] = useState<FavoriteRoute | null>(null);
   const [prefectureFilter, setPrefectureFilter] = useState("all");
@@ -89,7 +90,12 @@ export function SavedRoutesList({ onClose, onPlanInSearch }: SavedRoutesListProp
             <div className="favorites-empty">
               <span className="favorites-empty-icon" aria-hidden="true">♡</span>
               <p>まだ保存されたプランはありません。</p>
-              <p>スワイプしてお気に入りを見つけましょう！</p>
+              <p>見つける画面からお気に入りを保存できます。</p>
+              {onGoHome && (
+                <button type="button" className="favorites-home-button nowrap" onClick={onGoHome}>
+                  ホームに戻る
+                </button>
+              )}
             </div>
           ) : (
             <ul className="favorites-list">
@@ -102,7 +108,14 @@ export function SavedRoutesList({ onClose, onPlanInSearch }: SavedRoutesListProp
                     aria-label={`${favorite.title}の詳細を見る`}
                   >
                     {favorite.image_url && (
-                      <img className="favorite-route-image" src={favorite.image_url} alt="" />
+                      <img
+                        className="favorite-route-image"
+                        src={favorite.image_url}
+                        alt=""
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
                     )}
                     <div className="favorite-route-content">
                       <div className="favorite-route-heading">

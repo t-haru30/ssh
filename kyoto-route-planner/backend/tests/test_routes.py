@@ -20,6 +20,7 @@ from app.ekispert import (
 from app.main import (
     ROUTE_GENRE_CODES,
     _build_route_timeline,
+    _correct_route_timeline,
     _route_candidates,
     app,
     limiter,
@@ -90,10 +91,77 @@ class RoutePlannerTests(unittest.TestCase):
             )),
         )
         self.search_places_patch.start()
+        self.segment_search = AsyncMock(return_value=([], None, None, None))
+        self.segment_search_patch = patch(
+            "app.main._search_route_segment",
+            new=self.segment_search,
+        )
+        self.segment_search_patch.start()
 
     def tearDown(self):
+        self.segment_search_patch.stop()
         self.search_places_patch.stop()
         self.fare_estimate_patch.stop()
+
+    def test_health_reports_missing_fallback_dataset(self):
+        with (
+            TestClient(app) as client,
+            patch("app.main.FALLBACK_DATASET_PATH") as dataset_path,
+        ):
+            dataset_path.is_file.return_value = False
+            response = client.get("/api/health")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "degraded")
+        self.assertEqual(response.json()["fallback_dataset"], "missing")
+
+    def test_route_timeline_accepts_zero_and_one_spot(self):
+        origin = Origin(name="京都駅", latitude=34.98585, longitude=135.75877)
+        empty_timeline = _build_route_timeline(origin, [], "09:00", 30)
+        single_timeline = _build_route_timeline(origin, sample_places()[:1], "09:00", 30)
+
+        self.assertEqual([item.role for item in empty_timeline if hasattr(item, "role")], ["start", "finish"])
+        self.assertEqual(
+            [item.role for item in single_timeline if hasattr(item, "role")],
+            ["start", "stop", "finish"],
+        )
+
+    def test_route_search_with_no_spots_returns_validation_response(self):
+        with (
+            TestClient(app) as client,
+            patch("app.main._route_candidates", new=AsyncMock(return_value=([], "empty"))),
+        ):
+            response = client.post(
+                "/api/routes",
+                json={
+                    "origin": "京都駅",
+                    "theme": "nature",
+                    "stop_count": 1,
+                    "departure_date": "2026-10-12",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("スポット", response.json()["detail"])
+
+    def test_route_selection_deduplicates_duplicate_spot_ids(self):
+        candidates = sample_places()
+        duplicate = candidates[0].model_copy(update={"name": "重複データ"})
+        second_nature_spot = candidates[0].model_copy(
+            update={"id": "yahoo-unique-nature", "name": "別の自然公園"},
+        )
+
+        selected = choose_places(
+            "nature",
+            2,
+            "京都駅",
+            [candidates[0], duplicate, second_nature_spot],
+            origin_coordinates=(34.98585, 135.75877),
+        )
+
+        self.assertEqual(len(selected), 2)
+        self.assertEqual(len({place.id for place in selected}), 2)
 
     def test_route_generation_uses_yahoo_places(self):
         client = TestClient(app)
@@ -166,6 +234,67 @@ class RoutePlannerTests(unittest.TestCase):
                 call("清水寺", limit=100, genre_codes=("0424001",)),
                 call("平安神宮", limit=100, genre_codes=("0424002",)),
             ],
+        )
+
+    def test_discover_route_preview_returns_corrected_segment_timetable(self):
+        origin = Origin(name="出発駅", latitude=35.0, longitude=135.0)
+        places = sample_places()[:1]
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="出発駅",
+                to_name=places[0].name,
+                line_name="JR東海道本線",
+                mode="train",
+                duration_minutes=40,
+            )],
+            90,
+            "09:00",
+            "10:30",
+        ))
+        self.segment_search.return_value = (
+            [RouteLeg(
+                from_name="出発駅",
+                to_name=places[0].name,
+                line_name="JR東海道本線",
+                mode="train",
+                duration_minutes=40,
+            )],
+            40,
+            "09:05",
+            "09:45",
+        )
+
+        with patch("app.main.search_route", route_search):
+            response = TestClient(app).post(
+                "/api/routes/preview",
+                json={
+                    "origin": origin.model_dump(),
+                    "places": [place.model_dump() for place in places],
+                    "departure_date": "2026-10-12",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(
+            response.json()["timeline"][1]["transit_line"],
+            "JR東海道本線",
+        )
+        self.assertEqual(
+            (
+                response.json()["timeline"][1]["start_time"],
+                response.json()["timeline"][1]["end_time"],
+            ),
+            ("09:05", "09:45"),
+        )
+        route_search.assert_awaited_once()
+        self.assertEqual(self.segment_search.await_count, 2)
+        self.assertEqual(
+            self.segment_search.await_args_list[0].args[:2],
+            (
+                "35.0,135.0",
+                f"{places[0].latitude},{places[0].longitude}",
+            ),
         )
 
     def test_route_search_uses_location_query_and_yahoo_genre_filter(self):
@@ -603,7 +732,11 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(
             client.get("/api/health").json(),
-            {"status": "ok", "route_timeline_version": "1"},
+            {
+                "status": "ok",
+                "fallback_dataset": "available",
+                "route_timeline_version": "1",
+            },
         )
         self.assertEqual(
             [origin["name"] for origin in client.get("/api/origins").json()],
@@ -733,6 +866,82 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertIsNone(timeline[1].duration_minutes)
         self.assertIsNone(timeline[2].time)
         self.assertIsNone(timeline[-1].time)
+
+    def test_route_timeline_is_corrected_with_segment_timetable_and_line(self):
+        origin = list_origins()[0]
+        places = sample_places()[:1]
+        timeline = _build_route_timeline(origin, places, "09:00", 60)
+        self.segment_search.side_effect = [
+            (
+                [RouteLeg(
+                    from_name=origin.name,
+                    to_name=places[0].name,
+                    line_name="JR東海道本線",
+                    mode="train",
+                    duration_minutes=40,
+                )],
+                40,
+                "09:05",
+                "09:45",
+            ),
+            (
+                [RouteLeg(
+                    from_name=places[0].name,
+                    to_name=origin.name,
+                    line_name="遠鉄バス 駅行き",
+                    mode="bus",
+                    duration_minutes=15,
+                )],
+                15,
+                "11:30",
+                "11:45",
+            ),
+        ]
+
+        corrected = asyncio.run(_correct_route_timeline(
+            timeline,
+            origin,
+            places,
+            "2026-10-12",
+            timeout=2,
+        ))
+        transit = [item for item in corrected if item.type == "transit"]
+
+        self.assertEqual(
+            [item.transit_line for item in transit],
+            ["JR東海道本線", "遠鉄バス 駅行き"],
+        )
+        self.assertEqual(
+            [(item.start_time, item.end_time) for item in transit],
+            [("09:05", "09:45"), ("11:30", "11:45")],
+        )
+        self.assertTrue(all(not item.is_estimate for item in transit))
+        self.assertEqual(corrected[0].time, "09:05")
+        self.assertEqual(corrected[2].time, "09:45")
+        self.assertEqual(corrected[-1].time, "11:45")
+
+    def test_route_timeline_preserves_estimates_when_a_segment_has_no_route(self):
+        origin = list_origins()[0]
+        places = sample_places()[:1]
+        timeline = _build_route_timeline(origin, places, "09:00", 60)
+        self.segment_search.side_effect = HTTPException(404, "no route")
+
+        corrected = asyncio.run(_correct_route_timeline(
+            timeline,
+            origin,
+            places,
+            "2026-10-12",
+            timeout=2,
+        ))
+        transit = [item for item in corrected if item.type == "transit"]
+        original_transit = [item for item in timeline if item.type == "transit"]
+
+        self.assertEqual(
+            [(item.start_time, item.end_time) for item in transit],
+            [(item.start_time, item.end_time) for item in original_transit],
+        )
+        self.assertTrue(all(item.is_estimate for item in transit))
+        self.assertTrue(all(item.transit_line == "公共交通機関" for item in transit))
 
     def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:56:02.126924+00:00",
+  "generated_at": "2026-10-12T06:26:21.265186+00:00",
   "area": "okinawa",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "okinawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 175,
       "legs": [
@@ -100,14 +99,14 @@
           26.1895915,
           127.6847104
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-okinawa-02",
       "area": "okinawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 222,
       "legs": [
@@ -197,14 +196,14 @@
           26.3276961,
           127.8035022
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-okinawa-03",
       "area": "okinawa",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "沖縄県の自然スポットをめぐる半日ルート",
       "estimated_minutes": 294,
       "legs": [
@@ -294,73 +293,103 @@
           26.4404961,
           127.7119195
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-okinawa-04",
       "area": "okinawa",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "沖縄県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 298,
+      "estimated_minutes": 292,
       "legs": [
         {
           "from": "旭橋駅",
-          "to": "玉城朝薫の墓",
-          "distance_km": 6.14,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "玉城朝薫の墓",
-          "to": "浦添市美術館",
-          "distance_km": 1.7,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "浦添市美術館",
-          "to": "スターバックス",
-          "distance_km": 6.12,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "スターバックス",
-          "to": "琉球新報 新聞博物館",
-          "distance_km": 2.71,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "琉球新報 新聞博物館",
           "to": "天久宮",
-          "distance_km": 0.73,
-          "mode": "walk",
-          "minutes": 14
-        },
-        {
-          "from": "天久宮",
-          "to": "旭橋駅",
           "distance_km": 1.96,
           "mode": "car",
           "minutes": 5
+        },
+        {
+          "from": "天久宮",
+          "to": "不屈館",
+          "distance_km": 0.99,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "不屈館",
+          "to": "久米村600年記念碑",
+          "distance_km": 0.55,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "久米村600年記念碑",
+          "to": "玉城朝薫の墓",
+          "distance_km": 5.76,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "玉城朝薫の墓",
+          "to": "おいしむん",
+          "distance_km": 0.35,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "おいしむん",
+          "to": "旭橋駅",
+          "distance_km": 5.79,
+          "mode": "car",
+          "minutes": 13
         }
       ],
       "start": {
         "name": "旭橋駅",
         "lat": 26.21185,
         "lng": 127.67546,
-        "to_first_km": 6.1,
-        "from_last_km": 2.0
+        "to_first_km": 2.0,
+        "from_last_km": 5.8
       },
-      "total_score": 42.0,
+      "total_score": 38.0,
       "center": [
-        26.232395,
-        127.698692
+        26.228694,
+        127.697997
       ],
       "spots": [
+        {
+          "place_id": "osm-node-5344518822",
+          "name": "天久宮",
+          "category": "観光名所",
+          "lat": 26.2282565,
+          "lng": 127.6825308,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7683363814",
+          "name": "不屈館",
+          "category": "博物館",
+          "lat": 26.2224751,
+          "lng": 127.67492,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10024731021",
+          "name": "久米村600年記念碑",
+          "category": "史跡",
+          "lat": 26.2177504,
+          "lng": 127.6765533,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-9872290152",
           "name": "玉城朝薫の墓",
@@ -369,6 +398,136 @@
           "lng": 127.7296686,
           "stay_minutes": 45,
           "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12953962968",
+          "name": "おいしむん",
+          "category": "飲食店",
+          "lat": 26.2370228,
+          "lng": 127.7263133,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「玉城朝薫の墓」から徒歩目安約5分です。"
+        }
+      ],
+      "coordinates": [
+        [
+          26.2282565,
+          127.6825308
+        ],
+        [
+          26.2224751,
+          127.67492
+        ],
+        [
+          26.2177504,
+          127.6765533
+        ],
+        [
+          26.2379639,
+          127.7296686
+        ],
+        [
+          26.2370228,
+          127.7263133
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-okinawa-05",
+      "area": "okinawa",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "沖縄県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 281,
+      "legs": [
+        {
+          "from": "旭橋駅",
+          "to": "石崎正通先生歌碑",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "石崎正通先生歌碑",
+          "to": "那覇市立久茂地小学校・久茂地幼稚園閉校記念碑",
+          "distance_km": 0.86,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "那覇市立久茂地小学校・久茂地幼稚園閉校記念碑",
+          "to": "御物城",
+          "distance_km": 1.48,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "御物城",
+          "to": "浦添市美術館",
+          "distance_km": 6.68,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "浦添市美術館",
+          "to": "ビリオン珈琲",
+          "distance_km": 1.21,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "ビリオン珈琲",
+          "to": "旭橋駅",
+          "distance_km": 6.32,
+          "mode": "car",
+          "minutes": 15
+        }
+      ],
+      "start": {
+        "name": "旭橋駅",
+        "lat": 26.21185,
+        "lng": 127.67546,
+        "to_first_km": 0.1,
+        "from_last_km": 6.3
+      },
+      "total_score": 32.0,
+      "center": [
+        26.229118,
+        127.692361
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10591512707",
+          "name": "石崎正通先生歌碑",
+          "category": "史跡",
+          "lat": 26.2116389,
+          "lng": 127.6764088,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11905463832",
+          "name": "那覇市立久茂地小学校・久茂地幼稚園閉校記念碑",
+          "category": "史跡",
+          "lat": 26.2166985,
+          "lng": 127.6829492,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1193995659",
+          "name": "御物城",
+          "category": "史跡",
+          "lat": 26.2084691,
+          "lng": 127.6713272,
+          "stay_minutes": 45,
+          "score": 30.0,
           "role": "stop"
         },
         {
@@ -382,197 +541,40 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10294991544",
-          "name": "スターバックス",
+          "place_id": "osm-node-11414778932",
+          "name": "ビリオン珈琲",
           "category": "飲食店",
-          "lat": 26.2113045,
-          "lng": 127.6762016,
+          "lat": 26.2585306,
+          "lng": 127.7116198,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-5214886031",
-          "name": "琉球新報 新聞博物館",
-          "category": "博物館",
-          "lat": 26.2341976,
-          "lng": 127.6855621,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5344518822",
-          "name": "天久宮",
-          "category": "観光名所",
-          "lat": 26.2282565,
-          "lng": 127.6825308,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「浦添市美術館」から徒歩目安約16分です。"
         }
       ],
       "coordinates": [
         [
-          26.2379639,
-          127.7296686
+          26.2116389,
+          127.6764088
+        ],
+        [
+          26.2166985,
+          127.6829492
+        ],
+        [
+          26.2084691,
+          127.6713272
         ],
         [
           26.250251,
           127.719498
         ],
         [
-          26.2113045,
-          127.6762016
-        ],
-        [
-          26.2341976,
-          127.6855621
-        ],
-        [
-          26.2282565,
-          127.6825308
+          26.2585306,
+          127.7116198
         ]
-      ]
-    },
-    {
-      "id": "osm-okinawa-05",
-      "area": "okinawa",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "all",
-      "title": "沖縄県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 283,
-      "legs": [
-        {
-          "from": "旭橋駅",
-          "to": "出雲大社 沖縄分社",
-          "distance_km": 3.46,
-          "mode": "car",
-          "minutes": 8
-        },
-        {
-          "from": "出雲大社 沖縄分社",
-          "to": "臨海寺",
-          "distance_km": 2.32,
-          "mode": "car",
-          "minutes": 6
-        },
-        {
-          "from": "臨海寺",
-          "to": "スターバックス",
-          "distance_km": 3.09,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "スターバックス",
-          "to": "不屈館",
-          "distance_km": 1.25,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "不屈館",
-          "to": "末吉宮",
-          "distance_km": 4.02,
-          "mode": "car",
-          "minutes": 9
-        },
-        {
-          "from": "末吉宮",
-          "to": "旭橋駅",
-          "distance_km": 4.35,
-          "mode": "car",
-          "minutes": 10
-        }
       ],
-      "start": {
-        "name": "旭橋駅",
-        "lat": 26.21185,
-        "lng": 127.67546,
-        "to_first_km": 3.5,
-        "from_last_km": 4.4
-      },
-      "total_score": 40.0,
-      "center": [
-        26.226358,
-        127.690283
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-5435676730",
-          "name": "出雲大社 沖縄分社",
-          "category": "観光名所",
-          "lat": 26.2300931,
-          "lng": 127.7035543,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5593697123",
-          "name": "臨海寺",
-          "category": "観光名所",
-          "lat": 26.2385624,
-          "lng": 127.6822771,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10294991544",
-          "name": "スターバックス",
-          "category": "飲食店",
-          "lat": 26.2113045,
-          "lng": 127.6762016,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-7683363814",
-          "name": "不屈館",
-          "category": "博物館",
-          "lat": 26.2224751,
-          "lng": 127.67492,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-7861269661",
-          "name": "末吉宮",
-          "category": "観光名所",
-          "lat": 26.229356,
-          "lng": 127.7144617,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          26.2300931,
-          127.7035543
-        ],
-        [
-          26.2385624,
-          127.6822771
-        ],
-        [
-          26.2113045,
-          127.6762016
-        ],
-        [
-          26.2224751,
-          127.67492
-        ],
-        [
-          26.229356,
-          127.7144617
-        ]
-      ]
+      "theme": "history"
     }
   ]
 }

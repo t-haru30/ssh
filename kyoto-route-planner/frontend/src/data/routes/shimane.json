@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:52.323533+00:00",
+  "generated_at": "2026-10-12T06:26:11.306373+00:00",
   "area": "shimane",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "shimane",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "all",
       "title": "島根県の名所スポットをめぐる半日ルート",
       "estimated_minutes": 240,
       "legs": [
@@ -100,14 +99,14 @@
           35.4946932,
           133.1723009
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-shimane-02",
       "area": "shimane",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "島根県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 219,
       "legs": [
@@ -197,16 +196,16 @@
           35.3608474,
           133.1852653
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-shimane-03",
       "area": "shimane",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "島根県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 322,
+      "estimated_minutes": 383,
       "legs": [
         {
           "from": "松江駅",
@@ -224,10 +223,17 @@
         },
         {
           "from": "平田城",
-          "to": "今岡美術館",
-          "distance_km": 11.96,
+          "to": "モスバーガー 出雲駅北町店",
+          "distance_km": 10.53,
           "mode": "car",
-          "minutes": 27
+          "minutes": 24
+        },
+        {
+          "from": "モスバーガー 出雲駅北町店",
+          "to": "今岡美術館",
+          "distance_km": 1.44,
+          "mode": "car",
+          "minutes": 4
         },
         {
           "from": "今岡美術館",
@@ -244,10 +250,10 @@
         "to_first_km": 29.2,
         "from_last_km": 31.5
       },
-      "total_score": 46.7,
+      "total_score": 42.5,
       "center": [
-        35.384294,
-        132.776366
+        35.378487,
+        132.770867
       ],
       "spots": [
         {
@@ -271,6 +277,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-8380325417",
+          "name": "モスバーガー 出雲駅北町店",
+          "category": "飲食店",
+          "lat": 35.3610673,
+          "lng": 132.7543681,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「今岡美術館」から徒歩目安約18分です。"
+        },
+        {
           "place_id": "osm-node-1423608640",
           "name": "今岡美術館",
           "category": "博物館",
@@ -291,193 +308,58 @@
           132.8188322
         ],
         [
+          35.3610673,
+          132.7543681
+        ],
+        [
           35.35109,
           132.7443067
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-shimane-04",
       "area": "shimane",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
-      "title": "島根県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 323,
-      "legs": [
-        {
-          "from": "松江駅",
-          "to": "岩屋後古墳",
-          "distance_km": 4.99,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "岩屋後古墳",
-          "to": "金崎古墳群",
-          "distance_km": 7.33,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "金崎古墳群",
-          "to": "Y'sキッチン",
-          "distance_km": 2.68,
-          "mode": "car",
-          "minutes": 6
-        },
-        {
-          "from": "Y'sキッチン",
-          "to": "丹花庵古墳",
-          "distance_km": 5.6,
-          "mode": "car",
-          "minutes": 13
-        },
-        {
-          "from": "丹花庵古墳",
-          "to": "戦没者慰霊碑",
-          "distance_km": 7.84,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "戦没者慰霊碑",
-          "to": "松江駅",
-          "distance_km": 7.47,
-          "mode": "car",
-          "minutes": 17
-        }
-      ],
-      "start": {
-        "name": "松江駅",
-        "lat": 35.46418,
-        "lng": 133.06285,
-        "to_first_km": 5.0,
-        "from_last_km": 7.5
-      },
-      "total_score": 36.0,
-      "center": [
-        35.456323,
-        133.044334
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-2478942299",
-          "name": "岩屋後古墳",
-          "category": "史跡",
-          "lat": 35.4266574,
-          "lng": 133.093098,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6327647978",
-          "name": "金崎古墳群",
-          "category": "史跡",
-          "lat": 35.4897908,
-          "lng": 133.0699911,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10008463363",
-          "name": "Y'sキッチン",
-          "category": "飲食店",
-          "lat": 35.4692959,
-          "lng": 133.0544811,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-6332083808",
-          "name": "丹花庵古墳",
-          "category": "史跡",
-          "lat": 35.4826885,
-          "lng": 132.9948861,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10232630398",
-          "name": "戦没者慰霊碑",
-          "category": "史跡",
-          "lat": 35.4131826,
-          "lng": 133.0092158,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.4266574,
-          133.093098
-        ],
-        [
-          35.4897908,
-          133.0699911
-        ],
-        [
-          35.4692959,
-          133.0544811
-        ],
-        [
-          35.4826885,
-          132.9948861
-        ],
-        [
-          35.4131826,
-          133.0092158
-        ]
-      ]
-    },
-    {
-      "id": "osm-shimane-05",
-      "area": "shimane",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
       "title": "島根県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 331,
+      "estimated_minutes": 326,
       "legs": [
         {
           "from": "松江駅",
-          "to": "大山代神社跡地",
-          "distance_km": 1.69,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "大山代神社跡地",
           "to": "源助柱記念碑",
-          "distance_km": 2.4,
-          "mode": "car",
-          "minutes": 6
+          "distance_km": 0.76,
+          "mode": "walk",
+          "minutes": 15
         },
         {
           "from": "源助柱記念碑",
-          "to": "Y'sキッチン",
-          "distance_km": 0.24,
-          "mode": "walk",
-          "minutes": 5
-        },
-        {
-          "from": "Y'sキッチン",
           "to": "松江城碑",
-          "distance_km": 0.58,
-          "mode": "walk",
-          "minutes": 11
+          "distance_km": 0.82,
+          "mode": "car",
+          "minutes": 2
         },
         {
           "from": "松江城碑",
-          "to": "大成古墳",
-          "distance_km": 14.85,
+          "to": "登録記念物 嫁ヶ島（蚊島）",
+          "distance_km": 2.0,
           "mode": "car",
-          "minutes": 34
+          "minutes": 5
+        },
+        {
+          "from": "登録記念物 嫁ヶ島（蚊島）",
+          "to": "昼食: 要検討",
+          "distance_km": 14.49,
+          "mode": "car",
+          "minutes": 33
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "大成古墳",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "大成古墳",
@@ -491,25 +373,15 @@
         "name": "松江駅",
         "lat": 35.46418,
         "lng": 133.06285,
-        "to_first_km": 1.7,
+        "to_first_km": 0.8,
         "from_last_km": 13.6
       },
-      "total_score": 32.0,
+      "total_score": 26.0,
       "center": [
-        35.458635,
-        133.088532
+        35.451549,
+        133.113978
       ],
       "spots": [
-        {
-          "place_id": "osm-node-10542495490",
-          "name": "大山代神社跡地",
-          "category": "史跡",
-          "lat": 35.45237,
-          "lng": 133.0745243,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-10895405242",
           "name": "源助柱記念碑",
@@ -521,16 +393,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10008463363",
-          "name": "Y'sキッチン",
-          "category": "飲食店",
-          "lat": 35.4692959,
-          "lng": 133.0544811,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-11338017533",
           "name": "松江城碑",
           "category": "史跡",
@@ -539,6 +401,27 @@
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13047791642",
+          "name": "登録記念物 嫁ヶ島（蚊島）",
+          "category": "史跡",
+          "lat": 35.4560448,
+          "lng": 133.0497082,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-shimane-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.4301943,
+          "lng": 133.206528,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-12684157527",
@@ -553,26 +436,167 @@
       ],
       "coordinates": [
         [
-          35.45237,
-          133.0745243
-        ],
-        [
           35.4673132,
           133.0554503
-        ],
-        [
-          35.4692959,
-          133.0544811
         ],
         [
           35.4740004,
           133.0516742
         ],
         [
+          35.4560448,
+          133.0497082
+        ],
+        [
+          35.4301943,
+          133.206528
+        ],
+        [
           35.4301943,
           133.206528
         ]
-      ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-shimane-05",
+      "area": "shimane",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "島根県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 313,
+      "legs": [
+        {
+          "from": "松江駅",
+          "to": "ラフカディオ・ハーンの開かれた精神",
+          "distance_km": 1.18,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "ラフカディオ・ハーンの開かれた精神",
+          "to": "史蹟松江城",
+          "distance_km": 1.6,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "史蹟松江城",
+          "to": "国宝松江城天守",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "国宝松江城天守",
+          "to": "岩舟古墳",
+          "distance_km": 14.96,
+          "mode": "car",
+          "minutes": 34
+        },
+        {
+          "from": "岩舟古墳",
+          "to": "昼食: 要検討",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "松江駅",
+          "distance_km": 13.56,
+          "mode": "car",
+          "minutes": 31
+        }
+      ],
+      "start": {
+        "name": "松江駅",
+        "lat": 35.46418,
+        "lng": 133.06285,
+        "to_first_km": 1.2,
+        "from_last_km": 13.6
+      },
+      "total_score": 26.0,
+      "center": [
+        35.441335,
+        133.107094
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13047791646",
+          "name": "ラフカディオ・ハーンの開かれた精神",
+          "category": "史跡",
+          "lat": 35.4592624,
+          "lng": 133.0512819,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4167479763",
+          "name": "史蹟松江城",
+          "category": "史跡",
+          "lat": 35.4736206,
+          "lng": 133.0519059,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4167479767",
+          "name": "国宝松江城天守",
+          "category": "史跡",
+          "lat": 35.4736416,
+          "lng": 133.0519564,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2476372101",
+          "name": "岩舟古墳",
+          "category": "史跡",
+          "lat": 35.4000758,
+          "lng": 133.1901627,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-shimane-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.4000758,
+          "lng": 133.1901627,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4592624,
+          133.0512819
+        ],
+        [
+          35.4736206,
+          133.0519059
+        ],
+        [
+          35.4736416,
+          133.0519564
+        ],
+        [
+          35.4000758,
+          133.1901627
+        ],
+        [
+          35.4000758,
+          133.1901627
+        ]
+      ],
+      "theme": "history"
     }
   ]
 }

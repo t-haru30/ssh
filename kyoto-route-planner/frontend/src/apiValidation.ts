@@ -144,7 +144,6 @@ export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
   return isRecord(value)
     && isOrigin(value.origin)
     && Array.isArray(value.places)
-    && value.places.length > 0
     && value.places.every(isPlace)
     && Array.isArray(value.legs)
     && value.legs.every(isRouteLeg)
@@ -233,7 +232,7 @@ export function isRouteIdeaBatch(
     && value.fallback_count >= 0;
 }
 
-function isRouteSuggestion(value: unknown): value is RouteSuggestion {
+export function isRouteSuggestion(value: unknown): value is RouteSuggestion {
   return isRecord(value)
     && Array.isArray(value.places)
     && value.places.length > 0
@@ -271,7 +270,6 @@ function isRouteSuggestion(value: unknown): value is RouteSuggestion {
 export function isRouteSuggestions(value: unknown): value is RouteSuggestions {
   return isRecord(value)
     && Array.isArray(value.routes)
-    && value.routes.length > 0
     && value.routes.every(isRouteSuggestion);
 }
 

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:47.022929+00:00",
+  "generated_at": "2026-10-12T06:26:05.407153+00:00",
   "area": "kyoto",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "kyoto",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "京都府の自然スポットをめぐる半日ルート",
       "estimated_minutes": 182,
       "legs": [
@@ -100,14 +99,14 @@
           35.0122506,
           135.7509042
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-kyoto-02",
       "area": "kyoto",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "京都府の自然スポットをめぐる半日ルート",
       "estimated_minutes": 189,
       "legs": [
@@ -197,14 +196,14 @@
           35.0138448,
           135.7827032
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-kyoto-03",
       "area": "kyoto",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "京都府の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 230,
       "legs": [
@@ -294,155 +293,16 @@
           35.0270065,
           135.7987755
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kyoto-04",
       "area": "kyoto",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
-      "title": "京都府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 340,
-      "legs": [
-        {
-          "from": "京都駅",
-          "to": "史蹟及名勝 銀閣寺慈照寺庭園",
-          "distance_km": 5.77,
-          "mode": "public_transport",
-          "minutes": 26
-        },
-        {
-          "from": "史蹟及名勝 銀閣寺慈照寺庭園",
-          "to": "平安神宮神苑",
-          "distance_km": 1.85,
-          "mode": "public_transport",
-          "minutes": 9
-        },
-        {
-          "from": "平安神宮神苑",
-          "to": "茶乃逢 二条城店",
-          "distance_km": 2.84,
-          "mode": "public_transport",
-          "minutes": 13
-        },
-        {
-          "from": "茶乃逢 二条城店",
-          "to": "眞言宗総本山 東寺",
-          "distance_km": 3.8,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "眞言宗総本山 東寺",
-          "to": "旧二条城の石垣",
-          "distance_km": 3.84,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "旧二条城の石垣",
-          "to": "京都駅",
-          "distance_km": 3.35,
-          "mode": "public_transport",
-          "minutes": 16
-        }
-      ],
-      "start": {
-        "name": "京都駅",
-        "lat": 34.9858,
-        "lng": 135.7588,
-        "to_first_km": 5.8,
-        "from_last_km": 3.3
-      },
-      "total_score": 72.0,
-      "center": [
-        35.010009,
-        135.764887
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-3608486269",
-          "name": "史蹟及名勝 銀閣寺慈照寺庭園",
-          "category": "史跡",
-          "lat": 35.0266892,
-          "lng": 135.7977882,
-          "stay_minutes": 45,
-          "score": 75.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4271849912",
-          "name": "平安神宮神苑",
-          "category": "史跡",
-          "lat": 35.016282,
-          "lng": 135.7818932,
-          "stay_minutes": 45,
-          "score": 75.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-7327234757",
-          "name": "茶乃逢 二条城店",
-          "category": "飲食店",
-          "lat": 35.0135784,
-          "lng": 135.7508721,
-          "stay_minutes": 60,
-          "score": 75.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-3650874837",
-          "name": "眞言宗総本山 東寺",
-          "category": "史跡",
-          "lat": 34.9794812,
-          "lng": 135.7478695,
-          "stay_minutes": 45,
-          "score": 70.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3770110188",
-          "name": "旧二条城の石垣",
-          "category": "史跡",
-          "lat": 35.0140154,
-          "lng": 135.7460106,
-          "stay_minutes": 45,
-          "score": 65.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.0266892,
-          135.7977882
-        ],
-        [
-          35.016282,
-          135.7818932
-        ],
-        [
-          35.0135784,
-          135.7508721
-        ],
-        [
-          34.9794812,
-          135.7478695
-        ],
-        [
-          35.0140154,
-          135.7460106
-        ]
-      ]
-    },
-    {
-      "id": "osm-kyoto-05",
-      "area": "kyoto",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "京都府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 322,
+      "title": "京都府の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 319,
       "legs": [
         {
           "from": "京都駅",
@@ -453,38 +313,38 @@
         },
         {
           "from": "京都御所",
-          "to": "京都御所入口",
-          "distance_km": 0.3,
-          "mode": "walk",
-          "minutes": 6
-        },
-        {
-          "from": "京都御所入口",
-          "to": "茶乃逢 二条城店",
-          "distance_km": 1.64,
+          "to": "旧二条城の石垣",
+          "distance_km": 1.74,
           "mode": "public_transport",
           "minutes": 8
         },
         {
-          "from": "茶乃逢 二条城店",
-          "to": "京都市学校歴史博物館",
-          "distance_km": 1.97,
+          "from": "旧二条城の石垣",
+          "to": "京都御所入口",
+          "distance_km": 1.89,
           "mode": "public_transport",
           "minutes": 9
         },
         {
-          "from": "京都市学校歴史博物館",
-          "to": "京都市考古資料館",
-          "distance_km": 3.57,
+          "from": "京都御所入口",
+          "to": "Sanzuian",
+          "distance_km": 3.3,
           "mode": "public_transport",
-          "minutes": 17
+          "minutes": 15
         },
         {
-          "from": "京都市考古資料館",
+          "from": "Sanzuian",
+          "to": "史蹟及名勝 銀閣寺慈照寺庭園",
+          "distance_km": 0.09,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "史蹟及名勝 銀閣寺慈照寺庭園",
           "to": "京都駅",
-          "distance_km": 4.99,
+          "distance_km": 5.77,
           "mode": "public_transport",
-          "minutes": 23
+          "minutes": 26
         }
       ],
       "start": {
@@ -492,12 +352,12 @@
         "lat": 34.9858,
         "lng": 135.7588,
         "to_first_km": 4.2,
-        "from_last_km": 5.0
+        "from_last_km": 5.8
       },
-      "total_score": 61.0,
+      "total_score": 60.0,
       "center": [
-        35.018652,
-        135.757729
+        35.023394,
+        135.772652
       ],
       "spots": [
         {
@@ -511,6 +371,16 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-3770110188",
+          "name": "旧二条城の石垣",
+          "category": "史跡",
+          "lat": 35.0140154,
+          "lng": 135.7460106,
+          "stay_minutes": 45,
+          "score": 65.0,
+          "role": "stop"
+        },
+        {
           "place_id": "osm-node-5679163221",
           "name": "京都御所入口",
           "category": "観光名所",
@@ -521,15 +391,115 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-7327234757",
-          "name": "茶乃逢 二条城店",
+          "place_id": "osm-node-12405995146",
+          "name": "Sanzuian",
           "category": "飲食店",
-          "lat": 35.0135784,
-          "lng": 135.7508721,
+          "lat": 35.0272937,
+          "lng": 135.7970871,
           "stay_minutes": 60,
-          "score": 75.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「史蹟及名勝 銀閣寺慈照寺庭園」から徒歩目安約2分です。"
         },
+        {
+          "place_id": "osm-node-3608486269",
+          "name": "史蹟及名勝 銀閣寺慈照寺庭園",
+          "category": "史跡",
+          "lat": 35.0266892,
+          "lng": 135.7977882,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.0231604,
+          135.7614492
+        ],
+        [
+          35.0140154,
+          135.7460106
+        ],
+        [
+          35.0258134,
+          135.7609261
+        ],
+        [
+          35.0272937,
+          135.7970871
+        ],
+        [
+          35.0266892,
+          135.7977882
+        ]
+      ],
+      "theme": "all"
+    },
+    {
+      "id": "osm-kyoto-05",
+      "area": "kyoto",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "京都府の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 318,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "京都市学校歴史博物館",
+          "distance_km": 1.77,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "京都市学校歴史博物館",
+          "to": "京都市考古資料館",
+          "distance_km": 3.57,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "京都市考古資料館",
+          "to": "朱雀院跡",
+          "distance_km": 3.06,
+          "mode": "public_transport",
+          "minutes": 14
+        },
+        {
+          "from": "朱雀院跡",
+          "to": "天ぷら圓堂 岡ざき邸",
+          "distance_km": 3.96,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "天ぷら圓堂 岡ざき邸",
+          "to": "平安神宮神苑",
+          "distance_km": 0.16,
+          "mode": "walk",
+          "minutes": 3
+        },
+        {
+          "from": "平安神宮神苑",
+          "to": "京都駅",
+          "distance_km": 3.99,
+          "mode": "public_transport",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 1.8,
+        "from_last_km": 4.0
+      },
+      "total_score": 51.0,
+      "center": [
+        35.013372,
+        135.763395
+      ],
+      "spots": [
         {
           "place_id": "osm-node-1422961100",
           "name": "京都市学校歴史博物館",
@@ -549,21 +519,40 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3448802316",
+          "name": "朱雀院跡",
+          "category": "史跡",
+          "lat": 35.003735,
+          "lng": 135.739486,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10697639020",
+          "name": "天ぷら圓堂 岡ざき邸",
+          "category": "飲食店",
+          "lat": 35.016137,
+          "lng": 135.7801968,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「平安神宮神苑」から徒歩目安約2分です。"
+        },
+        {
+          "place_id": "osm-node-4271849912",
+          "name": "平安神宮神苑",
+          "category": "史跡",
+          "lat": 35.016282,
+          "lng": 135.7818932,
+          "stay_minutes": 45,
+          "score": 75.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
-        [
-          35.0231604,
-          135.7614492
-        ],
-        [
-          35.0258134,
-          135.7609261
-        ],
-        [
-          35.0135784,
-          135.7508721
-        ],
         [
           35.0007007,
           135.7657254
@@ -571,8 +560,21 @@
         [
           35.030006,
           135.749673
+        ],
+        [
+          35.003735,
+          135.739486
+        ],
+        [
+          35.016137,
+          135.7801968
+        ],
+        [
+          35.016282,
+          135.7818932
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

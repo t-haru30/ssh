@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:48.469246+00:00",
+  "generated_at": "2026-10-12T06:26:06.982250+00:00",
   "area": "osaka",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "osaka",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "大阪府の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 195,
       "legs": [
@@ -100,14 +99,14 @@
           34.6874875,
           135.5258873
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-osaka-02",
       "area": "osaka",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "大阪府の自然スポットをめぐる半日ルート",
       "estimated_minutes": 213,
       "legs": [
@@ -197,16 +196,16 @@
           34.693465,
           135.462465
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-osaka-03",
       "area": "osaka",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "大阪府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 314,
+      "estimated_minutes": 390,
       "legs": [
         {
           "from": "大阪駅",
@@ -224,10 +223,17 @@
         },
         {
           "from": "埴生坂本陵",
-          "to": "アイセルシュラホール",
-          "distance_km": 1.02,
+          "to": "炭火焼鳥トリトモ",
+          "distance_km": 1.69,
           "mode": "public_transport",
-          "minutes": 5
+          "minutes": 8
+        },
+        {
+          "from": "炭火焼鳥トリトモ",
+          "to": "アイセルシュラホール",
+          "distance_km": 0.68,
+          "mode": "walk",
+          "minutes": 13
         },
         {
           "from": "アイセルシュラホール",
@@ -244,10 +250,10 @@
         "to_first_km": 16.9,
         "from_last_km": 17.8
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        34.560603,
-        135.583258
+        34.56344,
+        135.58617
       ],
       "spots": [
         {
@@ -271,6 +277,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-10248337557",
+          "name": "炭火焼鳥トリトモ",
+          "category": "飲食店",
+          "lat": 34.5719524,
+          "lng": 135.5949056,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「アイセルシュラホール」から徒歩目安約9分です。"
+        },
+        {
           "place_id": "osm-node-9575866193",
           "name": "アイセルシュラホール",
           "category": "博物館",
@@ -291,76 +308,110 @@
           135.597336
         ],
         [
+          34.5719524,
+          135.5949056
+        ],
+        [
           34.5660964,
           135.5970906
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-osaka-04",
       "area": "osaka",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "大阪府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 322,
+      "estimated_minutes": 298,
       "legs": [
         {
           "from": "大阪駅",
-          "to": "大阪府立 上方演芸資料館",
-          "distance_km": 4.26,
-          "mode": "public_transport",
-          "minutes": 20
-        },
-        {
-          "from": "大阪府立 上方演芸資料館",
-          "to": "湯木美術館",
-          "distance_km": 2.55,
-          "mode": "public_transport",
-          "minutes": 12
-        },
-        {
-          "from": "湯木美術館",
-          "to": "銀のさら",
-          "distance_km": 2.53,
-          "mode": "public_transport",
-          "minutes": 12
-        },
-        {
-          "from": "銀のさら",
-          "to": "造幣博物館",
-          "distance_km": 4.02,
-          "mode": "public_transport",
-          "minutes": 19
-        },
-        {
-          "from": "造幣博物館",
           "to": "南蛮文化館",
-          "distance_km": 3.11,
-          "mode": "public_transport",
-          "minutes": 15
-        },
-        {
-          "from": "南蛮文化館",
-          "to": "大阪駅",
           "distance_km": 0.86,
           "mode": "public_transport",
           "minutes": 4
+        },
+        {
+          "from": "南蛮文化館",
+          "to": "蛸の松",
+          "distance_km": 1.71,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "蛸の松",
+          "to": "地蔵寺",
+          "distance_km": 0.34,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "地蔵寺",
+          "to": "大阪府立 上方演芸資料館",
+          "distance_km": 3.77,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "大阪府立 上方演芸資料館",
+          "to": "千とせ 本店",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "千とせ 本店",
+          "to": "大阪駅",
+          "distance_km": 4.34,
+          "mode": "public_transport",
+          "minutes": 20
         }
       ],
       "start": {
         "name": "大阪駅",
         "lat": 34.7025,
         "lng": 135.4959,
-        "to_first_km": 4.3,
-        "from_last_km": 0.9
+        "to_first_km": 0.9,
+        "from_last_km": 4.3
       },
-      "total_score": 50.0,
+      "total_score": 46.0,
       "center": [
-        34.691188,
-        135.499372
+        34.685719,
+        135.495661
       ],
       "spots": [
+        {
+          "place_id": "osm-node-2376818627",
+          "name": "南蛮文化館",
+          "category": "博物館",
+          "lat": 34.709457,
+          "lng": 135.4919,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6362209586",
+          "name": "蛸の松",
+          "category": "史跡",
+          "lat": 34.6940971,
+          "lng": 135.4908974,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10921131945",
+          "name": "地蔵寺",
+          "category": "観光名所",
+          "lat": 34.6963103,
+          "lng": 135.4883658,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-1422990011",
           "name": "大阪府立 上方演芸資料館",
@@ -369,6 +420,136 @@
           "lng": 135.5031573,
           "stay_minutes": 45,
           "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6349012685",
+          "name": "千とせ 本店",
+          "category": "飲食店",
+          "lat": 34.664076,
+          "lng": 135.5039836,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch",
+          "reason": "次の予定地「大阪府立 上方演芸資料館」から徒歩目安約2分です。"
+        }
+      ],
+      "coordinates": [
+        [
+          34.709457,
+          135.4919
+        ],
+        [
+          34.6940971,
+          135.4908974
+        ],
+        [
+          34.6963103,
+          135.4883658
+        ],
+        [
+          34.6646523,
+          135.5031573
+        ],
+        [
+          34.664076,
+          135.5039836
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-osaka-05",
+      "area": "osaka",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "大阪府の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 280,
+      "legs": [
+        {
+          "from": "大阪駅",
+          "to": "北向地蔵尊",
+          "distance_km": 0.32,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "北向地蔵尊",
+          "to": "日本基督教団大阪教会",
+          "distance_km": 1.77,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "日本基督教団大阪教会",
+          "to": "西善寺",
+          "distance_km": 0.84,
+          "mode": "public_transport",
+          "minutes": 4
+        },
+        {
+          "from": "西善寺",
+          "to": "湯木美術館",
+          "distance_km": 1.66,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "湯木美術館",
+          "to": "L'orma attiva",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "L'orma attiva",
+          "to": "大阪駅",
+          "distance_km": 1.64,
+          "mode": "public_transport",
+          "minutes": 8
+        }
+      ],
+      "start": {
+        "name": "大阪駅",
+        "lat": 34.7025,
+        "lng": 135.4959,
+        "to_first_km": 0.3,
+        "from_last_km": 1.6
+      },
+      "total_score": 40.0,
+      "center": [
+        34.692616,
+        135.49651
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2666719768",
+          "name": "北向地蔵尊",
+          "category": "観光名所",
+          "lat": 34.704862,
+          "lng": 135.4979631,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3249298362",
+          "name": "日本基督教団大阪教会",
+          "category": "観光名所",
+          "lat": 34.6893554,
+          "lng": 135.4935515,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3684956854",
+          "name": "西善寺",
+          "category": "観光名所",
+          "lat": 34.6920402,
+          "lng": 135.484925,
+          "stay_minutes": 45,
+          "score": 40.0,
           "role": "stop"
         },
         {
@@ -382,197 +563,40 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12535469433",
-          "name": "銀のさら",
+          "place_id": "osm-node-10227359611",
+          "name": "L'orma attiva",
           "category": "飲食店",
-          "lat": 34.6983935,
-          "lng": 135.477866,
+          "lat": 34.6892785,
+          "lng": 135.5038569,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1423016951",
-          "name": "造幣博物館",
-          "category": "博物館",
-          "lat": 34.6958942,
-          "lng": 135.5216842,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2376818627",
-          "name": "南蛮文化館",
-          "category": "博物館",
-          "lat": 34.709457,
-          "lng": 135.4919,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「湯木美術館」から徒歩目安約4分です。"
         }
       ],
       "coordinates": [
         [
-          34.6646523,
-          135.5031573
+          34.704862,
+          135.4979631
+        ],
+        [
+          34.6893554,
+          135.4935515
+        ],
+        [
+          34.6920402,
+          135.484925
         ],
         [
           34.6875435,
           135.5022517
         ],
         [
-          34.6983935,
-          135.477866
-        ],
-        [
-          34.6958942,
-          135.5216842
-        ],
-        [
-          34.709457,
-          135.4919
+          34.6892785,
+          135.5038569
         ]
-      ]
-    },
-    {
-      "id": "osm-osaka-05",
-      "area": "osaka",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "大阪府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 305,
-      "legs": [
-        {
-          "from": "大阪駅",
-          "to": "大阪くらしの今昔館",
-          "distance_km": 1.67,
-          "mode": "public_transport",
-          "minutes": 8
-        },
-        {
-          "from": "大阪くらしの今昔館",
-          "to": "大阪歴史博物館",
-          "distance_km": 3.21,
-          "mode": "public_transport",
-          "minutes": 15
-        },
-        {
-          "from": "大阪歴史博物館",
-          "to": "銀のさら",
-          "distance_km": 4.3,
-          "mode": "public_transport",
-          "minutes": 20
-        },
-        {
-          "from": "銀のさら",
-          "to": "蛸の松",
-          "distance_km": 1.28,
-          "mode": "public_transport",
-          "minutes": 6
-        },
-        {
-          "from": "蛸の松",
-          "to": "くすりの道修町資料館",
-          "distance_km": 1.51,
-          "mode": "public_transport",
-          "minutes": 7
-        },
-        {
-          "from": "くすりの道修町資料館",
-          "to": "大阪駅",
-          "distance_km": 1.8,
-          "mode": "public_transport",
-          "minutes": 9
-        }
       ],
-      "start": {
-        "name": "大阪駅",
-        "lat": 34.7025,
-        "lng": 135.4959,
-        "to_first_km": 1.7,
-        "from_last_km": 1.8
-      },
-      "total_score": 50.0,
-      "center": [
-        34.694842,
-        135.501401
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-4419665990",
-          "name": "大阪くらしの今昔館",
-          "category": "博物館",
-          "lat": 34.7104664,
-          "lng": 135.5114334,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4920617728",
-          "name": "大阪歴史博物館",
-          "category": "博物館",
-          "lat": 34.6826183,
-          "lng": 135.5208131,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12535469433",
-          "name": "銀のさら",
-          "category": "飲食店",
-          "lat": 34.6983935,
-          "lng": 135.477866,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-6362209586",
-          "name": "蛸の松",
-          "category": "史跡",
-          "lat": 34.6940971,
-          "lng": 135.4908974,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6549326466",
-          "name": "くすりの道修町資料館",
-          "category": "博物館",
-          "lat": 34.6886356,
-          "lng": 135.5059954,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.7104664,
-          135.5114334
-        ],
-        [
-          34.6826183,
-          135.5208131
-        ],
-        [
-          34.6983935,
-          135.477866
-        ],
-        [
-          34.6940971,
-          135.4908974
-        ],
-        [
-          34.6886356,
-          135.5059954
-        ]
-      ]
+      "theme": "all"
     }
   ]
 }

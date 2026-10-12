@@ -6,8 +6,8 @@ import prefectureIndex from "./data/routes/index.json";
 export type SearchPreset = { theme: Theme; stopCount: number; nonce: number; places: Place[]; origin: Origin; title: string; dwellMinutes: Record<string, number> };
 export function routeSelection(route: DatasetRoute | RouteIdea): SearchPreset {
   const places: Place[] = "spots" in route ? route.spots.map(spot => ({
-    id: spot.place_id, name: spot.name, category: spot.category, description: "", access_point: "",
-    latitude: spot.lat, longitude: spot.lng, themes: [route.theme],
+    id: spot.place_id, name: spot.name, category: spot.category, description: spot.reason ?? "", access_point: "",
+    latitude: spot.lat, longitude: spot.lng, themes: [spot.role === "lunch" ? "food" : route.theme],
   })) : route.places;
   const entry = "area" in route
     ? prefectureIndex.prefectures.find(item => item.id === route.area)

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:56:01.415556+00:00",
+  "generated_at": "2026-10-12T06:26:20.538941+00:00",
   "area": "kagoshima",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "kagoshima",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 235,
       "legs": [
@@ -100,16 +99,16 @@
           31.5678002,
           130.3410759
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagoshima-02",
       "area": "kagoshima",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 357,
+      "estimated_minutes": 418,
       "legs": [
         {
           "from": "鹿児島中央駅",
@@ -127,10 +126,17 @@
         },
         {
           "from": "考古博物館・時遊館CoCCoはしむれ",
-          "to": "薩摩伝承館",
-          "distance_km": 2.51,
+          "to": "札幌ラーメン あらた",
+          "distance_km": 1.31,
           "mode": "car",
-          "minutes": 6
+          "minutes": 3
+        },
+        {
+          "from": "札幌ラーメン あらた",
+          "to": "薩摩伝承館",
+          "distance_km": 1.67,
+          "mode": "car",
+          "minutes": 4
         },
         {
           "from": "薩摩伝承館",
@@ -147,10 +153,10 @@
         "to_first_km": 47.8,
         "from_last_km": 38.3
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        31.213517,
-        130.628274
+        31.220923,
+        130.631331
       ],
       "spots": [
         {
@@ -174,6 +180,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-6914489185",
+          "name": "札幌ラーメン あらた",
+          "category": "飲食店",
+          "lat": 31.2431398,
+          "lng": 130.6405029,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「薩摩伝承館」から徒歩目安約21分です。"
+        },
+        {
           "place_id": "osm-node-5661669624",
           "name": "薩摩伝承館",
           "category": "博物館",
@@ -194,17 +211,21 @@
           130.6443203
         ],
         [
+          31.2431398,
+          130.6405029
+        ],
+        [
           31.252933,
           130.6538397
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagoshima-03",
       "area": "kagoshima",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 212,
       "legs": [
@@ -294,16 +315,16 @@
           31.5845539,
           130.7062136
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagoshima-04",
       "area": "kagoshima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "鹿児島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 320,
+      "estimated_minutes": 327,
       "legs": [
         {
           "from": "鹿児島中央駅",
@@ -321,31 +342,31 @@
         },
         {
           "from": "がんがら橋",
-          "to": "ふぁみり庵はいから亭",
-          "distance_km": 5.71,
+          "to": "鹿児島城",
+          "distance_km": 1.62,
           "mode": "car",
-          "minutes": 13
+          "minutes": 4
         },
         {
-          "from": "ふぁみり庵はいから亭",
-          "to": "不断光院",
-          "distance_km": 4.33,
+          "from": "鹿児島城",
+          "to": "ほっかほっか亭",
+          "distance_km": 12.74,
           "mode": "car",
-          "minutes": 10
+          "minutes": 29
         },
         {
-          "from": "不断光院",
-          "to": "潮見橋",
-          "distance_km": 10.01,
-          "mode": "car",
-          "minutes": 23
+          "from": "ほっかほっか亭",
+          "to": "七ッ島保存記念碑",
+          "distance_km": 0.74,
+          "mode": "walk",
+          "minutes": 14
         },
         {
-          "from": "潮見橋",
+          "from": "七ッ島保存記念碑",
           "to": "鹿児島中央駅",
-          "distance_km": 8.05,
+          "distance_km": 10.71,
           "mode": "car",
-          "minutes": 18
+          "minutes": 24
         }
       ],
       "start": {
@@ -353,12 +374,12 @@
         "lat": 31.584,
         "lng": 130.5414,
         "to_first_km": 0.7,
-        "from_last_km": 8.1
+        "from_last_km": 10.7
       },
-      "total_score": 46.0,
+      "total_score": 42.0,
       "center": [
-        31.584078,
-        130.550069
+        31.551071,
+        130.535683
       ],
       "spots": [
         {
@@ -382,31 +403,32 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3467448909",
-          "name": "ふぁみり庵はいから亭",
-          "category": "飲食店",
-          "lat": 31.6347782,
-          "lng": 130.5712381,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1336277135",
-          "name": "不断光院",
-          "category": "観光名所",
-          "lat": 31.5973028,
-          "lng": 130.5586406,
+          "place_id": "osm-node-3089086539",
+          "name": "鹿児島城",
+          "category": "史跡",
+          "lat": 31.5988311,
+          "lng": 130.5551261,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6751630758",
-          "name": "潮見橋",
+          "place_id": "osm-node-6743966576",
+          "name": "ほっかほっか亭",
+          "category": "飲食店",
+          "lat": 31.4922191,
+          "lng": 130.5059868,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「七ッ島保存記念碑」から徒歩目安約10分です。"
+        },
+        {
+          "place_id": "osm-node-5751841126",
+          "name": "七ッ島保存記念碑",
           "category": "史跡",
-          "lat": 31.5146865,
-          "lng": 130.51676,
+          "lat": 31.4906826,
+          "lng": 130.5135965,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -422,157 +444,159 @@
           130.5584243
         ],
         [
-          31.6347782,
-          130.5712381
+          31.5988311,
+          130.5551261
         ],
         [
-          31.5973028,
-          130.5586406
+          31.4922191,
+          130.5059868
         ],
         [
-          31.5146865,
-          130.51676
+          31.4906826,
+          130.5135965
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-kagoshima-05",
       "area": "kagoshima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
-      "title": "鹿児島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 282,
+      "title": "鹿児島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 299,
       "legs": [
         {
           "from": "鹿児島中央駅",
-          "to": "鹿児島城",
-          "distance_km": 2.1,
+          "to": "御船手跡",
+          "distance_km": 1.84,
           "mode": "car",
           "minutes": 5
         },
         {
-          "from": "鹿児島城",
-          "to": "南洲翁終焉之地之碑",
-          "distance_km": 0.31,
+          "from": "御船手跡",
+          "to": "出逢い杉",
+          "distance_km": 1.85,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "出逢い杉",
+          "to": "白玉豊受稲荷神社",
+          "distance_km": 1.88,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "白玉豊受稲荷神社",
+          "to": "潮見橋",
+          "distance_km": 9.03,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "潮見橋",
+          "to": "マクドナルド",
+          "distance_km": 0.17,
           "mode": "walk",
-          "minutes": 6
+          "minutes": 4
         },
         {
-          "from": "南洲翁終焉之地之碑",
-          "to": "ふぁみり庵はいから亭",
-          "distance_km": 3.98,
-          "mode": "car",
-          "minutes": 9
-        },
-        {
-          "from": "ふぁみり庵はいから亭",
-          "to": "鹿児島神社",
-          "distance_km": 4.09,
-          "mode": "car",
-          "minutes": 10
-        },
-        {
-          "from": "鹿児島神社",
-          "to": "南洲神社",
-          "distance_km": 1.86,
-          "mode": "car",
-          "minutes": 5
-        },
-        {
-          "from": "南洲神社",
+          "from": "マクドナルド",
           "to": "鹿児島中央駅",
-          "distance_km": 3.0,
+          "distance_km": 8.14,
           "mode": "car",
-          "minutes": 7
+          "minutes": 19
         }
       ],
       "start": {
         "name": "鹿児島中央駅",
         "lat": 31.584,
         "lng": 130.5414,
-        "to_first_km": 2.1,
-        "from_last_km": 3.0
+        "to_first_km": 1.8,
+        "from_last_km": 8.1
       },
-      "total_score": 42.0,
+      "total_score": 34.0,
       "center": [
-        31.610273,
-        130.556108
+        31.555062,
+        130.53836
       ],
       "spots": [
         {
-          "place_id": "osm-node-3089086539",
-          "name": "鹿児島城",
+          "place_id": "osm-node-10131662916",
+          "name": "御船手跡",
           "category": "史跡",
-          "lat": 31.5988311,
-          "lng": 130.5551261,
+          "lat": 31.5757951,
+          "lng": 130.5582128,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3089086547",
-          "name": "南洲翁終焉之地之碑",
+          "place_id": "osm-node-11179758073",
+          "name": "出逢い杉",
           "category": "史跡",
-          "lat": 31.60154,
-          "lng": 130.555722,
+          "lat": 31.5838113,
+          "lng": 130.5410996,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3467448909",
-          "name": "ふぁみり庵はいから亭",
-          "category": "飲食店",
-          "lat": 31.6347782,
-          "lng": 130.5712381,
-          "stay_minutes": 60,
+          "place_id": "osm-node-12723151719",
+          "name": "白玉豊受稲荷神社",
+          "category": "観光名所",
+          "lat": 31.5867202,
+          "lng": 130.5606589,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6751630758",
+          "name": "潮見橋",
+          "category": "史跡",
+          "lat": 31.5146865,
+          "lng": 130.51676,
+          "stay_minutes": 45,
           "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4364196467",
-          "name": "鹿児島神社",
-          "category": "観光名所",
-          "lat": 31.6097637,
-          "lng": 130.5395796,
-          "stay_minutes": 45,
-          "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6126128982",
-          "name": "南洲神社",
-          "category": "観光名所",
-          "lat": 31.6064499,
-          "lng": 130.5588767,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "place_id": "osm-node-5682400841",
+          "name": "マクドナルド",
+          "category": "飲食店",
+          "lat": 31.5142989,
+          "lng": 130.5150709,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「潮見橋」から徒歩目安約3分です。"
         }
       ],
       "coordinates": [
         [
-          31.5988311,
-          130.5551261
+          31.5757951,
+          130.5582128
         ],
         [
-          31.60154,
-          130.555722
+          31.5838113,
+          130.5410996
         ],
         [
-          31.6347782,
-          130.5712381
+          31.5867202,
+          130.5606589
         ],
         [
-          31.6097637,
-          130.5395796
+          31.5146865,
+          130.51676
         ],
         [
-          31.6064499,
-          130.5588767
+          31.5142989,
+          130.5150709
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

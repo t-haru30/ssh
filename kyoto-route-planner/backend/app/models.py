@@ -66,6 +66,19 @@ class RouteSuggestionRequest(BaseModel):
             raise ValueError("帰着地の座標には名前も指定してください。")
         return self
 
+class RoutePreviewRequest(BaseModel):
+    origin: Origin
+    places: list[Place] = Field(min_length=1, max_length=8)
+    stay_minutes: list[Annotated[int, Field(ge=15, le=360)]] | None = Field(default=None, max_length=8)
+    departure_date: date
+    departure_time: time
+
+    @model_validator(mode="after")
+    def validate_stays(self):
+        if self.stay_minutes is not None and len(self.stay_minutes) != len(self.places):
+            raise ValueError("各スポットの滞在時間を指定してください。")
+        return self
+
 class RouteLeg(BaseModel):
     from_name: str = Field(min_length=1, max_length=200)
     to_name: str = Field(min_length=1, max_length=200)
@@ -89,6 +102,7 @@ class RouteTimelineTransit(BaseModel):
     from_name: str
     to_name: str
     mode: Literal["public_transport"] = "public_transport"
+    transit_line: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     duration_minutes: int | None = None
@@ -115,7 +129,7 @@ class RouteSuggestion(BaseModel):
     coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class RouteSuggestions(BaseModel):
-    routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
+    routes: list[RouteSuggestion] = Field(max_length=3)
 
 class RouteIdeaResponse(BaseModel):
     theme: Theme

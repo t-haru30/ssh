@@ -131,7 +131,7 @@ def _ideas_for_prefecture(
                 theme="all",
                 prefecture_code=prefecture_code,
                 prefecture_name=prefecture_name,
-                title=f"{first.name}から{second.name}へ、{prefecture_name}のよりみち",
+                title=f"{first.name}から{second.name}へ、{prefecture_name}のConcierGO",
                 story=f"{prefecture_name}の{first.category}「{first.name}」と"
                 f"{second.category}「{second.name}」を巡るルートです。",
                 places=[first, second],

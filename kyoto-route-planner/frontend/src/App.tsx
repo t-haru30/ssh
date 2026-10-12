@@ -54,9 +54,9 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <button type="button" className="brand" onClick={() => setActiveTab("discover")} aria-label="よりみち ホーム">
+        <button type="button" className="brand" onClick={() => setActiveTab("discover")} aria-label="ConcierGO ホーム">
           <span className="brand-mark">寄</span>
-          <span>よりみち<span className="brand-light"> 小さな旅のしおり</span></span>
+          <span>ConcierGO<span className="brand-light"> 小さな旅のしおり</span></span>
         </button>
         <div className="topbar-tools">
           <button
@@ -103,7 +103,7 @@ function App() {
         onPlanInSearch={planInSearch}
       />
       <SearchMode active={activeTab === "search"} preset={searchPreset} />
-      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} />}
+      {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} onGoHome={() => { setShowFavorites(false); setActiveTab("discover"); }} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
       {pendingPreset && <TripDialog title="編集中のしおりを置き換えますか？" onClose={() => setPendingPreset(null)}>
         <p>新しいルートを選ぶと、このブラウザの下書きが置き換わります。残しておきたい予定は、先に「しおりを見る」からコピーできます。</p>

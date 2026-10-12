@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:46.050514+00:00",
+  "generated_at": "2026-10-12T06:26:04.384076+00:00",
   "area": "shiga",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "shiga",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 189,
       "legs": [
@@ -100,16 +99,16 @@
           35.0120935,
           135.8642644
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-shiga-02",
       "area": "shiga",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "nature",
       "title": "滋賀県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 393,
+      "estimated_minutes": 454,
       "legs": [
         {
           "from": "大津駅",
@@ -127,10 +126,17 @@
         },
         {
           "from": "長浜市曳山博物館",
-          "to": "長浜旧開知学校",
-          "distance_km": 0.25,
+          "to": "串かつ かすうどん 赤鬼",
+          "distance_km": 0.23,
           "mode": "walk",
           "minutes": 5
+        },
+        {
+          "from": "串かつ かすうどん 赤鬼",
+          "to": "長浜旧開知学校",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
         },
         {
           "from": "長浜旧開知学校",
@@ -147,10 +153,10 @@
         "to_first_km": 55.6,
         "from_last_km": 55.6
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        35.380146,
-        136.267875
+        35.380039,
+        136.267738
       ],
       "spots": [
         {
@@ -174,6 +180,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-5502988832",
+          "name": "串かつ かすうどん 赤鬼",
+          "category": "飲食店",
+          "lat": 35.3797195,
+          "lng": 136.2673268,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「長浜旧開知学校」から徒歩目安約1分です。"
+        },
+        {
           "place_id": "osm-node-5502988829",
           "name": "長浜旧開知学校",
           "category": "展望地",
@@ -194,17 +211,21 @@
           136.2689049
         ],
         [
+          35.3797195,
+          136.2673268
+        ],
+        [
           35.3794553,
           136.2673518
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-shiga-03",
       "area": "shiga",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 242,
       "legs": [
@@ -294,258 +315,260 @@
           34.9149,
           136.0161311
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-shiga-04",
       "area": "shiga",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "滋賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 337,
+      "estimated_minutes": 475,
       "legs": [
         {
           "from": "大津駅",
-          "to": "守山市立埋蔵文化財センター",
-          "distance_km": 16.47,
+          "to": "佐和山城",
+          "distance_km": 47.97,
           "mode": "car",
-          "minutes": 37
+          "minutes": 107
         },
         {
-          "from": "守山市立埋蔵文化財センター",
-          "to": "伊豆神社",
-          "distance_km": 6.54,
-          "mode": "car",
+          "from": "佐和山城",
+          "to": "大洞弁財天",
+          "distance_km": 0.76,
+          "mode": "walk",
           "minutes": 15
         },
         {
-          "from": "伊豆神社",
-          "to": "道の駅草津",
-          "distance_km": 4.87,
+          "from": "大洞弁財天",
+          "to": "Hikone Good Pudding",
+          "distance_km": 1.48,
           "mode": "car",
-          "minutes": 11
+          "minutes": 4
         },
         {
-          "from": "道の駅草津",
-          "to": "滋賀院",
-          "distance_km": 6.56,
-          "mode": "car",
-          "minutes": 15
+          "from": "Hikone Good Pudding",
+          "to": "埋木舎",
+          "distance_km": 0.19,
+          "mode": "walk",
+          "minutes": 4
         },
         {
-          "from": "滋賀院",
-          "to": "滋賀県立琵琶湖文化館",
-          "distance_km": 6.85,
+          "from": "埋木舎",
+          "to": "荒神山神社",
+          "distance_km": 7.09,
           "mode": "car",
           "minutes": 16
         },
         {
-          "from": "滋賀県立琵琶湖文化館",
+          "from": "荒神山神社",
           "to": "大津駅",
-          "distance_km": 1.02,
+          "distance_km": 39.68,
           "mode": "car",
-          "minutes": 3
+          "minutes": 89
         }
       ],
       "start": {
         "name": "大津駅",
         "lat": 35.00376,
         "lng": 135.86411,
-        "to_first_km": 16.5,
-        "from_last_km": 1.0
+        "to_first_km": 48.0,
+        "from_last_km": 39.7
       },
-      "total_score": 44.0,
+      "total_score": 38.0,
       "center": [
-        35.073342,
-        135.918759
+        35.269706,
+        136.24925
       ],
       "spots": [
         {
-          "place_id": "osm-node-1422942186",
-          "name": "守山市立埋蔵文化財センター",
-          "category": "博物館",
-          "lat": 35.108006,
-          "lng": 135.992575,
+          "place_id": "osm-node-2482336137",
+          "name": "佐和山城",
+          "category": "史跡",
+          "lat": 35.2797906,
+          "lng": 136.2695383,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1939506407",
-          "name": "伊豆神社",
+          "place_id": "osm-node-4389672844",
+          "name": "大洞弁財天",
           "category": "観光名所",
-          "lat": 35.1110706,
-          "lng": 135.9207501,
+          "lat": 35.2855952,
+          "lng": 136.2651636,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4213227089",
-          "name": "道の駅草津",
+          "place_id": "osm-node-12979357944",
+          "name": "Hikone Good Pudding",
           "category": "飲食店",
-          "lat": 35.0700349,
-          "lng": 135.9393437,
+          "lat": 35.273983,
+          "lng": 136.257144,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「埋木舎」から徒歩目安約3分です。"
         },
         {
-          "place_id": "osm-node-3646873309",
-          "name": "滋賀院",
-          "category": "観光名所",
-          "lat": 35.0694651,
-          "lng": 135.8672138,
+          "place_id": "osm-node-582527746",
+          "name": "埋木舎",
+          "category": "博物館",
+          "lat": 35.2756183,
+          "lng": 136.2565319,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6197760387",
-          "name": "滋賀県立琵琶湖文化館",
-          "category": "博物館",
-          "lat": 35.0081313,
-          "lng": 135.8739144,
+          "place_id": "osm-node-3817325383",
+          "name": "荒神山神社",
+          "category": "観光名所",
+          "lat": 35.2335411,
+          "lng": 136.1978718,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          35.108006,
-          135.992575
+          35.2797906,
+          136.2695383
         ],
         [
-          35.1110706,
-          135.9207501
+          35.2855952,
+          136.2651636
         ],
         [
-          35.0700349,
-          135.9393437
+          35.273983,
+          136.257144
         ],
         [
-          35.0694651,
-          135.8672138
+          35.2756183,
+          136.2565319
         ],
         [
-          35.0081313,
-          135.8739144
+          35.2335411,
+          136.1978718
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-shiga-05",
       "area": "shiga",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
-      "title": "滋賀県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 307,
+      "title": "滋賀県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 483,
       "legs": [
         {
           "from": "大津駅",
-          "to": "唐崎神社",
-          "distance_km": 4.94,
+          "to": "平和の礎",
+          "distance_km": 46.77,
           "mode": "car",
+          "minutes": 105
+        },
+        {
+          "from": "平和の礎",
+          "to": "滋賀縣護國神社",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "滋賀縣護國神社",
+          "to": "米乃家総本家",
+          "distance_km": 1.3,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "米乃家総本家",
+          "to": "松原寺",
+          "distance_km": 0.61,
+          "mode": "walk",
           "minutes": 12
         },
         {
-          "from": "唐崎神社",
-          "to": "生源寺",
-          "distance_km": 2.71,
+          "from": "松原寺",
+          "to": "筑摩神社",
+          "distance_km": 3.95,
           "mode": "car",
-          "minutes": 7
+          "minutes": 9
         },
         {
-          "from": "生源寺",
-          "to": "道の駅草津",
-          "distance_km": 6.28,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "道の駅草津",
-          "to": "那波加神社",
-          "distance_km": 4.76,
-          "mode": "car",
-          "minutes": 11
-        },
-        {
-          "from": "那波加神社",
-          "to": "近江神宮時計博物館",
-          "distance_km": 6.71,
-          "mode": "car",
-          "minutes": 15
-        },
-        {
-          "from": "近江神宮時計博物館",
+          "from": "筑摩神社",
           "to": "大津駅",
-          "distance_km": 3.31,
+          "distance_km": 50.47,
           "mode": "car",
-          "minutes": 8
+          "minutes": 113
         }
       ],
       "start": {
         "name": "大津駅",
         "lat": 35.00376,
         "lng": 135.86411,
-        "to_first_km": 4.9,
-        "from_last_km": 3.3
+        "to_first_km": 46.8,
+        "from_last_km": 50.5
       },
-      "total_score": 42.0,
+      "total_score": 32.0,
       "center": [
-        35.060894,
-        135.885185
+        35.28591,
+        136.254956
       ],
       "spots": [
         {
-          "place_id": "osm-node-4796151838",
-          "name": "唐崎神社",
-          "category": "観光名所",
-          "lat": 35.0473676,
-          "lng": 135.8743203,
+          "place_id": "osm-node-10284069758",
+          "name": "平和の礎",
+          "category": "史跡",
+          "lat": 35.2747309,
+          "lng": 136.2574733,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5828934099",
-          "name": "生源寺",
-          "category": "観光名所",
-          "lat": 35.0715014,
-          "lng": 135.8704013,
+          "place_id": "osm-node-10284079001",
+          "name": "滋賀縣護國神社",
+          "category": "史跡",
+          "lat": 35.2746961,
+          "lng": 136.2574363,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4213227089",
-          "name": "道の駅草津",
+          "place_id": "osm-node-10285392409",
+          "name": "米乃家総本家",
           "category": "飲食店",
-          "lat": 35.0700349,
-          "lng": 135.9393437,
+          "lat": 35.2797066,
+          "lng": 136.2444988,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「松原寺」から徒歩目安約8分です。"
         },
         {
-          "place_id": "osm-node-5835795704",
-          "name": "那波加神社",
-          "category": "観光名所",
-          "lat": 35.0837097,
-          "lng": 135.8897288,
+          "place_id": "osm-node-10285356609",
+          "name": "松原寺",
+          "category": "史跡",
+          "lat": 35.2839985,
+          "lng": 136.2487593,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1422944907",
-          "name": "近江神宮時計博物館",
-          "category": "博物館",
-          "lat": 35.0318549,
-          "lng": 135.8521302,
+          "place_id": "osm-node-5864927989",
+          "name": "筑摩神社",
+          "category": "観光名所",
+          "lat": 35.3164156,
+          "lng": 136.2666133,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -553,26 +576,27 @@
       ],
       "coordinates": [
         [
-          35.0473676,
-          135.8743203
+          35.2747309,
+          136.2574733
         ],
         [
-          35.0715014,
-          135.8704013
+          35.2746961,
+          136.2574363
         ],
         [
-          35.0700349,
-          135.9393437
+          35.2797066,
+          136.2444988
         ],
         [
-          35.0837097,
-          135.8897288
+          35.2839985,
+          136.2487593
         ],
         [
-          35.0318549,
-          135.8521302
+          35.3164156,
+          136.2666133
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

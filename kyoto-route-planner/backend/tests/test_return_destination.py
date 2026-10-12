@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from app.main import _build_route_timeline, app, limiter
-from app.models import Origin, Place, RouteSuggestion, RouteSuggestionRequest
+from app.models import Origin, Place, RoutePreviewRequest, RouteSuggestion, RouteSuggestionRequest
 
 
 def selected_places():
@@ -30,9 +30,11 @@ class ReturnDestinationTests(unittest.TestCase):
             selected_places=selected_places(),
         )
         self.search = AsyncMock(return_value=([], 40, "09:00", "09:40"))
+        self.segment_search = AsyncMock(return_value=([], None, None, None))
         self.fare = AsyncMock(return_value=600)
         for name, mock in [
             ("search_route", self.search),
+            ("_search_route_segment", self.segment_search),
             ("estimate_route_fare", self.fare),
             ("_route_candidates", AsyncMock()),
             ("generate_route_copywriting", AsyncMock(return_value=None)),
@@ -47,7 +49,8 @@ class ReturnDestinationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         result = response.json()["routes"][0]
         expected = ["0.0,0.0", "0.0,1.0", "0.0,2.0", "0.0,4.0"]
-        self.assertEqual(self.search.await_args.kwargs["via_points"], expected)
+        self.assertEqual(self.search.await_args_list[0].kwargs["via_points"], expected)
+        self.assertEqual(self.segment_search.await_args_list[-1].args[1], "0.0,4.0")
         self.fare.assert_awaited_once_with(expected)
         self.assertEqual([place["id"] for place in result["places"]], ["selected-2", "selected-1"])
         self.assertEqual(result["return_to"], dict(name="宿泊先", latitude=0, longitude=4))
@@ -65,7 +68,7 @@ class ReturnDestinationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         result = response.json()["routes"][0]
         expected = ["0.0,0.0", "0.0,1.0", "0.0,2.0", "0.0,0.0"]
-        self.assertEqual(self.search.await_args.kwargs["via_points"], expected)
+        self.assertEqual(self.search.await_args_list[0].kwargs["via_points"], expected)
         self.fare.assert_awaited_once_with(expected)
         self.assertEqual(result["return_to"], result["origin"])
         self.assertEqual(result["coordinates"][-1], result["coordinates"][0])
@@ -78,18 +81,20 @@ class ReturnDestinationTests(unittest.TestCase):
         ]:
             with self.subTest(latitude=latitude):
                 limiter.reset()
+                self.search.reset_mock()
                 response = self.client.post("/api/routes", json=dict(
                     self.payload, return_to="京都駅", return_latitude=latitude, return_longitude=longitude,
                 ))
                 self.assertEqual(response.status_code, 200, response.text)
-                self.assertEqual(self.search.await_args.kwargs["via_points"][-1], expected)
+                self.assertEqual(self.search.await_args_list[0].kwargs["via_points"][-1], expected)
                 self.assertEqual(self.fare.await_args.args[0][-1], expected)
                 self.assertEqual(response.json()["routes"][0]["coordinates"][-1], [latitude, longitude])
 
     def test_named_known_destination_needs_no_coordinates(self):
         response = self.client.post("/api/routes", json=dict(self.payload, return_to="大阪駅"))
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(self.search.await_args.kwargs["via_points"][-1], "大阪")
+        self.assertEqual(self.search.await_args_list[0].kwargs["via_points"][-1], "大阪")
+        self.assertEqual(self.segment_search.await_args_list[-1].args[1], "34.70248,135.49595")
         self.assertEqual(response.json()["routes"][0]["return_to"]["name"], "大阪駅")
 
     def test_invalid_destination_name_is_rejected_before_route_search(self):
@@ -131,7 +136,7 @@ class ReturnDestinationTests(unittest.TestCase):
              patch("app.main.choose_place_sets", return_value=[places]):
             response = self.client.post("/api/routes", json=dict(payload, return_to="大阪駅"))
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(self.search.await_args.kwargs["via_points"][-1], "大阪")
+        self.assertEqual(self.search.await_args_list[0].kwargs["via_points"][-1], "大阪")
         self.assertEqual(self.fare.await_args.args[0][-1], "大阪")
 
     def test_destination_validation(self):
@@ -155,3 +160,15 @@ class ReturnDestinationTests(unittest.TestCase):
         timeline = _build_route_timeline(origin, [], "09:00", None)
         self.assertEqual(timeline[-1].name, origin.name)
         self.assertIsNone(timeline[-1].time)
+
+    def test_preview_keeps_individual_stays_and_validates_their_shape(self):
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=selected_places(),
+                       departure_date="2026-10-12", departure_time="09:00", stay_minutes=[45, 60])
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        timeline = response.json()["timeline"]
+        self.assertEqual([item["stay_minutes"] for item in timeline if item.get("role") == "stop"], [45, 60])
+        self.assertEqual(timeline[-1]["time"], "11:25")
+        for stays in ([45], [0, 60], [45, 361]):
+            with self.subTest(stays=stays), self.assertRaises(ValidationError):
+                RoutePreviewRequest(**dict(payload, stay_minutes=stays))

@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { SavedRoutesList } from "./SavedRoutesList";
 import { PrefectureProvider } from "./PrefectureContext";
 import { FavoritesProvider } from "./useFavorites";
@@ -22,9 +22,12 @@ afterEach(() => {
 
 describe("SavedRoutesList", () => {
   it("shows the empty state", () => {
-    render(<SavedRoutesList onClose={() => undefined} />, { wrapper });
+    const onGoHome = vi.fn();
+    render(<SavedRoutesList onClose={() => undefined} onGoHome={onGoHome} />, { wrapper });
     expect(screen.getByText("まだ保存されたプランはありません。")).toBeTruthy();
-    expect(screen.getByText("スワイプしてお気に入りを見つけましょう！")).toBeTruthy();
+    expect(screen.getByText("見つける画面からお気に入りを保存できます。")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "ホームに戻る" }));
+    expect(onGoHome).toHaveBeenCalledOnce();
   });
 
   it("shows prefecture tags and removes a saved route", () => {

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:51.541488+00:00",
+  "generated_at": "2026-10-12T06:26:10.464255+00:00",
   "area": "wakayama",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "wakayama",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "和歌山県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 245,
       "legs": [
@@ -100,14 +99,14 @@
           34.1243055,
           135.1957817
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-wakayama-02",
       "area": "wakayama",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "和歌山県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 166,
       "legs": [
@@ -197,16 +196,16 @@
           34.1879225,
           135.1719029
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-wakayama-03",
       "area": "wakayama",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "和歌山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 346,
+      "estimated_minutes": 416,
       "legs": [
         {
           "from": "和歌山駅",
@@ -224,10 +223,17 @@
         },
         {
           "from": "徳川家霊台",
-          "to": "慈尊院",
-          "distance_km": 9.16,
+          "to": "ベーカリーカフェ パーシモン",
+          "distance_km": 8.8,
           "mode": "car",
-          "minutes": 21
+          "minutes": 20
+        },
+        {
+          "from": "ベーカリーカフェ パーシモン",
+          "to": "慈尊院",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
         },
         {
           "from": "慈尊院",
@@ -244,10 +250,10 @@
         "to_first_km": 39.6,
         "from_last_km": 33.7
       },
-      "total_score": 46.7,
+      "total_score": 42.5,
       "center": [
-        34.275682,
-        135.581466
+        34.280068,
+        135.574986
       ],
       "spots": [
         {
@@ -271,6 +277,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-11611498831",
+          "name": "ベーカリーカフェ パーシモン",
+          "category": "飲食店",
+          "lat": 34.2932261,
+          "lng": 135.555544,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「慈尊院」から徒歩目安約8分です。"
+        },
+        {
           "place_id": "osm-node-2279230601",
           "name": "慈尊院",
           "category": "観光名所",
@@ -291,245 +308,80 @@
           135.5830379
         ],
         [
+          34.2932261,
+          135.555544
+        ],
+        [
           34.2951647,
           135.5499064
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-wakayama-04",
       "area": "wakayama",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "和歌山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 339,
+      "estimated_minutes": 300,
       "legs": [
         {
           "from": "和歌山駅",
-          "to": "報恩講寺",
-          "distance_km": 12.53,
-          "mode": "car",
-          "minutes": 28
-        },
-        {
-          "from": "報恩講寺",
-          "to": "和歌山市立こども科学館",
-          "distance_km": 11.01,
-          "mode": "car",
-          "minutes": 25
-        },
-        {
-          "from": "和歌山市立こども科学館",
-          "to": "肉問屋肉丸商店",
-          "distance_km": 5.12,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "肉問屋肉丸商店",
-          "to": "和歌山城公園動物園",
-          "distance_km": 5.87,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "和歌山城公園動物園",
-          "to": "和歌山県立紀伊風土記の丘",
-          "distance_km": 5.2,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "和歌山県立紀伊風土記の丘",
-          "to": "和歌山駅",
-          "distance_km": 3.52,
-          "mode": "car",
-          "minutes": 8
-        }
-      ],
-      "start": {
-        "name": "和歌山駅",
-        "lat": 34.23221,
-        "lng": 135.19158,
-        "to_first_km": 12.5,
-        "from_last_km": 3.5
-      },
-      "total_score": 38.0,
-      "center": [
-        34.254037,
-        135.161923
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-11066059398",
-          "name": "報恩講寺",
-          "category": "観光名所",
-          "lat": 34.306634,
-          "lng": 135.0891271,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423056294",
-          "name": "和歌山市立こども科学館",
-          "category": "博物館",
-          "lat": 34.2328778,
-          "lng": 135.1690774,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10091668853",
-          "name": "肉問屋肉丸商店",
-          "category": "飲食店",
-          "lat": 34.2758208,
-          "lng": 135.1488415,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4533761949",
-          "name": "和歌山城公園動物園",
-          "category": "動物園",
-          "lat": 34.2269429,
-          "lng": 135.1730082,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423056737",
-          "name": "和歌山県立紀伊風土記の丘",
-          "category": "博物館",
-          "lat": 34.227911,
-          "lng": 135.2295617,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.306634,
-          135.0891271
-        ],
-        [
-          34.2328778,
-          135.1690774
-        ],
-        [
-          34.2758208,
-          135.1488415
-        ],
-        [
-          34.2269429,
-          135.1730082
-        ],
-        [
-          34.227911,
-          135.2295617
-        ]
-      ]
-    },
-    {
-      "id": "osm-wakayama-05",
-      "area": "wakayama",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "all",
-      "title": "和歌山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 324,
-      "legs": [
-        {
-          "from": "和歌山駅",
-          "to": "鳴神神社",
-          "distance_km": 1.89,
-          "mode": "car",
-          "minutes": 5
-        },
-        {
-          "from": "鳴神神社",
-          "to": "太平洋岸自転車道終点モニュメント",
-          "distance_km": 14.27,
-          "mode": "car",
-          "minutes": 32
-        },
-        {
-          "from": "太平洋岸自転車道終点モニュメント",
-          "to": "肉問屋肉丸商店",
-          "distance_km": 7.55,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "肉問屋肉丸商店",
           "to": "サビの小屋",
-          "distance_km": 1.18,
+          "distance_km": 5.24,
           "mode": "car",
-          "minutes": 3
+          "minutes": 12
         },
         {
           "from": "サビの小屋",
-          "to": "矢宮神社",
-          "distance_km": 7.53,
+          "to": "古代エジプトの像",
+          "distance_km": 0.8,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "古代エジプトの像",
+          "to": "古代エジプトの像",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "古代エジプトの像",
+          "to": "報恩講寺",
+          "distance_km": 7.26,
           "mode": "car",
           "minutes": 17
         },
         {
-          "from": "矢宮神社",
+          "from": "報恩講寺",
+          "to": "昼食: 要検討",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "昼食: 要検討",
           "to": "和歌山駅",
-          "distance_km": 4.34,
+          "distance_km": 12.53,
           "mode": "car",
-          "minutes": 10
+          "minutes": 28
         }
       ],
       "start": {
         "name": "和歌山駅",
         "lat": 34.23221,
         "lng": 135.19158,
-        "to_first_km": 1.9,
-        "from_last_km": 4.3
+        "to_first_km": 5.2,
+        "from_last_km": 12.5
       },
-      "total_score": 34.0,
+      "total_score": 26.0,
       "center": [
-        34.248465,
-        135.148981
+        34.284296,
+        135.128118
       ],
       "spots": [
-        {
-          "place_id": "osm-node-6006875729",
-          "name": "鳴神神社",
-          "category": "観光名所",
-          "lat": 34.2278607,
-          "lng": 135.2114096,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10100137048",
-          "name": "太平洋岸自転車道終点モニュメント",
-          "category": "史跡",
-          "lat": 34.2744279,
-          "lng": 135.0667281,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10091668853",
-          "name": "肉問屋肉丸商店",
-          "category": "飲食店",
-          "lat": 34.2758208,
-          "lng": 135.1488415,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-10286795305",
           "name": "サビの小屋",
@@ -541,11 +393,182 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4170758828",
-          "name": "矢宮神社",
+          "place_id": "osm-node-4715110722",
+          "name": "古代エジプトの像",
+          "category": "史跡",
+          "lat": 34.2714063,
+          "lng": 135.1556945,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4715110723",
+          "name": "古代エジプトの像",
+          "category": "史跡",
+          "lat": 34.2714769,
+          "lng": 135.1556915,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11066059398",
+          "name": "報恩講寺",
           "category": "観光名所",
-          "lat": 34.1988878,
-          "lng": 135.1669735,
+          "lat": 34.306634,
+          "lng": 135.0891271,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-wakayama-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 34.306634,
+          "lng": 135.0891271,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        }
+      ],
+      "coordinates": [
+        [
+          34.2653273,
+          135.1509509
+        ],
+        [
+          34.2714063,
+          135.1556945
+        ],
+        [
+          34.2714769,
+          135.1556915
+        ],
+        [
+          34.306634,
+          135.0891271
+        ],
+        [
+          34.306634,
+          135.0891271
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-wakayama-05",
+      "area": "wakayama",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "和歌山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 404,
+      "legs": [
+        {
+          "from": "和歌山駅",
+          "to": "蛭子神社",
+          "distance_km": 34.58,
+          "mode": "car",
+          "minutes": 78
+        },
+        {
+          "from": "蛭子神社",
+          "to": "善名称院（真田庵）",
+          "distance_km": 1.59,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "善名称院（真田庵）",
+          "to": "丹生神社",
+          "distance_km": 1.04,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "丹生神社",
+          "to": "昼食: 要検討",
+          "distance_km": 5.16,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "丹生官省符神社",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "丹生官省符神社",
+          "to": "和歌山駅",
+          "distance_km": 29.87,
+          "mode": "car",
+          "minutes": 67
+        }
+      ],
+      "start": {
+        "name": "和歌山駅",
+        "lat": 34.23221,
+        "lng": 135.19158,
+        "to_first_km": 34.6,
+        "from_last_km": 29.9
+      },
+      "total_score": 26.0,
+      "center": [
+        34.281601,
+        135.539387
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10609052839",
+          "name": "蛭子神社",
+          "category": "史跡",
+          "lat": 34.3049715,
+          "lng": 135.5574356,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3947094932",
+          "name": "善名称院（真田庵）",
+          "category": "観光名所",
+          "lat": 34.2908013,
+          "lng": 135.5597811,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5781153115",
+          "name": "丹生神社",
+          "category": "史跡",
+          "lat": 34.2950958,
+          "lng": 135.549708,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-wakayama-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 34.2585692,
+          "lng": 135.5150043,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
+          "place_id": "osm-node-2279235857",
+          "name": "丹生官省符神社",
+          "category": "観光名所",
+          "lat": 34.2585692,
+          "lng": 135.5150043,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -553,26 +576,27 @@
       ],
       "coordinates": [
         [
-          34.2278607,
-          135.2114096
+          34.3049715,
+          135.5574356
         ],
         [
-          34.2744279,
-          135.0667281
+          34.2908013,
+          135.5597811
         ],
         [
-          34.2758208,
-          135.1488415
+          34.2950958,
+          135.549708
         ],
         [
-          34.2653273,
-          135.1509509
+          34.2585692,
+          135.5150043
         ],
         [
-          34.1988878,
-          135.1669735
+          34.2585692,
+          135.5150043
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

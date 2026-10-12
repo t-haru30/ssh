@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:42.323161+00:00",
+  "generated_at": "2026-10-12T06:26:00.266114+00:00",
   "area": "gifu",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "gifu",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "岐阜県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 192,
       "legs": [
@@ -100,16 +99,16 @@
           35.391139,
           136.772963
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-gifu-02",
       "area": "gifu",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "岐阜県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 362,
+      "estimated_minutes": 422,
       "legs": [
         {
           "from": "岐阜駅",
@@ -127,10 +126,17 @@
         },
         {
           "from": "天心白菊の塔",
-          "to": "大山白山神社",
+          "to": "昼食: 要検討",
           "distance_km": 5.28,
           "mode": "car",
           "minutes": 12
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "大山白山神社",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "大山白山神社",
@@ -147,10 +153,10 @@
         "to_first_km": 42.2,
         "from_last_km": 48.6
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        35.594487,
-        137.194985
+        35.600739,
+        137.203212
       ],
       "spots": [
         {
@@ -172,6 +178,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-gifu-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.6194956,
+          "lng": 137.2278939,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-4516624335",
@@ -196,17 +213,21 @@
         [
           35.6194956,
           137.2278939
+        ],
+        [
+          35.6194956,
+          137.2278939
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-gifu-03",
       "area": "gifu",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "岐阜県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 332,
+      "estimated_minutes": 392,
       "legs": [
         {
           "from": "岐阜駅",
@@ -224,10 +245,17 @@
         },
         {
           "from": "ミュージアム中仙道",
-          "to": "可児郷土歴史館",
+          "to": "昼食: 要検討",
           "distance_km": 11.89,
           "mode": "car",
           "minutes": 27
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "可児郷土歴史館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "可児郷土歴史館",
@@ -244,10 +272,10 @@
         "to_first_km": 32.6,
         "from_last_km": 32.2
       },
-      "total_score": 50.0,
+      "total_score": 37.5,
       "center": [
-        35.377082,
-        137.152278
+        35.383718,
+        137.142012
       ],
       "spots": [
         {
@@ -269,6 +297,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-gifu-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.403625,
+          "lng": 137.111212,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-1420978567",
@@ -293,17 +332,21 @@
         [
           35.403625,
           137.111212
+        ],
+        [
+          35.403625,
+          137.111212
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-gifu-04",
       "area": "gifu",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "岐阜県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 545,
+      "estimated_minutes": 533,
       "legs": [
         {
           "from": "岐阜駅",
@@ -314,17 +357,10 @@
         },
         {
           "from": "中山道広重美術館",
-          "to": "博石館",
-          "distance_km": 4.97,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "博石館",
           "to": "たけちゃん",
-          "distance_km": 5.08,
-          "mode": "car",
-          "minutes": 12
+          "distance_km": 0.11,
+          "mode": "walk",
+          "minutes": 3
         },
         {
           "from": "たけちゃん",
@@ -342,10 +378,17 @@
         },
         {
           "from": "大井城",
-          "to": "岐阜駅",
-          "distance_km": 59.96,
+          "to": "博石館",
+          "distance_km": 4.88,
           "mode": "car",
-          "minutes": 134
+          "minutes": 11
+        },
+        {
+          "from": "博石館",
+          "to": "岐阜駅",
+          "distance_km": 59.03,
+          "mode": "car",
+          "minutes": 132
         }
       ],
       "start": {
@@ -353,7 +396,7 @@
         "lat": 35.4097,
         "lng": 136.7564,
         "to_first_km": 59.4,
-        "from_last_km": 60.0
+        "from_last_km": 59.0
       },
       "total_score": 46.0,
       "center": [
@@ -372,16 +415,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420978445",
-          "name": "博石館",
-          "category": "博物館",
-          "lat": 35.4967401,
-          "lng": 137.3993313,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
           "place_id": "osm-node-10065657211",
           "name": "たけちゃん",
           "category": "飲食店",
@@ -389,7 +422,8 @@
           "lng": 137.4101848,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「中山道ひし屋資料館」から徒歩目安約7分です。"
         },
         {
           "place_id": "osm-node-9555784768",
@@ -410,16 +444,22 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420978445",
+          "name": "博石館",
+          "category": "博物館",
+          "lat": 35.4967401,
+          "lng": 137.3993313,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
         [
           35.452938,
           137.409982
-        ],
-        [
-          35.4967401,
-          137.3993313
         ],
         [
           35.4519418,
@@ -432,17 +472,21 @@
         [
           35.4549994,
           137.4158201
+        ],
+        [
+          35.4967401,
+          137.3993313
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-gifu-05",
       "area": "gifu",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
       "title": "岐阜県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 538,
+      "estimated_minutes": 536,
       "legs": [
         {
           "from": "岐阜駅",
@@ -453,24 +497,24 @@
         },
         {
           "from": "鷹撃谷城",
+          "to": "あまから",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "あまから",
           "to": "長栄寺",
-          "distance_km": 0.84,
-          "mode": "car",
-          "minutes": 2
+          "distance_km": 0.42,
+          "mode": "walk",
+          "minutes": 8
         },
         {
           "from": "長栄寺",
-          "to": "たけちゃん",
-          "distance_km": 0.68,
-          "mode": "walk",
-          "minutes": 13
-        },
-        {
-          "from": "たけちゃん",
           "to": "東禅寺",
-          "distance_km": 0.8,
+          "distance_km": 0.45,
           "mode": "walk",
-          "minutes": 15
+          "minutes": 9
         },
         {
           "from": "東禅寺",
@@ -496,8 +540,8 @@
       },
       "total_score": 40.0,
       "center": [
-        35.453078,
-        137.405322
+        35.453538,
+        137.404874
       ],
       "spots": [
         {
@@ -511,6 +555,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-10105881640",
+          "name": "あまから",
+          "category": "飲食店",
+          "lat": 35.4542423,
+          "lng": 137.4079404,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「長栄寺」から徒歩目安約6分です。"
+        },
+        {
           "place_id": "osm-node-9739276058",
           "name": "長栄寺",
           "category": "観光名所",
@@ -519,16 +574,6 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10065657211",
-          "name": "たけちゃん",
-          "category": "飲食店",
-          "lat": 35.4519418,
-          "lng": 137.4101848,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-9739581246",
@@ -557,12 +602,12 @@
           137.4109679
         ],
         [
-          35.4544133,
-          137.4032667
+          35.4542423,
+          137.4079404
         ],
         [
-          35.4519418,
-          137.4101848
+          35.4544133,
+          137.4032667
         ],
         [
           35.4580242,
@@ -572,7 +617,8 @@
           35.4424049,
           137.3966282
         ]
-      ]
+      ],
+      "theme": "all"
     }
   ]
 }

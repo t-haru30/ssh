@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:54.321260+00:00",
+  "generated_at": "2026-10-12T06:26:13.188287+00:00",
   "area": "hiroshima",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "hiroshima",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "広島県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 176,
       "legs": [
@@ -100,14 +99,14 @@
           34.3934503,
           132.452745
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hiroshima-02",
       "area": "hiroshima",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "広島県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 186,
       "legs": [
@@ -197,16 +196,16 @@
           34.3929718,
           132.4525711
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hiroshima-03",
       "area": "hiroshima",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 326,
+      "estimated_minutes": 395,
       "legs": [
         {
           "from": "広島駅",
@@ -224,10 +223,17 @@
         },
         {
           "from": "辰川小学校門柱",
-          "to": "筆の里工房",
-          "distance_km": 9.48,
+          "to": "うどん　よねだ屋",
+          "distance_km": 9.86,
           "mode": "public_transport",
-          "minutes": 43
+          "minutes": 45
+        },
+        {
+          "from": "うどん　よねだ屋",
+          "to": "筆の里工房",
+          "distance_km": 1.4,
+          "mode": "public_transport",
+          "minutes": 7
         },
         {
           "from": "筆の里工房",
@@ -244,10 +250,10 @@
         "to_first_km": 19.3,
         "from_last_km": 11.0
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        34.280164,
-        132.570715
+        34.296398,
+        132.57565
       ],
       "spots": [
         {
@@ -271,6 +277,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-13700489482",
+          "name": "うどん　よねだ屋",
+          "category": "飲食店",
+          "lat": 34.3450994,
+          "lng": 132.5904527,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「筆の里工房」から徒歩目安約18分です。"
+        },
+        {
           "place_id": "osm-node-1423639616",
           "name": "筆の里工房",
           "category": "博物館",
@@ -291,54 +308,58 @@
           132.5728845
         ],
         [
+          34.3450994,
+          132.5904527
+        ],
+        [
           34.342881,
           132.575398
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hiroshima-04",
       "area": "hiroshima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 467,
+      "estimated_minutes": 420,
       "legs": [
         {
           "from": "広島駅",
-          "to": "西幸記念碑",
-          "distance_km": 16.52,
-          "mode": "public_transport",
-          "minutes": 75
-        },
-        {
-          "from": "西幸記念碑",
           "to": "桂公園碑",
-          "distance_km": 4.27,
+          "distance_km": 12.96,
           "mode": "public_transport",
-          "minutes": 20
+          "minutes": 59
         },
         {
           "from": "桂公園碑",
-          "to": "みっちゃん総本店",
-          "distance_km": 1.48,
-          "mode": "public_transport",
-          "minutes": 7
-        },
-        {
-          "from": "みっちゃん総本店",
           "to": "桜尾城跡",
-          "distance_km": 1.36,
-          "mode": "public_transport",
-          "minutes": 7
+          "distance_km": 0.13,
+          "mode": "walk",
+          "minutes": 3
         },
         {
           "from": "桜尾城跡",
-          "to": "海の見える杜美術館",
-          "distance_km": 6.53,
+          "to": "廿日市市役所",
+          "distance_km": 1.27,
           "mode": "public_transport",
-          "minutes": 30
+          "minutes": 6
+        },
+        {
+          "from": "廿日市市役所",
+          "to": "昼食: 要検討",
+          "distance_km": 5.29,
+          "mode": "public_transport",
+          "minutes": 24
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "海の見える杜美術館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "海の見える杜美術館",
@@ -352,25 +373,15 @@
         "name": "広島駅",
         "lat": 34.3977,
         "lng": 132.4753,
-        "to_first_km": 16.5,
+        "to_first_km": 13.0,
         "from_last_km": 19.5
       },
-      "total_score": 38.0,
+      "total_score": 28.0,
       "center": [
-        34.342356,
-        132.3239
+        34.343403,
+        132.31552
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1251268068",
-          "name": "西幸記念碑",
-          "category": "史跡",
-          "lat": 34.3248969,
-          "lng": 132.3184314,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-1308981258",
           "name": "桂公園碑",
@@ -382,16 +393,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3836643257",
-          "name": "みっちゃん総本店",
-          "category": "飲食店",
-          "lat": 34.3456057,
-          "lng": 132.3358887,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-1309008637",
           "name": "桜尾城跡",
           "category": "史跡",
@@ -400,6 +401,27 @@
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1341952958",
+          "name": "廿日市市役所",
+          "category": "史跡",
+          "lat": 34.3488778,
+          "lng": 132.3317756,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-hiroshima-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 34.326863,
+          "lng": 132.280645,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-1423638572",
@@ -414,70 +436,70 @@
       ],
       "coordinates": [
         [
-          34.3248969,
-          132.3184314
-        ],
-        [
           34.3576204,
           132.3427409
-        ],
-        [
-          34.3456057,
-          132.3358887
         ],
         [
           34.3567916,
           132.3417956
         ],
         [
+          34.3488778,
+          132.3317756
+        ],
+        [
+          34.326863,
+          132.280645
+        ],
+        [
           34.326863,
           132.280645
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-hiroshima-05",
       "area": "hiroshima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 382,
+      "estimated_minutes": 387,
       "legs": [
         {
           "from": "広島駅",
-          "to": "廿日市市役所",
-          "distance_km": 14.25,
+          "to": "廿日市市民憲章",
+          "distance_km": 14.24,
           "mode": "public_transport",
           "minutes": 65
         },
         {
-          "from": "廿日市市役所",
-          "to": "廿日市市民憲章",
-          "distance_km": 0.01,
-          "mode": "walk",
-          "minutes": 1
-        },
-        {
           "from": "廿日市市民憲章",
-          "to": "みっちゃん総本店",
-          "distance_km": 0.52,
-          "mode": "walk",
-          "minutes": 10
-        },
-        {
-          "from": "みっちゃん総本店",
           "to": "芸州廿日市御本陣旧跡",
-          "distance_km": 1.1,
+          "distance_km": 0.92,
           "mode": "public_transport",
           "minutes": 5
         },
         {
           "from": "芸州廿日市御本陣旧跡",
-          "to": "小橋勘太郎之碑",
-          "distance_km": 6.82,
+          "to": "慰霊碑",
+          "distance_km": 0.83,
           "mode": "public_transport",
-          "minutes": 31
+          "minutes": 4
+        },
+        {
+          "from": "慰霊碑",
+          "to": "まとい寿司",
+          "distance_km": 7.77,
+          "mode": "public_transport",
+          "minutes": 35
+        },
+        {
+          "from": "まとい寿司",
+          "to": "小橋勘太郎之碑",
+          "distance_km": 0.37,
+          "mode": "walk",
+          "minutes": 8
         },
         {
           "from": "小橋勘太郎之碑",
@@ -494,22 +516,12 @@
         "to_first_km": 14.2,
         "from_last_km": 6.6
       },
-      "total_score": 34.0,
+      "total_score": 30.0,
       "center": [
-        34.355088,
-        132.34905
+        34.363173,
+        132.362927
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1341952958",
-          "name": "廿日市市役所",
-          "category": "史跡",
-          "lat": 34.3488778,
-          "lng": 132.3317756,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-1341952960",
           "name": "廿日市市民憲章",
@@ -521,16 +533,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3836643257",
-          "name": "みっちゃん総本店",
-          "category": "飲食店",
-          "lat": 34.3456057,
-          "lng": 132.3358887,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-1478159870",
           "name": "芸州廿日市御本陣旧跡",
           "category": "史跡",
@@ -539,6 +541,27 @@
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1480161468",
+          "name": "慰霊碑",
+          "category": "史跡",
+          "lat": 34.3547751,
+          "lng": 132.3290571,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11115735635",
+          "name": "まとい寿司",
+          "category": "飲食店",
+          "lat": 34.3801317,
+          "lng": 132.4079903,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「小橋勘太郎之碑」から徒歩目安約5分です。"
         },
         {
           "place_id": "osm-node-11108557131",
@@ -553,26 +576,27 @@
       ],
       "coordinates": [
         [
-          34.3488778,
-          132.3317756
-        ],
-        [
           34.3488304,
           132.3318358
-        ],
-        [
-          34.3456057,
-          132.3358887
         ],
         [
           34.3553528,
           132.3380452
         ],
         [
+          34.3547751,
+          132.3290571
+        ],
+        [
+          34.3801317,
+          132.4079903
+        ],
+        [
           34.3767736,
           132.4077054
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

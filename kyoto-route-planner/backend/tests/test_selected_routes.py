@@ -30,8 +30,8 @@ class SelectedRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         result = response.json()["routes"][0]
         self.assertEqual([p["id"] for p in result["places"]], [p["id"] for p in self.payload["selected_places"]])
-        self.assertEqual(route.await_count, 1)
-        self.assertEqual(route.await_args.kwargs["via_points"], ["35.68,139.76", *[f"{p['latitude']},{p['longitude']}" for p in self.payload["selected_places"]], "35.68,139.76"])
+        self.assertEqual(route.await_count, 6)  # Whole route plus five timetable segments.
+        self.assertEqual(route.await_args_list[0].kwargs["via_points"], ["35.68,139.76", *[f"{p['latitude']},{p['longitude']}" for p in self.payload["selected_places"]], "35.68,139.76"])
         candidates.assert_not_awaited()
         ai.assert_not_awaited()
 

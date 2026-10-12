@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:57.619731+00:00",
+  "generated_at": "2026-10-12T06:26:16.666073+00:00",
   "area": "fukuoka",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "fukuoka",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "福岡県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 204,
       "legs": [
@@ -100,14 +99,14 @@
           33.597265,
           130.398732
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukuoka-02",
       "area": "fukuoka",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "福岡県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 223,
       "legs": [
@@ -197,14 +196,14 @@
           33.622784,
           130.4253513
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukuoka-03",
       "area": "fukuoka",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "福岡県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 171,
       "legs": [
@@ -294,16 +293,16 @@
           33.590326,
           130.3948297
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukuoka-04",
       "area": "fukuoka",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
       "title": "福岡県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 318,
+      "estimated_minutes": 316,
       "legs": [
         {
           "from": "博多駅",
@@ -321,17 +320,10 @@
         },
         {
           "from": "勝立寺",
-          "to": "博多一幸舎 総本店",
-          "distance_km": 1.61,
-          "mode": "public_transport",
-          "minutes": 8
-        },
-        {
-          "from": "博多一幸舎 総本店",
           "to": "龍宮寺",
-          "distance_km": 0.77,
-          "mode": "walk",
-          "minutes": 15
+          "distance_km": 1.17,
+          "mode": "public_transport",
+          "minutes": 6
         },
         {
           "from": "龍宮寺",
@@ -342,10 +334,17 @@
         },
         {
           "from": "穴観音 (興宗寺)",
+          "to": "リンガーハット自動販売機",
+          "distance_km": 0.64,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "リンガーハット自動販売機",
           "to": "博多駅",
-          "distance_km": 4.0,
+          "distance_km": 4.63,
           "mode": "public_transport",
-          "minutes": 18
+          "minutes": 21
         }
       ],
       "start": {
@@ -353,12 +352,12 @@
         "lat": 33.5897,
         "lng": 130.4207,
         "to_first_km": 1.5,
-        "from_last_km": 4.0
+        "from_last_km": 4.6
       },
-      "total_score": 42.0,
+      "total_score": 38.0,
       "center": [
-        33.585714,
-        130.407779
+        33.578589,
+        130.403952
       ],
       "spots": [
         {
@@ -382,16 +381,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5073073021",
-          "name": "博多一幸舎 総本店",
-          "category": "飲食店",
-          "lat": 33.5882444,
-          "lng": 130.4170779,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-3957980515",
           "name": "龍宮寺",
           "category": "観光名所",
@@ -410,6 +399,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10179226381",
+          "name": "リンガーハット自動販売機",
+          "category": "飲食店",
+          "lat": 33.5526213,
+          "lng": 130.3979426,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「穴観音 (興宗寺)」から徒歩目安約8分です。"
         }
       ],
       "coordinates": [
@@ -422,27 +422,27 @@
           130.4008729
         ],
         [
-          33.5882444,
-          130.4170779
-        ],
-        [
           33.5945042,
           130.4134048
         ],
         [
           33.557391,
           130.4017232
+        ],
+        [
+          33.5526213,
+          130.3979426
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-fukuoka-05",
       "area": "fukuoka",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福岡県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 333,
+      "estimated_minutes": 306,
       "legs": [
         {
           "from": "博多駅",
@@ -453,38 +453,38 @@
         },
         {
           "from": "萬行寺",
+          "to": "三人舞妓",
+          "distance_km": 0.6,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "三人舞妓",
+          "to": "福岡市道路元標",
+          "distance_km": 0.32,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "福岡市道路元標",
           "to": "南公園西展望台",
-          "distance_km": 3.25,
+          "distance_km": 2.71,
           "mode": "public_transport",
-          "minutes": 15
+          "minutes": 13
         },
         {
           "from": "南公園西展望台",
-          "to": "博多一幸舎 総本店",
-          "distance_km": 3.39,
-          "mode": "public_transport",
-          "minutes": 16
-        },
-        {
-          "from": "博多一幸舎 総本店",
-          "to": "航空安全の碑",
-          "distance_km": 4.57,
-          "mode": "public_transport",
-          "minutes": 21
-        },
-        {
-          "from": "航空安全の碑",
-          "to": "百度石",
-          "distance_km": 4.69,
-          "mode": "public_transport",
-          "minutes": 22
-        },
-        {
-          "from": "百度石",
-          "to": "博多駅",
-          "distance_km": 0.77,
+          "to": "アトリエてらた",
+          "distance_km": 0.65,
           "mode": "walk",
-          "minutes": 15
+          "minutes": 13
+        },
+        {
+          "from": "アトリエてらた",
+          "to": "博多駅",
+          "distance_km": 3.74,
+          "mode": "public_transport",
+          "minutes": 17
         }
       ],
       "start": {
@@ -492,12 +492,12 @@
         "lat": 33.5897,
         "lng": 130.4207,
         "to_first_km": 0.9,
-        "from_last_km": 0.8
+        "from_last_km": 3.7
       },
-      "total_score": 40.0,
+      "total_score": 34.0,
       "center": [
-        33.581765,
-        130.417712
+        33.586234,
+        130.397312
       ],
       "spots": [
         {
@@ -511,6 +511,26 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-10219049170",
+          "name": "三人舞妓",
+          "category": "史跡",
+          "lat": 33.5924387,
+          "lng": 130.4053561,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10731486072",
+          "name": "福岡市道路元標",
+          "category": "史跡",
+          "lat": 33.5934246,
+          "lng": 130.4021084,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
           "place_id": "osm-node-6731411885",
           "name": "南公園西展望台",
           "category": "展望地",
@@ -521,34 +541,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5073073021",
-          "name": "博多一幸舎 総本店",
+          "place_id": "osm-node-11829674838",
+          "name": "アトリエてらた",
           "category": "飲食店",
-          "lat": 33.5882444,
-          "lng": 130.4170779,
+          "lat": 33.5790974,
+          "lng": 130.3823798,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-9531139777",
-          "name": "航空安全の碑",
-          "category": "史跡",
-          "lat": 33.5688749,
-          "lng": 130.4606362,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10812977384",
-          "name": "百度石",
-          "category": "史跡",
-          "lat": 33.5854971,
-          "lng": 130.4141327,
-          "stay_minutes": 45,
           "score": 30.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「南公園西展望台」から徒歩目安約9分です。"
         }
       ],
       "coordinates": [
@@ -557,22 +558,23 @@
           130.4117886
         ],
         [
+          33.5924387,
+          130.4053561
+        ],
+        [
+          33.5934246,
+          130.4021084
+        ],
+        [
           33.5736732,
           130.3849263
         ],
         [
-          33.5882444,
-          130.4170779
-        ],
-        [
-          33.5688749,
-          130.4606362
-        ],
-        [
-          33.5854971,
-          130.4141327
+          33.5790974,
+          130.3823798
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

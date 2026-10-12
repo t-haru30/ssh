@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:59.010903+00:00",
+  "generated_at": "2026-10-12T06:26:17.980842+00:00",
   "area": "nagasaki",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "nagasaki",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "長崎県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 156,
       "legs": [
@@ -100,16 +99,16 @@
           32.73522,
           129.869742
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-nagasaki-02",
       "area": "nagasaki",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "all",
       "title": "長崎県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 360,
+      "estimated_minutes": 420,
       "legs": [
         {
           "from": "長崎駅",
@@ -127,10 +126,17 @@
         },
         {
           "from": "オキチモズク",
-          "to": "守山大塚古墳",
+          "to": "昼食: 要検討",
           "distance_km": 11.48,
           "mode": "car",
           "minutes": 26
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "守山大塚古墳",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "守山大塚古墳",
@@ -147,10 +153,10 @@
         "to_first_km": 46.9,
         "from_last_km": 32.8
       },
-      "total_score": 50.0,
+      "total_score": 37.5,
       "center": [
-        32.825719,
-        130.298346
+        32.830601,
+        130.274151
       ],
       "spots": [
         {
@@ -172,6 +178,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-nagasaki-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 32.8452471,
+          "lng": 130.2015653,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-10578965532",
@@ -196,17 +213,21 @@
         [
           32.8452471,
           130.2015653
+        ],
+        [
+          32.8452471,
+          130.2015653
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-nagasaki-03",
       "area": "nagasaki",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "nature",
       "title": "長崎県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 394,
+      "estimated_minutes": 454,
       "legs": [
         {
           "from": "長崎駅",
@@ -224,10 +245,17 @@
         },
         {
           "from": "展海峰",
-          "to": "四反田遺跡",
+          "to": "昼食: 要検討",
           "distance_km": 8.19,
           "mode": "car",
           "minutes": 19
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "四反田遺跡",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "四反田遺跡",
@@ -244,10 +272,10 @@
         "to_first_km": 48.7,
         "from_last_km": 53.3
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        33.170098,
-        129.698092
+        33.178883,
+        129.693741
       ],
       "spots": [
         {
@@ -269,6 +297,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-nagasaki-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.2052377,
+          "lng": 129.6806905,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-12463298700",
@@ -293,52 +332,56 @@
         [
           33.2052377,
           129.6806905
+        ],
+        [
+          33.2052377,
+          129.6806905
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-nagasaki-04",
       "area": "nagasaki",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "長崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 373,
+      "estimated_minutes": 349,
       "legs": [
         {
           "from": "長崎駅",
-          "to": "天正遣欧少年使節顕彰之像",
-          "distance_km": 19.73,
-          "mode": "car",
-          "minutes": 44
-        },
-        {
-          "from": "天正遣欧少年使節顕彰之像",
-          "to": "黒丸踊像",
-          "distance_km": 0.23,
-          "mode": "walk",
-          "minutes": 5
-        },
-        {
-          "from": "黒丸踊像",
-          "to": "星乃珈琲店 長崎大村店",
-          "distance_km": 2.74,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "星乃珈琲店 長崎大村店",
           "to": "玖島城址石垣復元完成記念碑",
-          "distance_km": 0.55,
-          "mode": "walk",
-          "minutes": 11
+          "distance_km": 18.07,
+          "mode": "car",
+          "minutes": 41
         },
         {
           "from": "玖島城址石垣復元完成記念碑",
-          "to": "諫早神社",
-          "distance_km": 9.69,
+          "to": "少年鼓手 浜田謹吾",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "少年鼓手 浜田謹吾",
+          "to": "歩兵第二十三旅團記念碑",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "歩兵第二十三旅團記念碑",
+          "to": "昼食: 要検討",
+          "distance_km": 9.71,
           "mode": "car",
           "minutes": 22
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "諫早神社",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "諫早神社",
@@ -352,45 +395,15 @@
         "name": "長崎駅",
         "lat": 32.75239,
         "lng": 129.86892,
-        "to_first_km": 19.7,
+        "to_first_km": 18.1,
         "from_last_km": 19.5
       },
-      "total_score": 32.0,
+      "total_score": 26.0,
       "center": [
-        32.897727,
-        129.966853
+        32.87752,
+        129.99146
       ],
       "spots": [
-        {
-          "place_id": "osm-node-10277027895",
-          "name": "天正遣欧少年使節顕彰之像",
-          "category": "史跡",
-          "lat": 32.9203623,
-          "lng": 129.9368385,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10277027896",
-          "name": "黒丸踊像",
-          "category": "史跡",
-          "lat": 32.9209792,
-          "lng": 129.9392364,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10271001078",
-          "name": "星乃珈琲店 長崎大村店",
-          "category": "飲食店",
-          "lat": 32.9018836,
-          "lng": 129.9577937,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-4764068971",
           "name": "玖島城址石垣復元完成記念碑",
@@ -401,105 +414,6 @@
           "score": 30.0,
           "role": "stop"
         },
-        {
-          "place_id": "osm-node-4458783098",
-          "name": "諫早神社",
-          "category": "観光名所",
-          "lat": 32.8483985,
-          "lng": 130.0432636,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          32.9203623,
-          129.9368385
-        ],
-        [
-          32.9209792,
-          129.9392364
-        ],
-        [
-          32.9018836,
-          129.9577937
-        ],
-        [
-          32.897011,
-          129.9571317
-        ],
-        [
-          32.8483985,
-          130.0432636
-        ]
-      ]
-    },
-    {
-      "id": "osm-nagasaki-05",
-      "area": "nagasaki",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "長崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 372,
-      "legs": [
-        {
-          "from": "長崎駅",
-          "to": "少年鼓手 浜田謹吾",
-          "distance_km": 18.05,
-          "mode": "car",
-          "minutes": 41
-        },
-        {
-          "from": "少年鼓手 浜田謹吾",
-          "to": "歩兵第二十三旅團記念碑",
-          "distance_km": 0.0,
-          "mode": "walk",
-          "minutes": 1
-        },
-        {
-          "from": "歩兵第二十三旅團記念碑",
-          "to": "星乃珈琲店 長崎大村店",
-          "distance_km": 0.56,
-          "mode": "walk",
-          "minutes": 11
-        },
-        {
-          "from": "星乃珈琲店 長崎大村店",
-          "to": "歩兵少佐佐藤嘉平次君碑",
-          "distance_km": 0.59,
-          "mode": "walk",
-          "minutes": 11
-        },
-        {
-          "from": "歩兵少佐佐藤嘉平次君碑",
-          "to": "諫早市郷土館",
-          "distance_km": 10.49,
-          "mode": "car",
-          "minutes": 24
-        },
-        {
-          "from": "諫早市郷土館",
-          "to": "長崎駅",
-          "distance_km": 19.64,
-          "mode": "car",
-          "minutes": 44
-        }
-      ],
-      "start": {
-        "name": "長崎駅",
-        "lat": 32.75239,
-        "lng": 129.86892,
-        "to_first_km": 18.0,
-        "from_last_km": 19.6
-      },
-      "total_score": 30.0,
-      "center": [
-        32.887042,
-        129.975602
-      ],
-      "spots": [
         {
           "place_id": "osm-node-4764068994",
           "name": "少年鼓手 浜田謹吾",
@@ -521,15 +435,115 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10271001078",
-          "name": "星乃珈琲店 長崎大村店",
-          "category": "飲食店",
-          "lat": 32.9018836,
-          "lng": 129.9577937,
+          "place_id": "lunch-undetermined-nagasaki-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 32.8483985,
+          "lng": 130.0432636,
           "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
+        {
+          "place_id": "osm-node-4458783098",
+          "name": "諫早神社",
+          "category": "観光名所",
+          "lat": 32.8483985,
+          "lng": 130.0432636,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          32.897011,
+          129.9571317
+        ],
+        [
+          32.8969131,
+          129.9568098
+        ],
+        [
+          32.896881,
+          129.9568306
+        ],
+        [
+          32.8483985,
+          130.0432636
+        ],
+        [
+          32.8483985,
+          130.0432636
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-nagasaki-05",
+      "area": "nagasaki",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "長崎県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 344,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "歩兵少佐佐藤嘉平次君碑",
+          "distance_km": 18.04,
+          "mode": "car",
+          "minutes": 41
+        },
+        {
+          "from": "歩兵少佐佐藤嘉平次君碑",
+          "to": "碑文",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "碑文",
+          "to": "贈従五位濱田彌兵衛之碑",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "贈従五位濱田彌兵衛之碑",
+          "to": "PiSOLiNO",
+          "distance_km": 3.22,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "PiSOLiNO",
+          "to": "天正遣欧少年使節顕彰之像",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "天正遣欧少年使節顕彰之像",
+          "to": "長崎駅",
+          "distance_km": 19.73,
+          "mode": "car",
+          "minutes": 44
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 18.0,
+        "from_last_km": 19.7
+      },
+      "total_score": 30.0,
+      "center": [
+        32.906585,
+        129.949004
+      ],
+      "spots": [
         {
           "place_id": "osm-node-4764069040",
           "name": "歩兵少佐佐藤嘉平次君碑",
@@ -541,11 +555,42 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423818805",
-          "name": "諫早市郷土館",
-          "category": "博物館",
-          "lat": 32.842887,
-          "lng": 130.04942,
+          "place_id": "osm-node-4764069053",
+          "name": "碑文",
+          "category": "史跡",
+          "lat": 32.8960073,
+          "lng": 129.9571265,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4764282725",
+          "name": "贈従五位濱田彌兵衛之碑",
+          "category": "史跡",
+          "lat": 32.8978038,
+          "lng": 129.9563068,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-9708735117",
+          "name": "PiSOLiNO",
+          "category": "飲食店",
+          "lat": 32.9221093,
+          "lng": 129.9375938,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「天正遣欧少年使節顕彰之像」から徒歩目安約3分です。"
+        },
+        {
+          "place_id": "osm-node-10277027895",
+          "name": "天正遣欧少年使節顕彰之像",
+          "category": "史跡",
+          "lat": 32.9203623,
+          "lng": 129.9368385,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -553,26 +598,27 @@
       ],
       "coordinates": [
         [
-          32.8969131,
-          129.9568098
-        ],
-        [
-          32.896881,
-          129.9568306
-        ],
-        [
-          32.9018836,
-          129.9577937
-        ],
-        [
           32.8966448,
           129.9571536
         ],
         [
-          32.842887,
-          130.04942
+          32.8960073,
+          129.9571265
+        ],
+        [
+          32.8978038,
+          129.9563068
+        ],
+        [
+          32.9221093,
+          129.9375938
+        ],
+        [
+          32.9203623,
+          129.9368385
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

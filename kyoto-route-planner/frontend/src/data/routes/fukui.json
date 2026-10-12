@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:40.209535+00:00",
+  "generated_at": "2026-10-12T06:25:58.041255+00:00",
   "area": "fukui",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,9 +10,8 @@
       "area": "fukui",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福井県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 369,
+      "estimated_minutes": 433,
       "legs": [
         {
           "from": "福井駅",
@@ -30,10 +29,17 @@
         },
         {
           "from": "常宮神社",
-          "to": "旧敦賀港駅ランプ小屋",
-          "distance_km": 5.14,
+          "to": "生け簀の甲羅",
+          "distance_km": 5.13,
           "mode": "car",
           "minutes": 12
+        },
+        {
+          "from": "生け簀の甲羅",
+          "to": "旧敦賀港駅ランプ小屋",
+          "distance_km": 0.18,
+          "mode": "walk",
+          "minutes": 4
         },
         {
           "from": "旧敦賀港駅ランプ小屋",
@@ -50,10 +56,10 @@
         "to_first_km": 47.2,
         "from_last_km": 46.3
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        35.669968,
-        136.057488
+        35.667973,
+        136.061727
       ],
       "spots": [
         {
@@ -77,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-13012898523",
+          "name": "生け簀の甲羅",
+          "category": "飲食店",
+          "lat": 35.6619882,
+          "lng": 136.0744463,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「旧敦賀港駅ランプ小屋」から徒歩目安約3分です。"
+        },
+        {
           "place_id": "osm-node-11250220361",
           "name": "旧敦賀港駅ランプ小屋",
           "category": "博物館",
@@ -97,17 +114,21 @@
           136.0297034
         ],
         [
+          35.6619882,
+          136.0744463
+        ],
+        [
           35.6632189,
           136.0757556
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukui-02",
       "area": "fukui",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "nature",
       "title": "福井県の自然スポットをめぐる半日ルート",
       "estimated_minutes": 244,
       "legs": [
@@ -197,14 +218,14 @@
           36.1963043,
           136.2614801
         ]
-      ]
+      ],
+      "theme": "nature"
     },
     {
       "id": "osm-fukui-03",
       "area": "fukui",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "福井県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 205,
       "legs": [
@@ -294,162 +315,30 @@
           36.0655194,
           136.2209143
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukui-04",
       "area": "fukui",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福井県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 390,
+      "estimated_minutes": 371,
       "legs": [
         {
           "from": "福井駅",
-          "to": "福井県立恐竜博物館",
-          "distance_km": 25.61,
-          "mode": "car",
-          "minutes": 58
-        },
-        {
-          "from": "福井県立恐竜博物館",
           "to": "開善寺",
-          "distance_km": 2.25,
+          "distance_km": 24.81,
           "mode": "car",
-          "minutes": 6
+          "minutes": 56
         },
         {
           "from": "開善寺",
-          "to": "みどり亭",
-          "distance_km": 0.89,
-          "mode": "car",
-          "minutes": 2
-        },
-        {
-          "from": "みどり亭",
-          "to": "勝山城博物館",
-          "distance_km": 2.99,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "勝山城博物館",
-          "to": "篠座神社",
-          "distance_km": 8.41,
-          "mode": "car",
-          "minutes": 19
-        },
-        {
-          "from": "篠座神社",
-          "to": "福井駅",
-          "distance_km": 25.97,
-          "mode": "car",
-          "minutes": 58
-        }
-      ],
-      "start": {
-        "name": "福井駅",
-        "lat": 36.062,
-        "lng": 136.2227,
-        "to_first_km": 25.6,
-        "from_last_km": 26.0
-      },
-      "total_score": 40.0,
-      "center": [
-        36.043321,
-        136.501446
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1420949543",
-          "name": "福井県立恐竜博物館",
-          "category": "博物館",
-          "lat": 36.0823042,
-          "lng": 136.5065708,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12073471551",
-          "name": "開善寺",
-          "category": "観光名所",
-          "lat": 36.0630838,
-          "lng": 136.4986726,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10296210741",
-          "name": "みどり亭",
-          "category": "飲食店",
-          "lat": 36.0568453,
-          "lng": 136.4923898,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1420945298",
-          "name": "勝山城博物館",
-          "category": "博物館",
-          "lat": 36.042756,
-          "lng": 136.52068,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12093447801",
-          "name": "篠座神社",
-          "category": "観光名所",
-          "lat": 35.971617,
-          "lng": 136.4889169,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          36.0823042,
-          136.5065708
-        ],
-        [
-          36.0630838,
-          136.4986726
-        ],
-        [
-          36.0568453,
-          136.4923898
-        ],
-        [
-          36.042756,
-          136.52068
-        ],
-        [
-          35.971617,
-          136.4889169
-        ]
-      ]
-    },
-    {
-      "id": "osm-fukui-05",
-      "area": "fukui",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "福井県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 385,
-      "legs": [
-        {
-          "from": "福井駅",
           "to": "テキ6形6号電気機関車",
-          "distance_km": 24.2,
+          "distance_km": 0.94,
           "mode": "car",
-          "minutes": 54
+          "minutes": 3
         },
         {
           "from": "テキ6形6号電気機関車",
@@ -460,46 +349,49 @@
         },
         {
           "from": "ト61形68号無蓋貨車",
-          "to": "みどり亭",
-          "distance_km": 0.05,
+          "to": "チャマゴン広場のワゴンエリア",
+          "distance_km": 3.35,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "チャマゴン広場のワゴンエリア",
+          "to": "福井県立恐竜博物館",
+          "distance_km": 0.22,
           "mode": "walk",
-          "minutes": 2
+          "minutes": 5
         },
         {
-          "from": "みどり亭",
-          "to": "若宮大杉",
-          "distance_km": 4.91,
-          "mode": "car",
-          "minutes": 11
-        },
-        {
-          "from": "若宮大杉",
-          "to": "JR金沢支社 最後の腕木式信号機",
-          "distance_km": 7.64,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "JR金沢支社 最後の腕木式信号機",
+          "from": "福井県立恐竜博物館",
           "to": "福井駅",
-          "distance_km": 26.16,
+          "distance_km": 25.61,
           "mode": "car",
-          "minutes": 59
+          "minutes": 58
         }
       ],
       "start": {
         "name": "福井駅",
         "lat": 36.062,
         "lng": 136.2227,
-        "to_first_km": 24.2,
-        "from_last_km": 26.2
+        "to_first_km": 24.8,
+        "from_last_km": 25.6
       },
-      "total_score": 30.0,
+      "total_score": 36.0,
       "center": [
-        36.038843,
-        136.503213
+        36.068497,
+        136.499434
       ],
       "spots": [
+        {
+          "place_id": "osm-node-12073471551",
+          "name": "開善寺",
+          "category": "観光名所",
+          "lat": 36.0630838,
+          "lng": 136.4986726,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-10296210742",
           "name": "テキ6形6号電気機関車",
@@ -521,23 +413,123 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10296210741",
-          "name": "みどり亭",
+          "place_id": "osm-node-12133377392",
+          "name": "チャマゴン広場のワゴンエリア",
           "category": "飲食店",
-          "lat": 36.0568453,
-          "lng": 136.4923898,
+          "lat": 36.0837733,
+          "lng": 136.5082524,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「福井県立恐竜博物館」から徒歩目安約3分です。"
         },
         {
-          "place_id": "osm-node-10910949206",
-          "name": "若宮大杉",
-          "category": "展望地",
-          "lat": 36.040793,
-          "lng": 136.5432218,
+          "place_id": "osm-node-1420949543",
+          "name": "福井県立恐竜博物館",
+          "category": "博物館",
+          "lat": 36.0823042,
+          "lng": 136.5065708,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.0630838,
+          136.4986726
+        ],
+        [
+          36.0566277,
+          136.4918584
+        ],
+        [
+          36.0566946,
+          136.4918136
+        ],
+        [
+          36.0837733,
+          136.5082524
+        ],
+        [
+          36.0823042,
+          136.5065708
+        ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-fukui-05",
+      "area": "fukui",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "福井県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 396,
+      "legs": [
+        {
+          "from": "福井駅",
+          "to": "篠座神社",
+          "distance_km": 25.97,
+          "mode": "car",
+          "minutes": 58
+        },
+        {
+          "from": "篠座神社",
+          "to": "JR金沢支社 最後の腕木式信号機",
+          "distance_km": 1.48,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "JR金沢支社 最後の腕木式信号機",
+          "to": "大野市歴史民俗資料館",
+          "distance_km": 0.74,
+          "mode": "walk",
+          "minutes": 14
+        },
+        {
+          "from": "大野市歴史民俗資料館",
+          "to": "幸福駅",
+          "distance_km": 7.99,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "幸福駅",
+          "to": "勝山城博物館",
+          "distance_km": 0.9,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "勝山城博物館",
+          "to": "福井駅",
+          "distance_km": 26.87,
+          "mode": "car",
+          "minutes": 60
+        }
+      ],
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 26.0,
+        "from_last_km": 26.9
+      },
+      "total_score": 34.0,
+      "center": [
+        36.005533,
+        136.502134
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12093447801",
+          "name": "篠座神社",
+          "category": "観光名所",
+          "lat": 35.971617,
+          "lng": 136.4889169,
+          "stay_minutes": 45,
+          "score": 40.0,
           "role": "stop"
         },
         {
@@ -549,30 +541,62 @@
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420946421",
+          "name": "大野市歴史民俗資料館",
+          "category": "博物館",
+          "lat": 35.980643,
+          "lng": 136.489257,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12300491684",
+          "name": "幸福駅",
+          "category": "飲食店",
+          "lat": 36.0493942,
+          "lng": 136.515038,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「勝山城博物館」から徒歩目安約12分です。"
+        },
+        {
+          "place_id": "osm-node-1420945298",
+          "name": "勝山城博物館",
+          "category": "博物館",
+          "lat": 36.042756,
+          "lng": 136.52068,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
         [
-          36.0566277,
-          136.4918584
-        ],
-        [
-          36.0566946,
-          136.4918136
-        ],
-        [
-          36.0568453,
-          136.4923898
-        ],
-        [
-          36.040793,
-          136.5432218
+          35.971617,
+          136.4889169
         ],
         [
           35.9832564,
           136.4967805
+        ],
+        [
+          35.980643,
+          136.489257
+        ],
+        [
+          36.0493942,
+          136.515038
+        ],
+        [
+          36.042756,
+          136.52068
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

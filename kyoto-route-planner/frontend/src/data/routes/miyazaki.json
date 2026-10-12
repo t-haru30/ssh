@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:56:00.453817+00:00",
+  "generated_at": "2026-10-12T06:26:19.622757+00:00",
   "area": "miyazaki",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "miyazaki",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 292,
       "legs": [
@@ -100,14 +99,14 @@
           32.1398661,
           131.4019436
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-miyazaki-02",
       "area": "miyazaki",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 240,
       "legs": [
@@ -197,14 +196,14 @@
           31.9682974,
           131.4452965
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-miyazaki-03",
       "area": "miyazaki",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "all",
       "title": "宮崎県の名所スポットをめぐる半日ルート",
       "estimated_minutes": 285,
       "legs": [
@@ -294,51 +293,51 @@
           31.8277399,
           131.4325384
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-miyazaki-04",
       "area": "miyazaki",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
-      "title": "宮崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 480,
+      "title": "宮崎県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 455,
       "legs": [
         {
           "from": "宮崎駅",
-          "to": "シゴナナの動輪",
-          "distance_km": 41.31,
+          "to": "樺山城趾",
+          "distance_km": 34.89,
           "mode": "car",
-          "minutes": 93
+          "minutes": 78
         },
         {
-          "from": "シゴナナの動輪",
-          "to": "戦傷病者之碑",
-          "distance_km": 0.96,
+          "from": "樺山城趾",
+          "to": "創価学会 都城文化会館",
+          "distance_km": 3.54,
           "mode": "car",
-          "minutes": 3
+          "minutes": 8
         },
         {
-          "from": "戦傷病者之碑",
-          "to": "北諸",
-          "distance_km": 6.86,
+          "from": "創価学会 都城文化会館",
+          "to": "福栄生餃子店",
+          "distance_km": 2.73,
           "mode": "car",
-          "minutes": 16
+          "minutes": 7
         },
         {
-          "from": "北諸",
-          "to": "殉職自衛官之碑",
-          "distance_km": 6.86,
-          "mode": "car",
-          "minutes": 16
+          "from": "福栄生餃子店",
+          "to": "早馬神社",
+          "distance_km": 0.46,
+          "mode": "walk",
+          "minutes": 9
         },
         {
-          "from": "殉職自衛官之碑",
+          "from": "早馬神社",
           "to": "東霧島神社",
-          "distance_km": 13.89,
+          "distance_km": 13.93,
           "mode": "car",
-          "minutes": 31
+          "minutes": 32
         },
         {
           "from": "東霧島神社",
@@ -352,53 +351,54 @@
         "name": "宮崎駅",
         "lat": 31.91575,
         "lng": 131.43195,
-        "to_first_km": 41.3,
+        "to_first_km": 34.9,
         "from_last_km": 36.0
       },
-      "total_score": 32.0,
+      "total_score": 28.0,
       "center": [
-        31.74818,
-        131.066964
+        31.75349,
+        131.111969
       ],
       "spots": [
         {
-          "place_id": "osm-node-12783524378",
-          "name": "シゴナナの動輪",
+          "place_id": "osm-node-7096896337",
+          "name": "樺山城趾",
           "category": "史跡",
-          "lat": 31.723067,
-          "lng": 131.0581653,
+          "lat": 31.7256053,
+          "lng": 131.1382125,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12844100764",
-          "name": "戦傷病者之碑",
-          "category": "史跡",
-          "lat": 31.7210023,
-          "lng": 131.048331,
+          "place_id": "osm-node-4757176438",
+          "name": "創価学会 都城文化会館",
+          "category": "観光名所",
+          "lat": 31.7267523,
+          "lng": 131.1008504,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 20.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10298247423",
-          "name": "北諸",
+          "place_id": "osm-node-10298247507",
+          "name": "福栄生餃子店",
           "category": "飲食店",
-          "lat": 31.7304798,
-          "lng": 131.1199936,
+          "lat": 31.7334848,
+          "lng": 131.1286014,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「早馬神社」から徒歩目安約6分です。"
         },
         {
-          "place_id": "osm-node-12844100765",
-          "name": "殉職自衛官之碑",
-          "category": "史跡",
-          "lat": 31.7209332,
-          "lng": 131.0483766,
+          "place_id": "osm-node-5172494101",
+          "name": "早馬神社",
+          "category": "観光名所",
+          "lat": 31.7361906,
+          "lng": 131.1322274,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 20.0,
           "role": "stop"
         },
         {
@@ -414,138 +414,139 @@
       ],
       "coordinates": [
         [
-          31.723067,
-          131.0581653
+          31.7256053,
+          131.1382125
         ],
         [
-          31.7210023,
-          131.048331
+          31.7267523,
+          131.1008504
         ],
         [
-          31.7304798,
-          131.1199936
+          31.7334848,
+          131.1286014
         ],
         [
-          31.7209332,
-          131.0483766
+          31.7361906,
+          131.1322274
         ],
         [
           31.8454173,
           131.0599526
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-miyazaki-05",
       "area": "miyazaki",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "宮崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 463,
+      "estimated_minutes": 442,
       "legs": [
         {
           "from": "宮崎駅",
-          "to": "軍馬建立碑",
-          "distance_km": 42.22,
+          "to": "都城空襲犠牲者追悼碑",
+          "distance_km": 39.77,
           "mode": "car",
-          "minutes": 95
+          "minutes": 89
         },
         {
-          "from": "軍馬建立碑",
-          "to": "満州事変戦没者合祀碑",
-          "distance_km": 0.02,
+          "from": "都城空襲犠牲者追悼碑",
+          "to": "都城市第二土地区画整理記念碑",
+          "distance_km": 0.27,
           "mode": "walk",
-          "minutes": 1
+          "minutes": 6
         },
         {
-          "from": "満州事変戦没者合祀碑",
-          "to": "北諸",
-          "distance_km": 6.87,
-          "mode": "car",
-          "minutes": 16
-        },
-        {
-          "from": "北諸",
-          "to": "済南事変戦死者之碑",
-          "distance_km": 6.82,
-          "mode": "car",
-          "minutes": 16
-        },
-        {
-          "from": "済南事変戦死者之碑",
-          "to": "旧衛成地埋葬者合祀碑",
-          "distance_km": 0.02,
+          "from": "都城市第二土地区画整理記念碑",
+          "to": "ミスタードーナツ",
+          "distance_km": 0.26,
           "mode": "walk",
-          "minutes": 1
+          "minutes": 5
         },
         {
-          "from": "旧衛成地埋葬者合祀碑",
+          "from": "ミスタードーナツ",
+          "to": "水久保甚作翁之像",
+          "distance_km": 0.26,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "水久保甚作翁之像",
+          "to": "シゴナナの動輪",
+          "distance_km": 1.49,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "シゴナナの動輪",
           "to": "宮崎駅",
-          "distance_km": 42.17,
+          "distance_km": 41.31,
           "mode": "car",
-          "minutes": 94
+          "minutes": 93
         }
       ],
       "start": {
         "name": "宮崎駅",
         "lat": 31.91575,
         "lng": 131.43195,
-        "to_first_km": 42.2,
-        "from_last_km": 42.2
+        "to_first_km": 39.8,
+        "from_last_km": 41.3
       },
       "total_score": 30.0,
       "center": [
-        31.722861,
-        131.062896
+        31.728638,
+        131.069233
       ],
       "spots": [
         {
-          "place_id": "osm-node-12844100766",
-          "name": "軍馬建立碑",
+          "place_id": "osm-node-13004785783",
+          "name": "都城空襲犠牲者追悼碑",
           "category": "史跡",
-          "lat": 31.7210131,
-          "lng": 131.0483994,
+          "lat": 31.7321543,
+          "lng": 131.0707241,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12844100767",
-          "name": "満州事変戦没者合祀碑",
+          "place_id": "osm-node-13006724057",
+          "name": "都城市第二土地区画整理記念碑",
           "category": "史跡",
-          "lat": 31.7209504,
-          "lng": 131.0482471,
+          "lat": 31.7299044,
+          "lng": 131.0717835,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10298247423",
-          "name": "北諸",
+          "place_id": "osm-node-4757342630",
+          "name": "ミスタードーナツ",
           "category": "飲食店",
-          "lat": 31.7304798,
-          "lng": 131.1199936,
+          "lat": 31.7281985,
+          "lng": 131.0737094,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「水久保甚作翁之像」から徒歩目安約4分です。"
         },
         {
-          "place_id": "osm-node-12844100768",
-          "name": "済南事変戦死者之碑",
+          "place_id": "osm-node-13006724058",
+          "name": "水久保甚作翁之像",
           "category": "史跡",
-          "lat": 31.7209384,
-          "lng": 131.0488164,
+          "lat": 31.7298673,
+          "lng": 131.0717835,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12844100769",
-          "name": "旧衛成地埋葬者合祀碑",
+          "place_id": "osm-node-12783524378",
+          "name": "シゴナナの動輪",
           "category": "史跡",
-          "lat": 31.7209213,
-          "lng": 131.0490243,
+          "lat": 31.723067,
+          "lng": 131.0581653,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -553,26 +554,27 @@
       ],
       "coordinates": [
         [
-          31.7210131,
-          131.0483994
+          31.7321543,
+          131.0707241
         ],
         [
-          31.7209504,
-          131.0482471
+          31.7299044,
+          131.0717835
         ],
         [
-          31.7304798,
-          131.1199936
+          31.7281985,
+          131.0737094
         ],
         [
-          31.7209384,
-          131.0488164
+          31.7298673,
+          131.0717835
         ],
         [
-          31.7209213,
-          131.0490243
+          31.723067,
+          131.0581653
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

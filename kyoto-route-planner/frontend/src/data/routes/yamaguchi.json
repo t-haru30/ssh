@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:54.691309+00:00",
+  "generated_at": "2026-10-12T06:26:13.680104+00:00",
   "area": "yamaguchi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "yamaguchi",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "山口県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 269,
       "legs": [
@@ -100,16 +99,16 @@
           34.415627,
           131.381759
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-yamaguchi-02",
       "area": "yamaguchi",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "山口県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 399,
+      "estimated_minutes": 463,
       "legs": [
         {
           "from": "山口駅",
@@ -120,10 +119,17 @@
         },
         {
           "from": "下関市立考古博物館",
-          "to": "海峡ゆめタワー",
-          "distance_km": 6.87,
+          "to": "マリーナ",
+          "distance_km": 6.83,
           "mode": "car",
           "minutes": 16
+        },
+        {
+          "from": "マリーナ",
+          "to": "海峡ゆめタワー",
+          "distance_km": 0.19,
+          "mode": "walk",
+          "minutes": 4
         },
         {
           "from": "海峡ゆめタワー",
@@ -147,10 +153,10 @@
         "to_first_km": 54.1,
         "from_last_km": 55.0
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        33.972738,
-        130.93304
+        33.967117,
+        130.932716
       ],
       "spots": [
         {
@@ -162,6 +168,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2749373706",
+          "name": "マリーナ",
+          "category": "飲食店",
+          "lat": 33.9502555,
+          "lng": 130.9317439,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「海峡ゆめタワー」から徒歩目安約3分です。"
         },
         {
           "place_id": "osm-node-2749353920",
@@ -190,6 +207,10 @@
           130.926201
         ],
         [
+          33.9502555,
+          130.9317439
+        ],
+        [
           33.9497968,
           130.929736
         ],
@@ -197,14 +218,14 @@
           33.9569379,
           130.9431845
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-yamaguchi-03",
       "area": "yamaguchi",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "山口県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 161,
       "legs": [
@@ -294,285 +315,288 @@
           34.1880872,
           131.4716177
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-yamaguchi-04",
       "area": "yamaguchi",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "山口県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 446,
+      "estimated_minutes": 492,
       "legs": [
         {
           "from": "山口駅",
-          "to": "宇宙",
-          "distance_km": 32.72,
+          "to": "住吉神社宝物館",
+          "distance_km": 51.97,
           "mode": "car",
-          "minutes": 73
+          "minutes": 116
         },
         {
-          "from": "宇宙",
-          "to": "若さ",
-          "distance_km": 5.44,
-          "mode": "car",
-          "minutes": 13
+          "from": "住吉神社宝物館",
+          "to": "長門一宮 住吉神社",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "若さ",
-          "to": "ろくの家　宇部店",
-          "distance_km": 5.42,
-          "mode": "car",
-          "minutes": 13
+          "from": "長門一宮 住吉神社",
+          "to": "海都",
+          "distance_km": 0.41,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "from": "ろくの家　宇部店",
-          "to": "テストピース",
-          "distance_km": 6.38,
-          "mode": "car",
-          "minutes": 15
+          "from": "海都",
+          "to": "征清従軍者旌功紀念碑",
+          "distance_km": 0.38,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "from": "テストピース",
-          "to": "寝太郎之像",
-          "distance_km": 8.55,
+          "from": "征清従軍者旌功紀念碑",
+          "to": "東行記念館",
+          "distance_km": 14.36,
           "mode": "car",
-          "minutes": 20
+          "minutes": 32
         },
         {
-          "from": "寝太郎之像",
+          "from": "東行記念館",
           "to": "山口駅",
-          "distance_km": 32.26,
+          "distance_km": 38.91,
           "mode": "car",
-          "minutes": 72
+          "minutes": 87
         }
       ],
       "start": {
         "name": "山口駅",
         "lat": 34.17261,
         "lng": 131.48083,
-        "to_first_km": 32.7,
-        "from_last_km": 32.3
+        "to_first_km": 52.0,
+        "from_last_km": 38.9
       },
-      "total_score": 30.0,
+      "total_score": 36.0,
       "center": [
-        33.980164,
-        131.204884
+        34.016299,
+        130.978736
       ],
       "spots": [
         {
-          "place_id": "osm-node-3822129157",
-          "name": "宇宙",
+          "place_id": "osm-node-1423654166",
+          "name": "住吉神社宝物館",
+          "category": "博物館",
+          "lat": 33.9988737,
+          "lng": 130.9569282,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10796911461",
+          "name": "長門一宮 住吉神社",
           "category": "史跡",
-          "lat": 33.95146,
-          "lng": 131.246533,
+          "lat": 33.998711,
+          "lng": 130.9567315,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4297914514",
-          "name": "若さ",
-          "category": "史跡",
-          "lat": 33.9570023,
-          "lng": 131.187964,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10038289417",
-          "name": "ろくの家　宇部店",
+          "place_id": "osm-node-4628981945",
+          "name": "海都",
           "category": "飲食店",
-          "lat": 33.9586084,
-          "lng": 131.246747,
+          "lat": 33.9992423,
+          "lng": 130.952337,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「征清従軍者旌功紀念碑」から徒歩目安約5分です。"
         },
         {
-          "place_id": "osm-node-4562060191",
-          "name": "テストピース",
+          "place_id": "osm-node-10796911472",
+          "name": "征清従軍者旌功紀念碑",
           "category": "史跡",
-          "lat": 33.9794705,
-          "lng": 131.1823453,
+          "lat": 33.9986977,
+          "lng": 130.9564117,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2578247926",
-          "name": "寝太郎之像",
-          "category": "史跡",
-          "lat": 34.0542795,
-          "lng": 131.1608313,
+          "place_id": "osm-node-1423658742",
+          "name": "東行記念館",
+          "category": "博物館",
+          "lat": 34.085972,
+          "lng": 131.071271,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          33.95146,
-          131.246533
+          33.9988737,
+          130.9569282
         ],
         [
-          33.9570023,
-          131.187964
+          33.998711,
+          130.9567315
         ],
         [
-          33.9586084,
-          131.246747
+          33.9992423,
+          130.952337
         ],
         [
-          33.9794705,
-          131.1823453
+          33.9986977,
+          130.9564117
         ],
         [
-          34.0542795,
-          131.1608313
+          34.085972,
+          131.071271
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-yamaguchi-05",
       "area": "yamaguchi",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "山口県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 441,
+      "estimated_minutes": 493,
       "legs": [
         {
           "from": "山口駅",
-          "to": "小野田セメント100周年記念セメント樽",
-          "distance_km": 34.89,
+          "to": "神宮祭主 池田厚子様お手植",
+          "distance_km": 52.0,
           "mode": "car",
-          "minutes": 78
+          "minutes": 116
         },
         {
-          "from": "小野田セメント100周年記念セメント樽",
-          "to": "笠井順八翁像",
-          "distance_km": 0.07,
+          "from": "神宮祭主 池田厚子様お手植",
+          "to": "武内大臣手植楠",
+          "distance_km": 0.09,
           "mode": "walk",
           "minutes": 2
         },
         {
-          "from": "笠井順八翁像",
-          "to": "ろくの家　宇部店",
-          "distance_km": 6.35,
-          "mode": "car",
-          "minutes": 15
+          "from": "武内大臣手植楠",
+          "to": "海都",
+          "distance_km": 0.46,
+          "mode": "walk",
+          "minutes": 9
         },
         {
-          "from": "ろくの家　宇部店",
-          "to": "碑文",
-          "distance_km": 6.25,
-          "mode": "car",
-          "minutes": 14
+          "from": "海都",
+          "to": "皇太子殿下御手播松",
+          "distance_km": 0.42,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "from": "碑文",
-          "to": "慈眼",
-          "distance_km": 8.74,
+          "from": "皇太子殿下御手播松",
+          "to": "櫛崎城跡",
+          "distance_km": 3.57,
           "mode": "car",
-          "minutes": 20
+          "minutes": 8
         },
         {
-          "from": "慈眼",
+          "from": "櫛崎城跡",
           "to": "山口駅",
-          "distance_km": 32.28,
+          "distance_km": 49.27,
           "mode": "car",
-          "minutes": 72
+          "minutes": 110
         }
       ],
       "start": {
         "name": "山口駅",
         "lat": 34.17261,
         "lng": 131.48083,
-        "to_first_km": 34.9,
-        "from_last_km": 32.3
+        "to_first_km": 52.0,
+        "from_last_km": 49.3
       },
-      "total_score": 30.0,
+      "total_score": 34.0,
       "center": [
-        33.990047,
-        131.191152
+        33.997239,
+        130.963354
       ],
       "spots": [
         {
-          "place_id": "osm-node-4562060192",
-          "name": "小野田セメント100周年記念セメント樽",
+          "place_id": "osm-node-10804136954",
+          "name": "神宮祭主 池田厚子様お手植",
           "category": "史跡",
-          "lat": 33.9794683,
-          "lng": 131.1823172,
+          "lat": 33.9990402,
+          "lng": 130.9565136,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4562078869",
-          "name": "笠井順八翁像",
+          "place_id": "osm-node-10805824376",
+          "name": "武内大臣手植楠",
           "category": "史跡",
-          "lat": 33.9799231,
-          "lng": 131.1829147,
+          "lat": 33.999557,
+          "lng": 130.9572701,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10038289417",
-          "name": "ろくの家　宇部店",
+          "place_id": "osm-node-4628981945",
+          "name": "海都",
           "category": "飲食店",
-          "lat": 33.9586084,
-          "lng": 131.246747,
+          "lat": 33.9992423,
+          "lng": 130.952337,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「皇太子殿下御手播松」から徒歩目安約6分です。"
         },
         {
-          "place_id": "osm-node-4871936799",
-          "name": "碑文",
+          "place_id": "osm-node-10809227343",
+          "name": "皇太子殿下御手播松",
           "category": "史跡",
-          "lat": 33.9779293,
-          "lng": 131.1831468,
+          "lat": 33.9989807,
+          "lng": 130.9568718,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2578247932",
-          "name": "慈眼",
+          "place_id": "osm-node-5515960383",
+          "name": "櫛崎城跡",
           "category": "史跡",
-          "lat": 34.0543047,
-          "lng": 131.1606361,
+          "lat": 33.9893763,
+          "lng": 130.993778,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          33.9794683,
-          131.1823172
+          33.9990402,
+          130.9565136
         ],
         [
-          33.9799231,
-          131.1829147
+          33.999557,
+          130.9572701
         ],
         [
-          33.9586084,
-          131.246747
+          33.9992423,
+          130.952337
         ],
         [
-          33.9779293,
-          131.1831468
+          33.9989807,
+          130.9568718
         ],
         [
-          34.0543047,
-          131.1606361
+          33.9893763,
+          130.993778
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

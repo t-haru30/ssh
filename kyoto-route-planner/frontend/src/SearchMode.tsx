@@ -19,7 +19,7 @@ import "./dayTrip.css";
 import { toFriendlyMessage } from "./friendlyError";
 import { OVERNIGHT_STEPS, ProgressStatus, ROUTE_STEPS } from "./ProgressStatus";
 import { isOrigin, isOvernightItinerary, isRecord, isRouteSuggestions, normalizeOvernightItinerary } from "./apiValidation";
-import type { Origin, Place, Preference, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
+import type { Origin, Preference, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
 
@@ -148,7 +148,6 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [departureTime, setDepartureTime] = useState(restoredDraft?.plan.input.departureTime ?? savedForm?.departureTime ?? "09:00");
   const [isOvernight, setIsOvernight] = useState(restoredDraft ? false : savedForm?.isOvernight ?? Boolean(legacyPlan?.overnightSuggestion));
   const [showIdeaDeck, setShowIdeaDeck] = useState(false);
-  const [ideaMapPlaces, setIdeaMapPlaces] = useState<Place[]>([]);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>(() => restoredDraft ? [{ ...restoredDraft.plan.transport.route, title: restoredDraft.title }] : legacyPlan?.suggestions ?? []);
   const [dayTripPlan, setDayTripPlan] = useState<TripPlan | null>(restoredDraft?.plan ?? null);
   const [tripSession, setTripSession] = useState(0);
@@ -166,6 +165,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [regenerationCount, setRegenerationCount] = useState(savedForm?.regenerationCount ?? 0);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     saveSearchForm({ originName, nearbyStations, theme, mood, stopCount, departureDate, departureTime, isOvernight, regenerationCount,
@@ -479,6 +479,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         }
 
         if (requestId === requestIdRef.current) {
+          if (payload.routes.length === 0) throw new Error("スポットが見つかりませんでした。条件を変えて再試行してください。");
           setSuggestions(payload.routes);
           setOvernightSuggestion(null);
           setTransportStamp({ date: departureDate, time: departureTime });
@@ -541,6 +542,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
       if (requestId === requestIdRef.current) {
+        if (payload.routes.length === 0) throw new Error("スポットが見つかりませんでした。条件を変えて再試行してください。");
         setSuggestions(payload.routes);
         setTransportStamp({ date: departureDate, time: departureTime });
       }
@@ -582,23 +584,12 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
       <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={suggestions[0]?.title ?? "私のよりみち"} busy={searching} onImport={importJourney} />
 
-      {!hasResult && !showIdeaDeck ? (
-        <button
-          className="swipe-launch-button"
-          type="button"
-          onClick={() => setShowIdeaDeck(true)}
-          disabled={loading || !origin}
-        >
-          <span aria-hidden="true">♡</span>
-          スワイプで寄り道を見つける
-          <small>経路検索の前に、気になるアイデアを選ぼう</small>
-        </button>
-      ) : showIdeaDeck && origin ? (
+      {showIdeaDeck && origin ? (
         <IdeaDeck
           origin={origin}
           departureDate={departureDate}
           departureTime={departureTime}
-          onActivePlacesChange={setIdeaMapPlaces}
+          onActivePlacesChange={() => {}}
           onItineraryChange={itinerary => {
             setSuggestions([{ ...itinerary, title: "選んだ寄り道の旅程", story: null,
               total_minutes: itinerary.estimated_total_minutes === null ? null : Math.max(0, itinerary.estimated_total_minutes - itinerary.places.length * 90),
@@ -609,7 +600,6 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           }}
           onClose={() => {
             setShowIdeaDeck(false);
-            setIdeaMapPlaces([]);
           }}
         />
       ) : null}
@@ -677,7 +667,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
             >1泊2日</button>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             {isOvernight && (
               <label className="mood-input">
                 <span>今日の気分</span>
@@ -771,18 +761,9 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           </form>
 
           {searching && <ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} />}
-          {error && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span></div>}
+          {error && !hasResult && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => formRef.current?.requestSubmit()}>再試行</button></div>}
         </section>
 
-        {!hasResult && showIdeaDeck && (
-          <section className="map-card" aria-label="京都の候補地マップ">
-            <div className="map-heading">
-              <div><p className="eyebrow">KYOTO MAP</p><h2>寄り道スポット</h2></div>
-              <span className="map-count">{ideaMapPlaces.length} SPOTS</span>
-            </div>
-            <LazyMapView places={ideaMapPlaces} origin={origin} />
-          </section>
-        )}
       </div>
 
       {hasResult && (
@@ -798,7 +779,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
               <div><p className="eyebrow">MY DAY TRIP</p><h2>私の旅のしおり</h2></div>
               <span className="result-date">{isOvernight ? departureDate : editorDate}</span>
             </div>
-            {error && <div className="error-panel" role="alert"><strong>{isOvernight ? "ルートを表示できません" : "交通情報を更新できません"}</strong><span>{error} 現在の旅程は保持しています。</span></div>}
+            {error && <div className="error-panel" role="alert"><strong>{isOvernight ? "ルートを表示できません" : "交通情報を更新できません"}</strong><span>{error} 現在の旅程は保持しています。</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => formRef.current?.requestSubmit()}>再試行</button></div>}
 
         {isOvernight && overnightSuggestion && (
           <div className="route-options">

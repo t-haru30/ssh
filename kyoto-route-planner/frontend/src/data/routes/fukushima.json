@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:29.877564+00:00",
+  "generated_at": "2026-10-12T06:25:46.849524+00:00",
   "area": "fukushima",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "fukushima",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "all",
       "title": "福島県の名所スポットをめぐる半日ルート",
       "estimated_minutes": 179,
       "legs": [
@@ -100,16 +99,16 @@
           37.8310368,
           140.4604316
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-fukushima-02",
       "area": "fukushima",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 426,
+      "estimated_minutes": 486,
       "legs": [
         {
           "from": "福島駅",
@@ -120,10 +119,17 @@
         },
         {
           "from": "小田山城",
-          "to": "天鏡閣",
-          "distance_km": 9.88,
+          "to": "天鏡閣 コロッケレー",
+          "distance_km": 9.86,
           "mode": "car",
-          "minutes": 23
+          "minutes": 22
+        },
+        {
+          "from": "天鏡閣 コロッケレー",
+          "to": "天鏡閣",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
         },
         {
           "from": "天鏡閣",
@@ -147,10 +153,10 @@
         "to_first_km": 54.6,
         "from_last_km": 54.8
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        37.497069,
-        139.973928
+        37.503157,
+        139.991231
       ],
       "spots": [
         {
@@ -162,6 +168,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3008117482",
+          "name": "天鏡閣 コロッケレー",
+          "category": "飲食店",
+          "lat": 37.5214207,
+          "lng": 140.0431401,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「天鏡閣」から徒歩目安約1分です。"
         },
         {
           "place_id": "osm-node-3008117481",
@@ -190,6 +207,10 @@
           139.9436707
         ],
         [
+          37.5214207,
+          140.0431401
+        ],
+        [
           37.5212863,
           140.043482
         ],
@@ -197,16 +218,16 @@
           37.4888744,
           139.9346302
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukushima-03",
       "area": "fukushima",
       "pattern": "half_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 308,
+      "estimated_minutes": 368,
       "legs": [
         {
           "from": "福島駅",
@@ -224,10 +245,17 @@
         },
         {
           "from": "福島さくら遊学舎",
-          "to": "法蔵寺",
+          "to": "昼食: 要検討",
           "distance_km": 3.34,
           "mode": "car",
           "minutes": 8
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "法蔵寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "法蔵寺",
@@ -244,10 +272,10 @@
         "to_first_km": 34.8,
         "from_last_km": 34.7
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        37.43332,
-        140.484944
+        37.435675,
+        140.485401
       ],
       "spots": [
         {
@@ -269,6 +297,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-fukushima-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 37.4427383,
+          "lng": 140.4867697,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-11268891466",
@@ -293,17 +332,21 @@
         [
           37.4427383,
           140.4867697
+        ],
+        [
+          37.4427383,
+          140.4867697
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-fukushima-04",
       "area": "fukushima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "all",
       "title": "福島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 527,
+      "estimated_minutes": 519,
       "legs": [
         {
           "from": "福島駅",
@@ -314,38 +357,38 @@
         },
         {
           "from": "正西寺",
-          "to": "日鷲神社",
-          "distance_km": 6.5,
-          "mode": "car",
-          "minutes": 15
+          "to": "國玉神社",
+          "distance_km": 0.58,
+          "mode": "walk",
+          "minutes": 11
         },
         {
-          "from": "日鷲神社",
-          "to": "うなぎ 大坊",
-          "distance_km": 6.14,
+          "from": "國玉神社",
+          "to": "Jyubako Cafe",
+          "distance_km": 0.93,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "Jyubako Cafe",
+          "to": "金比羅大権現",
+          "distance_km": 0.46,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "金比羅大権現",
+          "to": "日鷲神社",
+          "distance_km": 5.93,
           "mode": "car",
           "minutes": 14
         },
         {
-          "from": "うなぎ 大坊",
-          "to": "浦尻貝塚",
-          "distance_km": 4.22,
-          "mode": "car",
-          "minutes": 10
-        },
-        {
-          "from": "浦尻貝塚",
-          "to": "大悲山の石仏",
-          "distance_km": 4.48,
-          "mode": "car",
-          "minutes": 10
-        },
-        {
-          "from": "大悲山の石仏",
+          "from": "日鷲神社",
           "to": "福島駅",
-          "distance_km": 51.8,
+          "distance_km": 53.74,
           "mode": "car",
-          "minutes": 116
+          "minutes": 120
         }
       ],
       "start": {
@@ -353,12 +396,12 @@
         "lat": 37.7541,
         "lng": 140.4592,
         "to_first_km": 54.5,
-        "from_last_km": 51.8
+        "from_last_km": 53.7
       },
-      "total_score": 40.0,
+      "total_score": 34.0,
       "center": [
-        37.518121,
-        140.998352
+        37.503952,
+        140.989061
       ],
       "spots": [
         {
@@ -372,41 +415,42 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-13124180380",
+          "name": "國玉神社",
+          "category": "観光名所",
+          "lat": 37.4961357,
+          "lng": 140.9785984,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124693875",
+          "name": "Jyubako Cafe",
+          "category": "飲食店",
+          "lat": 37.4911858,
+          "lng": 140.9870473,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「金比羅大権現」から徒歩目安約6分です。"
+        },
+        {
+          "place_id": "osm-node-13124718995",
+          "name": "金比羅大権現",
+          "category": "史跡",
+          "lat": 37.4952242,
+          "lng": 140.9879649,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
           "place_id": "osm-node-2383843468",
           "name": "日鷲神社",
           "category": "観光名所",
           "lat": 37.545621,
           "lng": 141.009942,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13124349196",
-          "name": "うなぎ 大坊",
-          "category": "飲食店",
-          "lat": 37.4923224,
-          "lng": 140.9919236,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-3698775374",
-          "name": "浦尻貝塚",
-          "category": "史跡",
-          "lat": 37.5194953,
-          "lng": 141.0253298,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3698775395",
-          "name": "大悲山の石仏",
-          "category": "史跡",
-          "lat": 37.5415721,
-          "lng": 140.982812,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -418,161 +462,163 @@
           140.9817507
         ],
         [
+          37.4961357,
+          140.9785984
+        ],
+        [
+          37.4911858,
+          140.9870473
+        ],
+        [
+          37.4952242,
+          140.9879649
+        ],
+        [
           37.545621,
           141.009942
-        ],
-        [
-          37.4923224,
-          140.9919236
-        ],
-        [
-          37.5194953,
-          141.0253298
-        ],
-        [
-          37.5415721,
-          140.982812
         ]
-      ]
+      ],
+      "theme": "all"
     },
     {
       "id": "osm-fukushima-05",
       "area": "fukushima",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "福島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 528,
+      "estimated_minutes": 511,
       "legs": [
         {
           "from": "福島駅",
-          "to": "大聖寺",
-          "distance_km": 56.62,
+          "to": "山神水神塔",
+          "distance_km": 54.75,
           "mode": "car",
-          "minutes": 127
+          "minutes": 123
         },
         {
-          "from": "大聖寺",
-          "to": "東京2020オリンピック聖火リレー記念碑",
-          "distance_km": 4.96,
-          "mode": "car",
-          "minutes": 12
+          "from": "山神水神塔",
+          "to": "松尾太神",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "東京2020オリンピック聖火リレー記念碑",
-          "to": "うなぎ 大坊",
-          "distance_km": 4.5,
-          "mode": "car",
-          "minutes": 11
+          "from": "松尾太神",
+          "to": "くろさか",
+          "distance_km": 0.52,
+          "mode": "walk",
+          "minutes": 10
         },
         {
-          "from": "うなぎ 大坊",
-          "to": "國玉神社",
-          "distance_km": 1.25,
-          "mode": "car",
-          "minutes": 3
+          "from": "くろさか",
+          "to": "報恩感謝",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "國玉神社",
-          "to": "馬頭観世音",
-          "distance_km": 14.33,
+          "from": "報恩感謝",
+          "to": "浦尻貝塚",
+          "distance_km": 3.98,
           "mode": "car",
-          "minutes": 32
+          "minutes": 9
         },
         {
-          "from": "馬頭観世音",
+          "from": "浦尻貝塚",
           "to": "福島駅",
-          "distance_km": 46.13,
+          "distance_km": 56.26,
           "mode": "car",
-          "minutes": 103
+          "minutes": 126
         }
       ],
       "start": {
         "name": "福島駅",
         "lat": 37.7541,
         "lng": 140.4592,
-        "to_first_km": 56.6,
-        "from_last_km": 46.1
+        "to_first_km": 54.7,
+        "from_last_km": 56.3
       },
-      "total_score": 34.0,
+      "total_score": 32.0,
       "center": [
-        37.512702,
-        140.989673
+        37.499798,
+        140.997673
       ],
       "spots": [
         {
-          "place_id": "osm-node-4893305722",
-          "name": "大聖寺",
-          "category": "観光名所",
-          "lat": 37.4976264,
-          "lng": 141.0146205,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12803403048",
-          "name": "東京2020オリンピック聖火リレー記念碑",
+          "place_id": "osm-node-13124718997",
+          "name": "山神水神塔",
           "category": "史跡",
-          "lat": 37.4535339,
-          "lng": 141.0063196,
+          "lat": 37.4951975,
+          "lng": 140.9879696,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-13124349196",
-          "name": "うなぎ 大坊",
+          "place_id": "osm-node-13124718999",
+          "name": "松尾太神",
+          "category": "史跡",
+          "lat": 37.4951803,
+          "lng": 140.9879733,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124769614",
+          "name": "くろさか",
           "category": "飲食店",
-          "lat": 37.4923224,
-          "lng": 140.9919236,
+          "lat": 37.4947084,
+          "lng": 140.9938896,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「報恩感謝」から徒歩目安約1分です。"
         },
         {
-          "place_id": "osm-node-13124180380",
-          "name": "國玉神社",
-          "category": "観光名所",
-          "lat": 37.4961357,
-          "lng": 140.9785984,
+          "place_id": "osm-node-13124734480",
+          "name": "報恩感謝",
+          "category": "史跡",
+          "lat": 37.4944104,
+          "lng": 140.9932043,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12000083354",
-          "name": "馬頭観世音",
+          "place_id": "osm-node-3698775374",
+          "name": "浦尻貝塚",
           "category": "史跡",
-          "lat": 37.6238935,
-          "lng": 140.9569049,
+          "lat": 37.5194953,
+          "lng": 141.0253298,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          37.4976264,
-          141.0146205
+          37.4951975,
+          140.9879696
         ],
         [
-          37.4535339,
-          141.0063196
+          37.4951803,
+          140.9879733
         ],
         [
-          37.4923224,
-          140.9919236
+          37.4947084,
+          140.9938896
         ],
         [
-          37.4961357,
-          140.9785984
+          37.4944104,
+          140.9932043
         ],
         [
-          37.6238935,
-          140.9569049
+          37.5194953,
+          141.0253298
         ]
-      ]
+      ],
+      "theme": "history"
     }
   ]
 }

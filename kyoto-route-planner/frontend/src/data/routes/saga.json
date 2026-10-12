@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:57.974219+00:00",
+  "generated_at": "2026-10-12T06:26:17.022573+00:00",
   "area": "saga",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -10,7 +10,6 @@
       "area": "saga",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 284,
       "legs": [
@@ -100,14 +99,14 @@
           33.3567376,
           129.9785748
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-saga-02",
       "area": "saga",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 172,
       "legs": [
@@ -197,14 +196,14 @@
           33.2524694,
           130.3003905
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-saga-03",
       "area": "saga",
       "pattern": "half_day",
       "course": "half_day",
-      "theme": "history",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
       "estimated_minutes": 267,
       "legs": [
@@ -294,162 +293,30 @@
           33.397805,
           130.510751
         ]
-      ]
+      ],
+      "theme": "history"
     },
     {
       "id": "osm-saga-04",
       "area": "saga",
       "pattern": "full_day",
       "course": "full_day",
-      "theme": "history",
       "title": "佐賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 437,
+      "estimated_minutes": 409,
       "legs": [
         {
           "from": "佐賀駅",
-          "to": "おつぼ山神籠石",
-          "distance_km": 24.37,
-          "mode": "car",
-          "minutes": 55
-        },
-        {
-          "from": "おつぼ山神籠石",
-          "to": "嬉野市歴史民俗資料館",
-          "distance_km": 5.59,
-          "mode": "car",
-          "minutes": 13
-        },
-        {
-          "from": "嬉野市歴史民俗資料館",
-          "to": "ミスタードーナツ",
-          "distance_km": 7.52,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "ミスタードーナツ",
           "to": "廣福寺",
-          "distance_km": 1.29,
+          "distance_km": 27.32,
           "mode": "car",
-          "minutes": 3
+          "minutes": 61
         },
         {
           "from": "廣福寺",
-          "to": "有田ポーセリンパーク",
-          "distance_km": 10.55,
-          "mode": "car",
-          "minutes": 24
-        },
-        {
-          "from": "有田ポーセリンパーク",
-          "to": "佐賀駅",
-          "distance_km": 37.85,
-          "mode": "car",
-          "minutes": 85
-        }
-      ],
-      "start": {
-        "name": "佐賀駅",
-        "lat": 33.26418,
-        "lng": 130.29736,
-        "to_first_km": 24.4,
-        "from_last_km": 37.9
-      },
-      "total_score": 34.0,
-      "center": [
-        33.171244,
-        130.012926
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-12871663879",
-          "name": "おつぼ山神籠石",
-          "category": "史跡",
-          "lat": 33.1781208,
-          "lng": 130.0564633,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11083936835",
-          "name": "嬉野市歴史民俗資料館",
-          "category": "博物館",
-          "lat": 33.1280008,
-          "lng": 130.0604627,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10115384646",
-          "name": "ミスタードーナツ",
-          "category": "飲食店",
-          "lat": 33.1885976,
-          "lng": 130.0245574,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-12193973713",
-          "name": "廣福寺",
-          "category": "史跡",
-          "lat": 33.1968622,
-          "lng": 130.0149038,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423805631",
-          "name": "有田ポーセリンパーク",
-          "category": "博物館",
-          "lat": 33.164637,
-          "lng": 129.908242,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          33.1781208,
-          130.0564633
-        ],
-        [
-          33.1280008,
-          130.0604627
-        ],
-        [
-          33.1885976,
-          130.0245574
-        ],
-        [
-          33.1968622,
-          130.0149038
-        ],
-        [
-          33.164637,
-          129.908242
-        ]
-      ]
-    },
-    {
-      "id": "osm-saga-05",
-      "area": "saga",
-      "pattern": "full_day",
-      "course": "full_day",
-      "theme": "history",
-      "title": "佐賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 414,
-      "legs": [
-        {
-          "from": "佐賀駅",
           "to": "松原の松の記念碑",
-          "distance_km": 27.26,
-          "mode": "car",
-          "minutes": 61
+          "distance_km": 0.37,
+          "mode": "walk",
+          "minutes": 7
         },
         {
           "from": "松原の松の記念碑",
@@ -460,24 +327,17 @@
         },
         {
           "from": "筈町河畔公園",
-          "to": "ミスタードーナツ",
-          "distance_km": 0.37,
-          "mode": "walk",
-          "minutes": 8
-        },
-        {
-          "from": "ミスタードーナツ",
-          "to": "宝塔",
-          "distance_km": 5.92,
+          "to": "お好み焼き鉄板焼き　風車",
+          "distance_km": 11.07,
           "mode": "car",
-          "minutes": 14
+          "minutes": 25
         },
         {
-          "from": "宝塔",
+          "from": "お好み焼き鉄板焼き　風車",
           "to": "鹿島城跡",
-          "distance_km": 7.99,
+          "distance_km": 1.05,
           "mode": "car",
-          "minutes": 18
+          "minutes": 3
         },
         {
           "from": "鹿島城跡",
@@ -496,10 +356,20 @@
       },
       "total_score": 34.0,
       "center": [
-        33.170563,
-        130.04881
+        33.159723,
+        130.048808
       ],
       "spots": [
+        {
+          "place_id": "osm-node-12193973713",
+          "name": "廣福寺",
+          "category": "史跡",
+          "lat": 33.1968622,
+          "lng": 130.0149038,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-12194829970",
           "name": "松原の松の記念碑",
@@ -521,24 +391,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10115384646",
-          "name": "ミスタードーナツ",
+          "place_id": "osm-node-11760424054",
+          "name": "お好み焼き鉄板焼き　風車",
           "category": "飲食店",
-          "lat": 33.1885976,
-          "lng": 130.0245574,
+          "lat": 33.1125489,
+          "lng": 130.0956957,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-12353960542",
-          "name": "宝塔",
-          "category": "史跡",
-          "lat": 33.1750094,
-          "lng": 130.0860523,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「鹿島城跡」から徒歩目安約14分です。"
         },
         {
           "place_id": "osm-node-14025330002",
@@ -553,6 +414,10 @@
       ],
       "coordinates": [
         [
+          33.1968622,
+          130.0149038
+        ],
+        [
           33.1938665,
           130.0166328
         ],
@@ -561,18 +426,155 @@
           130.0238502
         ],
         [
-          33.1885976,
-          130.0245574
-        ],
-        [
-          33.1750094,
-          130.0860523
+          33.1125489,
+          130.0956957
         ],
         [
           33.1034228,
           130.0929556
         ]
-      ]
+      ],
+      "theme": "history"
+    },
+    {
+      "id": "osm-saga-05",
+      "area": "saga",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "佐賀県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 376,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "武雄温泉新館",
+          "distance_km": 27.38,
+          "mode": "car",
+          "minutes": 62
+        },
+        {
+          "from": "武雄温泉新館",
+          "to": "保養村山岳遊歩道展望台",
+          "distance_km": 2.09,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "保養村山岳遊歩道展望台",
+          "to": "日本キリスト教団 武雄教会",
+          "distance_km": 1.69,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "日本キリスト教団 武雄教会",
+          "to": "昼食: 要検討",
+          "distance_km": 4.26,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "おつぼ山神籠石",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "おつぼ山神籠石",
+          "to": "佐賀駅",
+          "distance_km": 24.37,
+          "mode": "car",
+          "minutes": 55
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 27.4,
+        "from_last_km": 24.4
+      },
+      "total_score": 24.0,
+      "center": [
+        33.18502,
+        130.033309
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-5228408622",
+          "name": "武雄温泉新館",
+          "category": "博物館",
+          "lat": 33.1965837,
+          "lng": 130.014294,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6936078415",
+          "name": "保養村山岳遊歩道展望台",
+          "category": "展望地",
+          "lat": 33.180368,
+          "lng": 130.0255501,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12180310541",
+          "name": "日本キリスト教団 武雄教会",
+          "category": "観光名所",
+          "lat": 33.1919072,
+          "lng": 130.0137761,
+          "stay_minutes": 45,
+          "score": 20.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-saga-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.1781208,
+          "lng": 130.0564633,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
+          "place_id": "osm-node-12871663879",
+          "name": "おつぼ山神籠石",
+          "category": "史跡",
+          "lat": 33.1781208,
+          "lng": 130.0564633,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.1965837,
+          130.014294
+        ],
+        [
+          33.180368,
+          130.0255501
+        ],
+        [
+          33.1919072,
+          130.0137761
+        ],
+        [
+          33.1781208,
+          130.0564633
+        ],
+        [
+          33.1781208,
+          130.0564633
+        ]
+      ],
+      "theme": "all"
     }
   ]
 }
