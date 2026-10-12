@@ -42,6 +42,12 @@ class RouteSuggestionRequest(BaseModel):
             raise ValueError("出発駅の緯度・経度は両方指定してください。")
         return self
 
+class RoutePreviewRequest(BaseModel):
+    origin: Origin
+    places: list[Place] = Field(min_length=1, max_length=3)
+    departure_date: date
+    departure_time: time
+
 class RouteLeg(BaseModel):
     from_name: str = Field(min_length=1, max_length=200)
     to_name: str = Field(min_length=1, max_length=200)
@@ -65,6 +71,7 @@ class RouteTimelineTransit(BaseModel):
     from_name: str
     to_name: str
     mode: Literal["public_transport"] = "public_transport"
+    transit_line: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     duration_minutes: int | None = None
@@ -90,7 +97,7 @@ class RouteSuggestion(BaseModel):
     coordinates: list[Coordinate] = Field(default_factory=list, max_length=1000)
 
 class RouteSuggestions(BaseModel):
-    routes: list[RouteSuggestion] = Field(min_length=1, max_length=3)
+    routes: list[RouteSuggestion] = Field(max_length=3)
 
 class RouteIdeaResponse(BaseModel):
     theme: Theme

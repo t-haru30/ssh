@@ -145,11 +145,11 @@ def choose_places(
     if origin is None:
         raise ValueError("出発駅を選び直してください。")
 
-    remaining = [
-        place
-        for place in candidates
-        if theme == "all" or theme in place.themes
-    ]
+    remaining_by_id: dict[str, Place] = {}
+    for place in candidates:
+        if theme == "all" or theme in place.themes:
+            remaining_by_id.setdefault(place.id, place)
+    remaining = list(remaining_by_id.values())
     if not remaining:
         raise ValueError("Yahoo!検索候補に選択したテーマのスポットがありません。")
 
