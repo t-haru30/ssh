@@ -1,0 +1,2 @@
+.swipe-card-copy .route-illustration-status { margin: 0 0 10px; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.swipe-card-copy .route-illustration-status:has(+ h3) { overflow-wrap: anywhere; }

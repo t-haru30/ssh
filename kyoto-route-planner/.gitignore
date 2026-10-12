@@ -18,3 +18,8 @@ backend/data/osm_cache/
 backend/data/boundaries/
 backend/data/osm_extract/
 .local/
+frontend/public/data/
+backend/.test-tmp/
+frontend/.test-tmp/
+backend/test-*.log
+frontend/*.log

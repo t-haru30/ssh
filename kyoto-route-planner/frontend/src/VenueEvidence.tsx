@@ -52,7 +52,7 @@ export function readEvidence(value: unknown, placeId: string): Evidence {
   return { ...value, sources, citations } as Evidence;
 }
 
-function SearchSuggestions({ html }: { html: string }) {
+export function SearchSuggestions({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Provider-supplied, validated HTML only. Shadow DOM contains the widget's CSS;
@@ -64,7 +64,7 @@ function SearchSuggestions({ html }: { html: string }) {
   return <div className="venue-search-suggestions" aria-label="Google検索の関連情報" ref={ref} />;
 }
 
-function CitedText({ evidence, start = 0, end = evidence.text.length }: { evidence: Evidence; start?: number; end?: number }) {
+export function CitedText({ evidence, start = 0, end = evidence.text.length }: { evidence: Evidence; start?: number; end?: number }) {
   const content: ReactNode[] = [];
   let offset = start;
   for (const citation of evidence.citations.filter(item => item.end > start && item.end <= end)) {

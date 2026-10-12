@@ -5,6 +5,7 @@ import { PrefectureProvider } from "./PrefectureContext";
 import { FavoritesProvider } from "./useFavorites";
 import "./style.css";
 import "./app.css";
+import "./conciergo.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

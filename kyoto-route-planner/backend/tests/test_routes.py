@@ -85,6 +85,9 @@ def sample_places() -> list[Place]:
 class RoutePlannerTests(unittest.TestCase):
     def setUp(self):
         limiter.reset()
+        public_patch = patch("app.public_catalog.search_public_catalog", return_value=PlaceSearchResponse(query=ParsedPlaceQuery(), results=[], note="test empty catalog"))
+        public_patch.start()
+        self.addCleanup(public_patch.stop)
         self.fare_estimate = AsyncMock(return_value=620)
         self.fare_estimate_patch = patch(
             "app.main.estimate_route_fare",
@@ -240,6 +243,7 @@ class RoutePlannerTests(unittest.TestCase):
                     center=(34.98585, 135.75877),
                     radius_m=20_000,
                 ),
+                call("観光", limit=100, genre_codes=("0424001", "0424002"), center=(34.98585, 135.75877), radius_m=20_000),
                 call("清水寺", limit=100, genre_codes=("0424001",)),
                 call("平安神宮", limit=100, genre_codes=("0424002",)),
             ],
@@ -401,7 +405,8 @@ class RoutePlannerTests(unittest.TestCase):
             candidates, _ = asyncio.run(_route_candidates("all", origin))
 
         self.assertEqual([candidate.name for candidate in candidates], ["高尾山"])
-        search.assert_awaited_once_with(
+        self.assertEqual(search.await_count, 2)
+        search.assert_awaited_with(
             "観光",
             limit=100,
             genre_codes=ROUTE_GENRE_CODES["all"],
@@ -452,7 +457,7 @@ class RoutePlannerTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json()["routes"][0]["origin"]["name"], "高尾駅")
-        place_search.assert_awaited_once()
+        self.assertEqual(place_search.await_count, 2)
         self.assertEqual(
             place_search.await_args.kwargs["center"],
             (35.6575, 139.2828),
@@ -1011,6 +1016,29 @@ class RoutePlannerTests(unittest.TestCase):
         selected = choose_places("nature", 1, "京都駅", [place])
         self.assertEqual(selected[0].score_breakdown, score_breakdown(place, "nature"))
 
+    def test_negative_fame_counts_are_unknown_instead_of_zero_popularity(self):
+        base = sample_places()[0].model_copy(update={"tags": {}})
+        unknown = score_breakdown(base, "nature")
+        for tags in ({"sitelinks": "-1"}, {"pageviews_30d": "-2"},
+                     {"sitelinks": "-100", "pageviews_30d": "-100"}):
+            with self.subTest(tags=tags):
+                self.assertEqual(score_breakdown(base.model_copy(update={"tags": tags}), "nature"), unknown)
+        self.assertEqual(unknown["fame_measured"], 0.0)
+        self.assertEqual(unknown["fame"], 6.0)
+
+    def test_negative_fame_count_does_not_dilute_a_valid_signal(self):
+        base = sample_places()[0].model_copy(update={"tags": {}})
+        for valid, invalid in (({"sitelinks": "40"}, {"pageviews_30d": "-1"}),
+                               ({"pageviews_30d": "3000"}, {"sitelinks": "-1"}),
+                               ({"wikidata": "Q123"}, {"sitelinks": "-1", "pageviews_30d": "-1"})):
+            with self.subTest(valid=valid):
+                expected = score_breakdown(base.model_copy(update={"tags": valid}), "nature")
+                actual = score_breakdown(base.model_copy(update={"tags": {**valid, **invalid}}), "nature")
+                self.assertEqual(actual, expected)
+        zero = score_breakdown(base.model_copy(update={"tags": {"sitelinks": "0"}}), "nature")
+        self.assertEqual(zero["fame_measured"], 1.0)
+        self.assertEqual(zero["fame"], 0.0)
+
     def test_fame_enrichment_failure_leaves_places_unchanged(self):
         places = sample_places()
 
@@ -1291,6 +1319,7 @@ class RoutePlannerTests(unittest.TestCase):
         ))
 
         with (
+            patch("app.main.datetime") as mocked_datetime,
             patch("app.main.random.choice", return_value="nature"),
             patch("app.main.random.randint", return_value=1),
             patch("app.main.search_route", search),
@@ -1303,6 +1332,9 @@ class RoutePlannerTests(unittest.TestCase):
             ),
             patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
+            from datetime import datetime as real_datetime
+            mocked_datetime.now.return_value = real_datetime(2026, 10, 12, 9, 0)
+            mocked_datetime.combine.side_effect = real_datetime.combine
             response = client.get("/api/routes/random")
 
         self.assertEqual(response.status_code, 200)
@@ -1330,6 +1362,7 @@ class RoutePlannerTests(unittest.TestCase):
         ))
 
         with (
+            patch("app.main.datetime") as mocked_datetime,
             patch("app.main.random.choice", return_value="nature"),
             patch("app.main.random.randint", return_value=1),
             patch("app.main.search_route", search),
@@ -1339,6 +1372,9 @@ class RoutePlannerTests(unittest.TestCase):
             ),
             patch("app.main._route_candidates", new=AsyncMock(return_value=(sample_places(), "test candidates"))),
         ):
+            from datetime import datetime as real_datetime
+            mocked_datetime.now.return_value = real_datetime(2026, 10, 12, 9, 0)
+            mocked_datetime.combine.side_effect = real_datetime.combine
             response = client.get("/api/routes/random")
 
         self.assertEqual(response.status_code, 200)

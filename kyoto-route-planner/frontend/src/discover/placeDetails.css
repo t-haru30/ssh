@@ -1,0 +1,39 @@
+.swipe-cover-theme-label { position: absolute; z-index: 2; left: 0; bottom: 0; width: 100%; padding: 35px 18px 15px; color: #fff; background: linear-gradient(transparent, #20392bd9); font-family: "Yu Mincho", serif; font-size: 18px; font-weight: 600; letter-spacing: .06em; pointer-events: none; }
+.discover-mode .swipe-spot-list { overflow: visible; }
+.discover-mode .swipe-spot-list li:has(.swipe-spot-open) { padding: 0; background: transparent; }
+.swipe-spot-open { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 58px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px; text-align: left; background: var(--surface-muted); color: var(--ink); cursor: pointer; touch-action: pan-y; transition: background .15s, border-color .15s; }
+.swipe-spot-open:hover { border-color: var(--forest); background: color-mix(in srgb, var(--forest) 7%, var(--paper)); }
+.swipe-spot-open .swipe-spot-copy { display: grid; gap: 4px; min-width: 0; flex: 1; }
+.swipe-spot-open .swipe-spot-copy strong { white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
+.swipe-spot-open .swipe-spot-copy small { color: var(--muted); font-size: 11px; }
+.swipe-spot-detail-label { flex: none; color: var(--forest); font-size: 11px; white-space: nowrap; }
+.swipe-spot-detail-label > span { margin-left: 3px; font-size: 16px; }
+.place-introduction { margin-top: 22px; font-size: 14px; line-height: 1.9; }
+.place-introduction h4 { margin: 0 0 8px; color: var(--forest); font-size: 14px; }
+.place-introduction p { margin: 0 0 15px; font-size: 14px; line-height: 1.95; overflow-wrap: anywhere; }
+.place-details-facts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.place-details-facts > span { padding: 4px 10px; color: var(--forest); background: var(--surface-muted); border-radius: 999px; font-size: 12px; }
+.place-introduction .place-details-address, .place-introduction .place-details-status { color: var(--muted); font-size: 12px; }
+.place-route-reason, .place-details-description { margin: 20px 0; }
+.place-recommendation { padding: 18px; margin: 20px 0; border: 1px solid color-mix(in srgb, var(--forest) 20%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--forest) 4%, var(--paper)); }
+.place-recommendation ul { display: grid; gap: 9px; margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.85; }
+.place-recommendation .place-details-source { margin: 12px 0 0; }
+.place-official-guide { margin: 24px 0; }
+.place-official-guide dl { margin: 0 0 14px; }
+.place-official-guide dl > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.8; }
+.place-official-guide dt { color: var(--muted); font-weight: 500; }
+.place-official-guide dd { margin: 0; overflow-wrap: anywhere; }
+.place-details-official-link { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 46px; padding: 10px 14px; margin: 14px 0; border-radius: 9px; color: var(--on-accent) !important; background: var(--forest); text-decoration: none; font-size: 13px; line-height: 1.7; }
+.place-introduction .place-details-source { color: var(--muted); font-size: 11px; line-height: 1.8; }
+.place-introduction a { color: var(--forest); text-underline-offset: 3px; }
+.place-visit-hint { padding: 17px 18px; margin: 20px 0; border-radius: 12px; background: var(--surface-muted); }
+.place-visit-hint p { margin: 0; font-size: 13px; }
+.place-details-map-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 9px; font-size: 13px; text-decoration: none; }
+.place-details-map-link:hover { background: var(--surface-muted); }
+.place-details-map-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px; }
+.place-description-toggle { margin: 10px 0; }
+.place-description-toggle > summary { width: fit-content; min-height: 44px; padding: 12px 0; color: var(--forest); cursor: pointer; font-size: 12px; line-height: 1.7; }
+.place-description-toggle > summary:focus-visible, .place-introduction a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.discover-mode .swipe-card:has(.swipe-spot-open) .swipe-cover { flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { .swipe-spot-open { transition: none; } }
+@media (max-width: 390px) { .place-official-guide dl > div { grid-template-columns: 1fr; gap: 4px; } }

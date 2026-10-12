@@ -12,6 +12,7 @@ from app.image_search import (
     WIKIMEDIA_USER_AGENT,
     CommercialImage,
     _image_cache,
+    _negative_cache,
     search_commercial_image,
 )
 from app.main import app
@@ -105,7 +106,7 @@ class RandomRouteIdeaTests(unittest.TestCase):
         self.assertEqual(payload["license_name"], "CC BY-SA 4.0")
         self.assertEqual(payload["license_url"], "https://creativecommons.org/licenses/by-sa/4.0/")
         generate_copy.assert_awaited_once()
-        search_image.assert_awaited_once_with(payload["places"][0]["name"])
+        search_image.assert_awaited_once_with(payload["places"][0]["name"], payload["places"][0]["latitude"], payload["places"][0]["longitude"])
         route_search.assert_not_awaited()
 
     def test_random_idea_rejects_invalid_spot_count(self):
@@ -187,6 +188,7 @@ class RandomRouteIdeaTests(unittest.TestCase):
 class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         _image_cache.clear()
+        _negative_cache.clear()
 
     @staticmethod
     def _response(payload: dict, status_code: int = 200):
@@ -206,16 +208,19 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     def _wikipedia_responses(self):
         return (
             self._response({
-                "query": {"pages": [{"pageimage": "Kiyomizu-dera.jpg"}]},
+                "query": {"pages": [{"title": "清水寺", "coordinates": [{"lat": 35.0, "lon": 135.7}], "pageimage": "Kiyomizu-dera.jpg"}]},
             }),
             self._response({
                 "query": {
                     "pages": [{
+                        "title": "File:Kiyomizu-dera.jpg",
                         "imageinfo": [{
+                            "mime": "image/jpeg",
                             "thumburl": "https://upload.wikimedia.org/thumb.jpg",
                             "url": "https://upload.wikimedia.org/original.jpg",
                             "descriptionurl": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera.jpg",
                             "extmetadata": {
+                                "ImageDescription": {"value": "清水寺の本堂の写真"},
                                 "Artist": {"value": '<a href="/wiki/User:A">Alice</a>'},
                                 "LicenseShortName": {"value": "CC BY-SA 4.0"},
                                 "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0/"},
@@ -229,7 +234,7 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     async def test_wikipedia_image_is_used_first_with_license_and_author(self):
         client, client_context = self._client_context(*self._wikipedia_responses())
         with patch("app.image_search.httpx.AsyncClient", return_value=client_context) as async_client:
-            image = await search_commercial_image("清水寺")
+            image = await search_commercial_image("清水寺", 35.0, 135.7)
 
         self.assertEqual(image, CommercialImage(
             image_url="https://upload.wikimedia.org/thumb.jpg",
@@ -252,21 +257,21 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     async def test_wikipedia_image_metadata_is_fetched_in_one_batched_request(self):
         page_response = self._response({
             "query": {"pages": [
-                {"pageimage": "Kiyomizu-dera.jpg"},
-                {"pageimage": "Kyoto-temple.jpg"},
+                {"title": "清水寺", "coordinates": [{"lat": 35.0, "lon": 135.7}], "pageimage": "Kiyomizu-dera.jpg"},
+                {"title": "別の寺", "coordinates": [{"lat": 35.0, "lon": 135.7}], "pageimage": "Kyoto-temple.jpg"},
             ]},
         })
         image_response = self._wikipedia_responses()[1]
         client, client_context = self._client_context(page_response, image_response)
         with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
-            image = await search_commercial_image("京都の寺院")
+            image = await search_commercial_image("清水寺", 35.0, 135.7)
 
         self.assertIsNotNone(image)
         self.assertEqual(client.get.await_count, 2)
         metadata_call = client.get.await_args_list[1]
         self.assertEqual(
             metadata_call.kwargs["params"]["titles"],
-            "File:Kiyomizu-dera.jpg|File:Kyoto-temple.jpg",
+            "File:Kiyomizu-dera.jpg",
         )
         self.assertEqual(metadata_call.kwargs["params"]["maxlag"], 5)
 
@@ -285,7 +290,7 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
             self._response({"query": {"pages": []}}),
         )
         with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
-            image = await search_commercial_image("ライセンス確認")
+            image = await search_commercial_image("清水寺", 35.0, 135.7)
 
         self.assertIsNone(image)
         self.assertEqual(client.get.await_count, 2)
@@ -313,8 +318,8 @@ class CommercialImageSearchTests(unittest.IsolatedAsyncioTestCase):
     async def test_commercial_image_result_is_cached(self):
         client, client_context = self._client_context(*self._wikipedia_responses())
         with patch("app.image_search.httpx.AsyncClient", return_value=client_context):
-            first_result = await search_commercial_image("cache fixture")
-            second_result = await search_commercial_image(" cache   fixture ")
+            first_result = await search_commercial_image("清水寺", 35.0, 135.7)
+            second_result = await search_commercial_image(" 清水寺 ", 35.0, 135.7)
 
         self.assertEqual(first_result, second_result)
         self.assertEqual(client.get.await_count, 2)

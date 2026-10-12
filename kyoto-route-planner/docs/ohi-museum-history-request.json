@@ -1,0 +1,30 @@
+{
+  "title": "大樋美術館から、歴史と文化を楽しむ旅",
+  "theme": "history",
+  "places": [
+    {
+      "id": "osm-node-14129059011",
+      "name": "大樋美術館",
+      "category": "博物館",
+      "description": "石川県",
+      "latitude": 36.5699055,
+      "longitude": 136.66439
+    },
+    {
+      "id": "osm-node-2143998216",
+      "name": "徳田秋聲記念館",
+      "category": "博物館",
+      "description": "石川県",
+      "latitude": 36.570902,
+      "longitude": 136.6671625
+    },
+    {
+      "id": "osm-node-2143998214",
+      "name": "金沢市立安江金箔工芸館",
+      "category": "博物館",
+      "description": "石川県",
+      "latitude": 36.5737572,
+      "longitude": 136.6659874
+    }
+  ]
+}

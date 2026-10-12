@@ -1,9 +1,17 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render as testingRender, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SearchMode } from "./SearchMode";
 import { readJourneyDraft } from "./journeyDraft";
 import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
+import { routeSelection } from "./routeSelection";
 import { serializeJourneyFile } from "./journeyFile";
+import { savedOvernight, type OvernightSnapshot } from "./overnightFavorite";
+
+import { FavoritesProvider } from "./useFavorites";
+import { PrefectureProvider } from "./PrefectureContext";
+import type { ReactElement } from "react";
+
+function render(ui: ReactElement) { return testingRender(ui, { wrapper: ({ children }) => <PrefectureProvider><FavoritesProvider>{children}</FavoritesProvider></PrefectureProvider> }); }
 
 const SAVED_PLAN_STORAGE_KEY = "kyoto-route-planner:saved-plan:v1";
 const SEARCH_FORM_STORAGE_KEY = "kyoto-route-planner:search-form:v1";
@@ -50,6 +58,56 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   window.localStorage.clear();
+});
+
+function overnightSnapshot(): OvernightSnapshot {
+  const hotel = { ...savedRoute.places[0], themes: ["history" as const], id: "hotel", name: "保存した宿" };
+  return { version: 1, nights: 1, stopsPerDay: 3, radius: 30, mood: "庭園", departureDate: "2026-10-20", departureTime: "08:15",
+    itinerary: { query: null, origin: savedRoute.origin, hotel, feasible: true, route_search_calls: 2, note: "宿泊旅程",
+      days: [1, 2].map(day => ({ day, date: `2026-10-${19 + day}`, places: [{ ...hotel, id: `overnight-${day}`, name: `宿泊旅の場所${day}` }],
+        legs: [], schedule: [], lunch: { type: "lunch", place: null, start_time: "12:00", end_time: "13:00", reason: "" }, transit_minutes: 0, stay_minutes: 90, estimated_arrival_at: null, coordinates: [] })) } };
+}
+
+describe("overnight favorite UI", () => {
+  it("saves the generated result conditions and theme after form changes and reload", async () => {
+    const snapshot = overnightSnapshot();
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => ({ ok: true,
+      json: async () => String(input).includes("/api/itineraries/overnight") ? snapshot.itinerary : [snapshot.itinerary.origin] })));
+    render(<SearchMode active />);
+    await waitFor(() => expect((screen.getByRole("button", { name: /この条件で旅程を提案する/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: "宿泊あり" }));
+    fireEvent.click(screen.getByRole("button", { name: /自然・景色/ }));
+    fireEvent.change(screen.getByLabelText("出発日"), { target: { value: snapshot.departureDate } });
+    fireEvent.change(screen.getByLabelText("出発時刻"), { target: { value: snapshot.departureTime } });
+    fireEvent.click(screen.getByRole("button", { name: /旅のしおりを作る/ }));
+    await screen.findByRole("button", { name: /この旅程を保存/ });
+    fireEvent.change(screen.getByRole("combobox", { name: /泊数/ }), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("出発日"), { target: { value: "2026-11-01" } });
+    fireEvent.change(screen.getByLabelText("出発時刻"), { target: { value: "11:30" } });
+    fireEvent.click(screen.getByRole("button", { name: /食・商店街/ }));
+    cleanup(); render(<SearchMode active />);
+    await screen.findByRole("button", { name: /この旅程を保存/ });
+    fireEvent.click(screen.getByRole("button", { name: /この旅程を保存/ }));
+    const saved = JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1")!)[0];
+    expect(saved.overnight_snapshot).toMatchObject({ nights: 1, departureDate: snapshot.departureDate, departureTime: snapshot.departureTime, radius: 30 });
+    expect(saved.overnight_snapshot.itinerary.days).toHaveLength(2);
+    expect(saved.theme).toBe("nature");
+  });
+  it("restores an overnight favorite without route calls and removes the old day trip draft before reload", async () => {
+    const snapshot = overnightSnapshot();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [snapshot.itinerary.origin] }));
+    vi.stubGlobal("fetch", fetchMock);
+    const view = render(<SearchMode active preset={{ theme: "history", stopCount: 1, nonce: 101, places: [{ ...savedRoute.places[0], themes: ["history"] }], origin: savedRoute.origin, title: "古い日帰り", dwellMinutes: {} }} />);
+    await waitFor(() => expect(readJourneyDraft()).not.toBeNull());
+    view.rerender(<SearchMode active preset={{ ...routeSelection(savedOvernight(snapshot, "nature")), nonce: 102, autoSearch: true }} />);
+    await waitFor(() => expect(readJourneyDraft()).toBeNull());
+    expect(screen.getByText(/保存した宿泊旅程を開きました/)).toBeTruthy();
+    expect(fetchMock.mock.calls.every(call => String(call[0]) === "/api/origins")).toBe(true);
+    cleanup(); render(<SearchMode active />);
+    await screen.findByRole("button", { name: /この旅程を保存/ });
+    expect(readJourneyDraft()).toBeNull();
+    expect(screen.queryByText(/前回の旅程を復元しました/)).toBeNull();
+  });
 });
 
 describe("SearchMode nearby departures", () => {
@@ -189,7 +247,7 @@ describe("SearchMode nearby departures", () => {
       await waitFor(() => expect(readJourneyDraft()?.plan.stops[0].place.id).toBe("saved-spot"));
       expect(window.localStorage.getItem(SAVED_PLAN_STORAGE_KEY)).toBeNull();
 
-      fireEvent.click(screen.getByRole("button", { name: "1泊2日" }));
+      fireEvent.click(screen.getByRole("button", { name: "宿泊あり" }));
       await waitFor(() => {
         const savedForm = JSON.parse(window.localStorage.getItem(SEARCH_FORM_STORAGE_KEY) ?? "{}");
         expect(savedForm.isOvernight).toBe(true);
@@ -286,7 +344,7 @@ describe("SearchMode selected route", () => {
     const returnTo = { name: "帰る駅", latitude: 34.99, longitude: 135.763 };
     const place = { ...origin, id: "import-place", name: "読み込む庭園", category: "公園", description: "", access_point: "", themes: [] };
     const route = { origin, return_to: returnTo, places: [place], legs: [], total_minutes: 10, fare_yen: 300, departure_time: "09:00", arrival_time: null, title: "保存した旅", story: null, note: "" };
-    const plan = completeNextStop(scheduleTrip({ departureTime: "09:00", availableMinutes: 240, budget: 2500, preferences: ["nature"] }, origin, "2099-10-12", [newTripStop(place, 45)], { route, date: "2099-10-12", time: "09:00" }, null, returnTo));
+    const plan = completeNextStop(scheduleTrip({ departureTime: "09:00", availableMinutes: 240, budget: 2500, preferences: ["nature"] }, origin, "2099-10-12", [{ ...newTripStop(place, 45), locked: true, anchorTime: "10:30" }], { route, date: "2099-10-12", time: "09:00" }, null, returnTo));
     const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [origin] })); vi.stubGlobal("fetch", fetchMock);
     render(<SearchMode active />);
     await waitFor(() => expect((screen.getByRole("combobox", { name: "出発駅" }) as HTMLSelectElement).disabled).toBe(false));
@@ -301,6 +359,15 @@ describe("SearchMode selected route", () => {
     expect(readJourneyDraft()?.plan.returnTo).toEqual(returnTo);
     expect(readJourneyDraft()?.plan.input).toMatchObject({ availableMinutes: 240, budget: 2500, preferences: ["nature"] });
     expect(readJourneyDraft()?.plan.estimatedTravel).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: /この旅程を保存/ }));
+    const favorite = JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]")[0];
+    expect(favorite.journey_file).toEqual(expect.any(String));
+    const restored = routeSelection(favorite);
+    expect(restored.returnTo).toEqual(returnTo);
+    expect(restored.tripPlan?.input).toMatchObject({ budget: 2500, availableMinutes: 240 });
+    expect(restored.tripPlan?.stops[0].completed).toBe(true);
+    expect(restored.tripPlan?.stops[0]).toMatchObject({ locked: true, anchorTime: "10:30" });
+
     expect((screen.getByRole("button", { name: "読み込む庭園を削除" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
     expect(screen.getByRole("combobox", { name: "出発駅" }).closest("fieldset")?.disabled).toBe(true);
@@ -362,10 +429,9 @@ describe("SearchMode selected route", () => {
       const data = url === "/api/origins" ? [{ name: "京都駅", latitude: 35, longitude: 135 }] : url === "/api/places/status" ? { warning: null, state: "success" } : [];
       return { ok: true, json: async () => data };
     }));
-    render(<SearchMode active preset={{ theme: "nature", stopCount: 2, nonce: 1, places: picked, origin: { name: "東京都・エリア中心", latitude: 35.68, longitude: 139.76 }, title: "東京の旅", dwellMinutes: { "selected-0": 45 } }} />);
+    render(<SearchMode active preset={{ theme: "nature", stopCount: 2, nonce: 1, autoSearch: true, places: picked, origin: { name: "東京都・エリア中心", latitude: 35.68, longitude: 139.76 }, title: "東京の旅", dwellMinutes: { "selected-0": 45 } }} />);
     const refresh = await screen.findByRole("button", { name: /交通経路を再検索/ });
     await waitFor(() => expect((refresh as HTMLButtonElement).disabled).toBe(false));
-    fireEvent.click(refresh);
     await waitFor(() => expect(submitted).not.toBeNull());
     expect(submitted).toMatchObject({ origin: "東京都・エリア中心", origin_latitude: 35.68, origin_longitude: 139.76, selected_places: picked });
     expect(screen.getByRole("heading", { name: "上野公園" })).toBeTruthy();
@@ -374,7 +440,7 @@ describe("SearchMode selected route", () => {
     fireEvent.click(screen.getByRole("button", { name: "庭園を削除" }));
     fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
     fireEvent.click(screen.getByRole("button", { name: "条件を変更する" }));
-    fireEvent.click(screen.getByRole("button", { name: "1泊2日" }));
+    fireEvent.click(screen.getByRole("button", { name: "宿泊あり" }));
     fireEvent.click(screen.getByRole("button", { name: "日帰り" }));
     expect(await screen.findByRole("button", { name: "上野公園の固定を解除" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "庭園" })).toBeNull();

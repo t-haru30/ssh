@@ -10,6 +10,7 @@ export type InitialTripOptions = {
   date: string;
   candidates: Place[];
   maxStops: number;
+  radiusKm?: number;
   foodEstimate: number | null;
   coffeeEstimate: number | null;
   transportEstimate: number | null;
@@ -40,7 +41,7 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
   const proximity = (place: Place) => distanceKm(origin, place) + distanceKm(place, returnTo);
   const byId = (a: Place, b: Place) => a.id.localeCompare(b.id, "en");
   const candidates = [...new Map(options.candidates.filter(place => Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
-    && distanceKm(origin, place) <= 50).map(place => [place.id, place])).values()];
+    && distanceKm(origin, place) <= (options.radiusKm ?? 50)).map(place => [place.id, place])).values()];
   const ranked = [...candidates].sort((a, b) => relevance(b) - relevance(a) || proximity(a) - proximity(b) || byId(a, b));
   // Preserve affordable and nearby alternatives even if many higher-ranked
   // candidates have the same theme. At most 14 places enter the exhaustive search.
@@ -56,7 +57,7 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
   const makePlan = (places: Place[]) => {
     const source: RouteSuggestion = { origin, return_to: returnTo, places, legs: [], fare_yen: null,
       total_minutes: null, departure_time: input.departureTime, arrival_time: null,
-      title: places.length ? `${places.map(place => place.name).join("と")}のよりみち` : "条件に合う候補を選びましょう",
+      title: places.length ? `${places.map(place => place.name).join("と")}を巡る旅` : "条件に合う候補を選びましょう",
       story: null, reasons: Object.fromEntries(places.map(place => [place.id, preferenceReason(place, preferences)])),
       note: "端末内の候補から作成した初期案です。移動は徒歩換算の概算で、営業時間・入場料・運行時刻は未確認です。",
       coordinates: [[origin.latitude, origin.longitude], ...places.map(place => [place.latitude, place.longitude] as [number, number]), [returnTo.latitude, returnTo.longitude]],

@@ -1,0 +1,22 @@
+.route-photo-credit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 0;
+  color: var(--control-text);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.route-photo-credit a { color: inherit; text-decoration: underline; overflow-wrap: anywhere; }
+.route-photo-credit small { flex-basis: 100%; font-size: 11px; }
+.discover-mode .swipe-card-copy .route-illustration-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.discover-mode .discover-stack:has(.route-photo-credit) { height: 650px; }
+.discover-mode .swipe-card-copy:has(.route-photo-credit) { gap: 10px; }
+@media (max-width: 720px) {
+  .discover-mode .discover-stack:has(.route-photo-credit) { height: 660px; }
+}

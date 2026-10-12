@@ -107,7 +107,7 @@ export function SavedRoutesList({ onClose, onPlanInSearch, onGoHome }: SavedRout
                     onClick={() => setDetail(favorite)}
                     aria-label={`${favorite.title}の詳細を見る`}
                   >
-                    {favorite.image_url && (
+                    {favorite.image_url && favorite.image_verified === true && favorite.image_place_id === favorite.places[0]?.id && (
                       <img
                         className="favorite-route-image"
                         src={favorite.image_url}

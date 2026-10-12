@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
-import { IdeaDeck } from "./IdeaDeck";
 import { buildDayTimeline, RouteTimeline } from "./RouteTimeline";
 import { DayTripEditor, TripDialog } from "./DayTripEditor";
 import { JourneyFileControls } from "./JourneyFileControls";
 import { StationSearch } from "./StationSearch";
+import { TravelRangeControl } from "./TravelRangeControl";
 import { readLegacySavedPlan, readSearchForm, saveLegacyPlan, saveSearchForm } from "./searchState";
 import type { JourneyDraft } from "./journeyDraft";
 import type { TripPlan } from "./dayTrip";
@@ -15,6 +15,10 @@ import { PREFERENCE_OPTIONS } from "./tripPreferences";
 import type { SearchPreset } from "./routeSelection";
 import { clearJourneyDraft, readJourneyDraft, saveJourneyDraft } from "./journeyDraft";
 import { localPlaces } from "./localPlaces";
+import { useFavorites } from "./useFavorites";
+import { savedJourney } from "./savedJourney";
+import { parseOvernightSnapshot, savedOvernight, type OvernightSnapshot } from "./overnightFavorite";
+import { fetchWithTimeout, readApiError as readError } from "./apiClient";
 import "./dayTrip.css";
 import { toFriendlyMessage } from "./friendlyError";
 import { OVERNIGHT_STEPS, ProgressStatus, ROUTE_STEPS } from "./ProgressStatus";
@@ -40,41 +44,6 @@ function localDateInputValue() {
 const REQUEST_TIMEOUT_MS = 60_000;
 const INITIAL_DATA_TIMEOUT_MS = 15_000;
 
-async function fetchWithTimeout(
-  input: RequestInfo | URL,
-  init: RequestInit = {},
-  timeoutMs = REQUEST_TIMEOUT_MS,
-) {
-  const timeout = new AbortController();
-  const combined = new AbortController();
-  const timeoutId = window.setTimeout(() => timeout.abort(), timeoutMs);
-  const abortCombined = () => combined.abort();
-  timeout.signal.addEventListener("abort", abortCombined, { once: true });
-  init.signal?.addEventListener("abort", abortCombined, { once: true });
-  if (timeout.signal.aborted || init.signal?.aborted) {
-    combined.abort();
-  }
-  try {
-    return await fetch(input, { ...init, signal: combined.signal });
-  } finally {
-    window.clearTimeout(timeoutId);
-    timeout.signal.removeEventListener("abort", abortCombined);
-    init.signal?.removeEventListener("abort", abortCombined);
-  }
-}
-
-async function readError(response: Response) {
-  try {
-    const payload: unknown = await response.json();
-    if (typeof payload === "object" && payload !== null && "detail" in payload && typeof payload.detail === "string") {
-      return payload.detail;
-    }
-  } catch {
-    // The response may not contain JSON when the API server is unavailable.
-  }
-  return "ルートを取得できませんでした。APIサーバーの状態を確認してください。";
-}
-
 function nearestKnownOrigin(origins: Origin[], latitude: number, longitude: number) {
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   let best: { origin: Origin; km: number } | null = null;
@@ -97,6 +66,8 @@ type SearchModeProps = {
 };
 
 export function SearchMode({ active, preset }: SearchModeProps) {
+  const { saveFavorite, isFavorite } = useFavorites();
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [restoredDraft] = useState(readJourneyDraft);
   const [savedForm] = useState(readSearchForm);
   const [legacyPlan] = useState(readLegacySavedPlan);
@@ -107,14 +78,33 @@ export function SearchMode({ active, preset }: SearchModeProps) {
     requestIdRef.current += 1;
     activeRequestRef.current?.abort();
     setSearching(false);
+    if (preset.overnightSnapshot) {
+      try {
+        const snapshot = parseOvernightSnapshot(preset.overnightSnapshot);
+        clearJourneyDraft();
+        setOvernightResult({ snapshot, theme: preset.theme });
+        setIsOvernight(true); setOvernightSuggestion(snapshot.itinerary); setDayTripPlan(null); setSuggestions([]);
+        setOriginName(snapshot.itinerary.origin.name); setCustomOrigin(snapshot.itinerary.origin);
+        setDepartureDate(snapshot.departureDate); setDepartureTime(snapshot.departureTime);
+        setNights(snapshot.nights); setStopCount(snapshot.stopsPerDay); setTravelRadius(snapshot.radius); setMood(snapshot.mood);
+        setError(null); setSaveNotice("保存した宿泊旅程を開きました。交通情報は未確認です。"); setDraftRestored(false);
+        setTripSession(preset.nonce); setTransportStamp({ date: "", time: "" });
+      } catch (cause) { setError(toFriendlyMessage(cause)); }
+      return;
+    }
     setOriginName(preset.origin.name);
     setCustomOrigin(preset.origin);
-    setReturnSame(true);
+    setReturnSame(!preset.returnTo || preset.origin.latitude === preset.returnTo.latitude && preset.origin.longitude === preset.returnTo.longitude);
+    if (preset.returnTo) { setCustomReturn(preset.returnTo); setReturnName(preset.returnTo.name); }
     setPreferences(preset.theme === "nature" ? ["nature"] : preset.theme === "food" ? ["food"] : preset.theme === "all" ? [] : ["culture"]);
     setIsOvernight(false);
-    setShowIdeaDeck(false);
     setOvernightSuggestion(null);
-    setDayTripPlan(null);
+    setDayTripPlan(preset.tripPlan ?? null);
+    if (preset.tripPlan) {
+      setDepartureDate(preset.tripPlan.date); setDepartureTime(preset.tripPlan.input.departureTime);
+      setPreferences(preset.tripPlan.input.preferences ?? []);
+    }
+    setSaveNotice(null);
     setDraftRestored(false);
     setTripSession(preset.nonce);
     setSuggestions([{ origin: preset.origin, places: preset.places, legs: [], total_minutes: null,
@@ -147,7 +137,8 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [departureDate, setDepartureDate] = useState(() => restoredDraft?.plan.date ?? savedForm?.departureDate ?? localDateInputValue());
   const [departureTime, setDepartureTime] = useState(restoredDraft?.plan.input.departureTime ?? savedForm?.departureTime ?? "09:00");
   const [isOvernight, setIsOvernight] = useState(restoredDraft ? false : savedForm?.isOvernight ?? Boolean(legacyPlan?.overnightSuggestion));
-  const [showIdeaDeck, setShowIdeaDeck] = useState(false);
+  const [nights, setNights] = useState(savedForm?.nights ?? 1);
+  const [travelRadius, setTravelRadius] = useState(savedForm?.travelRadius ?? 30);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>(() => restoredDraft ? [{ ...restoredDraft.plan.transport.route, title: restoredDraft.title }] : legacyPlan?.suggestions ?? []);
   const [dayTripPlan, setDayTripPlan] = useState<TripPlan | null>(restoredDraft?.plan ?? null);
   const [tripSession, setTripSession] = useState(0);
@@ -156,6 +147,13 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [draftSaved, setDraftSaved] = useState(Boolean(restoredDraft));
   const [confirmStartOver, setConfirmStartOver] = useState(false);
   const [overnightSuggestion, setOvernightSuggestion] = useState<OvernightItinerarySuggestion | null>(restoredDraft ? null : legacyPlan?.overnightSuggestion ?? null);
+  const [overnightResult, setOvernightResult] = useState<{ snapshot: OvernightSnapshot; theme: Theme } | null>(() => {
+    if (!restoredDraft && legacyPlan?.overnightResult) return legacyPlan.overnightResult;
+    if (restoredDraft || !legacyPlan?.overnightSuggestion || !savedForm) return null;
+    try { return { theme: savedForm.theme, snapshot: parseOvernightSnapshot({ version: 1, itinerary: legacyPlan.overnightSuggestion,
+      departureDate: savedForm.departureDate, departureTime: savedForm.departureTime, nights: legacyPlan.overnightSuggestion.days.length - 1,
+      stopsPerDay: savedForm.stopCount, radius: savedForm.travelRadius ?? 30, mood: savedForm.mood }) }; } catch { return null; }
+  });
   const [loading, setLoading] = useState(true);
 
   const [searching, setSearching] = useState(false);
@@ -169,12 +167,12 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
   useEffect(() => {
     saveSearchForm({ originName, nearbyStations, theme, mood, stopCount, departureDate, departureTime, isOvernight, regenerationCount,
-      customOrigin, customReturn, returnSame, returnName, preferences, initialMinutes, initialBudget, foodEstimate, coffeeEstimate, initialTransportEstimate });
-  }, [originName, nearbyStations, theme, mood, stopCount, departureDate, departureTime, isOvernight, regenerationCount, customOrigin, customReturn, returnSame, returnName, preferences, initialMinutes, initialBudget, foodEstimate, coffeeEstimate, initialTransportEstimate]);
-  useEffect(() => { saveLegacyPlan(suggestions, overnightSuggestion); }, [suggestions, overnightSuggestion]);
+      customOrigin, customReturn, returnSame, returnName, preferences, initialMinutes, initialBudget, foodEstimate, coffeeEstimate, initialTransportEstimate, nights, travelRadius });
+  }, [originName, nearbyStations, theme, mood, stopCount, departureDate, departureTime, isOvernight, regenerationCount, customOrigin, customReturn, returnSame, returnName, preferences, initialMinutes, initialBudget, foodEstimate, coffeeEstimate, initialTransportEstimate, nights, travelRadius]);
+  useEffect(() => { saveLegacyPlan(suggestions, overnightSuggestion, overnightResult); }, [suggestions, overnightSuggestion, overnightResult]);
 
   useEffect(() => {
-    if (dayTripPlan) setDraftSaved(saveJourneyDraft(dayTripPlan, suggestions[0]?.title ?? "私のよりみち"));
+    if (dayTripPlan) setDraftSaved(saveJourneyDraft(dayTripPlan, suggestions[0]?.title ?? "私のConcierGO"));
   }, [dayTripPlan, suggestions]);
   useEffect(() => {
     if (!dayTripPlan) return;
@@ -270,6 +268,14 @@ export function SearchMode({ active, preset }: SearchModeProps) {
     return () => observer.disconnect();
   }, [hasResult, suggestions, overnightSuggestion, dayTripPlan]);
 
+  const autoSearchNonce = useRef<number | null>(null);
+  useEffect(() => {
+    if (!active || preset?.overnightSnapshot || !preset?.autoSearch || loading || autoSearchNonce.current === preset.nonce || !suggestions[0]
+      || suggestions[0].places.map(p => p.id).join("|") !== preset.places.map(p => p.id).join("|")) return;
+    autoSearchNonce.current = preset.nonce;
+    formRef.current?.requestSubmit();
+  }, [active, preset, loading, suggestions]);
+
   function handleUseCurrentLocation() {
     setLocationError(null);
     if (!navigator.geolocation) {
@@ -363,7 +369,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
     setInitialMinutes(String(plan.input.availableMinutes)); setInitialBudget(String(plan.input.budget));
     setFoodEstimate(String(plan.planningEstimates?.food ?? "")); setCoffeeEstimate(String(plan.planningEstimates?.coffee ?? ""));
     setInitialTransportEstimate(String(plan.transportEstimate ?? ""));
-    setIsOvernight(false); setShowIdeaDeck(false); setOvernightSuggestion(null);
+    setIsOvernight(false); setOvernightSuggestion(null);
     setSuggestions([{ ...plan.transport.route, title: draft.title || "読み込んだ旅程" }]);
     setDayTripPlan(plan); setTransportStamp({ date: "", time: "" });
     setTripSession(current => current + 1); setDraftRestored(false); setError(null);
@@ -375,7 +381,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
       const optionalAmount = (value: string, label: string) => value.trim() === "" ? null : readTripNumber(value, label, 0, 50000);
       const plan = createInitialTrip({
         input: { departureTime, availableMinutes: readTripNumber(initialMinutes, "使える時間", 30, 720), budget: readTripNumber(initialBudget, "予算", 0, 50000), preferences },
-        origin, returnTo, date: departureDate, candidates: editingCandidates, maxStops: stopCount,
+        origin, returnTo, date: departureDate, candidates: editingCandidates, maxStops: stopCount, radiusKm: travelRadius,
         foodEstimate: optionalAmount(foodEstimate, "食事の計画用見積もり"), coffeeEstimate: optionalAmount(coffeeEstimate, "カフェの計画用見積もり"), transportEstimate: optionalAmount(initialTransportEstimate, "交通費の計画用見積もり"),
       });
       if (!plan.stops.length) throw new Error(plan.violations.join(" ") || "この条件に合う候補がありません。時間や行き先を見直してください。");
@@ -413,6 +419,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         departure_date: departureDate,
         departure_time: departureTime,
         stops_per_day: stopCount,
+        nights, radius_km: travelRadius,
         hotel_query: `${originName} ホテル 旅館`,
       };
 
@@ -435,6 +442,9 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         }
         const payload: OvernightItinerarySuggestion = normalizedPayload;
         if (requestId === requestIdRef.current) {
+          const snapshot = parseOvernightSnapshot({ version: 1, itinerary: payload, departureDate: request.departure_date,
+            departureTime: request.departure_time, nights: request.nights, stopsPerDay: request.stops_per_day, radius: request.radius_km, mood });
+          setOvernightResult({ snapshot, theme });
           setOvernightSuggestion(payload);
         }
       } catch (cause) {
@@ -458,7 +468,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         stop_count: stopCount,
         departure_date: departureDate,
         departure_time: departureTime,
-        variation: 0,
+        variation: 0, radius_km: travelRadius,
         ...(suggestions[0] ? { selected_places: dayTripPlan?.stops.map(stop => stop.place) ?? suggestions[0].places } : {}),
       };
 
@@ -526,7 +536,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
       stop_count: stopCount,
       departure_date: departureDate,
       departure_time: departureTime,
-      variation: nextRegenerationCount,
+      variation: nextRegenerationCount, radius_km: travelRadius,
       selected_places: dayTripPlan?.stops.map(stop => stop.place) ?? suggestions[0].places,
     };
     try {
@@ -582,27 +592,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
-      <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={suggestions[0]?.title ?? "私のよりみち"} busy={searching} onImport={importJourney} />
-
-      {showIdeaDeck && origin ? (
-        <IdeaDeck
-          origin={origin}
-          departureDate={departureDate}
-          departureTime={departureTime}
-          onActivePlacesChange={() => {}}
-          onItineraryChange={itinerary => {
-            setSuggestions([{ ...itinerary, title: "選んだ寄り道の旅程", story: null,
-              total_minutes: itinerary.estimated_total_minutes === null ? null : Math.max(0, itinerary.estimated_total_minutes - itinerary.places.length * 90),
-              departure_time: departureTime, arrival_time: null }]);
-            setCustomOrigin(itinerary.origin); setOriginName(itinerary.origin.name);
-            setTransportStamp({ date: departureDate, time: departureTime });
-            setDayTripPlan(null); setTripSession(Date.now()); setShowIdeaDeck(false);
-          }}
-          onClose={() => {
-            setShowIdeaDeck(false);
-          }}
-        />
-      ) : null}
+      <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={suggestions[0]?.title ?? "私のConcierGO"} busy={searching} onImport={importJourney} />
 
       {!isOvernight && suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
@@ -664,10 +654,15 @@ export function SearchMode({ active, preset }: SearchModeProps) {
               className={isOvernight ? "active" : ""} 
               disabled={hasCompleted}
               onClick={() => setIsOvernight(true)}
-            >1泊2日</button>
+            >宿泊あり</button>
           </div>
 
           <form ref={formRef} onSubmit={handleSubmit}>
+            <div className="journey-form-intro"><span>01</span><div><strong>旅の条件を決めましょう</strong><p>行きたい場所と、過ごせる時間から。</p></div></div>
+            <div className="journey-range-fields">
+              <TravelRangeControl label="移動範囲・出発地からの半径（km）" value={travelRadius} onChange={setTravelRadius} disabled={searching} hint="県境を越えて、この範囲内の候補を探します。" />
+              {isOvernight && <label>泊数<select value={nights} disabled={searching} onChange={event => setNights(Number(event.target.value))}>{[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}泊{n + 1}日</option>)}</select><small>同じ宿を拠点に提案します。経路検索は1日あたり最大2回です。</small></label>}
+            </div>
             {isOvernight && (
               <label className="mood-input">
                 <span>今日の気分</span>
@@ -760,12 +755,13 @@ export function SearchMode({ active, preset }: SearchModeProps) {
             <p className="form-footnote">{isOvernight ? "宿泊プランの検索は外部APIを利用します。" : "日帰りの提案・編集はこの端末内で計算します。交通経路の検索ボタンを押すと、外部APIで公共交通を確認します。"}</p>
           </form>
 
-          {searching && <ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} />}
+
           {error && !hasResult && <div className="error-panel" role="alert"><strong>ルートを表示できません</strong><span>{error}</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => formRef.current?.requestSubmit()}>再試行</button></div>}
         </section>
 
       </div>
 
+      {searching && <div className="journey-loading-overlay"><ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} onCancel={() => { requestIdRef.current += 1; activeRequestRef.current?.abort(); setSearching(false); }} /></div>}
       {hasResult && (
         <div className="timeline-area" ref={timelineAreaRef}>
           {!isOvernight && <div className="journey-save-status" role="status">
@@ -777,18 +773,27 @@ export function SearchMode({ active, preset }: SearchModeProps) {
           <section className="results-section" aria-live="polite">
             <div className="section-heading results-heading">
               <div><p className="eyebrow">MY DAY TRIP</p><h2>私の旅のしおり</h2></div>
-              <span className="result-date">{isOvernight ? departureDate : editorDate}</span>
+              <button type="button" className="journey-save-button" disabled={searching || (isOvernight ? !overnightResult : !dayTripPlan?.stops.length)} onClick={() => {
+                try {
+                  const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
+                    : dayTripPlan ? savedJourney(dayTripPlan, theme) : null;
+                  if (!idea) return;
+                  setSaveNotice(isFavorite(idea) ? "この旅程はすでに保存済みです。" : saveFavorite(idea) ? "保存しました。「保存済み」からいつでも開けます。" : "保存できませんでした。画面上部の保存機能の案内をご確認ください。");
+                } catch (cause) { setSaveNotice(toFriendlyMessage(cause)); }
+              }}>♡ この旅程を保存</button>
+              <span className="result-date">{isOvernight ? overnightResult?.snapshot.departureDate ?? overnightSuggestion?.days[0]?.date ?? departureDate : editorDate}</span>
             </div>
+            {saveNotice && <p className="journey-save-notice" role="status">{saveNotice}</p>}
             {error && <div className="error-panel" role="alert"><strong>{isOvernight ? "ルートを表示できません" : "交通情報を更新できません"}</strong><span>{error} 現在の旅程は保持しています。</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => formRef.current?.requestSubmit()}>再試行</button></div>}
 
         {isOvernight && overnightSuggestion && (
           <div className="route-options">
             <article className="route-option">
-              <h3>1泊2日宿泊プラン：{overnightSuggestion.hotel.name} に泊まる旅</h3>
+              <h3>{overnightSuggestion.days.length - 1}泊{overnightSuggestion.days.length}日宿泊プラン：{overnightSuggestion.hotel.name} に泊まる旅</h3>
               <div className="route-result">
                 {overnightSuggestion.fare_yen !== undefined && (
                   <p className="fare-estimate" aria-live="polite">
-                    <strong>1泊2日の交通費概算（1人分）</strong>
+                    <strong>{overnightSuggestion.days.length}日間の交通費概算（1人分）</strong>
                     <span>
                       {overnightSuggestion.fare_yen === null
                         ? "全日分を取得できませんでした"

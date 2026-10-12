@@ -108,7 +108,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "北海道の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 439,
+      "estimated_minutes": 436,
       "legs": [
         {
           "from": "札幌駅",
@@ -126,17 +126,17 @@
         },
         {
           "from": "幌内線 弥生駅跡",
-          "to": "古母里（廃業）",
-          "distance_km": 1.34,
+          "to": "昼食: 要検討",
+          "distance_km": 1.22,
           "mode": "car",
           "minutes": 3
         },
         {
-          "from": "古母里（廃業）",
+          "from": "昼食: 要検討",
           "to": "幌内線 幾春別駅跡",
-          "distance_km": 0.12,
+          "distance_km": 0.0,
           "mode": "walk",
-          "minutes": 3
+          "minutes": 0
         },
         {
           "from": "幌内線 幾春別駅跡",
@@ -153,10 +153,10 @@
         "to_first_km": 40.2,
         "from_last_km": 53.6
       },
-      "total_score": 45.0,
+      "total_score": 37.5,
       "center": [
-        43.24993,
-        141.914626
+        43.24985,
+        141.914277
       ],
       "spots": [
         {
@@ -180,15 +180,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1897894350",
-          "name": "古母里（廃業）",
-          "category": "飲食店",
-          "lat": 43.2612088,
-          "lng": 141.9582377,
+          "place_id": "lunch-undetermined-hokkaido-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 43.2608916,
+          "lng": 141.9568415,
           "stay_minutes": 60,
-          "score": 30.0,
+          "score": 0,
           "role": "lunch",
-          "reason": "次の予定地「幌内線 幾春別駅跡」から徒歩目安約2分です。"
+          "reason": "登録されていた閉業店舗を除外しました。周辺で営業中の昼食先を確認してください。"
         },
         {
           "place_id": "osm-node-13227890976",
@@ -211,8 +211,8 @@
           141.9429275
         ],
         [
-          43.2612088,
-          141.9582377
+          43.2608916,
+          141.9568415
         ],
         [
           43.2608916,

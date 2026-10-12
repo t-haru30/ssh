@@ -192,7 +192,7 @@ class PopularityTests(unittest.TestCase):
 
             self.assertEqual(popularity, ("Q160236", 120000))
             self.assertEqual(score[1], 0)
-            self.assertEqual(score[2], "v5")
+            self.assertEqual(score[2], "v6")
             self.assertGreater(score[0], 0)
             self.assertEqual(load_cached_scores(database)["osm-1"], score[0])
 
@@ -268,6 +268,23 @@ class PopularityTests(unittest.TestCase):
 
             self.assertFalse(_cached_popularity_is_fresh(database, [place]))
             self.assertEqual(load_cached_scores(database), {})
+
+    def test_v5_scores_are_ignored_while_v6_scores_remain_available(self):
+        with tempfile.TemporaryDirectory() as temp_directory:
+            database = initialize_database(Path(temp_directory) / "places.sqlite3")
+            old_place = place_with_wikidata()
+            current_place = old_place.model_copy(update={"id": "current-score"})
+            _upsert_results(database, [old_place, current_place], {}, {})
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE place_scores SET score_version = 'v5' WHERE place_id = ?",
+                    (old_place.id,),
+                )
+                connection.commit()
+
+            self.assertFalse(_cached_popularity_is_fresh(database, [old_place]))
+            self.assertTrue(_cached_popularity_is_fresh(database, [current_place]))
+            self.assertEqual(set(load_cached_scores(database)), {current_place.id})
 
     def test_partial_external_refresh_is_not_cached_as_fresh(self):
         with tempfile.TemporaryDirectory() as temp_directory:

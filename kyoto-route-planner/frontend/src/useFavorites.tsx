@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { isOrigin, isRecord, isSavedRouteIdea } from "./apiValidation";
 import type { RouteIdea } from "./SwipeCard";
 import { usePrefecture } from "./PrefectureContext";
+import { parseJourneyFile } from "./journeyFile";
+import { parseOvernightSnapshot } from "./overnightFavorite";
 
 const FAVORITES_STORAGE_KEY = "kyoto-route-planner:favorites:v1";
 export const MAX_FAVORITES = 50;
@@ -32,8 +34,19 @@ type FavoritesState = {
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 
+function hasValidJourneyFile(value: { journey_file?: unknown }): boolean {
+  if (value.journey_file === undefined) return true;
+  if (typeof value.journey_file !== "string") return false;
+  try { parseJourneyFile(value.journey_file); return true; } catch { return false; }
+}
+function hasValidOvernight(value: { overnight_snapshot?: unknown }): boolean {
+  if (value.overnight_snapshot === undefined) return true;
+  try { parseOvernightSnapshot(value.overnight_snapshot); return true; } catch { return false; }
+}
+
 function isFavoriteRoute(value: unknown): value is FavoriteRoute {
   if (!isRecord(value)) return false;
+  if (!hasValidJourneyFile(value) || !hasValidOvernight(value)) return false;
   const favorite = value;
   return isSavedRouteIdea(value)
     && typeof favorite.id === "string"
@@ -79,7 +92,7 @@ function readFavorites(): FavoritesState {
     if (!Array.isArray(payload) || !payload.every(isFavoriteRoute)) {
       throw new Error("保存済みルートのデータ形式が正しくありません。");
     }
-    const unique = new Map(payload.map((favorite) => [favorite.id, favorite]));
+    const unique = new Map(payload.map((favorite) => [favorite.id, favorite.overnight_snapshot ? { ...favorite, overnight_snapshot: parseOvernightSnapshot(favorite.overnight_snapshot) } : favorite]));
     const favorites = [...unique.values()].slice(0, MAX_FAVORITES);
     if (favorites.length < unique.size) {
       try {
@@ -104,7 +117,19 @@ function readFavorites(): FavoritesState {
 
 export function favoriteId(idea: RouteIdea, prefectureCode: string) {
   const placeIds = idea.places.map((place) => place.id).sort();
-  return `${prefectureCode}:${placeIds.join("|")}`;
+  let version = "";
+  if (idea.overnight_snapshot) {
+    let hash = 2166136261;
+    for (const c of JSON.stringify(parseOvernightSnapshot(idea.overnight_snapshot))) hash = Math.imul(hash ^ c.charCodeAt(0), 16777619);
+    version = `:overnight-${(hash >>> 0).toString(16)}`;
+  }
+  if (idea.journey_file) {
+    const { savedAt: _savedAt, ...data } = parseJourneyFile(idea.journey_file);
+    let hash = 2166136261;
+    for (const c of JSON.stringify(data)) hash = Math.imul(hash ^ c.charCodeAt(0), 16777619);
+    version = `:plan-${(hash >>> 0).toString(16)}`;
+  }
+  return `${prefectureCode}:${placeIds.join("|")}${version}`;
 }
 
 type FavoritesProviderProps = {
@@ -144,6 +169,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   }, []);
 
   const saveFavorite = useCallback((idea: RouteIdea) => {
+    if (!isSavedRouteIdea(idea) || !hasValidJourneyFile(idea) || !hasValidOvernight(idea)) return false;
+    if (idea.overnight_snapshot) idea = { ...idea, overnight_snapshot: parseOvernightSnapshot(idea.overnight_snapshot) };
     const prefectureCode = idea.prefecture_code ?? prefecture.code;
     const prefectureName = idea.prefecture_name ?? prefecture.name;
     const id = favoriteId(idea, prefectureCode);
@@ -185,6 +212,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   }, [persist]);
 
   const isFavorite = useCallback((idea: RouteIdea) => {
+    if (!isSavedRouteIdea(idea) || !hasValidJourneyFile(idea) || !hasValidOvernight(idea)) return false;
     const prefectureCode = idea.prefecture_code ?? prefecture.code;
     const id = favoriteId(idea, prefectureCode);
     return favoritesRef.current.some((favorite) => favorite.id === id);

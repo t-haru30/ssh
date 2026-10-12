@@ -5,7 +5,7 @@ import type { TripPlan } from "./dayTrip";
 import type { Origin, Place } from "./types";
 
 export const MAX_JOURNEY_FILE_BYTES = 200_000;
-const invalid = () => new Error("保存ファイルの形式や旅程データが不正です。よりみちのJSONファイルを確認してください。");
+const invalid = () => new Error("保存ファイルの形式や旅程データが不正です。ConcierGOのJSONファイルを確認してください。");
 const textWithin = (v: unknown, max: number, required = false): v is string =>
   typeof v === "string" && v.length <= max && (!required || v.trim().length > 0) && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v);
 function endpoint(value: unknown): Origin {

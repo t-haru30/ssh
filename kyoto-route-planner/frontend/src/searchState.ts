@@ -1,5 +1,8 @@
 import { isOrigin, isOvernightItinerary, isRecord, isRouteSuggestions } from "./apiValidation";
 import { isPreference } from "./tripPreferences";
+import { cleanOvernight } from "./overnightSanitize";
+export { cleanOvernight } from "./overnightSanitize";
+import { parseOvernightResult, type OvernightResult } from "./overnightFavorite";
 import type { Origin, OvernightItinerarySuggestion, Place, Preference, RouteSuggestion, Theme } from "./types";
 
 export const SEARCH_FORM_KEY = "kyoto-route-planner:search-form:v1";
@@ -10,6 +13,7 @@ export type SearchForm = {
   customOrigin?: Origin | null; customReturn?: Origin | null; returnSame?: boolean; returnName?: string;
   preferences?: Preference[]; initialMinutes?: string; initialBudget?: string;
   foodEstimate?: string; coffeeEstimate?: string; initialTransportEstimate?: string;
+  nights?: number; travelRadius?: number;
 };
 const integer = (v: unknown, min: number, max: number): v is number => typeof v === "number" && Number.isSafeInteger(v) && v >= min && v <= max;
 const text = (v: unknown, max: number): v is string => typeof v === "string" && v.length <= max && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v);
@@ -18,6 +22,7 @@ const cleanOrigin = (v: Origin): Origin => ({ name: v.name, latitude: v.latitude
 const date = (v: unknown) => v === "" || typeof v === "string" && /^20\d{2}-\d{2}-\d{2}$/.test(v)
   && Number.isFinite(Date.parse(`${v}T12:00:00Z`)) && new Date(`${v}T12:00:00Z`).toISOString().slice(0, 10) === v;
 function parseForm(v: unknown): SearchForm | null {
+  if (isRecord(v) && (v.nights !== undefined && !integer(v.nights, 1, 6) || v.travelRadius !== undefined && !integer(v.travelRadius, 1, 200))) return null;
   if (!isRecord(v) || !text(v.originName, 200) || !Array.isArray(v.nearbyStations) || v.nearbyStations.length > 20 || !v.nearbyStations.every(origin)
     || !["all", "history", "temple", "nature", "food"].includes(v.theme as string) || !text(v.mood, 2000)
     || !integer(v.stopCount, 1, 8) || !date(v.departureDate)
@@ -36,6 +41,8 @@ function parseForm(v: unknown): SearchForm | null {
   if (v.returnSame !== undefined) result.returnSame = v.returnSame as boolean;
   if (v.returnName !== undefined) result.returnName = v.returnName as string;
   if (v.preferences !== undefined) result.preferences = [...v.preferences as Preference[]];
+  if (v.nights !== undefined) result.nights = v.nights as number;
+  if (v.travelRadius !== undefined) result.travelRadius = v.travelRadius as number;
   for (const key of numericFields) if (v[key] !== undefined) result[key] = v[key] as string;
   return result;
 }
@@ -58,15 +65,7 @@ function cleanRoute(r: RouteSuggestion): RouteSuggestion {
     title: r.title, story: null, legs: [], total_minutes: null, fare_yen: null, departure_time: null, arrival_time: null,
     timeline: [], coordinates: [], note: "保存済みの旅程です。移動情報は未確認です。" };
 }
-function cleanOvernight(v: OvernightItinerarySuggestion): OvernightItinerarySuggestion {
-  return { query: null, origin: cleanOrigin(v.origin), hotel: cleanPlace(v.hotel), feasible: v.feasible, route_search_calls: 0,
-    fare_yen: null, note: "保存済みの旅程です。移動情報は未確認です。", days: v.days.map(day => ({
-      day: day.day, date: day.date, places: day.places.map(cleanPlace), legs: [], fare_yen: null,
-      schedule: day.schedule.map(item => ({ kind: item.kind, title: item.title, detail: "", start_time: null, end_time: null })),
-      lunch: { type: "lunch", place: day.lunch.place ? cleanPlace(day.lunch.place) : null, start_time: "", end_time: "", reason: "" },
-      transit_minutes: null, stay_minutes: day.stay_minutes, estimated_arrival_at: null, coordinates: [] })) };
-}
-export function readLegacySavedPlan(): { suggestions: RouteSuggestion[]; overnightSuggestion: OvernightItinerarySuggestion | null } | null {
+export function readLegacySavedPlan(): { suggestions: RouteSuggestion[]; overnightSuggestion: OvernightItinerarySuggestion | null; overnightResult?: OvernightResult } | null {
   try {
     const data = read(LEGACY_SAVED_PLAN_KEY, 1000000);
     if (!isRecord(data) || !Array.isArray(data.suggestions) || data.suggestions.length > 8
@@ -75,15 +74,17 @@ export function readLegacySavedPlan(): { suggestions: RouteSuggestion[]; overnig
     const suggestions = data.suggestions as RouteSuggestion[];
     if (suggestions.some(r => r.places.length > 8) || data.overnightSuggestion && (data.overnightSuggestion.days.length > 8
       || data.overnightSuggestion.days.some(day => day.places.length > 8 || day.schedule.length > 100 || !date(day.date)))) return null;
-    return { suggestions: suggestions.map(cleanRoute), overnightSuggestion: data.overnightSuggestion ? cleanOvernight(data.overnightSuggestion) : null };
+    const overnightResult = data.overnightResult === undefined ? undefined : parseOvernightResult(data.overnightResult);
+    return { suggestions: suggestions.map(cleanRoute), overnightSuggestion: overnightResult?.snapshot.itinerary ?? (data.overnightSuggestion ? cleanOvernight(data.overnightSuggestion) : null), ...(overnightResult ? { overnightResult } : {}) };
   } catch { return null; }
 }
 /** Day trips belong exclusively to the journey draft; this legacy slot only keeps overnight plans. */
-export function saveLegacyPlan(_suggestions: RouteSuggestion[], overnightSuggestion: OvernightItinerarySuggestion | null): boolean {
+export function saveLegacyPlan(_suggestions: RouteSuggestion[], overnightSuggestion: OvernightItinerarySuggestion | null, result?: OvernightResult | null): boolean {
   try {
     if (!overnightSuggestion) { window.localStorage.removeItem(LEGACY_SAVED_PLAN_KEY); return true; }
     if (!isOvernightItinerary(overnightSuggestion)) return false;
-    const raw = JSON.stringify({ suggestions: [], overnightSuggestion: cleanOvernight(overnightSuggestion) });
+    const overnightResult = result ? parseOvernightResult(result) : undefined;
+    const raw = JSON.stringify({ suggestions: [], overnightSuggestion: cleanOvernight(overnightSuggestion), ...(overnightResult ? { overnightResult } : {}) });
     if (new TextEncoder().encode(raw).byteLength > 1000000) return false;
     window.localStorage.setItem(LEGACY_SAVED_PLAN_KEY, raw); return true;
   } catch { return false; }

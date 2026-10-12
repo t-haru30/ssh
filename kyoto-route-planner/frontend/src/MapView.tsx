@@ -10,6 +10,8 @@ import {
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import type { Origin, Place, RouteLeg } from "./types";
 import type { GeoJSONSource } from "maplibre-gl";
+import { googleMapsUrl } from "./mapLinks";
+import "./mapLinks.css";
 
 const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
 const kyotoCenter: [number, number] = [135.7681, 35.004];
@@ -381,9 +383,20 @@ export function MapView({
             `${getCategoryIcon(location.category, location.name, location.themes).label} · ${location.name}`,
             location.address,
           ].filter(Boolean).join("\n");
+        const popupContent = document.createElement("div");
+        popupContent.className = "map-place-popup";
+        const popupLabel = document.createElement("p");
+        popupLabel.textContent = popupText;
+        const mapsLink = document.createElement("a");
+        mapsLink.className = "map-google-link";
+        mapsLink.textContent = "Google Mapsで開く ↗";
+        mapsLink.href = googleMapsUrl(location);
+        mapsLink.target = "_blank";
+        mapsLink.rel = "noopener noreferrer";
+        popupContent.append(popupLabel, mapsLink);
         const marker = new Marker({ element, anchor: "bottom" })
           .setLngLat(coordinate)
-          .setPopup(new Popup({ closeButton: false, offset: 8 }).setText(popupText))
+          .setPopup(new Popup({ closeButton: false, offset: 8 }).setDOMContent(popupContent))
           .addTo(map);
         markersRef.current.push(marker);
       }
@@ -433,7 +446,8 @@ export function MapView({
 
   return (
     <div className="map-frame">
-      <div className="map-canvas" ref={containerRef} aria-label="京都の候補地地図" />
+      <div className="map-canvas" ref={containerRef} aria-label="旅程のスポット地図" />
+      <div className="map-toolbar"><span>⌖ {places.length}か所の行き先</span><button type="button" onClick={() => syncMapRef.current?.()}>全体を見る</button></div>
       <div className="map-disclaimer">ピンは検索結果のスポット座標です。選択すると住所を確認できます。線はスポット間の目安で、実際の交通経路とは異なります。</div>
     </div>
   );

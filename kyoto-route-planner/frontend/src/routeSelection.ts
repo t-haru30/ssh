@@ -2,9 +2,22 @@ import type { DatasetRoute } from "./discover/datasetTypes";
 import type { RouteIdea } from "./SwipeCard";
 import type { Origin, Place, Theme } from "./types";
 import prefectureIndex from "./data/routes/index.json";
+import { parseJourneyFile } from "./journeyFile";
+import { parseOvernightSnapshot, type OvernightSnapshot } from "./overnightFavorite";
 
-export type SearchPreset = { theme: Theme; stopCount: number; nonce: number; places: Place[]; origin: Origin; title: string; dwellMinutes: Record<string, number> };
+export type SearchPreset = { theme: Theme; stopCount: number; nonce: number; places: Place[]; origin: Origin; title: string; dwellMinutes: Record<string, number>; autoSearch?: boolean; returnTo?: Origin; tripPlan?: import("./dayTrip").TripPlan; overnightSnapshot?: OvernightSnapshot };
 export function routeSelection(route: DatasetRoute | RouteIdea): SearchPreset {
+  if ("overnight_snapshot" in route && route.overnight_snapshot) {
+    const snapshot = parseOvernightSnapshot(route.overnight_snapshot);
+    return { theme: route.theme, stopCount: snapshot.stopsPerDay, nonce: Date.now(), places: snapshot.itinerary.days.flatMap(day => day.places),
+      origin: snapshot.itinerary.origin, title: route.title, dwellMinutes: {}, overnightSnapshot: snapshot, autoSearch: false };
+  }
+  if ("journey_file" in route && route.journey_file) {
+    const { plan, title } = parseJourneyFile(route.journey_file);
+    return { theme: route.theme, stopCount: plan.stops.length, nonce: Date.now(), places: plan.stops.map(s => s.place),
+      origin: plan.origin, returnTo: plan.returnTo, title, tripPlan: plan,
+      dwellMinutes: Object.fromEntries(plan.stops.map(s => [s.place.id, s.dwellMinutes])) };
+  }
   const places: Place[] = "spots" in route ? route.spots.map(spot => ({
     id: spot.place_id, name: spot.name, category: spot.category, description: spot.reason ?? "", access_point: "",
     latitude: spot.lat, longitude: spot.lng, themes: [spot.role === "lunch" ? "food" : route.theme],

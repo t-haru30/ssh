@@ -41,7 +41,7 @@ export function JourneyFileControls({ plan, title, busy = false, onImport }: {
       const text = serializeJourneyFile(plan, title);
       url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
       const link = document.createElement("a");
-      link.href = url; link.download = `よりみち-${plan.date}.json`;
+      link.href = url; link.download = `ConcierGO-${plan.date}.json`;
       document.body.appendChild(link);
       try { link.click(); } finally { link.remove(); }
     } catch (cause) {
@@ -61,7 +61,7 @@ export function JourneyFileControls({ plan, title, busy = false, onImport }: {
       }} />
     {error && <p role="alert">{error}</p>}
     {preview && <TripDialog title="読み込む旅程を確認" onClose={() => setPreview(null)}>
-      <p>{preview.title || "よりみちの旅"}</p>
+      <p>{preview.title || "ConcierGOの旅"}</p>
       <dl>
         <dt>日付</dt><dd>{preview.plan.date}</dd>
         <dt>出発・帰着先</dt><dd>{preview.plan.origin.name} → {preview.plan.returnTo.name}</dd>

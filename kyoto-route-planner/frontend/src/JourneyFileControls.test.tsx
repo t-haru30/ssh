@@ -76,7 +76,7 @@ describe("JourneyFileControls", () => {
     Object.defineProperty(URL, "createObjectURL", { configurable: true, writable: true, value: create });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: revoke });
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
-      expect(this.download).toBe("よりみち-2099-10-12.json");
+      expect(this.download).toBe("ConcierGO-2099-10-12.json");
       expect(this.href).toBe("blob:trip");
     });
     try {

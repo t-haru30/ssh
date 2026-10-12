@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>データの出典 | ConcierGO</title>
+<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;line-height:1.85;color:#253b36;background:#fafbf8}a{color:#176753}h1{font-size:1.6rem}li{margin:.6em 0}section{margin:32px 0}</style></head>
+<body><a href="/">← アプリに戻る</a><h1>データの出典</h1>
+<section><h2>旅の候補と施設情報</h2><p>© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>。
+OpenStreetMapの名称・分類・座標を抽出し、立ち寄り先、出発駅、滞在目安、概算の移動時間を組み合わせて旅の候補を作成しています。
+加工したデータは<a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License 1.0（ODbL）</a>で提供します。</p>
+<p>候補は全国の施設を網羅していません。登録済みの情報や分類が不正確・古い場合があります。営業時間、休業、料金、実際の交通経路は出発前に確認してください。</p>
+<ul><li><a href="/data/osm-routes.json" download>旅の候補データ（JSON）</a></li>
+<li><a href="/data/osm-places.json" download>施設データ（JSON）</a></li>
+<li><a href="/data/osm-manifest.json" download>加工元・版・ファイル検証情報（JSON）</a></li></ul></section>
+<section><h2>地図と経路</h2><p>地図表示にはMapLibre / OpenFreeMapを使用しています。公共交通経路の検索には駅すぱあとAPIを使用します。
+事前候補の移動時間と地図の直線は目安で、交通経路を検索した結果とは異なります。</p></section>
+<section><h2>AIによる説明</h2><p>有効な環境ではGemini APIを使用します。施設の要約はボタンを押したときにGoogle検索で調べ、確認できた根拠へのリンクとともに表示します。
+情報が見つからない場合や施設を特定できない場合は、確認できなかったことをお知らせします。</p></section>
+</body></html>

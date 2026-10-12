@@ -39,6 +39,7 @@ class RouteSuggestionRequest(BaseModel):
     departure_date: date
     departure_time: time
     variation: int = Field(default=0, ge=0, le=2_147_483_647)
+    radius_km: int = Field(default=30, ge=1, le=200)
     selected_places: list[Place] | None = Field(default=None, min_length=1, max_length=8)
 
     @field_validator("return_to")
@@ -140,6 +141,8 @@ class RouteIdeaResponse(BaseModel):
     story: str = Field(min_length=1)
     places: list[Place] = Field(min_length=2, max_length=3)
     image_url: str | None = Field(default=None, max_length=2048)
+    image_place_id: str | None = None
+    image_verified: bool = False
     author_name: str | None = Field(default=None, max_length=300)
     source_url: str | None = Field(default=None, max_length=2048)
     license_name: str | None = Field(default=None, max_length=120)
@@ -166,6 +169,8 @@ class RouteIdeaResponse(BaseModel):
             self.license_url,
         )):
             raise ValueError("commercial images require author, source, and license attribution")
+        if self.image_url is not None and (not self.image_verified or self.image_place_id != self.places[0].id):
+            raise ValueError("images must match the first route facility")
         return self
 
     @model_validator(mode="after")
@@ -274,6 +279,8 @@ class OvernightItineraryRequest(BaseModel):
     departure_date: date
     departure_time: time = time(9, 0)
     stops_per_day: int = Field(default=2, ge=1, le=3)
+    nights: int = Field(default=1, ge=1, le=6)
+    radius_km: int = Field(default=30, ge=1, le=200)
     hotel_query: str | None = Field(default=None, max_length=100)
 
     @model_validator(mode="after")
