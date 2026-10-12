@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:43.519867+00:00",
+  "generated_at": "2026-10-12T04:55:38.464436+00:00",
   "area": "toyama",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-toyama-01",
       "area": "toyama",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "富山県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 177,
+      "course": "full_day",
+      "title": "富山県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 326,
+      "legs": [
+        {
+          "from": "富山駅",
+          "to": "清水寺",
+          "distance_km": 41.08,
+          "mode": "car",
+          "minutes": 92
+        },
+        {
+          "from": "清水寺",
+          "to": "千光寺",
+          "distance_km": 7.73,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "千光寺",
+          "to": "魚津歴史民俗博物館",
+          "distance_km": 10.66,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "魚津歴史民俗博物館",
+          "to": "富山駅",
+          "distance_km": 25.2,
+          "mode": "car",
+          "minutes": 57
+        }
+      ],
+      "start": {
+        "name": "富山駅",
+        "lat": 36.7012,
+        "lng": 137.2132,
+        "to_first_km": 41.1,
+        "from_last_km": 25.2
+      },
       "total_score": 58.3,
       "center": [
         36.874359,
@@ -67,9 +105,46 @@
       "id": "osm-toyama-02",
       "area": "toyama",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "富山県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 292,
+      "legs": [
+        {
+          "from": "富山駅",
+          "to": "ミュゼふくおかカメラ館",
+          "distance_km": 25.28,
+          "mode": "car",
+          "minutes": 57
+        },
+        {
+          "from": "ミュゼふくおかカメラ館",
+          "to": "砺波郷土資料館",
+          "distance_km": 8.55,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "砺波郷土資料館",
+          "to": "南砺市福野文化創造センターヘリオス",
+          "distance_km": 6.51,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "南砺市福野文化創造センターヘリオス",
+          "to": "富山駅",
+          "distance_km": 29.01,
+          "mode": "car",
+          "minutes": 65
+        }
+      ],
+      "start": {
+        "name": "富山駅",
+        "lat": 36.7012,
+        "lng": 137.2132,
+        "to_first_km": 25.3,
+        "from_last_km": 29.0
+      },
       "total_score": 50.0,
       "center": [
         36.647233,
@@ -126,9 +201,46 @@
       "id": "osm-toyama-03",
       "area": "toyama",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "富山県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 171,
+      "estimated_minutes": 212,
+      "legs": [
+        {
+          "from": "富山駅",
+          "to": "八尾おわら資料館",
+          "distance_km": 15.44,
+          "mode": "car",
+          "minutes": 35
+        },
+        {
+          "from": "八尾おわら資料館",
+          "to": "鵜坂神社",
+          "distance_km": 11.48,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "鵜坂神社",
+          "to": "富山市民俗民芸村",
+          "distance_km": 4.28,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "富山市民俗民芸村",
+          "to": "富山駅",
+          "distance_km": 2.37,
+          "mode": "car",
+          "minutes": 6
+        }
+      ],
+      "start": {
+        "name": "富山駅",
+        "lat": 36.7012,
+        "lng": 137.2132,
+        "to_first_km": 15.4,
+        "from_last_km": 2.4
+      },
       "total_score": 46.7,
       "center": [
         36.653018,
@@ -185,9 +297,60 @@
       "id": "osm-toyama-04",
       "area": "toyama",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "富山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 270,
+      "estimated_minutes": 302,
+      "legs": [
+        {
+          "from": "富山駅",
+          "to": "富山県埋蔵文化財センター",
+          "distance_km": 3.1,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "富山県埋蔵文化財センター",
+          "to": "富山市ガラス美術館",
+          "distance_km": 3.94,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "富山市ガラス美術館",
+          "to": "ゼッテリア",
+          "distance_km": 1.39,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "ゼッテリア",
+          "to": "楽翠亭美術館",
+          "distance_km": 0.68,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "楽翠亭美術館",
+          "to": "富山ガラス工房",
+          "distance_km": 6.43,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "富山ガラス工房",
+          "to": "富山駅",
+          "distance_km": 5.99,
+          "mode": "car",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "富山駅",
+        "lat": 36.7012,
+        "lng": 137.2132,
+        "to_first_km": 3.1,
+        "from_last_km": 6.0
+      },
       "total_score": 48.0,
       "center": [
         36.700304,
@@ -272,9 +435,60 @@
       "id": "osm-toyama-05",
       "area": "toyama",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "富山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 299,
+      "estimated_minutes": 330,
+      "legs": [
+        {
+          "from": "富山駅",
+          "to": "中島閘門",
+          "distance_km": 2.78,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "中島閘門",
+          "to": "加茂神社",
+          "distance_km": 7.17,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "加茂神社",
+          "to": "ゼッテリア",
+          "distance_km": 7.9,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "ゼッテリア",
+          "to": "長慶寺",
+          "distance_km": 2.42,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "長慶寺",
+          "to": "蓮王寺",
+          "distance_km": 8.15,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "蓮王寺",
+          "to": "富山駅",
+          "distance_km": 10.38,
+          "mode": "car",
+          "minutes": 24
+        }
+      ],
+      "start": {
+        "name": "富山駅",
+        "lat": 36.7012,
+        "lng": 137.2132,
+        "to_first_km": 2.8,
+        "from_last_km": 10.4
+      },
       "total_score": 42.0,
       "center": [
         36.720845,

@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:28.582606+00:00",
+  "generated_at": "2026-10-12T04:55:55.913476+00:00",
   "area": "kagawa",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-kagawa-01",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "香川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 278,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "丸亀城",
+          "distance_km": 23.75,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "丸亀城",
+          "to": "乃木館",
+          "distance_km": 7.52,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "乃木館",
+          "to": "丸亀市猪熊弦一郎現代美術館",
+          "distance_km": 7.97,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "丸亀市猪熊弦一郎現代美術館",
+          "to": "高松駅",
+          "distance_km": 24.27,
+          "mode": "car",
+          "minutes": 55
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 23.8,
+        "from_last_km": 24.3
+      },
       "total_score": 50.0,
       "center": [
         34.265788,
@@ -67,9 +105,46 @@
       "id": "osm-kagawa-02",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "香川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 151,
+      "estimated_minutes": 180,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "イサム・ノグチ庭園美術館 (Isamu Noguchi Garden Museum)",
+          "distance_km": 7.21,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "イサム・ノグチ庭園美術館 (Isamu Noguchi Garden Museum)",
+          "to": "香川県立ミュージアム",
+          "distance_km": 6.62,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "香川県立ミュージアム",
+          "to": "高松城",
+          "distance_km": 0.27,
+          "mode": "walk",
+          "minutes": 6
+        },
+        {
+          "from": "高松城",
+          "to": "高松駅",
+          "distance_km": 0.34,
+          "mode": "walk",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 7.2,
+        "from_last_km": 0.3
+      },
       "total_score": 50.0,
       "center": [
         34.351579,
@@ -126,9 +201,46 @@
       "id": "osm-kagawa-03",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "all",
+      "course": "half_day",
       "title": "香川県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "estimated_minutes": 195,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "四国村ギャラリー",
+          "distance_km": 5.73,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "四国村ギャラリー",
+          "to": "蜂穴神社",
+          "distance_km": 7.06,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "蜂穴神社",
+          "to": "聖代寺",
+          "distance_km": 7.59,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "聖代寺",
+          "to": "高松駅",
+          "distance_km": 6.21,
+          "mode": "car",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 5.7,
+        "from_last_km": 6.2
+      },
       "total_score": 43.3,
       "center": [
         34.344014,
@@ -185,9 +297,60 @@
       "id": "osm-kagawa-04",
       "area": "kagawa",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "香川県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 271,
+      "estimated_minutes": 296,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "厄除不動明王院",
+          "distance_km": 2.2,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "厄除不動明王院",
+          "to": "高松市歴史資料館",
+          "distance_km": 0.91,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "高松市歴史資料館",
+          "to": "プロント",
+          "distance_km": 1.52,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "プロント",
+          "to": "別格19 寶幢山 香西寺",
+          "distance_km": 5.01,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "別格19 寶幢山 香西寺",
+          "to": "法華寺",
+          "distance_km": 5.1,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "法華寺",
+          "to": "高松駅",
+          "distance_km": 8.95,
+          "mode": "car",
+          "minutes": 20
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 2.2,
+        "from_last_km": 9.0
+      },
       "total_score": 38.0,
       "center": [
         34.338084,
@@ -272,9 +435,60 @@
       "id": "osm-kagawa-05",
       "area": "kagawa",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "香川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 269,
+      "estimated_minutes": 299,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "香川大学博物館",
+          "distance_km": 1.1,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "香川大学博物館",
+          "to": "左甚五郎美術館",
+          "distance_km": 1.31,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "左甚五郎美術館",
+          "to": "プロント",
+          "distance_km": 0.5,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "プロント",
+          "to": "松島小学校跡",
+          "distance_km": 1.79,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "松島小学校跡",
+          "to": "大善寺",
+          "distance_km": 8.85,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "大善寺",
+          "to": "高松駅",
+          "distance_km": 8.2,
+          "mode": "car",
+          "minutes": 19
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 1.1,
+        "from_last_km": 8.2
+      },
       "total_score": 34.0,
       "center": [
         34.338209,

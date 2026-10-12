@@ -1,20 +1,58 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:20.856604+00:00",
+  "generated_at": "2026-10-12T04:55:29.142463+00:00",
   "area": "yamagata",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-yamagata-01",
       "area": "yamagata",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "山形県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
-      "total_score": 46.7,
+      "course": "full_day",
+      "title": "山形県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 402,
+      "legs": [
+        {
+          "from": "山形駅",
+          "to": "雪の里情報館",
+          "distance_km": 58.15,
+          "mode": "car",
+          "minutes": 130
+        },
+        {
+          "from": "雪の里情報館",
+          "to": "ゆめりあ鉄道ギャラリー",
+          "distance_km": 1.12,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "ゆめりあ鉄道ギャラリー",
+          "to": "芭蕉・清風歴史資料館",
+          "distance_km": 19.43,
+          "mode": "car",
+          "minutes": 44
+        },
+        {
+          "from": "芭蕉・清風歴史資料館",
+          "to": "山形駅",
+          "distance_km": 40.36,
+          "mode": "car",
+          "minutes": 90
+        }
+      ],
+      "start": {
+        "name": "山形駅",
+        "lat": 38.2485,
+        "lng": 140.3277,
+        "to_first_km": 58.1,
+        "from_last_km": 40.4
+      },
+      "total_score": 43.3,
       "center": [
-        38.831483,
-        140.263143
+        38.713481,
+        140.335715
       ],
       "spots": [
         {
@@ -28,23 +66,23 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5019614128",
-          "name": "真室川町立歴史民俗資料館",
+          "place_id": "osm-node-13411689758",
+          "name": "ゆめりあ鉄道ギャラリー",
           "category": "博物館",
-          "lat": 38.8575901,
-          "lng": 140.2502281,
+          "lat": 38.7631359,
+          "lng": 140.3054531,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5021640222",
-          "name": "秋山スキー場",
-          "category": "観光名所",
-          "lat": 38.8659645,
-          "lng": 140.2419613,
+          "place_id": "osm-node-5050137326",
+          "name": "芭蕉・清風歴史資料館",
+          "category": "博物館",
+          "lat": 38.6064124,
+          "lng": 140.4044537,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
           "role": "stop"
         }
       ],
@@ -54,12 +92,12 @@
           140.2972388
         ],
         [
-          38.8575901,
-          140.2502281
+          38.7631359,
+          140.3054531
         ],
         [
-          38.8659645,
-          140.2419613
+          38.6064124,
+          140.4044537
         ]
       ]
     },
@@ -67,9 +105,46 @@
       "id": "osm-yamagata-02",
       "area": "yamagata",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "山形県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 173,
+      "estimated_minutes": 231,
+      "legs": [
+        {
+          "from": "山形駅",
+          "to": "高瀬山古墳",
+          "distance_km": 13.76,
+          "mode": "car",
+          "minutes": 31
+        },
+        {
+          "from": "高瀬山古墳",
+          "to": "出羽桜美術館",
+          "distance_km": 9.09,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "出羽桜美術館",
+          "to": "山寺芭蕉記念館",
+          "distance_km": 7.45,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "山寺芭蕉記念館",
+          "to": "山形駅",
+          "distance_km": 11.86,
+          "mode": "car",
+          "minutes": 27
+        }
+      ],
+      "start": {
+        "name": "山形駅",
+        "lat": 38.2485,
+        "lng": 140.3277,
+        "to_first_km": 13.8,
+        "from_last_km": 11.9
+      },
       "total_score": 50.0,
       "center": [
         38.340711,
@@ -126,41 +201,78 @@
       "id": "osm-yamagata-03",
       "area": "yamagata",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "山形県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 158,
+      "course": "full_day",
+      "title": "山形県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 325,
+      "legs": [
+        {
+          "from": "山形駅",
+          "to": "大石田町立歴史民俗資料館",
+          "distance_km": 38.05,
+          "mode": "car",
+          "minutes": 85
+        },
+        {
+          "from": "大石田町立歴史民俗資料館",
+          "to": "最上徳内記念館",
+          "distance_km": 11.81,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "最上徳内記念館",
+          "to": "真下慶治郎記念美術館",
+          "distance_km": 4.59,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "真下慶治郎記念美術館",
+          "to": "山形駅",
+          "distance_km": 30.03,
+          "mode": "car",
+          "minutes": 67
+        }
+      ],
+      "start": {
+        "name": "山形駅",
+        "lat": 38.2485,
+        "lng": 140.3277,
+        "to_first_km": 38.1,
+        "from_last_km": 30.0
+      },
       "total_score": 50.0,
       "center": [
-        38.894466,
-        139.859869
+        38.529854,
+        140.369679
       ],
       "spots": [
         {
-          "place_id": "osm-node-4079646818",
-          "name": "内藤秀因水彩画記念館",
+          "place_id": "osm-node-5052753526",
+          "name": "大石田町立歴史民俗資料館",
           "category": "博物館",
-          "lat": 38.8487163,
-          "lng": 139.9044402,
+          "lat": 38.5888542,
+          "lng": 140.3730784,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5024056804",
-          "name": "酒田市立資料館",
+          "place_id": "osm-node-5057859635",
+          "name": "最上徳内記念館",
           "category": "博物館",
-          "lat": 38.9152097,
-          "lng": 139.8417672,
+          "lat": 38.4829144,
+          "lng": 140.382125,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5026244866",
-          "name": "相馬樓",
+          "place_id": "osm-node-5059791529",
+          "name": "真下慶治郎記念美術館",
           "category": "博物館",
-          "lat": 38.9194709,
-          "lng": 139.833401,
+          "lat": 38.5177926,
+          "lng": 140.353834,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -168,16 +280,16 @@
       ],
       "coordinates": [
         [
-          38.8487163,
-          139.9044402
+          38.5888542,
+          140.3730784
         ],
         [
-          38.9152097,
-          139.8417672
+          38.4829144,
+          140.382125
         ],
         [
-          38.9194709,
-          139.833401
+          38.5177926,
+          140.353834
         ]
       ]
     },
@@ -185,9 +297,60 @@
       "id": "osm-yamagata-04",
       "area": "yamagata",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "山形県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 279,
+      "estimated_minutes": 465,
+      "legs": [
+        {
+          "from": "山形駅",
+          "to": "米沢織物歴史資料館",
+          "distance_km": 42.38,
+          "mode": "car",
+          "minutes": 95
+        },
+        {
+          "from": "米沢織物歴史資料館",
+          "to": "上杉神社",
+          "distance_km": 0.66,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "上杉神社",
+          "to": "サイゼリヤ",
+          "distance_km": 1.57,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "松岬神社",
+          "distance_km": 1.54,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "松岬神社",
+          "to": "掬粋巧芸館",
+          "distance_km": 12.61,
+          "mode": "car",
+          "minutes": 29
+        },
+        {
+          "from": "掬粋巧芸館",
+          "to": "山形駅",
+          "distance_km": 35.61,
+          "mode": "car",
+          "minutes": 80
+        }
+      ],
+      "start": {
+        "name": "山形駅",
+        "lat": 38.2485,
+        "lng": 140.3277,
+        "to_first_km": 42.4,
+        "from_last_km": 35.6
+      },
       "total_score": 44.0,
       "center": [
         37.93258,
@@ -272,9 +435,60 @@
       "id": "osm-yamagata-05",
       "area": "yamagata",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "山形県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 292,
+      "estimated_minutes": 452,
+      "legs": [
+        {
+          "from": "山形駅",
+          "to": "愛宕神社",
+          "distance_km": 45.08,
+          "mode": "car",
+          "minutes": 101
+        },
+        {
+          "from": "愛宕神社",
+          "to": "稽照殿",
+          "distance_km": 3.05,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "稽照殿",
+          "to": "サイゼリヤ",
+          "distance_km": 1.53,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "招魂碑",
+          "distance_km": 1.63,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "招魂碑",
+          "to": "結城豊太郎記念館",
+          "distance_km": 16.41,
+          "mode": "car",
+          "minutes": 37
+        },
+        {
+          "from": "結城豊太郎記念館",
+          "to": "山形駅",
+          "distance_km": 26.4,
+          "mode": "car",
+          "minutes": 59
+        }
+      ],
+      "start": {
+        "name": "山形駅",
+        "lat": 38.2485,
+        "lng": 140.3277,
+        "to_first_km": 45.1,
+        "from_last_km": 26.4
+      },
       "total_score": 38.0,
       "center": [
         37.936995,

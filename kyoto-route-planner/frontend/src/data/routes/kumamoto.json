@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:40.749907+00:00",
+  "generated_at": "2026-10-12T04:55:59.573202+00:00",
   "area": "kumamoto",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-kumamoto-01",
       "area": "kumamoto",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "熊本県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 179,
+      "course": "full_day",
+      "title": "熊本県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 343,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "清水寺",
+          "distance_km": 37.54,
+          "mode": "car",
+          "minutes": 84
+        },
+        {
+          "from": "清水寺",
+          "to": "上色見熊野座神社",
+          "distance_km": 8.72,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "上色見熊野座神社",
+          "to": "阿蘇火山博物館",
+          "distance_km": 10.54,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "阿蘇火山博物館",
+          "to": "熊本駅",
+          "distance_km": 35.55,
+          "mode": "car",
+          "minutes": 80
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 37.5,
+        "from_last_km": 35.5
+      },
       "total_score": 45.0,
       "center": [
         32.846505,
@@ -67,9 +105,46 @@
       "id": "osm-kumamoto-02",
       "area": "kumamoto",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "熊本県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "estimated_minutes": 283,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "山鹿市立博物館",
+          "distance_km": 26.2,
+          "mode": "car",
+          "minutes": 59
+        },
+        {
+          "from": "山鹿市立博物館",
+          "to": "鞠智城",
+          "distance_km": 11.63,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "鞠智城",
+          "to": "菊池神社",
+          "distance_km": 3.05,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "菊池神社",
+          "to": "熊本駅",
+          "distance_km": 24.99,
+          "mode": "car",
+          "minutes": 56
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 26.2,
+        "from_last_km": 25.0
+      },
       "total_score": 46.7,
       "center": [
         33.004923,
@@ -126,9 +201,46 @@
       "id": "osm-kumamoto-03",
       "area": "kumamoto",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "熊本県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 152,
+      "estimated_minutes": 176,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "熊本国際民藝館",
+          "distance_km": 7.71,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "熊本国際民藝館",
+          "to": "熊本市立熊本博物館",
+          "distance_km": 5.84,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "熊本市立熊本博物館",
+          "to": "現代美術館",
+          "distance_km": 1.24,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "現代美術館",
+          "to": "熊本駅",
+          "distance_km": 2.52,
+          "mode": "car",
+          "minutes": 6
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 7.7,
+        "from_last_km": 2.5
+      },
       "total_score": 50.0,
       "center": [
         32.813957,
@@ -185,9 +297,60 @@
       "id": "osm-kumamoto-04",
       "area": "kumamoto",
       "pattern": "full_day",
-      "theme": "nature",
+      "course": "full_day",
       "title": "熊本県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 288,
+      "estimated_minutes": 390,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "熊本空港　阿蘇くまもと空港",
+          "distance_km": 16.57,
+          "mode": "car",
+          "minutes": 37
+        },
+        {
+          "from": "熊本空港　阿蘇くまもと空港",
+          "to": "大津町道路元標",
+          "distance_km": 5.08,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "大津町道路元標",
+          "to": "道の駅大津",
+          "distance_km": 2.11,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "道の駅大津",
+          "to": "小森神社",
+          "distance_km": 5.48,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "小森神社",
+          "to": "阿蘇北向谷原始林",
+          "distance_km": 7.87,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "阿蘇北向谷原始林",
+          "to": "熊本駅",
+          "distance_km": 28.87,
+          "mode": "car",
+          "minutes": 65
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 16.6,
+        "from_last_km": 28.9
+      },
       "total_score": 32.0,
       "center": [
         32.859666,
@@ -272,9 +435,60 @@
       "id": "osm-kumamoto-05",
       "area": "kumamoto",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "熊本県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 281,
+      "estimated_minutes": 290,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "島田美術館",
+          "distance_km": 2.21,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "島田美術館",
+          "to": "熊本県立美術館",
+          "distance_km": 1.37,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "熊本県立美術館",
+          "to": "うどんウエスト",
+          "distance_km": 5.94,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "うどんウエスト",
+          "to": "北岡神社",
+          "distance_km": 7.74,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "北岡神社",
+          "to": "蓮台寺",
+          "distance_km": 2.12,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "蓮台寺",
+          "to": "熊本駅",
+          "distance_km": 1.78,
+          "mode": "car",
+          "minutes": 4
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 2.2,
+        "from_last_km": 1.8
+      },
       "total_score": 42.0,
       "center": [
         32.808049,

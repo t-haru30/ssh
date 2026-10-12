@@ -1,75 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:16.305363+00:00",
+  "generated_at": "2026-10-12T04:55:52.062011+00:00",
   "area": "tottori",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-tottori-01",
       "area": "tottori",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "鳥取県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 157,
-      "total_score": 50.0,
-      "center": [
-        35.44848,
-        133.305929
-      ],
-      "spots": [
+      "course": "full_day",
+      "title": "鳥取県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 307,
+      "legs": [
         {
-          "place_id": "osm-node-12813386657",
-          "name": "甲種飛行予科練習生練武之地",
-          "category": "史跡",
-          "lat": 35.4874459,
-          "lng": 133.2563564,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "鳥取駅",
+          "to": "倉吉博物館",
+          "distance_km": 36.99,
+          "mode": "car",
+          "minutes": 83
         },
         {
-          "place_id": "osm-node-1423087590",
-          "name": "米子市立山陰歴史館",
-          "category": "博物館",
-          "lat": 35.4292598,
-          "lng": 133.3303955,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "倉吉博物館",
+          "to": "鳥取県立鳥取二十世紀梨記念館",
+          "distance_km": 0.96,
+          "mode": "car",
+          "minutes": 3
         },
         {
-          "place_id": "osm-node-1423087613",
-          "name": "米子市美術館",
-          "category": "博物館",
-          "lat": 35.428733,
-          "lng": 133.3310344,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "鳥取県立鳥取二十世紀梨記念館",
+          "to": "倉吉歴史民俗資料館",
+          "distance_km": 0.95,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "倉吉歴史民俗資料館",
+          "to": "鳥取駅",
+          "distance_km": 36.98,
+          "mode": "car",
+          "minutes": 83
         }
       ],
-      "coordinates": [
-        [
-          35.4874459,
-          133.2563564
-        ],
-        [
-          35.4292598,
-          133.3303955
-        ],
-        [
-          35.428733,
-          133.3310344
-        ]
-      ]
-    },
-    {
-      "id": "osm-tottori-02",
-      "area": "tottori",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "鳥取県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 141,
+      "start": {
+        "name": "鳥取駅",
+        "lat": 35.49399,
+        "lng": 134.22594,
+        "to_first_km": 37.0,
+        "from_last_km": 37.0
+      },
       "total_score": 50.0,
       "center": [
         35.429566,
@@ -123,12 +102,49 @@
       ]
     },
     {
-      "id": "osm-tottori-03",
+      "id": "osm-tottori-02",
       "area": "tottori",
       "pattern": "half_day",
-      "theme": "all",
+      "course": "half_day",
       "title": "鳥取県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 190,
+      "estimated_minutes": 272,
+      "legs": [
+        {
+          "from": "鳥取駅",
+          "to": "鳥取県立氷ノ山自然ふれあい館響の森",
+          "distance_km": 28.42,
+          "mode": "car",
+          "minutes": 64
+        },
+        {
+          "from": "鳥取県立氷ノ山自然ふれあい館響の森",
+          "to": "若桜神社",
+          "distance_km": 9.15,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "若桜神社",
+          "to": "梶山古墳",
+          "distance_km": 14.92,
+          "mode": "car",
+          "minutes": 34
+        },
+        {
+          "from": "梶山古墳",
+          "to": "鳥取駅",
+          "distance_km": 7.82,
+          "mode": "car",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "鳥取駅",
+        "lat": 35.49399,
+        "lng": 134.22594,
+        "to_first_km": 28.4,
+        "from_last_km": 7.8
+      },
       "total_score": 43.3,
       "center": [
         35.383929,
@@ -182,16 +198,53 @@
       ]
     },
     {
-      "id": "osm-tottori-04",
+      "id": "osm-tottori-03",
       "area": "tottori",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "鳥取県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 266,
-      "total_score": 46.0,
+      "pattern": "half_day",
+      "course": "half_day",
+      "title": "鳥取県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 159,
+      "legs": [
+        {
+          "from": "鳥取駅",
+          "to": "鳥取民藝美術館",
+          "distance_km": 0.26,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "鳥取民藝美術館",
+          "to": "鳥取城跡",
+          "distance_km": 2.0,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "鳥取城跡",
+          "to": "仁風閣",
+          "distance_km": 0.46,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "仁風閣",
+          "to": "鳥取駅",
+          "distance_km": 1.8,
+          "mode": "car",
+          "minutes": 5
+        }
+      ],
+      "start": {
+        "name": "鳥取駅",
+        "lat": 35.49399,
+        "lng": 134.22594,
+        "to_first_km": 0.3,
+        "from_last_km": 1.8
+      },
+      "total_score": 50.0,
       "center": [
-        35.500846,
-        134.236308
+        35.504434,
+        134.235283
       ],
       "spots": [
         {
@@ -215,31 +268,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10079106318",
-          "name": "ごはん屋  ココデエエガ",
-          "category": "飲食店",
-          "lat": 35.4797948,
-          "lng": 134.2195145,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-6166900797",
           "name": "仁風閣",
           "category": "博物館",
           "lat": 35.5071732,
           "lng": 134.2375138,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6315993784",
-          "name": "太閤ヶ平",
-          "category": "史跡",
-          "lat": 35.5111347,
-          "lng": 134.2561771,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -255,48 +288,91 @@
           134.2411743
         ],
         [
-          35.4797948,
-          134.2195145
-        ],
-        [
           35.5071732,
           134.2375138
-        ],
-        [
-          35.5111347,
-          134.2561771
         ]
       ]
     },
     {
-      "id": "osm-tottori-05",
+      "id": "osm-tottori-04",
       "area": "tottori",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "鳥取県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 300,
-      "total_score": 38.0,
+      "estimated_minutes": 340,
+      "legs": [
+        {
+          "from": "鳥取駅",
+          "to": "太閤ヶ平",
+          "distance_km": 3.34,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "太閤ヶ平",
+          "to": "岡益石堂",
+          "distance_km": 7.11,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "岡益石堂",
+          "to": "ごはん屋  ココデエエガ",
+          "distance_km": 7.14,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "ごはん屋  ココデエエガ",
+          "to": "布勢古墳",
+          "distance_km": 4.79,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "布勢古墳",
+          "to": "土師百井廃寺跡",
+          "distance_km": 11.99,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "土師百井廃寺跡",
+          "to": "鳥取駅",
+          "distance_km": 9.68,
+          "mode": "car",
+          "minutes": 22
+        }
+      ],
+      "start": {
+        "name": "鳥取駅",
+        "lat": 35.49399,
+        "lng": 134.22594,
+        "to_first_km": 3.3,
+        "from_last_km": 9.7
+      },
+      "total_score": 40.0,
       "center": [
-        35.452085,
-        134.233597
+        35.471421,
+        134.235188
       ],
       "spots": [
+        {
+          "place_id": "osm-node-6315993784",
+          "name": "太閤ヶ平",
+          "category": "史跡",
+          "lat": 35.5111347,
+          "lng": 134.2561771,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-4005186623",
           "name": "岡益石堂",
           "category": "史跡",
           "lat": 35.4541146,
           "lng": 134.2917702,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4014626776",
-          "name": "布勢古墳",
-          "category": "史跡",
-          "lat": 35.5050069,
-          "lng": 134.1765499,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -312,11 +388,11 @@
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-4043328547",
-          "name": "白兎神社",
-          "category": "観光名所",
-          "lat": 35.4144554,
-          "lng": 134.2482197,
+          "place_id": "osm-node-4014626776",
+          "name": "布勢古墳",
+          "category": "史跡",
+          "lat": 35.5050069,
+          "lng": 134.1765499,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -334,24 +410,162 @@
       ],
       "coordinates": [
         [
-          35.4541146,
-          134.2917702
+          35.5111347,
+          134.2561771
         ],
         [
-          35.5050069,
-          134.1765499
+          35.4541146,
+          134.2917702
         ],
         [
           35.4797948,
           134.2195145
         ],
         [
-          35.4144554,
-          134.2482197
+          35.5050069,
+          134.1765499
         ],
         [
           35.4070546,
           134.2319297
+        ]
+      ]
+    },
+    {
+      "id": "osm-tottori-05",
+      "area": "tottori",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "鳥取県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 349,
+      "legs": [
+        {
+          "from": "鳥取駅",
+          "to": "白兎神社",
+          "distance_km": 9.07,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "白兎神社",
+          "to": "日香寺",
+          "distance_km": 9.74,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "日香寺",
+          "to": "ごはん屋  ココデエエガ",
+          "distance_km": 3.16,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "ごはん屋  ココデエエガ",
+          "to": "倭文神社",
+          "distance_km": 4.7,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "倭文神社",
+          "to": "ムーンライトはやぶさ",
+          "distance_km": 8.5,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "ムーンライトはやぶさ",
+          "to": "鳥取駅",
+          "distance_km": 12.35,
+          "mode": "car",
+          "minutes": 28
+        }
+      ],
+      "start": {
+        "name": "鳥取駅",
+        "lat": 35.49399,
+        "lng": 134.22594,
+        "to_first_km": 9.1,
+        "from_last_km": 12.4
+      },
+      "total_score": 38.0,
+      "center": [
+        35.445063,
+        134.235892
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4043328547",
+          "name": "白兎神社",
+          "category": "観光名所",
+          "lat": 35.4144554,
+          "lng": 134.2482197,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4077221143",
+          "name": "日香寺",
+          "category": "観光名所",
+          "lat": 35.5018556,
+          "lng": 134.2414399,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10079106318",
+          "name": "ごはん屋  ココデエエガ",
+          "category": "飲食店",
+          "lat": 35.4797948,
+          "lng": 134.2195145,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4255704996",
+          "name": "倭文神社",
+          "category": "観光名所",
+          "lat": 35.440447,
+          "lng": 134.2006023,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4411028358",
+          "name": "ムーンライトはやぶさ",
+          "category": "観光名所",
+          "lat": 35.3887642,
+          "lng": 134.2696825,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.4144554,
+          134.2482197
+        ],
+        [
+          35.5018556,
+          134.2414399
+        ],
+        [
+          35.4797948,
+          134.2195145
+        ],
+        [
+          35.440447,
+          134.2006023
+        ],
+        [
+          35.3887642,
+          134.2696825
         ]
       ]
     }
