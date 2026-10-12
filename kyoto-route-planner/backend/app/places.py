@@ -5,7 +5,7 @@ import re
 
 from fastapi import HTTPException
 
-from app.models import Origin, Place, Theme
+from app.models import CatalogPlace, Origin, Place, Theme
 from app.popularity import load_cached_scores
 
 
@@ -82,13 +82,18 @@ def _sitelinks(place: Place) -> int | None:
         return None
 
 
-def is_unsuitable_place(place: Place) -> bool:
+def is_unsuitable_place(place: Place | CatalogPlace) -> bool:
     """Exclude places that are not sightseeing destinations before scoring."""
     if not UNSUITABLE_PLACE_PATTERN.search(f"{place.name} {place.category}"):
         return False
     if any(name in place.name for name in FAMOUS_GRAVEYARD_NAMES):
         return False
-    return (_sitelinks(place) or 0) < FAME_EXCEPTION_SITELINKS
+    tags = getattr(place, "tags", {})
+    try:
+        sitelinks = int(tags.get("sitelinks", 0))
+    except ValueError:
+        sitelinks = 0
+    return sitelinks < FAME_EXCEPTION_SITELINKS
 
 
 def _fame_score(place: Place) -> tuple[float, bool]:
