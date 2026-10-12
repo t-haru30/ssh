@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildRouteTimeline, RouteTimeline } from "../RouteTimeline";
-import type { Origin, Place } from "../types";
+import { isRecord, isRouteSuggestion } from "../apiValidation";
+import type { Origin, Place, RouteSuggestion } from "../types";
 import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
 import { formatMinutes } from "./DiscoverCard";
@@ -41,6 +42,9 @@ function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][num
 }
 
 export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetailModalProps) {
+  const [routeSuggestion, setRouteSuggestion] = useState<RouteSuggestion | null>(null);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const [routeLoading, setRouteLoading] = useState(true);
   const isStaticRoute = isDatasetRoute(route);
   const places = useMemo(
     () => isStaticRoute
@@ -48,13 +52,88 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       : route.places,
     [isStaticRoute, route],
   );
-  const start = isStaticRoute
-    ? AREA_STARTS[route.area] ?? { name: "エリア中心", latitude: route.center[0], longitude: route.center[1] }
-    : AREA_STARTS.kyoto;
-  const items = useMemo(() => buildRouteTimeline(start, places, "09:00", null), [places, start]);
+  const start = useMemo(
+    () => isStaticRoute
+      ? AREA_STARTS[route.area] ?? { name: "エリア中心", latitude: route.center[0], longitude: route.center[1] }
+      : AREA_STARTS.kyoto,
+    [isStaticRoute, route],
+  );
+  const estimatedItems = useMemo(
+    () => buildRouteTimeline(start, places, "09:00", null),
+    [places, start],
+  );
+  const items = routeSuggestion?.timeline?.length
+    ? routeSuggestion.timeline
+    : estimatedItems;
   const coordinates: [number, number][] = isStaticRoute
     ? route.coordinates
     : route.places.map((place) => [place.latitude, place.longitude]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let timedOut = false;
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 55_000);
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const departureDate = now.toISOString().slice(0, 10);
+
+    async function loadRoute() {
+      setRouteLoading(true);
+      setRouteSuggestion(null);
+      setRouteError(null);
+      try {
+        const response = await fetch("/api/routes/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            origin: start,
+            places,
+            departure_date: departureDate,
+            departure_time: "09:00",
+          }),
+        });
+        if (!response.ok) {
+          let message = `駅すぱあと経路検索に失敗しました（HTTP ${response.status}）。`;
+          try {
+            const payload: unknown = await response.json();
+            if (isRecord(payload) && typeof payload.detail === "string") {
+              message = payload.detail;
+            }
+          } catch {
+            // Retain the HTTP status message when the error body is not JSON.
+          }
+          throw new Error(message);
+        }
+        const payload: unknown = await response.json();
+        if (!isRouteSuggestion(payload)) {
+          throw new Error("駅すぱあと経路検索から不正なデータが返されました。");
+        }
+        setRouteSuggestion(payload);
+      } catch (error) {
+        if (controller.signal.aborted && !timedOut) return;
+        setRouteError(
+          timedOut
+            ? "駅すぱあと経路検索がタイムアウトしました。"
+            : error instanceof Error
+            ? error.message
+            : "駅すぱあと経路検索に失敗しました。",
+        );
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (!controller.signal.aborted || timedOut) setRouteLoading(false);
+      }
+    }
+
+    void loadRoute();
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [places, start]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -103,13 +182,22 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
             />
           </Suspense>
         </div>
+        {routeLoading && <p role="status">駅すぱあとで運行時刻を検索しています…</p>}
+        {routeError && (
+          <p className="result-note" role="status">
+            {routeError} 推定時刻を表示しています。
+          </p>
+        )}
         <RouteTimeline items={items} />
         {onPlanInSearch && (
           <button type="button" className="idea-primary-button" onClick={() => onPlanInSearch(route)}>
             この条件で乗換つきの経路を作る
           </button>
         )}
-        <p className="result-note">所要時間は直線距離からの目安です。実際の経路は「Search」タブで確認できます。</p>
+        <p className="result-note">
+          {routeSuggestion?.note ?? "経路情報を取得できない場合は、時刻の目安を表示します。"}
+          {" "}出発時刻は09:00に設定しています。
+        </p>
       </section>
     </div>
   );

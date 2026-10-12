@@ -20,6 +20,7 @@ from app.ekispert import (
 from app.main import (
     ROUTE_GENRE_CODES,
     _build_route_timeline,
+    _correct_route_timeline,
     _route_candidates,
     app,
     limiter,
@@ -90,8 +91,15 @@ class RoutePlannerTests(unittest.TestCase):
             )),
         )
         self.search_places_patch.start()
+        self.segment_search = AsyncMock(return_value=([], None, None, None))
+        self.segment_search_patch = patch(
+            "app.main._search_route_segment",
+            new=self.segment_search,
+        )
+        self.segment_search_patch.start()
 
     def tearDown(self):
+        self.segment_search_patch.stop()
         self.search_places_patch.stop()
         self.fare_estimate_patch.stop()
 
@@ -166,6 +174,67 @@ class RoutePlannerTests(unittest.TestCase):
                 call("清水寺", limit=100, genre_codes=("0424001",)),
                 call("平安神宮", limit=100, genre_codes=("0424002",)),
             ],
+        )
+
+    def test_discover_route_preview_returns_corrected_segment_timetable(self):
+        origin = Origin(name="出発駅", latitude=35.0, longitude=135.0)
+        places = sample_places()[:1]
+        route_search = AsyncMock(return_value=(
+            [RouteLeg(
+                from_name="出発駅",
+                to_name=places[0].name,
+                line_name="JR東海道本線",
+                mode="train",
+                duration_minutes=40,
+            )],
+            90,
+            "09:00",
+            "10:30",
+        ))
+        self.segment_search.return_value = (
+            [RouteLeg(
+                from_name="出発駅",
+                to_name=places[0].name,
+                line_name="JR東海道本線",
+                mode="train",
+                duration_minutes=40,
+            )],
+            40,
+            "09:05",
+            "09:45",
+        )
+
+        with patch("app.main.search_route", route_search):
+            response = TestClient(app).post(
+                "/api/routes/preview",
+                json={
+                    "origin": origin.model_dump(),
+                    "places": [place.model_dump() for place in places],
+                    "departure_date": "2026-10-12",
+                    "departure_time": "09:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(
+            response.json()["timeline"][1]["transit_line"],
+            "JR東海道本線",
+        )
+        self.assertEqual(
+            (
+                response.json()["timeline"][1]["start_time"],
+                response.json()["timeline"][1]["end_time"],
+            ),
+            ("09:05", "09:45"),
+        )
+        route_search.assert_awaited_once()
+        self.assertEqual(self.segment_search.await_count, 2)
+        self.assertEqual(
+            self.segment_search.await_args_list[0].args[:2],
+            (
+                "35.0,135.0",
+                f"{places[0].latitude},{places[0].longitude}",
+            ),
         )
 
     def test_route_search_uses_location_query_and_yahoo_genre_filter(self):
@@ -733,6 +802,82 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertIsNone(timeline[1].duration_minutes)
         self.assertIsNone(timeline[2].time)
         self.assertIsNone(timeline[-1].time)
+
+    def test_route_timeline_is_corrected_with_segment_timetable_and_line(self):
+        origin = list_origins()[0]
+        places = sample_places()[:1]
+        timeline = _build_route_timeline(origin, places, "09:00", 60)
+        self.segment_search.side_effect = [
+            (
+                [RouteLeg(
+                    from_name=origin.name,
+                    to_name=places[0].name,
+                    line_name="JR東海道本線",
+                    mode="train",
+                    duration_minutes=40,
+                )],
+                40,
+                "09:05",
+                "09:45",
+            ),
+            (
+                [RouteLeg(
+                    from_name=places[0].name,
+                    to_name=origin.name,
+                    line_name="遠鉄バス 駅行き",
+                    mode="bus",
+                    duration_minutes=15,
+                )],
+                15,
+                "11:30",
+                "11:45",
+            ),
+        ]
+
+        corrected = asyncio.run(_correct_route_timeline(
+            timeline,
+            origin,
+            places,
+            "2026-10-12",
+            timeout=2,
+        ))
+        transit = [item for item in corrected if item.type == "transit"]
+
+        self.assertEqual(
+            [item.transit_line for item in transit],
+            ["JR東海道本線", "遠鉄バス 駅行き"],
+        )
+        self.assertEqual(
+            [(item.start_time, item.end_time) for item in transit],
+            [("09:05", "09:45"), ("11:30", "11:45")],
+        )
+        self.assertTrue(all(not item.is_estimate for item in transit))
+        self.assertEqual(corrected[0].time, "09:05")
+        self.assertEqual(corrected[2].time, "09:45")
+        self.assertEqual(corrected[-1].time, "11:45")
+
+    def test_route_timeline_preserves_estimates_when_a_segment_has_no_route(self):
+        origin = list_origins()[0]
+        places = sample_places()[:1]
+        timeline = _build_route_timeline(origin, places, "09:00", 60)
+        self.segment_search.side_effect = HTTPException(404, "no route")
+
+        corrected = asyncio.run(_correct_route_timeline(
+            timeline,
+            origin,
+            places,
+            "2026-10-12",
+            timeout=2,
+        ))
+        transit = [item for item in corrected if item.type == "transit"]
+        original_transit = [item for item in timeline if item.type == "transit"]
+
+        self.assertEqual(
+            [(item.start_time, item.end_time) for item in transit],
+            [(item.start_time, item.end_time) for item in original_transit],
+        )
+        self.assertTrue(all(item.is_estimate for item in transit))
+        self.assertTrue(all(item.transit_line == "公共交通機関" for item in transit))
 
     def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={

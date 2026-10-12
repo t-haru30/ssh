@@ -55,6 +55,7 @@ export type RouteTimelineTransit = {
   from_name: string;
   to_name: string;
   mode: "public_transport";
+  transit_line?: string | null;
   start_time: string | null;
   end_time: string | null;
   duration_minutes: number | null;

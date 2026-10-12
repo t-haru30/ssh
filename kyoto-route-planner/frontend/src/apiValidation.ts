@@ -224,7 +224,7 @@ export function isRouteIdeaBatch(
     && value.fallback_count >= 0;
 }
 
-function isRouteSuggestion(value: unknown): value is RouteSuggestion {
+export function isRouteSuggestion(value: unknown): value is RouteSuggestion {
   return isRecord(value)
     && Array.isArray(value.places)
     && value.places.length > 0

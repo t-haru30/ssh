@@ -39,6 +39,8 @@ from app.models import (
     PlaceSearchHit,
     PlaceSearchRequest,
     PlaceSearchResponse,
+    RouteLeg,
+    RoutePreviewRequest,
     RouteSuggestion,
     RouteTimelineItem,
     RouteTimelineSpot,
@@ -125,6 +127,7 @@ def _build_route_timeline(
             RouteTimelineTransit(
                 from_name=origin.name if index == 0 else places[index - 1].name,
                 to_name=place.name,
+                transit_line="公共交通機関",
                 start_time=transit_start if duration is not None else None,
                 end_time=transit_end,
                 duration_minutes=duration,
@@ -154,6 +157,7 @@ def _build_route_timeline(
         RouteTimelineTransit(
             from_name=places[-1].name if places else origin.name,
             to_name=origin.name,
+            transit_line="公共交通機関",
             start_time=return_start if return_duration is not None else None,
             end_time=(
                 _format_timeline_time(current_minutes)
@@ -176,6 +180,141 @@ def _build_route_timeline(
         )
     )
     return timeline
+
+
+def _clock_minutes(value: str | None) -> int | None:
+    if value is None:
+        return None
+    try:
+        parsed = datetime_time.fromisoformat(value)
+    except ValueError:
+        return None
+    return parsed.hour * 60 + parsed.minute
+
+
+def _duration_between(start: str | None, end: str | None) -> int | None:
+    start_minutes = _clock_minutes(start)
+    end_minutes = _clock_minutes(end)
+    if start_minutes is None or end_minutes is None:
+        return None
+    return (end_minutes - start_minutes) % (24 * 60)
+
+
+async def _search_route_segment(
+    from_point: str,
+    to_point: str,
+    departure_date: str,
+    departure_time: str,
+) -> tuple[list[RouteLeg], int | None, str | None, str | None]:
+    return await search_route(
+        via_points=[from_point, to_point],
+        departure_date=departure_date,
+        departure_time=departure_time,
+    )
+
+
+async def _correct_route_timeline(
+    timeline: list[RouteTimelineItem],
+    origin: Origin,
+    places: list[Place],
+    departure_date: str,
+    *,
+    timeout: float,
+) -> list[RouteTimelineItem]:
+    transits = [item for item in timeline if isinstance(item, RouteTimelineTransit)]
+    if not transits:
+        return timeline
+
+    origin_point = f"{origin.latitude},{origin.longitude}"
+    point_names = [origin_point]
+    point_names.extend(
+        f"{place.latitude},{place.longitude}" for place in places
+    )
+    point_names.append(origin_point)
+    requests = [
+        _search_route_segment(
+            point_names[index],
+            point_names[index + 1],
+            departure_date,
+            transit.start_time or "00:00",
+        )
+        for index, transit in enumerate(transits)
+    ]
+
+    try:
+        results = await asyncio.wait_for(
+            asyncio.gather(*requests, return_exceptions=True),
+            timeout=timeout,
+        )
+    except asyncio.TimeoutError:
+        logger.warning("Ekispert per-segment route correction timed out")
+        return timeline
+
+    corrected: list[RouteTimelineItem] = []
+    transit_index = 0
+    for item in timeline:
+        if not isinstance(item, RouteTimelineTransit):
+            corrected.append(item)
+            continue
+
+        result = results[transit_index]
+        transit_index += 1
+        if isinstance(result, HTTPException):
+            logger.warning(
+                "Ekispert route correction failed for one segment: status=%d",
+                result.status_code,
+            )
+            corrected.append(item)
+            continue
+        if isinstance(result, Exception):
+            raise result
+
+        legs, total_minutes, departure, arrival = result
+        line_names = list(dict.fromkeys(
+            leg.line_name.strip() for leg in legs if leg.line_name.strip()
+        ))
+        actual_departure = departure or item.start_time
+        actual_arrival = arrival or item.end_time
+        if not line_names and actual_departure == item.start_time and actual_arrival == item.end_time:
+            corrected.append(item)
+            continue
+        corrected.append(item.model_copy(update={
+            "transit_line": " / ".join(line_names) or "公共交通機関",
+            "start_time": actual_departure,
+            "end_time": actual_arrival,
+            "duration_minutes": (
+                _duration_between(actual_departure, actual_arrival)
+                if actual_departure and actual_arrival
+                else total_minutes if total_minutes is not None
+                else item.duration_minutes
+            ),
+            "is_estimate": not bool(departure and arrival),
+        }))
+
+    synchronized: list[RouteTimelineItem] = []
+    latest_arrival: str | None = None
+    first_departure = next(
+        (
+            item.start_time
+            for item in corrected
+            if isinstance(item, RouteTimelineTransit) and item.start_time
+        ),
+        None,
+    )
+    for item in corrected:
+        if isinstance(item, RouteTimelineTransit):
+            latest_arrival = item.end_time
+            synchronized.append(item)
+        elif isinstance(item, RouteTimelineSpot):
+            spot_time = (
+                first_departure
+                if item.role == "start"
+                else latest_arrival or item.time
+            )
+            synchronized.append(item.model_copy(update={"time": spot_time}))
+        else:
+            synchronized.append(item)
+    return synchronized
 
 
 @asynccontextmanager
@@ -433,6 +572,75 @@ async def recommend_route(
     return await _recommend_routes(payload)
 
 
+@app.post("/api/routes/preview", response_model=RouteSuggestion)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("10/minute")
+async def preview_route(
+    request: Request,
+    payload: RoutePreviewRequest,
+) -> RouteSuggestion:
+    deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
+    departure_time = payload.departure_time.strftime("%H:%M")
+    via_points = [
+        f"{payload.origin.latitude},{payload.origin.longitude}",
+        *(f"{place.latitude},{place.longitude}" for place in payload.places),
+        f"{payload.origin.latitude},{payload.origin.longitude}",
+    ]
+    try:
+        legs, total_minutes, actual_departure, actual_arrival = await asyncio.wait_for(
+            search_route(
+                via_points=via_points,
+                departure_date=payload.departure_date.isoformat(),
+                departure_time=departure_time,
+            ),
+            timeout=max(0.001, deadline - time.monotonic()),
+        )
+    except asyncio.TimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail="経路検索がタイムアウトしました。時間をおいて再度お試しください。",
+        ) from error
+
+    timeline = _build_route_timeline(
+        payload.origin,
+        payload.places,
+        actual_departure or departure_time,
+        total_minutes,
+    )
+    remaining_seconds = deadline - time.monotonic()
+    if remaining_seconds > 0:
+        timeline = await _correct_route_timeline(
+            timeline,
+            payload.origin,
+            payload.places,
+            payload.departure_date.isoformat(),
+            timeout=remaining_seconds,
+        )
+    else:
+        logger.warning(
+            "Ekispert preview correction skipped: request budget exhausted"
+        )
+
+    return RouteSuggestion(
+        places=payload.places,
+        origin=payload.origin,
+        legs=legs,
+        total_minutes=total_minutes,
+        departure_time=actual_departure or departure_time,
+        arrival_time=actual_arrival,
+        timeline=timeline,
+        coordinates=[
+            [payload.origin.latitude, payload.origin.longitude],
+            *[[place.latitude, place.longitude] for place in payload.places],
+            [payload.origin.latitude, payload.origin.longitude],
+        ],
+        note=(
+            "区間ごとの路線名・発着時刻は駅すぱあとAPIの検索結果です。"
+            "区間検索で経路が見つからない場合は時刻の目安を表示します。"
+        ),
+    )
+
+
 @app.get("/api/routes/random", response_model=RouteSuggestions)
 @limiter.shared_limit("20/minute", scope="paid-external-api")
 @limiter.limit("5/minute")
@@ -688,6 +896,25 @@ async def _recommend_routes(
                         detail="19:00までに出発駅へ戻れるルートが見つかりませんでした。",
                     )
                     continue
+                timeline = _build_route_timeline(
+                    origin,
+                    chosen,
+                    departure_time or request.departure_time.strftime("%H:%M"),
+                    total_minutes,
+                )
+                remaining_seconds = deadline - time.monotonic()
+                if remaining_seconds > 0:
+                    timeline = await _correct_route_timeline(
+                        timeline,
+                        origin,
+                        chosen,
+                        request.departure_date.isoformat(),
+                        timeout=remaining_seconds,
+                    )
+                else:
+                    logger.warning(
+                        "Ekispert per-segment route correction skipped: request budget exhausted"
+                    )
                 suggestions.append(
                     RouteSuggestion(
                         places=chosen,
@@ -696,12 +923,7 @@ async def _recommend_routes(
                         total_minutes=total_minutes,
                         departure_time=departure_time or request.departure_time.strftime("%H:%M"),
                         arrival_time=arrival_time or None,
-                        timeline=_build_route_timeline(
-                            origin,
-                            chosen,
-                            departure_time or request.departure_time.strftime("%H:%M"),
-                            total_minutes,
-                        ),
+                        timeline=timeline,
                         coordinates=[
                             [origin.latitude, origin.longitude],
                             *[[p.latitude, p.longitude] for p in chosen],
@@ -709,7 +931,8 @@ async def _recommend_routes(
                         ],
                         note=(
                             "スポットの順番は近接性にもとづく候補です。公共交通の経路・時刻は駅すぱあとAPIの検索結果です。"
-                            "タイムラインの区間別移動時間は総移動時間を直線距離で按分した目安で、滞在時間は各90分です。"
+                            "タイムラインの区間別発着時刻・路線名は区間ごとの駅すぱあとAPI検索結果で補正し、"
+                            "経路が見つからない区間は総移動時間を直線距離で按分した目安を表示します。滞在時間は各90分です。"
                             "地点から最寄り駅までのアクセス時間は直線距離からの概算で、実際の徒歩道順ではありません。"
                             f"{candidate_note}"
                         ),
