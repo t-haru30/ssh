@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:54.922602+00:00",
+  "generated_at": "2026-10-12T04:55:40.209535+00:00",
   "area": "fukui",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-fukui-01",
       "area": "fukui",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "福井県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 159,
+      "course": "full_day",
+      "title": "福井県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 369,
+      "legs": [
+        {
+          "from": "福井駅",
+          "to": "紙わらべ資料館",
+          "distance_km": 47.25,
+          "mode": "car",
+          "minutes": 106
+        },
+        {
+          "from": "紙わらべ資料館",
+          "to": "常宮神社",
+          "distance_km": 5.08,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "常宮神社",
+          "to": "旧敦賀港駅ランプ小屋",
+          "distance_km": 5.14,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "旧敦賀港駅ランプ小屋",
+          "to": "福井駅",
+          "distance_km": 46.28,
+          "mode": "car",
+          "minutes": 104
+        }
+      ],
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 47.2,
+        "from_last_km": 46.3
+      },
       "total_score": 43.3,
       "center": [
         35.669968,
@@ -67,68 +105,46 @@
       "id": "osm-fukui-02",
       "area": "fukui",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "福井県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 179,
-      "total_score": 43.3,
-      "center": [
-        35.509959,
-        135.814067
-      ],
-      "spots": [
+      "course": "half_day",
+      "title": "福井県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 244,
+      "legs": [
         {
-          "place_id": "osm-node-12099560849",
-          "name": "後瀬山城",
-          "category": "史跡",
-          "lat": 35.4882833,
-          "lng": 135.739073,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "福井駅",
+          "to": "旧森田銀行本店",
+          "distance_km": 18.09,
+          "mode": "car",
+          "minutes": 41
         },
         {
-          "place_id": "osm-node-12099972799",
-          "name": "若狭国分寺跡",
-          "category": "史跡",
-          "lat": 35.4798386,
-          "lng": 135.7885758,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "旧森田銀行本店",
+          "to": "芝政ワールド",
+          "distance_km": 4.86,
+          "mode": "car",
+          "minutes": 11
         },
         {
-          "place_id": "osm-node-11211378864",
-          "name": "三方石観世音",
-          "category": "観光名所",
-          "lat": 35.5617549,
-          "lng": 135.9145508,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "芝政ワールド",
+          "to": "龍沢寺",
+          "distance_km": 9.58,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "龍沢寺",
+          "to": "福井駅",
+          "distance_km": 15.33,
+          "mode": "car",
+          "minutes": 35
         }
       ],
-      "coordinates": [
-        [
-          35.4882833,
-          135.739073
-        ],
-        [
-          35.4798386,
-          135.7885758
-        ],
-        [
-          35.5617549,
-          135.9145508
-        ]
-      ]
-    },
-    {
-      "id": "osm-fukui-03",
-      "area": "fukui",
-      "pattern": "half_day",
-      "theme": "nature",
-      "title": "福井県の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 18.1,
+        "from_last_km": 15.3
+      },
       "total_score": 46.7,
       "center": [
         36.220144,
@@ -182,12 +198,159 @@
       ]
     },
     {
+      "id": "osm-fukui-03",
+      "area": "fukui",
+      "pattern": "half_day",
+      "course": "half_day",
+      "title": "福井県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 205,
+      "legs": [
+        {
+          "from": "福井駅",
+          "to": "福井市美術館（アートラボふくい）",
+          "distance_km": 2.75,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "福井市美術館（アートラボふくい）",
+          "to": "西山動物園",
+          "distance_km": 10.93,
+          "mode": "car",
+          "minutes": 25
+        },
+        {
+          "from": "西山動物園",
+          "to": "福井城",
+          "distance_km": 13.27,
+          "mode": "car",
+          "minutes": 30
+        },
+        {
+          "from": "福井城",
+          "to": "福井駅",
+          "distance_km": 0.42,
+          "mode": "walk",
+          "minutes": 8
+        }
+      ],
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 2.8,
+        "from_last_km": 0.4
+      },
+      "total_score": 50.0,
+      "center": [
+        36.018399,
+        136.211978
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420949300",
+          "name": "福井市美術館（アートラボふくい）",
+          "category": "博物館",
+          "lat": 36.039026,
+          "lng": 136.234124,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2014668815",
+          "name": "西山動物園",
+          "category": "動物園",
+          "lat": 35.9506507,
+          "lng": 136.1808967,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3513912530",
+          "name": "福井城",
+          "category": "史跡",
+          "lat": 36.0655194,
+          "lng": 136.2209143,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.039026,
+          136.234124
+        ],
+        [
+          35.9506507,
+          136.1808967
+        ],
+        [
+          36.0655194,
+          136.2209143
+        ]
+      ]
+    },
+    {
       "id": "osm-fukui-04",
       "area": "fukui",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "福井県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 274,
+      "estimated_minutes": 390,
+      "legs": [
+        {
+          "from": "福井駅",
+          "to": "福井県立恐竜博物館",
+          "distance_km": 25.61,
+          "mode": "car",
+          "minutes": 58
+        },
+        {
+          "from": "福井県立恐竜博物館",
+          "to": "開善寺",
+          "distance_km": 2.25,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "開善寺",
+          "to": "みどり亭",
+          "distance_km": 0.89,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "みどり亭",
+          "to": "勝山城博物館",
+          "distance_km": 2.99,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "勝山城博物館",
+          "to": "篠座神社",
+          "distance_km": 8.41,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "篠座神社",
+          "to": "福井駅",
+          "distance_km": 25.97,
+          "mode": "car",
+          "minutes": 58
+        }
+      ],
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 25.6,
+        "from_last_km": 26.0
+      },
       "total_score": 40.0,
       "center": [
         36.043321,
@@ -272,9 +435,60 @@
       "id": "osm-fukui-05",
       "area": "fukui",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "福井県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 271,
+      "estimated_minutes": 385,
+      "legs": [
+        {
+          "from": "福井駅",
+          "to": "テキ6形6号電気機関車",
+          "distance_km": 24.2,
+          "mode": "car",
+          "minutes": 54
+        },
+        {
+          "from": "テキ6形6号電気機関車",
+          "to": "ト61形68号無蓋貨車",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "ト61形68号無蓋貨車",
+          "to": "みどり亭",
+          "distance_km": 0.05,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "みどり亭",
+          "to": "若宮大杉",
+          "distance_km": 4.91,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "若宮大杉",
+          "to": "JR金沢支社 最後の腕木式信号機",
+          "distance_km": 7.64,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "JR金沢支社 最後の腕木式信号機",
+          "to": "福井駅",
+          "distance_km": 26.16,
+          "mode": "car",
+          "minutes": 59
+        }
+      ],
+      "start": {
+        "name": "福井駅",
+        "lat": 36.062,
+        "lng": 136.2227,
+        "to_first_km": 24.2,
+        "from_last_km": 26.2
+      },
       "total_score": 30.0,
       "center": [
         36.038843,

@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:48.917279+00:00",
+  "generated_at": "2026-10-12T04:55:31.825474+00:00",
   "area": "gunma",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-gunma-01",
       "area": "gunma",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "群馬県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 147,
+      "course": "full_day",
+      "title": "群馬県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 346,
+      "legs": [
+        {
+          "from": "前橋駅",
+          "to": "田中正造記念館",
+          "distance_km": 44.41,
+          "mode": "car",
+          "minutes": 99
+        },
+        {
+          "from": "田中正造記念館",
+          "to": "宝生寺",
+          "distance_km": 4.25,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "宝生寺",
+          "to": "赤城神社",
+          "distance_km": 0.53,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "赤城神社",
+          "to": "前橋駅",
+          "distance_km": 41.25,
+          "mode": "car",
+          "minutes": 92
+        }
+      ],
+      "start": {
+        "name": "前橋駅",
+        "lat": 36.38321,
+        "lng": 139.07264,
+        "to_first_km": 44.4,
+        "from_last_km": 41.2
+      },
       "total_score": 43.3,
       "center": [
         36.26655,
@@ -67,9 +105,46 @@
       "id": "osm-gunma-02",
       "area": "gunma",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "群馬県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 185,
+      "estimated_minutes": 257,
+      "legs": [
+        {
+          "from": "前橋駅",
+          "to": "コノドント館",
+          "distance_km": 18.99,
+          "mode": "car",
+          "minutes": 43
+        },
+        {
+          "from": "コノドント館",
+          "to": "太田市立藪塚本町歴史民俗資料館",
+          "distance_km": 9.03,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "太田市立藪塚本町歴史民俗資料館",
+          "to": "相川考古館",
+          "distance_km": 12.7,
+          "mode": "car",
+          "minutes": 29
+        },
+        {
+          "from": "相川考古館",
+          "to": "前橋駅",
+          "distance_km": 12.83,
+          "mode": "car",
+          "minutes": 29
+        }
+      ],
+      "start": {
+        "name": "前橋駅",
+        "lat": 36.38321,
+        "lng": 139.07264,
+        "to_first_km": 19.0,
+        "from_last_km": 12.8
+      },
       "total_score": 50.0,
       "center": [
         36.372419,
@@ -126,9 +201,46 @@
       "id": "osm-gunma-03",
       "area": "gunma",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "群馬県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 179,
+      "estimated_minutes": 224,
+      "legs": [
+        {
+          "from": "前橋駅",
+          "to": "水と緑と詩のまち前橋文学館",
+          "distance_km": 1.19,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "水と緑と詩のまち前橋文学館",
+          "to": "群馬県立日本絹の里",
+          "distance_km": 7.53,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "群馬県立日本絹の里",
+          "to": "竹久夢二伊香保記念館",
+          "distance_km": 11.76,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "竹久夢二伊香保記念館",
+          "to": "前橋駅",
+          "distance_km": 18.41,
+          "mode": "car",
+          "minutes": 42
+        }
+      ],
+      "start": {
+        "name": "前橋駅",
+        "lat": 36.38321,
+        "lng": 139.07264,
+        "to_first_km": 1.2,
+        "from_last_km": 18.4
+      },
       "total_score": 50.0,
       "center": [
         36.433699,
@@ -185,9 +297,60 @@
       "id": "osm-gunma-04",
       "area": "gunma",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "群馬県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 273,
+      "estimated_minutes": 452,
+      "legs": [
+        {
+          "from": "前橋駅",
+          "to": "常楽寺",
+          "distance_km": 41.22,
+          "mode": "car",
+          "minutes": 92
+        },
+        {
+          "from": "常楽寺",
+          "to": "青石地蔵板碑",
+          "distance_km": 3.2,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "青石地蔵板碑",
+          "to": "三の丸商店",
+          "distance_km": 0.37,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "三の丸商店",
+          "to": "製粉ミュージアム",
+          "distance_km": 0.35,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "製粉ミュージアム",
+          "to": "小泉城",
+          "distance_km": 10.18,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "小泉城",
+          "to": "前橋駅",
+          "distance_km": 33.45,
+          "mode": "car",
+          "minutes": 75
+        }
+      ],
+      "start": {
+        "name": "前橋駅",
+        "lat": 36.38321,
+        "lng": 139.07264,
+        "to_first_km": 41.2,
+        "from_last_km": 33.4
+      },
       "total_score": 40.0,
       "center": [
         36.257003,
@@ -272,9 +435,60 @@
       "id": "osm-gunma-05",
       "area": "gunma",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "群馬県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 299,
+      "estimated_minutes": 480,
+      "legs": [
+        {
+          "from": "前橋駅",
+          "to": "愛宕祠",
+          "distance_km": 44.16,
+          "mode": "car",
+          "minutes": 99
+        },
+        {
+          "from": "愛宕祠",
+          "to": "雷電神社",
+          "distance_km": 6.82,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "雷電神社",
+          "to": "三の丸商店",
+          "distance_km": 7.59,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "三の丸商店",
+          "to": "熊野神社",
+          "distance_km": 2.62,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "熊野神社",
+          "to": "高正寺",
+          "distance_km": 8.64,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "高正寺",
+          "to": "前橋駅",
+          "distance_km": 36.79,
+          "mode": "car",
+          "minutes": 82
+        }
+      ],
+      "start": {
+        "name": "前橋駅",
+        "lat": 36.38321,
+        "lng": 139.07264,
+        "to_first_km": 44.2,
+        "from_last_km": 36.8
+      },
       "total_score": 36.0,
       "center": [
         36.244672,

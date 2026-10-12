@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:48.428346+00:00",
+  "generated_at": "2026-10-12T04:55:31.205894+00:00",
   "area": "tochigi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-tochigi-01",
       "area": "tochigi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "栃木県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 188,
+      "estimated_minutes": 285,
+      "legs": [
+        {
+          "from": "宇都宮駅",
+          "to": "二条城跡",
+          "distance_km": 18.17,
+          "mode": "car",
+          "minutes": 41
+        },
+        {
+          "from": "二条城跡",
+          "to": "おもちゃのまちバンダイミュージアム",
+          "distance_km": 10.15,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "おもちゃのまちバンダイミュージアム",
+          "to": "とちぎ山車会館",
+          "distance_km": 13.31,
+          "mode": "car",
+          "minutes": 30
+        },
+        {
+          "from": "とちぎ山車会館",
+          "to": "宇都宮駅",
+          "distance_km": 24.75,
+          "mode": "car",
+          "minutes": 56
+        }
+      ],
+      "start": {
+        "name": "宇都宮駅",
+        "lat": 36.5592,
+        "lng": 139.8985,
+        "to_first_km": 18.2,
+        "from_last_km": 24.8
+      },
       "total_score": 58.3,
       "center": [
         36.439802,
@@ -67,9 +105,46 @@
       "id": "osm-tochigi-02",
       "area": "tochigi",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "栃木県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 181,
+      "course": "full_day",
+      "title": "栃木県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 305,
+      "legs": [
+        {
+          "from": "宇都宮駅",
+          "to": "Western village",
+          "distance_km": 29.12,
+          "mode": "car",
+          "minutes": 65
+        },
+        {
+          "from": "Western village",
+          "to": "滝尾神社",
+          "distance_km": 10.58,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "滝尾神社",
+          "to": "報徳二宮神社",
+          "distance_km": 9.74,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "報徳二宮神社",
+          "to": "宇都宮駅",
+          "distance_km": 26.27,
+          "mode": "car",
+          "minutes": 59
+        }
+      ],
+      "start": {
+        "name": "宇都宮駅",
+        "lat": 36.5592,
+        "lng": 139.8985,
+        "to_first_km": 29.1,
+        "from_last_km": 26.3
+      },
       "total_score": 43.3,
       "center": [
         36.754758,
@@ -126,9 +201,46 @@
       "id": "osm-tochigi-03",
       "area": "tochigi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "栃木県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 145,
+      "course": "full_day",
+      "title": "栃木県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 384,
+      "legs": [
+        {
+          "from": "宇都宮駅",
+          "to": "大麻博物館",
+          "distance_km": 52.69,
+          "mode": "car",
+          "minutes": 118
+        },
+        {
+          "from": "大麻博物館",
+          "to": "那須オルゴール美術館",
+          "distance_km": 2.49,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "那須オルゴール美術館",
+          "to": "那須とりっくあーとぴあ",
+          "distance_km": 1.57,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "那須とりっくあーとぴあ",
+          "to": "宇都宮駅",
+          "distance_km": 53.91,
+          "mode": "car",
+          "minutes": 121
+        }
+      ],
+      "start": {
+        "name": "宇都宮駅",
+        "lat": 36.5592,
+        "lng": 139.8985,
+        "to_first_km": 52.7,
+        "from_last_km": 53.9
+      },
       "total_score": 50.0,
       "center": [
         37.032228,
@@ -185,9 +297,60 @@
       "id": "osm-tochigi-04",
       "area": "tochigi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "栃木県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 309,
+      "estimated_minutes": 396,
+      "legs": [
+        {
+          "from": "宇都宮駅",
+          "to": "益子参考館",
+          "distance_km": 21.21,
+          "mode": "car",
+          "minutes": 48
+        },
+        {
+          "from": "益子参考館",
+          "to": "能仁寺",
+          "distance_km": 5.6,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "能仁寺",
+          "to": "益子焼カフェレストラン 壺々炉",
+          "distance_km": 4.68,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "益子焼カフェレストラン 壺々炉",
+          "to": "市貝町立歴史民俗資料館",
+          "distance_km": 7.3,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "市貝町立歴史民俗資料館",
+          "to": "真岡市科学教育センター",
+          "distance_km": 12.22,
+          "mode": "car",
+          "minutes": 28
+        },
+        {
+          "from": "真岡市科学教育センター",
+          "to": "宇都宮駅",
+          "distance_km": 17.19,
+          "mode": "car",
+          "minutes": 39
+        }
+      ],
+      "start": {
+        "name": "宇都宮駅",
+        "lat": 36.5592,
+        "lng": 139.8985,
+        "to_first_km": 21.2,
+        "from_last_km": 17.2
+      },
       "total_score": 44.0,
       "center": [
         36.466766,
@@ -272,9 +435,60 @@
       "id": "osm-tochigi-05",
       "area": "tochigi",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "栃木県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 288,
+      "estimated_minutes": 392,
+      "legs": [
+        {
+          "from": "宇都宮駅",
+          "to": "大中寺",
+          "distance_km": 29.05,
+          "mode": "car",
+          "minutes": 65
+        },
+        {
+          "from": "大中寺",
+          "to": "大平山神社",
+          "distance_km": 0.52,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "大平山神社",
+          "to": "サイゼリヤ",
+          "distance_km": 6.62,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "国分寺",
+          "distance_km": 5.5,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "国分寺",
+          "to": "壬生町おもちゃ博物館",
+          "distance_km": 7.92,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "壬生町おもちゃ博物館",
+          "to": "宇都宮駅",
+          "distance_km": 13.5,
+          "mode": "car",
+          "minutes": 31
+        }
+      ],
+      "start": {
+        "name": "宇都宮駅",
+        "lat": 36.5592,
+        "lng": 139.8985,
+        "to_first_km": 29.1,
+        "from_last_km": 13.5
+      },
       "total_score": 42.0,
       "center": [
         36.3943,

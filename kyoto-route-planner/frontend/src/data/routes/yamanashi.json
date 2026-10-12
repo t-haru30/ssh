@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:55.467617+00:00",
+  "generated_at": "2026-10-12T04:55:40.868905+00:00",
   "area": "yamanashi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-yamanashi-01",
       "area": "yamanashi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "山梨県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 179,
+      "estimated_minutes": 241,
+      "legs": [
+        {
+          "from": "甲府駅",
+          "to": "清水寺",
+          "distance_km": 11.7,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "清水寺",
+          "to": "山梨県立博物館",
+          "distance_km": 8.78,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "山梨県立博物館",
+          "to": "甘草屋敷",
+          "distance_km": 10.72,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "甘草屋敷",
+          "to": "甲府駅",
+          "distance_km": 15.63,
+          "mode": "car",
+          "minutes": 35
+        }
+      ],
+      "start": {
+        "name": "甲府駅",
+        "lat": 35.667,
+        "lng": 138.5686,
+        "to_first_km": 11.7,
+        "from_last_km": 15.6
+      },
       "total_score": 55.0,
       "center": [
         35.686639,
@@ -67,9 +105,46 @@
       "id": "osm-yamanashi-02",
       "area": "yamanashi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "山梨県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 176,
+      "estimated_minutes": 278,
+      "legs": [
+        {
+          "from": "甲府駅",
+          "to": "平山郁夫シルクロード美術館",
+          "distance_km": 30.23,
+          "mode": "car",
+          "minutes": 68
+        },
+        {
+          "from": "平山郁夫シルクロード美術館",
+          "to": "清春白樺美術館",
+          "distance_km": 6.36,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "清春白樺美術館",
+          "to": "新府城跡",
+          "distance_km": 11.6,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "新府城跡",
+          "to": "甲府駅",
+          "distance_km": 15.02,
+          "mode": "car",
+          "minutes": 34
+        }
+      ],
+      "start": {
+        "name": "甲府駅",
+        "lat": 35.667,
+        "lng": 138.5686,
+        "to_first_km": 30.2,
+        "from_last_km": 15.0
+      },
       "total_score": 50.0,
       "center": [
         35.812382,
@@ -126,9 +201,46 @@
       "id": "osm-yamanashi-03",
       "area": "yamanashi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "山梨県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 166,
+      "course": "full_day",
+      "title": "山梨県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 310,
+      "legs": [
+        {
+          "from": "甲府駅",
+          "to": "甲斐黄金村・湯之奥金山博物館",
+          "distance_km": 28.42,
+          "mode": "car",
+          "minutes": 64
+        },
+        {
+          "from": "甲斐黄金村・湯之奥金山博物館",
+          "to": "身延町歴史民俗資料館",
+          "distance_km": 4.0,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "身延町歴史民俗資料館",
+          "to": "本遠寺",
+          "distance_km": 9.85,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "本遠寺",
+          "to": "甲府駅",
+          "distance_km": 35.66,
+          "mode": "car",
+          "minutes": 80
+        }
+      ],
+      "start": {
+        "name": "甲府駅",
+        "lat": 35.667,
+        "lng": 138.5686,
+        "to_first_km": 28.4,
+        "from_last_km": 35.7
+      },
       "total_score": 43.3,
       "center": [
         35.412314,
@@ -185,9 +297,60 @@
       "id": "osm-yamanashi-04",
       "area": "yamanashi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "山梨県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 313,
+      "estimated_minutes": 441,
+      "legs": [
+        {
+          "from": "甲府駅",
+          "to": "河口湖オルゴールの森美術館",
+          "distance_km": 24.21,
+          "mode": "car",
+          "minutes": 54
+        },
+        {
+          "from": "河口湖オルゴールの森美術館",
+          "to": "小室浅間神社",
+          "distance_km": 4.37,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "小室浅間神社",
+          "to": "天下茶屋",
+          "distance_km": 7.07,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "天下茶屋",
+          "to": "妙法寺",
+          "distance_km": 5.99,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "妙法寺",
+          "to": "都留市博物館ミュージアム都留",
+          "distance_km": 14.63,
+          "mode": "car",
+          "minutes": 33
+        },
+        {
+          "from": "都留市博物館ミュージアム都留",
+          "to": "甲府駅",
+          "distance_km": 33.08,
+          "mode": "car",
+          "minutes": 74
+        }
+      ],
+      "start": {
+        "name": "甲府駅",
+        "lat": 35.667,
+        "lng": 138.5686,
+        "to_first_km": 24.2,
+        "from_last_km": 33.1
+      },
       "total_score": 46.0,
       "center": [
         35.526632,
@@ -272,9 +435,60 @@
       "id": "osm-yamanashi-05",
       "area": "yamanashi",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "山梨県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 306,
+      "estimated_minutes": 446,
+      "legs": [
+        {
+          "from": "甲府駅",
+          "to": "山ノ神のフジ",
+          "distance_km": 29.01,
+          "mode": "car",
+          "minutes": 65
+        },
+        {
+          "from": "山ノ神のフジ",
+          "to": "月江寺",
+          "distance_km": 3.74,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "月江寺",
+          "to": "天下茶屋",
+          "distance_km": 7.16,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "天下茶屋",
+          "to": "新倉富士浅間神社",
+          "distance_km": 6.41,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "新倉富士浅間神社",
+          "to": "都留市商家資料館",
+          "distance_km": 11.26,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "都留市商家資料館",
+          "to": "甲府駅",
+          "distance_km": 33.27,
+          "mode": "car",
+          "minutes": 75
+        }
+      ],
+      "start": {
+        "name": "甲府駅",
+        "lat": 35.667,
+        "lng": 138.5686,
+        "to_first_km": 29.0,
+        "from_last_km": 33.3
+      },
       "total_score": 44.0,
       "center": [
         35.523484,

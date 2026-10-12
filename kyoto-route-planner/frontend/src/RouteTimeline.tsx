@@ -103,17 +103,36 @@ function buildDistanceSegments(
   return durations;
 }
 
+export type TimelinePlan = {
+  legs: Array<{ mode: "public_transport" | "car" | "walk"; minutes: number }>;
+  stayMinutes: number[];
+  lunchIndexes?: number[];
+};
+
+const PLAN_MODE_LABEL = { walk: "徒歩", car: "車", public_transport: "公共交通" } as const;
+
 export function buildRouteTimeline(
   origin: Origin,
   places: Place[],
   departureTime: string | null,
   totalMinutes: number | null,
+  plan?: TimelinePlan,
 ): TimelineItem[] {
   const departureParts = departureTime?.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
   let currentMinutes = departureParts
     ? Number(departureParts[1]) * 60 + Number(departureParts[2])
     : null;
-  const durations = buildDistanceSegments(origin, places, totalMinutes);
+  const usePlan = plan !== undefined
+    && plan.legs.length === places.length + 1
+    && plan.stayMinutes.length === places.length;
+  const durations = usePlan
+    ? plan.legs.map((leg) => leg.minutes)
+    : buildDistanceSegments(origin, places, totalMinutes);
+  const legSummary = (index: number, duration: number | null) => {
+    if (usePlan) return `${PLAN_MODE_LABEL[plan.legs[index].mode]}で約${formatDuration(duration)}`;
+    return duration === null ? "公共交通・徒歩で移動" : `公共交通・徒歩で約${formatDuration(duration)}`;
+  };
+  const legMode = (index: number) => (usePlan ? plan.legs[index].mode : "public_transport" as const);
   const formatTime = (minutes: number | null) => (
     minutes === null
       ? null
@@ -137,15 +156,14 @@ export function buildRouteTimeline(
       type: "transit",
       from_name: index === 0 ? origin.name : places[index - 1].name,
       to_name: place.name,
-      mode: "public_transport",
+      mode: legMode(index),
       start_time: duration === null ? null : startTime,
       end_time: duration === null ? null : formatTime(currentMinutes),
       duration_minutes: duration,
       is_estimate: true,
-      summary: duration === null
-        ? "移動"
-        : `移動 約${formatDuration(duration)}`,
+      summary: legSummary(index, duration),
     });
+    const stay = usePlan ? plan.stayMinutes[index] : 90;
     items.push({
       type: "spot",
       role: "stop",
@@ -153,26 +171,26 @@ export function buildRouteTimeline(
       name: place.name,
       category: place.category,
       time: formatTime(currentMinutes),
-      stay_minutes: 90,
+      stay_minutes: stay,
+      ...(usePlan && plan.lunchIndexes?.includes(index) ? { label: "昼食" } : {}),
     });
-    if (currentMinutes !== null) currentMinutes += 90;
+    if (currentMinutes !== null) currentMinutes += stay;
   });
 
-  const returnDuration = durations[durations.length - 1] ?? null;
+  const returnIndex = durations.length - 1;
+  const returnDuration = durations[returnIndex] ?? null;
   const returnStartTime = formatTime(currentMinutes);
   if (currentMinutes !== null && returnDuration !== null) currentMinutes += returnDuration;
   items.push({
     type: "transit",
     from_name: places.length > 0 ? places[places.length - 1].name : origin.name,
     to_name: origin.name,
-    mode: "public_transport",
+    mode: legMode(returnIndex),
     start_time: returnDuration === null ? null : returnStartTime,
     end_time: returnDuration === null ? null : formatTime(currentMinutes),
     duration_minutes: returnDuration,
     is_estimate: true,
-    summary: returnDuration === null
-      ? "移動"
-      : `移動 約${formatDuration(returnDuration)}`,
+    summary: legSummary(returnIndex, returnDuration),
   });
   items.push({
     type: "spot",

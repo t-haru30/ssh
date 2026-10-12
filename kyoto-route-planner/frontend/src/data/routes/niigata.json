@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:53.231332+00:00",
+  "generated_at": "2026-10-12T04:55:37.949539+00:00",
   "area": "niigata",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-niigata-01",
       "area": "niigata",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "新潟県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 160,
+      "estimated_minutes": 262,
+      "legs": [
+        {
+          "from": "新潟駅",
+          "to": "清水寺",
+          "distance_km": 26.78,
+          "mode": "car",
+          "minutes": 60
+        },
+        {
+          "from": "清水寺",
+          "to": "新潟県埋蔵文化財センター",
+          "distance_km": 9.63,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "新潟県埋蔵文化財センター",
+          "to": "中野邸美術館",
+          "distance_km": 1.28,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "中野邸美術館",
+          "to": "新潟駅",
+          "distance_km": 18.64,
+          "mode": "car",
+          "minutes": 42
+        }
+      ],
+      "start": {
+        "name": "新潟駅",
+        "lat": 37.9122,
+        "lng": 139.0617,
+        "to_first_km": 26.8,
+        "from_last_km": 18.6
+      },
       "total_score": 51.7,
       "center": [
         37.733367,
@@ -67,9 +105,46 @@
       "id": "osm-niigata-02",
       "area": "niigata",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "新潟県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
+      "estimated_minutes": 178,
+      "legs": [
+        {
+          "from": "新潟駅",
+          "to": "安吾風の館",
+          "distance_km": 2.64,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "安吾風の館",
+          "to": "知足美術館",
+          "distance_km": 3.45,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "知足美術館",
+          "to": "巻菱湖記念時代館",
+          "distance_km": 8.34,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "巻菱湖記念時代館",
+          "to": "新潟駅",
+          "distance_km": 4.42,
+          "mode": "car",
+          "minutes": 10
+        }
+      ],
+      "start": {
+        "name": "新潟駅",
+        "lat": 37.9122,
+        "lng": 139.0617,
+        "to_first_km": 2.6,
+        "from_last_km": 4.4
+      },
       "total_score": 43.3,
       "center": [
         37.918952,
@@ -126,9 +201,46 @@
       "id": "osm-niigata-03",
       "area": "niigata",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "新潟県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 166,
+      "course": "full_day",
+      "title": "新潟県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 303,
+      "legs": [
+        {
+          "from": "新潟駅",
+          "to": "新発田城",
+          "distance_km": 23.62,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "新発田城",
+          "to": "熊野若宮神社",
+          "distance_km": 12.97,
+          "mode": "car",
+          "minutes": 29
+        },
+        {
+          "from": "熊野若宮神社",
+          "to": "大輪寺",
+          "distance_km": 0.48,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "大輪寺",
+          "to": "新潟駅",
+          "distance_km": 34.31,
+          "mode": "car",
+          "minutes": 77
+        }
+      ],
+      "start": {
+        "name": "新潟駅",
+        "lat": 37.9122,
+        "lng": 139.0617,
+        "to_first_km": 23.6,
+        "from_last_km": 34.3
+      },
       "total_score": 43.3,
       "center": [
         38.021697,
@@ -185,9 +297,60 @@
       "id": "osm-niigata-04",
       "area": "niigata",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "新潟県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 250,
+      "estimated_minutes": 270,
+      "legs": [
+        {
+          "from": "新潟駅",
+          "to": "新潟市會津八一記念館",
+          "distance_km": 0.86,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "新潟市會津八一記念館",
+          "to": "敦井美術館",
+          "distance_km": 0.54,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "敦井美術館",
+          "to": "瓢亭（旧花岡家住宅）",
+          "distance_km": 1.63,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "瓢亭（旧花岡家住宅）",
+          "to": "新潟市マンガの家",
+          "distance_km": 0.45,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "新潟市マンガの家",
+          "to": "新潟市マンガ・アニメ情報館",
+          "distance_km": 0.89,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "新潟市マンガ・アニメ情報館",
+          "to": "新潟駅",
+          "distance_km": 0.86,
+          "mode": "car",
+          "minutes": 2
+        }
+      ],
+      "start": {
+        "name": "新潟駅",
+        "lat": 37.9122,
+        "lng": 139.0617,
+        "to_first_km": 0.9,
+        "from_last_km": 0.9
+      },
       "total_score": 40.0,
       "center": [
         37.918863,
@@ -272,9 +435,60 @@
       "id": "osm-niigata-05",
       "area": "niigata",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "新潟県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 293,
+      "estimated_minutes": 323,
+      "legs": [
+        {
+          "from": "新潟駅",
+          "to": "大形神社",
+          "distance_km": 4.52,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "大形神社",
+          "to": "即往寺",
+          "distance_km": 5.62,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "即往寺",
+          "to": "瓢亭（旧花岡家住宅）",
+          "distance_km": 4.82,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "瓢亭（旧花岡家住宅）",
+          "to": "諏訪神社",
+          "distance_km": 3.77,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "諏訪神社",
+          "to": "金玉神社",
+          "distance_km": 8.96,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "金玉神社",
+          "to": "新潟駅",
+          "distance_km": 8.36,
+          "mode": "car",
+          "minutes": 19
+        }
+      ],
+      "start": {
+        "name": "新潟駅",
+        "lat": 37.9122,
+        "lng": 139.0617,
+        "to_first_km": 4.5,
+        "from_last_km": 8.4
+      },
       "total_score": 36.0,
       "center": [
         37.900107,

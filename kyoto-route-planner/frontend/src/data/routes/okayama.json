@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:04.452300+00:00",
+  "generated_at": "2026-10-12T04:55:53.079705+00:00",
   "area": "okayama",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-okayama-01",
       "area": "okayama",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "岡山県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 281,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "妙福寺 観音院 東寺",
+          "distance_km": 23.74,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "妙福寺 観音院 東寺",
+          "to": "夢二郷土美術館 夢二生家記念館",
+          "distance_km": 6.71,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "夢二郷土美術館 夢二生家記念館",
+          "to": "柴田錬三郎文学碑",
+          "distance_km": 8.58,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "柴田錬三郎文学碑",
+          "to": "岡山駅",
+          "distance_km": 25.71,
+          "mode": "car",
+          "minutes": 58
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 23.7,
+        "from_last_km": 25.7
+      },
       "total_score": 53.3,
       "center": [
         34.659909,
@@ -67,9 +105,46 @@
       "id": "osm-okayama-02",
       "area": "okayama",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "岡山県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 149,
+      "estimated_minutes": 165,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "animo museum 有森裕子資料館",
+          "distance_km": 4.99,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "animo museum 有森裕子資料館",
+          "to": "夢二郷土美術館本館",
+          "distance_km": 4.11,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "夢二郷土美術館本館",
+          "to": "岡山シティミュージアム",
+          "distance_km": 1.79,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "岡山シティミュージアム",
+          "to": "岡山駅",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 4
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 5.0,
+        "from_last_km": 0.2
+      },
       "total_score": 50.0,
       "center": [
         34.681447,
@@ -126,9 +201,46 @@
       "id": "osm-okayama-03",
       "area": "okayama",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "岡山県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 139,
+      "course": "full_day",
+      "title": "岡山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 343,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "つやま自然のふしぎ館",
+          "distance_km": 44.58,
+          "mode": "car",
+          "minutes": 100
+        },
+        {
+          "from": "つやま自然のふしぎ館",
+          "to": "津山城跡",
+          "distance_km": 0.19,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "津山城跡",
+          "to": "城東むかし町家",
+          "distance_km": 1.1,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "城東むかし町家",
+          "to": "岡山駅",
+          "distance_km": 45.01,
+          "mode": "car",
+          "minutes": 101
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 44.6,
+        "from_last_km": 45.0
+      },
       "total_score": 50.0,
       "center": [
         35.062362,
@@ -185,9 +297,60 @@
       "id": "osm-okayama-04",
       "area": "okayama",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "岡山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 278,
+      "estimated_minutes": 338,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "備前長船刀剣博物館",
+          "distance_km": 18.31,
+          "mode": "car",
+          "minutes": 41
+        },
+        {
+          "from": "備前長船刀剣博物館",
+          "to": "亀山城",
+          "distance_km": 6.65,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "亀山城",
+          "to": "かつ庵",
+          "distance_km": 1.31,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "かつ庵",
+          "to": "窪八幡宮",
+          "distance_km": 4.74,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "窪八幡宮",
+          "to": "大多羅寄宮跡",
+          "distance_km": 3.88,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "大多羅寄宮跡",
+          "to": "岡山駅",
+          "distance_km": 8.26,
+          "mode": "car",
+          "minutes": 19
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 18.3,
+        "from_last_km": 8.3
+      },
       "total_score": 46.0,
       "center": [
         34.6948,
@@ -272,9 +435,60 @@
       "id": "osm-okayama-05",
       "area": "okayama",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "岡山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 285,
+      "estimated_minutes": 346,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "両宮山古墳",
+          "distance_km": 11.21,
+          "mode": "car",
+          "minutes": 25
+        },
+        {
+          "from": "両宮山古墳",
+          "to": "牟佐大塚古墳",
+          "distance_km": 2.85,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "牟佐大塚古墳",
+          "to": "かつ庵",
+          "distance_km": 6.95,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "かつ庵",
+          "to": "浦間茶臼山古墳",
+          "distance_km": 1.49,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "浦間茶臼山古墳",
+          "to": "大賀島寺",
+          "distance_km": 7.74,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "大賀島寺",
+          "to": "岡山駅",
+          "distance_km": 15.88,
+          "mode": "car",
+          "minutes": 36
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 11.2,
+        "from_last_km": 15.9
+      },
       "total_score": 42.0,
       "center": [
         34.705528,

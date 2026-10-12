@@ -17,9 +17,15 @@ describe("RouteDetailModal", () => {
       id: "kyoto-sample",
       area: "kyoto",
       pattern: "half_day",
+      course: "half_day",
       theme: "temple",
       title: "京都の寺社を巡る",
       estimated_minutes: 120,
+      legs: [
+        { from: "京都駅", to: "伏見稲荷大社", distance_km: 3, mode: "public_transport", minutes: 10 },
+        { from: "伏見稲荷大社", to: "京都駅", distance_km: 3, mode: "public_transport", minutes: 10 },
+      ],
+      start: { name: "京都駅", lat: 34.985849, lng: 135.758766, to_first_km: 3, from_last_km: 3 },
       total_score: 1,
       center: [34.985849, 135.758766],
       spots: [{
@@ -111,9 +117,15 @@ describe("RouteDetailModal", () => {
       id: "kyoto-sample",
       area: "kyoto",
       pattern: "half_day",
+      course: "half_day",
       theme: "temple",
       title: "京都の寺社を巡る",
       estimated_minutes: 120,
+      legs: [
+        { from: "京都駅", to: "伏見稲荷大社", distance_km: 3, mode: "public_transport", minutes: 10 },
+        { from: "伏見稲荷大社", to: "京都駅", distance_km: 3, mode: "public_transport", minutes: 10 },
+      ],
+      start: { name: "京都駅", lat: 34.985849, lng: 135.758766, to_first_km: 3, from_last_km: 3 },
       total_score: 1,
       center: [34.985849, 135.758766],
       spots: [{

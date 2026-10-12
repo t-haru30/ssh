@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:53:25.635419+00:00",
+  "generated_at": "2026-10-12T04:56:02.150660+00:00",
   "prefectures": [
     {
       "id": "hokkaido",
       "prefecture_code": "01",
       "name": "北海道",
       "center": [
-        43.307711,
-        141.584475
+        43.123534,
+        141.341601
       ],
       "route_count": 5,
       "file": "hokkaido.json"
@@ -29,8 +29,8 @@
       "prefecture_code": "03",
       "name": "岩手県",
       "center": [
-        39.339195,
-        141.622749
+        39.542037,
+        141.221471
       ],
       "route_count": 5,
       "file": "iwate.json"
@@ -40,8 +40,8 @@
       "prefecture_code": "04",
       "name": "宮城県",
       "center": [
-        38.347077,
-        141.076064
+        38.381197,
+        140.95243
       ],
       "route_count": 5,
       "file": "miyagi.json"
@@ -51,8 +51,8 @@
       "prefecture_code": "05",
       "name": "秋田県",
       "center": [
-        39.458039,
-        140.350532
+        39.52548,
+        140.368334
       ],
       "route_count": 5,
       "file": "akita.json"
@@ -62,8 +62,8 @@
       "prefecture_code": "06",
       "name": "山形県",
       "center": [
-        38.387247,
-        140.137993
+        38.290724,
+        140.25447
       ],
       "route_count": 5,
       "file": "yamagata.json"
@@ -73,8 +73,8 @@
       "prefecture_code": "07",
       "name": "福島県",
       "center": [
-        37.504249,
-        140.7439
+        37.558787,
+        140.580353
       ],
       "route_count": 5,
       "file": "fukushima.json"
@@ -84,8 +84,8 @@
       "prefecture_code": "08",
       "name": "茨城県",
       "center": [
-        36.173789,
-        140.402125
+        36.183109,
+        140.446389
       ],
       "route_count": 5,
       "file": "ibaraki.json"
@@ -117,8 +117,8 @@
       "prefecture_code": "11",
       "name": "埼玉県",
       "center": [
-        36.000418,
-        139.556944
+        35.890014,
+        139.689234
       ],
       "route_count": 5,
       "file": "saitama.json"
@@ -128,8 +128,8 @@
       "prefecture_code": "12",
       "name": "千葉県",
       "center": [
-        35.5985,
-        140.195857
+        35.637133,
+        140.126931
       ],
       "route_count": 5,
       "file": "chiba.json"
@@ -150,8 +150,8 @@
       "prefecture_code": "14",
       "name": "神奈川県",
       "center": [
-        35.472969,
-        139.578695
+        35.474834,
+        139.585265
       ],
       "route_count": 5,
       "file": "kanagawa.json"
@@ -183,8 +183,8 @@
       "prefecture_code": "17",
       "name": "石川県",
       "center": [
-        36.778576,
-        136.664324
+        36.546389,
+        136.63286
       ],
       "route_count": 5,
       "file": "ishikawa.json"
@@ -194,8 +194,8 @@
       "prefecture_code": "18",
       "name": "福井県",
       "center": [
-        35.896447,
-        136.214544
+        35.998135,
+        136.294126
       ],
       "route_count": 5,
       "file": "fukui.json"
@@ -227,8 +227,8 @@
       "prefecture_code": "21",
       "name": "岐阜県",
       "center": [
-        35.476605,
-        137.243006
+        35.453397,
+        137.199029
       ],
       "route_count": 5,
       "file": "gifu.json"
@@ -238,8 +238,8 @@
       "prefecture_code": "22",
       "name": "静岡県",
       "center": [
-        34.972232,
-        138.3316
+        35.008496,
+        138.800062
       ],
       "route_count": 5,
       "file": "shizuoka.json"
@@ -304,8 +304,8 @@
       "prefecture_code": "28",
       "name": "兵庫県",
       "center": [
-        34.823956,
-        135.28092
+        34.830264,
+        135.286493
       ],
       "route_count": 5,
       "file": "hyogo.json"
@@ -315,8 +315,8 @@
       "prefecture_code": "29",
       "name": "奈良県",
       "center": [
-        34.612948,
-        135.745847
+        34.668549,
+        135.756101
       ],
       "route_count": 5,
       "file": "nara.json"
@@ -326,8 +326,8 @@
       "prefecture_code": "30",
       "name": "和歌山県",
       "center": [
-        33.780316,
-        135.457574
+        34.213976,
+        135.253372
       ],
       "route_count": 5,
       "file": "wakayama.json"
@@ -337,8 +337,8 @@
       "prefecture_code": "31",
       "name": "鳥取県",
       "center": [
-        35.442981,
-        133.999431
+        35.446883,
+        134.185536
       ],
       "route_count": 5,
       "file": "tottori.json"
@@ -348,8 +348,8 @@
       "prefecture_code": "32",
       "name": "島根県",
       "center": [
-        35.377057,
-        132.987039
+        35.43119,
+        133.053623
       ],
       "route_count": 5,
       "file": "shimane.json"
@@ -370,8 +370,8 @@
       "prefecture_code": "34",
       "name": "広島県",
       "center": [
-        34.426118,
-        132.453631
+        34.350935,
+        132.430414
       ],
       "route_count": 5,
       "file": "hiroshima.json"
@@ -392,8 +392,8 @@
       "prefecture_code": "36",
       "name": "徳島県",
       "center": [
-        33.874988,
-        134.384509
+        33.904349,
+        134.541733
       ],
       "route_count": 5,
       "file": "tokushima.json"
@@ -403,8 +403,8 @@
       "prefecture_code": "37",
       "name": "香川県",
       "center": [
-        34.381041,
-        133.992358
+        34.327535,
+        134.000253
       ],
       "route_count": 5,
       "file": "kagawa.json"
@@ -414,8 +414,8 @@
       "prefecture_code": "38",
       "name": "愛媛県",
       "center": [
-        33.80149,
-        132.890395
+        33.927218,
+        132.932418
       ],
       "route_count": 5,
       "file": "ehime.json"
@@ -425,8 +425,8 @@
       "prefecture_code": "39",
       "name": "高知県",
       "center": [
-        33.380547,
-        133.310115
+        33.554089,
+        133.391152
       ],
       "route_count": 5,
       "file": "kochi.json"
@@ -436,8 +436,8 @@
       "prefecture_code": "40",
       "name": "福岡県",
       "center": [
-        33.555742,
-        130.508283
+        33.596623,
+        130.40887
       ],
       "route_count": 5,
       "file": "fukuoka.json"
@@ -458,8 +458,8 @@
       "prefecture_code": "42",
       "name": "長崎県",
       "center": [
-        32.896575,
-        129.971043
+        32.904952,
+        129.964184
       ],
       "route_count": 5,
       "file": "nagasaki.json"
@@ -469,8 +469,8 @@
       "prefecture_code": "43",
       "name": "熊本県",
       "center": [
-        32.784966,
-        130.760794
+        32.86662,
+        130.83611
       ],
       "route_count": 5,
       "file": "kumamoto.json"
@@ -491,8 +491,8 @@
       "prefecture_code": "45",
       "name": "宮崎県",
       "center": [
-        32.204433,
-        131.493247
+        31.861252,
+        131.254515
       ],
       "route_count": 5,
       "file": "miyazaki.json"
@@ -513,8 +513,8 @@
       "prefecture_code": "47",
       "name": "沖縄県",
       "center": [
-        26.188553,
-        128.432447
+        26.288841,
+        127.728994
       ],
       "route_count": 5,
       "file": "okinawa.json"

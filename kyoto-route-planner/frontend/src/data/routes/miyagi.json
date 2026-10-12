@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:45.111221+00:00",
+  "generated_at": "2026-10-12T04:55:27.461106+00:00",
   "area": "miyagi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-miyagi-01",
       "area": "miyagi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "宮城県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 161,
+      "estimated_minutes": 189,
+      "legs": [
+        {
+          "from": "仙台駅",
+          "to": "清水寺",
+          "distance_km": 6.52,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "清水寺",
+          "to": "東北福祉大学芹沢銈介美術工芸館",
+          "distance_km": 6.86,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "東北福祉大学芹沢銈介美術工芸館",
+          "to": "カメイ美術館",
+          "distance_km": 4.05,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "カメイ美術館",
+          "to": "仙台駅",
+          "distance_km": 0.65,
+          "mode": "walk",
+          "minutes": 13
+        }
+      ],
+      "start": {
+        "name": "仙台駅",
+        "lat": 38.2606,
+        "lng": 140.8824,
+        "to_first_km": 6.5,
+        "from_last_km": 0.6
+      },
       "total_score": 55.0,
       "center": [
         38.28294,
@@ -67,35 +105,52 @@
       "id": "osm-miyagi-02",
       "area": "miyagi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "宮城県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 194,
-      "total_score": 55.0,
+      "course": "full_day",
+      "title": "宮城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 335,
+      "legs": [
+        {
+          "from": "仙台駅",
+          "to": "石巻市博物館",
+          "distance_km": 43.08,
+          "mode": "car",
+          "minutes": 97
+        },
+        {
+          "from": "石巻市博物館",
+          "to": "石ノ森萬画館",
+          "distance_km": 3.34,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "石ノ森萬画館",
+          "to": "震災遺構門脇小学校",
+          "distance_km": 1.06,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "震災遺構門脇小学校",
+          "to": "仙台駅",
+          "distance_km": 40.93,
+          "mode": "car",
+          "minutes": 92
+        }
+      ],
+      "start": {
+        "name": "仙台駅",
+        "lat": 38.2606,
+        "lng": 140.8824,
+        "to_first_km": 43.1,
+        "from_last_km": 40.9
+      },
+      "total_score": 50.0,
       "center": [
-        38.546532,
-        141.415076
+        38.436776,
+        141.307308
       ],
       "spots": [
-        {
-          "place_id": "osm-node-7720649492",
-          "name": "清水寺",
-          "category": "観光名所",
-          "lat": 38.633901,
-          "lng": 141.510275,
-          "stay_minutes": 45,
-          "score": 65.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-8451526424",
-          "name": "石巻市震災遺構 大川小学校",
-          "category": "史跡",
-          "lat": 38.5462677,
-          "lng": 141.4284554,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-10814021313",
           "name": "石巻市博物館",
@@ -105,36 +160,7 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          38.633901,
-          141.510275
-        ],
-        [
-          38.5462677,
-          141.4284554
-        ],
-        [
-          38.4594282,
-          141.3064982
-        ]
-      ]
-    },
-    {
-      "id": "osm-miyagi-03",
-      "area": "miyagi",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "宮城県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 139,
-      "total_score": 50.0,
-      "center": [
-        38.423026,
-        141.306721
-      ],
-      "spots": [
+        },
         {
           "place_id": "osm-node-1217256687",
           "name": "石ノ森萬画館",
@@ -154,19 +180,13 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-8712321917",
-          "name": "みやぎ東日本大震災津波伝承館",
-          "category": "博物館",
-          "lat": 38.4181775,
-          "lng": 141.3047365,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
         }
       ],
       "coordinates": [
+        [
+          38.4594282,
+          141.3064982
+        ],
         [
           38.4295754,
           141.3107621
@@ -174,10 +194,102 @@
         [
           38.4213241,
           141.3046647
+        ]
+      ]
+    },
+    {
+      "id": "osm-miyagi-03",
+      "area": "miyagi",
+      "pattern": "half_day",
+      "course": "full_day",
+      "title": "宮城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 401,
+      "legs": [
+        {
+          "from": "仙台駅",
+          "to": "日本こけし館",
+          "distance_km": 55.29,
+          "mode": "car",
+          "minutes": 124
+        },
+        {
+          "from": "日本こけし館",
+          "to": "荒雄川神社",
+          "distance_km": 10.89,
+          "mode": "car",
+          "minutes": 25
+        },
+        {
+          "from": "荒雄川神社",
+          "to": "感覚ミュージアム",
+          "distance_km": 8.02,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "感覚ミュージアム",
+          "to": "仙台駅",
+          "distance_km": 44.05,
+          "mode": "car",
+          "minutes": 99
+        }
+      ],
+      "start": {
+        "name": "仙台駅",
+        "lat": 38.2606,
+        "lng": 140.8824,
+        "to_first_km": 55.3,
+        "from_last_km": 44.0
+      },
+      "total_score": 46.7,
+      "center": [
+        38.70338,
+        140.79632
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2289949971",
+          "name": "日本こけし館",
+          "category": "博物館",
+          "lat": 38.7363431,
+          "lng": 140.6975382,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5011171936",
+          "name": "荒雄川神社",
+          "category": "観光名所",
+          "lat": 38.7171898,
+          "lng": 140.8206798,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-7624355814",
+          "name": "感覚ミュージアム",
+          "category": "博物館",
+          "lat": 38.6566076,
+          "lng": 140.8707409,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          38.7363431,
+          140.6975382
         ],
         [
-          38.4181775,
-          141.3047365
+          38.7171898,
+          140.8206798
+        ],
+        [
+          38.6566076,
+          140.8707409
         ]
       ]
     },
@@ -185,9 +297,60 @@
       "id": "osm-miyagi-04",
       "area": "miyagi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 290,
+      "estimated_minutes": 302,
+      "legs": [
+        {
+          "from": "仙台駅",
+          "to": "仙台市戦災復興記念館",
+          "distance_km": 1.34,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "仙台市戦災復興記念館",
+          "to": "仙台アンパンマンこどもミュージアム&モール",
+          "distance_km": 1.82,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "仙台アンパンマンこどもミュージアム&モール",
+          "to": "サイゼリヤ",
+          "distance_km": 8.0,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "芭蕉の辻",
+          "distance_km": 7.48,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "芭蕉の辻",
+          "to": "仙台文学館",
+          "distance_km": 4.05,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "仙台文学館",
+          "to": "仙台駅",
+          "distance_km": 4.03,
+          "mode": "car",
+          "minutes": 9
+        }
+      ],
+      "start": {
+        "name": "仙台駅",
+        "lat": 38.2606,
+        "lng": 140.8824,
+        "to_first_km": 1.3,
+        "from_last_km": 4.0
+      },
       "total_score": 48.0,
       "center": [
         38.254986,
@@ -272,9 +435,60 @@
       "id": "osm-miyagi-05",
       "area": "miyagi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 296,
+      "estimated_minutes": 328,
+      "legs": [
+        {
+          "from": "仙台駅",
+          "to": "地底の森ミュージアム",
+          "distance_km": 4.29,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "地底の森ミュージアム",
+          "to": "満福寺",
+          "distance_km": 3.26,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "満福寺",
+          "to": "サイゼリヤ",
+          "distance_km": 6.42,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "サイゼリヤ",
+          "to": "白山神社",
+          "distance_km": 6.98,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "白山神社",
+          "to": "震災遺構 仙台市立荒浜小学校",
+          "distance_km": 7.47,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "震災遺構 仙台市立荒浜小学校",
+          "to": "仙台駅",
+          "distance_km": 9.57,
+          "mode": "car",
+          "minutes": 22
+        }
+      ],
+      "start": {
+        "name": "仙台駅",
+        "lat": 38.2606,
+        "lng": 140.8824,
+        "to_first_km": 4.3,
+        "from_last_km": 9.6
+      },
       "total_score": 44.0,
       "center": [
         38.227902,

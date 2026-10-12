@@ -1,75 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:05.161017+00:00",
+  "generated_at": "2026-10-12T04:55:54.321260+00:00",
   "area": "hiroshima",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-hiroshima-01",
       "area": "hiroshima",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "広島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 141,
-      "total_score": 36.7,
-      "center": [
-        34.672336,
-        132.705211
-      ],
-      "spots": [
+      "estimated_minutes": 176,
+      "legs": [
         {
-          "place_id": "osm-node-11872224337",
-          "name": "吉田郡山城",
-          "category": "史跡",
-          "lat": 34.6736204,
-          "lng": 132.7095652,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "広島駅",
+          "to": "本川小学校平和資料館",
+          "distance_km": 2.25,
+          "mode": "public_transport",
+          "minutes": 11
         },
         {
-          "place_id": "osm-node-1423631663",
-          "name": "安芸高田市吉田歴史民俗資料館",
-          "category": "博物館",
-          "lat": 34.6706559,
-          "lng": 132.7014919,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
+          "from": "本川小学校平和資料館",
+          "to": "臨時帝国議会仮議事堂跡",
+          "distance_km": 0.9,
+          "mode": "public_transport",
+          "minutes": 5
         },
         {
-          "place_id": "osm-node-4279271193",
-          "name": "薬研掘跡",
-          "category": "史跡",
-          "lat": 34.6727305,
-          "lng": 132.7045769,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
+          "from": "臨時帝国議会仮議事堂跡",
+          "to": "平和の灯",
+          "distance_km": 0.78,
+          "mode": "walk",
+          "minutes": 15
+        },
+        {
+          "from": "平和の灯",
+          "to": "広島駅",
+          "distance_km": 2.12,
+          "mode": "public_transport",
+          "minutes": 10
         }
       ],
-      "coordinates": [
-        [
-          34.6736204,
-          132.7095652
-        ],
-        [
-          34.6706559,
-          132.7014919
-        ],
-        [
-          34.6727305,
-          132.7045769
-        ]
-      ]
-    },
-    {
-      "id": "osm-hiroshima-02",
-      "area": "hiroshima",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "広島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 144,
+      "start": {
+        "name": "広島駅",
+        "lat": 34.3977,
+        "lng": 132.4753,
+        "to_first_km": 2.2,
+        "from_last_km": 2.1
+      },
       "total_score": 50.0,
       "center": [
         34.395215,
@@ -123,12 +102,49 @@
       ]
     },
     {
-      "id": "osm-hiroshima-03",
+      "id": "osm-hiroshima-02",
       "area": "hiroshima",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "広島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 186,
+      "legs": [
+        {
+          "from": "広島駅",
+          "to": "広島市現代美術館",
+          "distance_km": 1.27,
+          "mode": "public_transport",
+          "minutes": 6
+        },
+        {
+          "from": "広島市現代美術館",
+          "to": "江波山気象館",
+          "distance_km": 4.17,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "江波山気象館",
+          "to": "原爆死没者慰霊碑",
+          "distance_km": 3.39,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "原爆死没者慰霊碑",
+          "to": "広島駅",
+          "distance_km": 2.15,
+          "mode": "public_transport",
+          "minutes": 10
+        }
+      ],
+      "start": {
+        "name": "広島駅",
+        "lat": 34.3977,
+        "lng": 132.4753,
+        "to_first_km": 1.3,
+        "from_last_km": 2.2
+      },
       "total_score": 50.0,
       "center": [
         34.381853,
@@ -182,16 +198,163 @@
       ]
     },
     {
+      "id": "osm-hiroshima-03",
+      "area": "hiroshima",
+      "pattern": "half_day",
+      "course": "full_day",
+      "title": "広島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 326,
+      "legs": [
+        {
+          "from": "広島駅",
+          "to": "呉市立美術館",
+          "distance_km": 19.33,
+          "mode": "public_transport",
+          "minutes": 88
+        },
+        {
+          "from": "呉市立美術館",
+          "to": "辰川小学校門柱",
+          "distance_km": 2.14,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "辰川小学校門柱",
+          "to": "筆の里工房",
+          "distance_km": 9.48,
+          "mode": "public_transport",
+          "minutes": 43
+        },
+        {
+          "from": "筆の里工房",
+          "to": "広島駅",
+          "distance_km": 11.03,
+          "mode": "public_transport",
+          "minutes": 50
+        }
+      ],
+      "start": {
+        "name": "広島駅",
+        "lat": 34.3977,
+        "lng": 132.4753,
+        "to_first_km": 19.3,
+        "from_last_km": 11.0
+      },
+      "total_score": 43.3,
+      "center": [
+        34.280164,
+        132.570715
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1423629849",
+          "name": "呉市立美術館",
+          "category": "博物館",
+          "lat": 34.239958,
+          "lng": 132.563863,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10941498930",
+          "name": "辰川小学校門柱",
+          "category": "史跡",
+          "lat": 34.2576521,
+          "lng": 132.5728845,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423639616",
+          "name": "筆の里工房",
+          "category": "博物館",
+          "lat": 34.342881,
+          "lng": 132.575398,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.239958,
+          132.563863
+        ],
+        [
+          34.2576521,
+          132.5728845
+        ],
+        [
+          34.342881,
+          132.575398
+        ]
+      ]
+    },
+    {
       "id": "osm-hiroshima-04",
       "area": "hiroshima",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 307,
+      "estimated_minutes": 467,
+      "legs": [
+        {
+          "from": "広島駅",
+          "to": "西幸記念碑",
+          "distance_km": 16.52,
+          "mode": "public_transport",
+          "minutes": 75
+        },
+        {
+          "from": "西幸記念碑",
+          "to": "桂公園碑",
+          "distance_km": 4.27,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "桂公園碑",
+          "to": "みっちゃん総本店",
+          "distance_km": 1.48,
+          "mode": "public_transport",
+          "minutes": 7
+        },
+        {
+          "from": "みっちゃん総本店",
+          "to": "桜尾城跡",
+          "distance_km": 1.36,
+          "mode": "public_transport",
+          "minutes": 7
+        },
+        {
+          "from": "桜尾城跡",
+          "to": "海の見える杜美術館",
+          "distance_km": 6.53,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "海の見える杜美術館",
+          "to": "広島駅",
+          "distance_km": 19.53,
+          "mode": "public_transport",
+          "minutes": 88
+        }
+      ],
+      "start": {
+        "name": "広島駅",
+        "lat": 34.3977,
+        "lng": 132.4753,
+        "to_first_km": 16.5,
+        "from_last_km": 19.5
+      },
       "total_score": 38.0,
       "center": [
-        34.336078,
-        132.330902
+        34.342356,
+        132.3239
       ],
       "spots": [
         {
@@ -235,11 +398,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423631831",
-          "name": "宮島水族館",
-          "category": "水族館",
-          "lat": 34.2954755,
-          "lng": 132.3156513,
+          "place_id": "osm-node-1423638572",
+          "name": "海の見える杜美術館",
+          "category": "博物館",
+          "lat": 34.326863,
+          "lng": 132.280645,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -263,8 +426,8 @@
           132.3417956
         ],
         [
-          34.2954755,
-          132.3156513
+          34.326863,
+          132.280645
         ]
       ]
     },
@@ -272,13 +435,64 @@
       "id": "osm-hiroshima-05",
       "area": "hiroshima",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 277,
-      "total_score": 38.0,
+      "estimated_minutes": 382,
+      "legs": [
+        {
+          "from": "広島駅",
+          "to": "廿日市市役所",
+          "distance_km": 14.25,
+          "mode": "public_transport",
+          "minutes": 65
+        },
+        {
+          "from": "廿日市市役所",
+          "to": "廿日市市民憲章",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "廿日市市民憲章",
+          "to": "みっちゃん総本店",
+          "distance_km": 0.52,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "みっちゃん総本店",
+          "to": "芸州廿日市御本陣旧跡",
+          "distance_km": 1.1,
+          "mode": "public_transport",
+          "minutes": 5
+        },
+        {
+          "from": "芸州廿日市御本陣旧跡",
+          "to": "小橋勘太郎之碑",
+          "distance_km": 6.82,
+          "mode": "public_transport",
+          "minutes": 31
+        },
+        {
+          "from": "小橋勘太郎之碑",
+          "to": "広島駅",
+          "distance_km": 6.62,
+          "mode": "public_transport",
+          "minutes": 30
+        }
+      ],
+      "start": {
+        "name": "広島駅",
+        "lat": 34.3977,
+        "lng": 132.4753,
+        "to_first_km": 14.2,
+        "from_last_km": 6.6
+      },
+      "total_score": 34.0,
       "center": [
-        34.345106,
-        132.323638
+        34.355088,
+        132.34905
       ],
       "spots": [
         {
@@ -322,13 +536,13 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423638572",
-          "name": "海の見える杜美術館",
-          "category": "博物館",
-          "lat": 34.326863,
-          "lng": 132.280645,
+          "place_id": "osm-node-11108557131",
+          "name": "小橋勘太郎之碑",
+          "category": "史跡",
+          "lat": 34.3767736,
+          "lng": 132.4077054,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         }
       ],
@@ -350,8 +564,8 @@
           132.3380452
         ],
         [
-          34.326863,
-          132.280645
+          34.3767736,
+          132.4077054
         ]
       ]
     }

@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:57.887304+00:00",
+  "generated_at": "2026-10-12T04:55:44.442996+00:00",
   "area": "aichi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-aichi-01",
       "area": "aichi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "愛知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 185,
+      "estimated_minutes": 236,
+      "legs": [
+        {
+          "from": "名古屋駅",
+          "to": "昭和日常博物館",
+          "distance_km": 8.83,
+          "mode": "public_transport",
+          "minutes": 40
+        },
+        {
+          "from": "昭和日常博物館",
+          "to": "あいち航空ミュージアム",
+          "distance_km": 3.61,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "あいち航空ミュージアム",
+          "to": "名古屋城",
+          "distance_km": 7.29,
+          "mode": "public_transport",
+          "minutes": 33
+        },
+        {
+          "from": "名古屋城",
+          "to": "名古屋駅",
+          "distance_km": 2.27,
+          "mode": "public_transport",
+          "minutes": 11
+        }
+      ],
+      "start": {
+        "name": "名古屋駅",
+        "lat": 35.1709,
+        "lng": 136.8815,
+        "to_first_km": 8.8,
+        "from_last_km": 2.3
+      },
       "total_score": 50.0,
       "center": [
         35.227635,
@@ -67,9 +105,46 @@
       "id": "osm-aichi-02",
       "area": "aichi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "愛知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 175,
+      "course": "full_day",
+      "title": "愛知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 329,
+      "legs": [
+        {
+          "from": "名古屋駅",
+          "to": "ジブリパーク",
+          "distance_km": 18.85,
+          "mode": "public_transport",
+          "minutes": 85
+        },
+        {
+          "from": "ジブリパーク",
+          "to": "岩崎城",
+          "distance_km": 5.37,
+          "mode": "public_transport",
+          "minutes": 25
+        },
+        {
+          "from": "岩崎城",
+          "to": "長久手市郷土資料室",
+          "distance_km": 3.18,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "長久手市郷土資料室",
+          "to": "名古屋駅",
+          "distance_km": 15.18,
+          "mode": "public_transport",
+          "minutes": 69
+        }
+      ],
+      "start": {
+        "name": "名古屋駅",
+        "lat": 35.1709,
+        "lng": 136.8815,
+        "to_first_km": 18.8,
+        "from_last_km": 15.2
+      },
       "total_score": 50.0,
       "center": [
         35.164471,
@@ -126,9 +201,46 @@
       "id": "osm-aichi-03",
       "area": "aichi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "愛知県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 187,
+      "course": "full_day",
+      "title": "愛知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 328,
+      "legs": [
+        {
+          "from": "名古屋駅",
+          "to": "大正天皇東宮殿下御時行啓",
+          "distance_km": 15.29,
+          "mode": "public_transport",
+          "minutes": 69
+        },
+        {
+          "from": "大正天皇東宮殿下御時行啓",
+          "to": "ガスエネルギー館",
+          "distance_km": 7.53,
+          "mode": "public_transport",
+          "minutes": 34
+        },
+        {
+          "from": "ガスエネルギー館",
+          "to": "東海市立平洲記念館・東海市立郷土資料館",
+          "distance_km": 3.9,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "東海市立平洲記念館・東海市立郷土資料館",
+          "to": "名古屋駅",
+          "distance_km": 15.85,
+          "mode": "public_transport",
+          "minutes": 72
+        }
+      ],
+      "start": {
+        "name": "名古屋駅",
+        "lat": 35.1709,
+        "lng": 136.8815,
+        "to_first_km": 15.3,
+        "from_last_km": 15.9
+      },
       "total_score": 50.0,
       "center": [
         35.051039,
@@ -185,9 +297,60 @@
       "id": "osm-aichi-04",
       "area": "aichi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 301,
+      "estimated_minutes": 360,
+      "legs": [
+        {
+          "from": "名古屋駅",
+          "to": "南山大学人類学博物館",
+          "distance_km": 7.75,
+          "mode": "public_transport",
+          "minutes": 35
+        },
+        {
+          "from": "南山大学人類学博物館",
+          "to": "桑山美術館",
+          "distance_km": 0.85,
+          "mode": "public_transport",
+          "minutes": 4
+        },
+        {
+          "from": "桑山美術館",
+          "to": "喫茶マウンテン",
+          "distance_km": 0.76,
+          "mode": "walk",
+          "minutes": 15
+        },
+        {
+          "from": "喫茶マウンテン",
+          "to": "藤原師長謫居跡",
+          "distance_km": 4.16,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "藤原師長謫居跡",
+          "to": "名古屋市市政資料館",
+          "distance_km": 7.38,
+          "mode": "public_transport",
+          "minutes": 34
+        },
+        {
+          "from": "名古屋市市政資料館",
+          "to": "名古屋駅",
+          "distance_km": 2.86,
+          "mode": "public_transport",
+          "minutes": 13
+        }
+      ],
+      "start": {
+        "name": "名古屋駅",
+        "lat": 35.1709,
+        "lng": 136.8815,
+        "to_first_km": 7.8,
+        "from_last_km": 2.9
+      },
       "total_score": 50.0,
       "center": [
         35.148202,
@@ -272,9 +435,60 @@
       "id": "osm-aichi-05",
       "area": "aichi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 304,
+      "estimated_minutes": 334,
+      "legs": [
+        {
+          "from": "名古屋駅",
+          "to": "ヤマザキマザック美術館",
+          "distance_km": 3.49,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "ヤマザキマザック美術館",
+          "to": "あいち銭湯資料館",
+          "distance_km": 1.83,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "あいち銭湯資料館",
+          "to": "喫茶マウンテン",
+          "distance_km": 4.39,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "喫茶マウンテン",
+          "to": "日本基督教団 金城教会",
+          "distance_km": 4.96,
+          "mode": "public_transport",
+          "minutes": 23
+        },
+        {
+          "from": "日本基督教団 金城教会",
+          "to": "下水道科学館",
+          "distance_km": 2.49,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "下水道科学館",
+          "to": "名古屋駅",
+          "distance_km": 3.06,
+          "mode": "public_transport",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "名古屋駅",
+        "lat": 35.1709,
+        "lng": 136.8815,
+        "to_first_km": 3.5,
+        "from_last_km": 3.1
+      },
       "total_score": 48.0,
       "center": [
         35.168018,

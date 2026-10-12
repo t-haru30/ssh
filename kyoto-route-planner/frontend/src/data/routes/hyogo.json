@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:01.973411+00:00",
+  "generated_at": "2026-10-12T04:55:49.596709+00:00",
   "area": "hyogo",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-hyogo-01",
       "area": "hyogo",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "兵庫県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 137,
+      "estimated_minutes": 288,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "西國二十五番清水寺",
+          "distance_km": 32.72,
+          "mode": "car",
+          "minutes": 73
+        },
+        {
+          "from": "西國二十五番清水寺",
+          "to": "御嶽山 清水寺",
+          "distance_km": 0.09,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "御嶽山 清水寺",
+          "to": "西国25番 御嶽山 播州清水寺（banshu kiyomizu dera)",
+          "distance_km": 0.26,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "西国25番 御嶽山 播州清水寺（banshu kiyomizu dera)",
+          "to": "三ノ宮駅",
+          "distance_km": 32.61,
+          "mode": "car",
+          "minutes": 73
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 32.7,
+        "from_last_km": 32.6
+      },
       "total_score": 71.7,
       "center": [
         34.97385,
@@ -67,9 +105,46 @@
       "id": "osm-hyogo-02",
       "area": "hyogo",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "兵庫県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 167,
+      "course": "full_day",
+      "title": "兵庫県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 321,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "八上城跡",
+          "distance_km": 41.22,
+          "mode": "car",
+          "minutes": 92
+        },
+        {
+          "from": "八上城跡",
+          "to": "高売布神社",
+          "distance_km": 11.52,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "高売布神社",
+          "to": "蓮花寺",
+          "distance_km": 2.57,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "蓮花寺",
+          "to": "三ノ宮駅",
+          "distance_km": 27.66,
+          "mode": "car",
+          "minutes": 62
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 41.2,
+        "from_last_km": 27.7
+      },
       "total_score": 43.3,
       "center": [
         34.985435,
@@ -126,13 +201,50 @@
       "id": "osm-hyogo-03",
       "area": "hyogo",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "兵庫県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 207,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "戦没した船と海員の資料館",
+          "distance_km": 1.24,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "戦没した船と海員の資料館",
+          "to": "俵美術館",
+          "distance_km": 11.75,
+          "mode": "car",
+          "minutes": 27
+        },
+        {
+          "from": "俵美術館",
+          "to": "今津海岸砲台記念石",
+          "distance_km": 4.45,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "今津海岸砲台記念石",
+          "to": "三ノ宮駅",
+          "distance_km": 14.04,
+          "mode": "car",
+          "minutes": 32
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 1.2,
+        "from_last_km": 14.0
+      },
       "total_score": 50.0,
       "center": [
-        34.699554,
-        135.266512
+        34.713584,
+        135.277617
       ],
       "spots": [
         {
@@ -146,11 +258,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12541374174",
-          "name": "神戸市立小磯記念美術館",
+          "place_id": "osm-node-1423053101",
+          "name": "俵美術館",
           "category": "博物館",
-          "lat": 34.6928224,
-          "lng": 135.2672258,
+          "lat": 34.734912,
+          "lng": 135.30054,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -172,8 +284,8 @@
           135.1866147
         ],
         [
-          34.6928224,
-          135.2672258
+          34.734912,
+          135.30054
         ],
         [
           34.7199497,
@@ -185,9 +297,60 @@
       "id": "osm-hyogo-04",
       "area": "hyogo",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "兵庫県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 281,
+      "estimated_minutes": 381,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "世界の貯金箱博物館",
+          "distance_km": 20.08,
+          "mode": "car",
+          "minutes": 45
+        },
+        {
+          "from": "世界の貯金箱博物館",
+          "to": "遊女塚",
+          "distance_km": 4.19,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "遊女塚",
+          "to": "ホリーズカフェ",
+          "distance_km": 3.6,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "ホリーズカフェ",
+          "to": "尼崎市立歴史博物館",
+          "distance_km": 0.46,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "尼崎市立歴史博物館",
+          "to": "伊丹市昆虫館",
+          "distance_km": 8.82,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "伊丹市昆虫館",
+          "to": "三ノ宮駅",
+          "distance_km": 21.18,
+          "mode": "car",
+          "minutes": 48
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 20.1,
+        "from_last_km": 21.2
+      },
       "total_score": 48.0,
       "center": [
         34.736161,
@@ -272,13 +435,64 @@
       "id": "osm-hyogo-05",
       "area": "hyogo",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "兵庫県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 280,
-      "total_score": 48.0,
+      "estimated_minutes": 377,
+      "legs": [
+        {
+          "from": "三ノ宮駅",
+          "to": "甲子園歴史館",
+          "distance_km": 15.53,
+          "mode": "car",
+          "minutes": 35
+        },
+        {
+          "from": "甲子園歴史館",
+          "to": "村山実銅像",
+          "distance_km": 4.71,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "村山実銅像",
+          "to": "ホリーズカフェ",
+          "distance_km": 1.34,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "ホリーズカフェ",
+          "to": "甲子園歴史館",
+          "distance_km": 5.22,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "甲子園歴史館",
+          "to": "松尾神社",
+          "distance_km": 11.58,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "松尾神社",
+          "to": "三ノ宮駅",
+          "distance_km": 22.38,
+          "mode": "car",
+          "minutes": 50
+        }
+      ],
+      "start": {
+        "name": "三ノ宮駅",
+        "lat": 34.6945,
+        "lng": 135.1953,
+        "to_first_km": 15.5,
+        "from_last_km": 22.4
+      },
+      "total_score": 46.0,
       "center": [
-        34.724779,
-        135.37131
+        34.742291,
+        135.388073
       ],
       "spots": [
         {
@@ -322,13 +536,13 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423053101",
-          "name": "俵美術館",
-          "category": "博物館",
-          "lat": 34.734912,
-          "lng": 135.30054,
+          "place_id": "osm-node-11862339372",
+          "name": "松尾神社",
+          "category": "観光名所",
+          "lat": 34.822472,
+          "lng": 135.3843549,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
@@ -350,8 +564,8 @@
           135.3620365
         ],
         [
-          34.734912,
-          135.30054
+          34.822472,
+          135.3843549
         ]
       ]
     }

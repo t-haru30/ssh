@@ -6,14 +6,7 @@ import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
 import { formatMinutes } from "./DiscoverCard";
 
-const AREA_STARTS: Record<string, Origin> = {
-  hokkaido: { name: "札幌中心", latitude: 43.0642, longitude: 141.3469 },
-  tokyo: { name: "東京中心", latitude: 35.6762, longitude: 139.6503 },
-  kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 },
-  osaka: { name: "大阪中心", latitude: 34.6937, longitude: 135.5023 },
-  fukuoka: { name: "福岡中心", latitude: 33.5904, longitude: 130.4017 },
-  okinawa: { name: "那覇中心", latitude: 26.2124, longitude: 127.6809 },
-};
+const KYOTO_STATION: Origin = { name: "京都駅", latitude: 34.985849, longitude: 135.758766 };
 const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) => ({
   default: Component,
 })));
@@ -55,20 +48,26 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       : route.places,
     [isStaticRoute, route],
   );
-  const start = useMemo(
+  const start = useMemo<Origin>(
     () => isStaticRoute
-      ? AREA_STARTS[route.area] ?? { name: "エリア中心", latitude: route.center[0], longitude: route.center[1] }
-      : AREA_STARTS.kyoto,
+      ? { name: route.start.name, latitude: route.start.lat, longitude: route.start.lng }
+      : KYOTO_STATION,
     [isStaticRoute, route],
   );
   const origin = currentOrigin ?? start;
+  const plan = useMemo(() => {
+    if (!isStaticRoute) return undefined;
+    return {
+      legs: route.legs,
+      stayMinutes: route.spots.map((spot) => spot.stay_minutes),
+      lunchIndexes: route.spots.flatMap((spot, index) => (spot.role === "lunch" ? [index] : [])),
+    };
+  }, [isStaticRoute, route]);
   const estimatedItems = useMemo(
-    () => buildRouteTimeline(origin, places, "09:00", null),
-    [places, origin],
+    () => buildRouteTimeline(origin, places, "09:00", null, plan),
+    [places, origin, plan],
   );
-  const items = routeSuggestion?.timeline?.length
-    ? routeSuggestion.timeline
-    : estimatedItems;
+  const items = routeSuggestion?.timeline?.length ? routeSuggestion.timeline : estimatedItems;
   const coordinates: [number, number][] = isStaticRoute
     ? route.coordinates
     : route.places.map((place) => [place.latitude, place.longitude]);

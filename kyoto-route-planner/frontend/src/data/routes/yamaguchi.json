@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:05.469248+00:00",
+  "generated_at": "2026-10-12T04:55:54.691309+00:00",
   "area": "yamaguchi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-yamaguchi-01",
       "area": "yamaguchi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "山口県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 141,
+      "estimated_minutes": 269,
+      "legs": [
+        {
+          "from": "山口駅",
+          "to": "萩城",
+          "distance_km": 28.66,
+          "mode": "car",
+          "minutes": 64
+        },
+        {
+          "from": "萩城",
+          "to": "石井茶碗美術館",
+          "distance_km": 1.16,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "石井茶碗美術館",
+          "to": "萩史料館",
+          "distance_km": 1.19,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "萩史料館",
+          "to": "山口駅",
+          "distance_km": 28.51,
+          "mode": "car",
+          "minutes": 64
+        }
+      ],
+      "start": {
+        "name": "山口駅",
+        "lat": 34.17261,
+        "lng": 131.48083,
+        "to_first_km": 28.7,
+        "from_last_km": 28.5
+      },
       "total_score": 43.3,
       "center": [
         34.414586,
@@ -67,9 +105,46 @@
       "id": "osm-yamaguchi-02",
       "area": "yamaguchi",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "山口県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 155,
+      "course": "full_day",
+      "title": "山口県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 399,
+      "legs": [
+        {
+          "from": "山口駅",
+          "to": "下関市立考古博物館",
+          "distance_km": 54.12,
+          "mode": "car",
+          "minutes": 121
+        },
+        {
+          "from": "下関市立考古博物館",
+          "to": "海峡ゆめタワー",
+          "distance_km": 6.87,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "海峡ゆめタワー",
+          "to": "旧下関英国領事館",
+          "distance_km": 1.47,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "旧下関英国領事館",
+          "to": "山口駅",
+          "distance_km": 55.03,
+          "mode": "car",
+          "minutes": 123
+        }
+      ],
+      "start": {
+        "name": "山口駅",
+        "lat": 34.17261,
+        "lng": 131.48083,
+        "to_first_km": 54.1,
+        "from_last_km": 55.0
+      },
       "total_score": 50.0,
       "center": [
         33.972738,
@@ -126,9 +201,46 @@
       "id": "osm-yamaguchi-03",
       "area": "yamaguchi",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "山口県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 150,
+      "estimated_minutes": 161,
+      "legs": [
+        {
+          "from": "山口駅",
+          "to": "中原中也記念館",
+          "distance_km": 2.28,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "中原中也記念館",
+          "to": "仁壁神社",
+          "distance_km": 4.14,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "仁壁神社",
+          "to": "のむら美術館",
+          "distance_km": 1.86,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "のむら美術館",
+          "to": "山口駅",
+          "distance_km": 1.92,
+          "mode": "car",
+          "minutes": 5
+        }
+      ],
+      "start": {
+        "name": "山口駅",
+        "lat": 34.17261,
+        "lng": 131.48083,
+        "to_first_km": 2.3,
+        "from_last_km": 1.9
+      },
       "total_score": 43.3,
       "center": [
         34.180683,
@@ -185,9 +297,60 @@
       "id": "osm-yamaguchi-04",
       "area": "yamaguchi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "山口県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 301,
+      "estimated_minutes": 446,
+      "legs": [
+        {
+          "from": "山口駅",
+          "to": "宇宙",
+          "distance_km": 32.72,
+          "mode": "car",
+          "minutes": 73
+        },
+        {
+          "from": "宇宙",
+          "to": "若さ",
+          "distance_km": 5.44,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "若さ",
+          "to": "ろくの家　宇部店",
+          "distance_km": 5.42,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "ろくの家　宇部店",
+          "to": "テストピース",
+          "distance_km": 6.38,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "テストピース",
+          "to": "寝太郎之像",
+          "distance_km": 8.55,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "寝太郎之像",
+          "to": "山口駅",
+          "distance_km": 32.26,
+          "mode": "car",
+          "minutes": 72
+        }
+      ],
+      "start": {
+        "name": "山口駅",
+        "lat": 34.17261,
+        "lng": 131.48083,
+        "to_first_km": 32.7,
+        "from_last_km": 32.3
+      },
       "total_score": 30.0,
       "center": [
         33.980164,
@@ -272,9 +435,60 @@
       "id": "osm-yamaguchi-05",
       "area": "yamaguchi",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "山口県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 290,
+      "estimated_minutes": 441,
+      "legs": [
+        {
+          "from": "山口駅",
+          "to": "小野田セメント100周年記念セメント樽",
+          "distance_km": 34.89,
+          "mode": "car",
+          "minutes": 78
+        },
+        {
+          "from": "小野田セメント100周年記念セメント樽",
+          "to": "笠井順八翁像",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "笠井順八翁像",
+          "to": "ろくの家　宇部店",
+          "distance_km": 6.35,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "ろくの家　宇部店",
+          "to": "碑文",
+          "distance_km": 6.25,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "碑文",
+          "to": "慈眼",
+          "distance_km": 8.74,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "慈眼",
+          "to": "山口駅",
+          "distance_km": 32.28,
+          "mode": "car",
+          "minutes": 72
+        }
+      ],
+      "start": {
+        "name": "山口駅",
+        "lat": 34.17261,
+        "lng": 131.48083,
+        "to_first_km": 34.9,
+        "from_last_km": 32.3
+      },
       "total_score": 30.0,
       "center": [
         33.990047,

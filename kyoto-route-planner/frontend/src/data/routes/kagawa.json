@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:06.389091+00:00",
+  "generated_at": "2026-10-12T04:55:55.913476+00:00",
   "area": "kagawa",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-kagawa-01",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "香川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
+      "estimated_minutes": 278,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "丸亀城",
+          "distance_km": 23.75,
+          "mode": "car",
+          "minutes": 53
+        },
+        {
+          "from": "丸亀城",
+          "to": "乃木館",
+          "distance_km": 7.52,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "乃木館",
+          "to": "丸亀市猪熊弦一郎現代美術館",
+          "distance_km": 7.97,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "丸亀市猪熊弦一郎現代美術館",
+          "to": "高松駅",
+          "distance_km": 24.27,
+          "mode": "car",
+          "minutes": 55
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 23.8,
+        "from_last_km": 24.3
+      },
       "total_score": 50.0,
       "center": [
         34.265788,
@@ -67,9 +105,46 @@
       "id": "osm-kagawa-02",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "香川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 151,
+      "estimated_minutes": 180,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "イサム・ノグチ庭園美術館 (Isamu Noguchi Garden Museum)",
+          "distance_km": 7.21,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "イサム・ノグチ庭園美術館 (Isamu Noguchi Garden Museum)",
+          "to": "香川県立ミュージアム",
+          "distance_km": 6.62,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "香川県立ミュージアム",
+          "to": "高松城",
+          "distance_km": 0.27,
+          "mode": "walk",
+          "minutes": 6
+        },
+        {
+          "from": "高松城",
+          "to": "高松駅",
+          "distance_km": 0.34,
+          "mode": "walk",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 7.2,
+        "from_last_km": 0.3
+      },
       "total_score": 50.0,
       "center": [
         34.351579,
@@ -126,201 +201,52 @@
       "id": "osm-kagawa-03",
       "area": "kagawa",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "香川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 154,
-      "total_score": 46.7,
-      "center": [
-        34.464334,
-        134.016637
-      ],
-      "spots": [
+      "course": "half_day",
+      "title": "香川県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 195,
+      "legs": [
         {
-          "place_id": "osm-node-2401280882",
-          "name": "豊島横尾館",
-          "category": "博物館",
-          "lat": 34.4869088,
-          "lng": 134.0596607,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "高松駅",
+          "to": "四国村ギャラリー",
+          "distance_km": 5.73,
+          "mode": "car",
+          "minutes": 13
         },
         {
-          "place_id": "osm-node-2401898964",
-          "name": "ANDO MUSEUM",
-          "category": "博物館",
-          "lat": 34.4594028,
-          "lng": 133.997021,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "四国村ギャラリー",
+          "to": "蜂穴神社",
+          "distance_km": 7.06,
+          "mode": "car",
+          "minutes": 16
         },
         {
-          "place_id": "osm-node-1493825968",
-          "name": "Benesse House Beach",
-          "category": "博物館",
-          "lat": 34.4466914,
-          "lng": 133.9932279,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "蜂穴神社",
+          "to": "聖代寺",
+          "distance_km": 7.59,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "聖代寺",
+          "to": "高松駅",
+          "distance_km": 6.21,
+          "mode": "car",
+          "minutes": 14
         }
       ],
-      "coordinates": [
-        [
-          34.4869088,
-          134.0596607
-        ],
-        [
-          34.4594028,
-          133.997021
-        ],
-        [
-          34.4466914,
-          133.9932279
-        ]
-      ]
-    },
-    {
-      "id": "osm-kagawa-04",
-      "area": "kagawa",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "香川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 296,
-      "total_score": 32.0,
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 5.7,
+        "from_last_km": 6.2
+      },
+      "total_score": 43.3,
       "center": [
-        34.422746,
-        134.026055
+        34.344014,
+        134.085222
       ],
       "spots": [
-        {
-          "place_id": "osm-node-10208525845",
-          "name": "男木島漁港功労者",
-          "category": "史跡",
-          "lat": 34.4222097,
-          "lng": 134.0545623,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13329557101",
-          "name": "Open Air Observation Deck 8F",
-          "category": "展望地",
-          "lat": 34.3527483,
-          "lng": 134.0464805,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10017948058",
-          "name": "象と太陽社",
-          "category": "飲食店",
-          "lat": 34.4228815,
-          "lng": 134.0553642,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-13347352819",
-          "name": "直島新美術館",
-          "category": "博物館",
-          "lat": 34.4579024,
-          "lng": 133.9987355,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-892741840",
-          "name": "直島銭湯",
-          "category": "観光名所",
-          "lat": 34.4579858,
-          "lng": 133.9751323,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.4222097,
-          134.0545623
-        ],
-        [
-          34.3527483,
-          134.0464805
-        ],
-        [
-          34.4228815,
-          134.0553642
-        ],
-        [
-          34.4579024,
-          133.9987355
-        ],
-        [
-          34.4579858,
-          133.9751323
-        ]
-      ]
-    },
-    {
-      "id": "osm-kagawa-05",
-      "area": "kagawa",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "香川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 294,
-      "total_score": 34.0,
-      "center": [
-        34.400758,
-        134.051315
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-13694665448",
-          "name": "Valley Gallery",
-          "category": "博物館",
-          "lat": 34.4478989,
-          "lng": 133.9894345,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1527616378",
-          "name": "高松市鬼ヶ島おにの館",
-          "category": "博物館",
-          "lat": 34.3893786,
-          "lng": 134.0521595,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10017948058",
-          "name": "象と太陽社",
-          "category": "飲食店",
-          "lat": 34.4228815,
-          "lng": 134.0553642,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1527616770",
-          "name": "Observation Platform",
-          "category": "展望地",
-          "lat": 34.3980651,
-          "lng": 134.050779,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-4627926289",
           "name": "四国村ギャラリー",
@@ -330,28 +256,316 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12245119867",
+          "name": "蜂穴神社",
+          "category": "観光名所",
+          "lat": 34.3381148,
+          "lng": 134.0325208,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13113940501",
+          "name": "聖代寺",
+          "category": "観光名所",
+          "lat": 34.3483635,
+          "lng": 134.1143083,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
         [
-          34.4478989,
-          133.9894345
-        ],
-        [
-          34.3893786,
-          134.0521595
-        ],
-        [
-          34.4228815,
-          134.0553642
-        ],
-        [
-          34.3980651,
-          134.050779
-        ],
-        [
           34.3455646,
           134.1088369
+        ],
+        [
+          34.3381148,
+          134.0325208
+        ],
+        [
+          34.3483635,
+          134.1143083
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-04",
+      "area": "kagawa",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "香川県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 296,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "厄除不動明王院",
+          "distance_km": 2.2,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "厄除不動明王院",
+          "to": "高松市歴史資料館",
+          "distance_km": 0.91,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "高松市歴史資料館",
+          "to": "プロント",
+          "distance_km": 1.52,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "プロント",
+          "to": "別格19 寶幢山 香西寺",
+          "distance_km": 5.01,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "別格19 寶幢山 香西寺",
+          "to": "法華寺",
+          "distance_km": 5.1,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "法華寺",
+          "to": "高松駅",
+          "distance_km": 8.95,
+          "mode": "car",
+          "minutes": 20
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 2.2,
+        "from_last_km": 9.0
+      },
+      "total_score": 38.0,
+      "center": [
+        34.338084,
+        134.013578
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-13113940502",
+          "name": "厄除不動明王院",
+          "category": "観光名所",
+          "lat": 34.3374557,
+          "lng": 134.0286212,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423746357",
+          "name": "高松市歴史資料館",
+          "category": "博物館",
+          "lat": 34.3440309,
+          "lng": 134.0344437,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10039830101",
+          "name": "プロント",
+          "category": "飲食店",
+          "lat": 34.3514971,
+          "lng": 134.0483508,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-4796738631",
+          "name": "別格19 寶幢山 香西寺",
+          "category": "観光名所",
+          "lat": 34.347619,
+          "lng": 133.9939302,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4806012072",
+          "name": "法華寺",
+          "category": "観光名所",
+          "lat": 34.309815,
+          "lng": 133.9625435,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.3374557,
+          134.0286212
+        ],
+        [
+          34.3440309,
+          134.0344437
+        ],
+        [
+          34.3514971,
+          134.0483508
+        ],
+        [
+          34.347619,
+          133.9939302
+        ],
+        [
+          34.309815,
+          133.9625435
+        ]
+      ]
+    },
+    {
+      "id": "osm-kagawa-05",
+      "area": "kagawa",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "香川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 299,
+      "legs": [
+        {
+          "from": "高松駅",
+          "to": "香川大学博物館",
+          "distance_km": 1.1,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "香川大学博物館",
+          "to": "左甚五郎美術館",
+          "distance_km": 1.31,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "左甚五郎美術館",
+          "to": "プロント",
+          "distance_km": 0.5,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "プロント",
+          "to": "松島小学校跡",
+          "distance_km": 1.79,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "松島小学校跡",
+          "to": "大善寺",
+          "distance_km": 8.85,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "大善寺",
+          "to": "高松駅",
+          "distance_km": 8.2,
+          "mode": "car",
+          "minutes": 19
+        }
+      ],
+      "start": {
+        "name": "高松駅",
+        "lat": 34.3505,
+        "lng": 134.0467,
+        "to_first_km": 1.1,
+        "from_last_km": 8.2
+      },
+      "total_score": 34.0,
+      "center": [
+        34.338209,
+        134.034686
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-9950690258",
+          "name": "香川大学博物館",
+          "category": "博物館",
+          "lat": 34.343472,
+          "lng": 134.0382589,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10296210482",
+          "name": "左甚五郎美術館",
+          "category": "博物館",
+          "lat": 34.347857,
+          "lng": 134.0515155,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10039830101",
+          "name": "プロント",
+          "category": "飲食店",
+          "lat": 34.3514971,
+          "lng": 134.0483508,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-10296506905",
+          "name": "松島小学校跡",
+          "category": "史跡",
+          "lat": 34.3398791,
+          "lng": 134.0619193,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4806012076",
+          "name": "大善寺",
+          "category": "観光名所",
+          "lat": 34.3083393,
+          "lng": 133.9733831,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.343472,
+          134.0382589
+        ],
+        [
+          34.347857,
+          134.0515155
+        ],
+        [
+          34.3514971,
+          134.0483508
+        ],
+        [
+          34.3398791,
+          134.0619193
+        ],
+        [
+          34.3083393,
+          133.9733831
         ]
       ]
     }

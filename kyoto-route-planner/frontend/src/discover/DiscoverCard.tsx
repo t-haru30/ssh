@@ -63,7 +63,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe }: DiscoverC
       licenseUrl={isIdea ? route.license_url : undefined}
       coverBadge={isIdea
         ? `${route.places.length}か所`
-        : route.pattern === "full_day" ? "1日コース" : "半日コース"}
+        : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
       acceptLabel="しおりを開く"

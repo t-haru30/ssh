@@ -1,75 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:50.162864+00:00",
+  "generated_at": "2026-10-12T04:55:34.025669+00:00",
   "area": "chiba",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-chiba-01",
       "area": "chiba",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "千葉県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 185,
-      "total_score": 61.7,
-      "center": [
-        35.325144,
-        140.365295
-      ],
-      "spots": [
+      "estimated_minutes": 198,
+      "legs": [
         {
-          "place_id": "osm-node-2474914296",
-          "name": "坂東32番 音羽山 清水寺",
-          "category": "観光名所",
-          "lat": 35.2901839,
-          "lng": 140.3563617,
-          "stay_minutes": 45,
-          "score": 85.0,
-          "role": "stop"
+          "from": "千葉駅",
+          "to": "ハップス東寺山店",
+          "distance_km": 1.86,
+          "mode": "public_transport",
+          "minutes": 9
         },
         {
-          "place_id": "osm-node-1420743963",
-          "name": "麻雀博物館",
-          "category": "博物館",
-          "lat": 35.330591,
-          "lng": 140.393922,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "ハップス東寺山店",
+          "to": "千葉市美術館",
+          "distance_km": 1.71,
+          "mode": "public_transport",
+          "minutes": 8
         },
         {
-          "place_id": "osm-node-9573093193",
-          "name": "高藤山城址",
-          "category": "史跡",
-          "lat": 35.3546582,
-          "lng": 140.3456016,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "千葉市美術館",
+          "to": "三陽メディアフラワーミュージアム",
+          "distance_km": 5.52,
+          "mode": "public_transport",
+          "minutes": 25
+        },
+        {
+          "from": "三陽メディアフラワーミュージアム",
+          "to": "千葉駅",
+          "distance_km": 4.45,
+          "mode": "public_transport",
+          "minutes": 21
         }
       ],
-      "coordinates": [
-        [
-          35.2901839,
-          140.3563617
-        ],
-        [
-          35.330591,
-          140.393922
-        ],
-        [
-          35.3546582,
-          140.3456016
-        ]
-      ]
-    },
-    {
-      "id": "osm-chiba-02",
-      "area": "chiba",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "千葉県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "start": {
+        "name": "千葉駅",
+        "lat": 35.613,
+        "lng": 140.1135,
+        "to_first_km": 1.9,
+        "from_last_km": 4.5
+      },
       "total_score": 53.3,
       "center": [
         35.61697,
@@ -123,113 +102,61 @@
       ]
     },
     {
-      "id": "osm-chiba-03",
+      "id": "osm-chiba-02",
       "area": "chiba",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "千葉県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 144,
-      "total_score": 50.0,
-      "center": [
-        35.821768,
-        140.271845
-      ],
-      "spots": [
+      "estimated_minutes": 249,
+      "legs": [
         {
-          "place_id": "osm-node-10694157416",
-          "name": "旧学習院初等科正堂",
-          "category": "博物館",
-          "lat": 35.8195401,
-          "lng": 140.2755538,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "千葉駅",
+          "to": "カンドゥー",
+          "distance_km": 9.4,
+          "mode": "public_transport",
+          "minutes": 43
         },
         {
-          "place_id": "osm-node-7769169185",
-          "name": "龍角寺古墳群",
-          "category": "史跡",
-          "lat": 35.8242065,
-          "lng": 140.2665717,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "カンドゥー",
+          "to": "稲毛民間航空記念館",
+          "distance_km": 5.16,
+          "mode": "public_transport",
+          "minutes": 24
         },
         {
-          "place_id": "osm-node-7769183485",
-          "name": "旧御子神家住宅",
-          "category": "博物館",
-          "lat": 35.8215582,
-          "lng": 140.2734089,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "稲毛民間航空記念館",
+          "to": "千葉県立中央博物館",
+          "distance_km": 7.47,
+          "mode": "public_transport",
+          "minutes": 34
+        },
+        {
+          "from": "千葉県立中央博物館",
+          "to": "千葉駅",
+          "distance_km": 2.69,
+          "mode": "public_transport",
+          "minutes": 13
         }
       ],
-      "coordinates": [
-        [
-          35.8195401,
-          140.2755538
-        ],
-        [
-          35.8242065,
-          140.2665717
-        ],
-        [
-          35.8215582,
-          140.2734089
-        ]
-      ]
-    },
-    {
-      "id": "osm-chiba-04",
-      "area": "chiba",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "千葉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 298,
-      "total_score": 54.0,
+      "start": {
+        "name": "千葉駅",
+        "lat": 35.613,
+        "lng": 140.1135,
+        "to_first_km": 9.4,
+        "from_last_km": 2.7
+      },
+      "total_score": 50.0,
       "center": [
-        35.61267,
-        140.114713
+        35.626098,
+        140.074545
       ],
       "spots": [
         {
-          "place_id": "osm-node-1420729453",
-          "name": "千葉県立中央博物館",
-          "category": "博物館",
-          "lat": 35.599867,
-          "lng": 140.138489,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4437117898",
-          "name": "お茶の水",
-          "category": "史跡",
-          "lat": 35.6059113,
-          "lng": 140.1256605,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6997014174",
-          "name": "とんでん東寺山店",
-          "category": "飲食店",
-          "lat": 35.6292803,
-          "lng": 140.1270765,
-          "stay_minutes": 60,
-          "score": 70.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-6886812265",
-          "name": "千葉市科学館",
-          "category": "博物館",
-          "lat": 35.6074473,
-          "lng": 140.1223175,
+          "place_id": "osm-node-10820790084",
+          "name": "カンドゥー",
+          "category": "テーマパーク",
+          "lat": 35.6575832,
+          "lng": 140.0251269,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -243,62 +170,211 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420729453",
+          "name": "千葉県立中央博物館",
+          "category": "博物館",
+          "lat": 35.599867,
+          "lng": 140.138489,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
         [
-          35.599867,
-          140.138489
-        ],
-        [
-          35.6059113,
-          140.1256605
-        ],
-        [
-          35.6292803,
-          140.1270765
-        ],
-        [
-          35.6074473,
-          140.1223175
+          35.6575832,
+          140.0251269
         ],
         [
           35.6208451,
           140.0600196
+        ],
+        [
+          35.599867,
+          140.138489
         ]
       ]
     },
     {
-      "id": "osm-chiba-05",
+      "id": "osm-chiba-03",
       "area": "chiba",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "千葉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 318,
-      "total_score": 48.0,
+      "pattern": "half_day",
+      "course": "half_day",
+      "title": "千葉県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 290,
+      "legs": [
+        {
+          "from": "千葉駅",
+          "to": "寺崎城",
+          "distance_km": 13.68,
+          "mode": "public_transport",
+          "minutes": 62
+        },
+        {
+          "from": "寺崎城",
+          "to": "佐倉市立美術館",
+          "distance_km": 2.17,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "佐倉市立美術館",
+          "to": "川村記念美術館",
+          "distance_km": 7.11,
+          "mode": "public_transport",
+          "minutes": 33
+        },
+        {
+          "from": "川村記念美術館",
+          "to": "千葉駅",
+          "distance_km": 10.96,
+          "mode": "public_transport",
+          "minutes": 50
+        }
+      ],
+      "start": {
+        "name": "千葉駅",
+        "lat": 35.613,
+        "lng": 140.1135,
+        "to_first_km": 13.7,
+        "from_last_km": 11.0
+      },
+      "total_score": 50.0,
       "center": [
-        35.615947,
-        140.1213
+        35.694057,
+        140.220959
       ],
       "spots": [
         {
-          "place_id": "osm-node-10113440540",
-          "name": "高徳寺",
-          "category": "観光名所",
-          "lat": 35.6023241,
-          "lng": 140.1261924,
+          "place_id": "osm-node-12327813543",
+          "name": "寺崎城",
+          "category": "史跡",
+          "lat": 35.7075493,
+          "lng": 140.2103339,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420728764",
-          "name": "千葉市立 加曽利貝塚博物館",
+          "place_id": "osm-node-1420725229",
+          "name": "佐倉市立美術館",
           "category": "博物館",
-          "lat": 35.6237112,
-          "lng": 140.1653348,
+          "lat": 35.7191759,
+          "lng": 140.2295957,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420733244",
+          "name": "川村記念美術館",
+          "category": "博物館",
+          "lat": 35.655445,
+          "lng": 140.222947,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.7075493,
+          140.2103339
+        ],
+        [
+          35.7191759,
+          140.2295957
+        ],
+        [
+          35.655445,
+          140.222947
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-04",
+      "area": "chiba",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "千葉県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 331,
+      "legs": [
+        {
+          "from": "千葉駅",
+          "to": "お茶の水",
+          "distance_km": 1.35,
+          "mode": "public_transport",
+          "minutes": 7
+        },
+        {
+          "from": "お茶の水",
+          "to": "千葉市科学館",
+          "distance_km": 0.35,
+          "mode": "walk",
+          "minutes": 7
+        },
+        {
+          "from": "千葉市科学館",
+          "to": "とんでん東寺山店",
+          "distance_km": 2.47,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "とんでん東寺山店",
+          "to": "高徳寺",
+          "distance_km": 3.0,
+          "mode": "public_transport",
+          "minutes": 14
+        },
+        {
+          "from": "高徳寺",
+          "to": "稲毛記念館",
+          "distance_km": 6.23,
+          "mode": "public_transport",
+          "minutes": 29
+        },
+        {
+          "from": "稲毛記念館",
+          "to": "千葉駅",
+          "distance_km": 4.83,
+          "mode": "public_transport",
+          "minutes": 22
+        }
+      ],
+      "start": {
+        "name": "千葉駅",
+        "lat": 35.613,
+        "lng": 140.1135,
+        "to_first_km": 1.4,
+        "from_last_km": 4.8
+      },
+      "total_score": 52.0,
+      "center": [
+        35.612965,
+        140.112408
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4437117898",
+          "name": "お茶の水",
+          "category": "史跡",
+          "lat": 35.6059113,
+          "lng": 140.1256605,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6886812265",
+          "name": "千葉市科学館",
+          "category": "博物館",
+          "lat": 35.6074473,
+          "lng": 140.1223175,
+          "stay_minutes": 45,
+          "score": 50.0,
           "role": "stop"
         },
         {
@@ -312,11 +388,11 @@
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-1420728788",
-          "name": "千葉市立郷土博物館（千葉城）",
-          "category": "博物館",
-          "lat": 35.60456,
-          "lng": 140.127101,
+          "place_id": "osm-node-10113440540",
+          "name": "高徳寺",
+          "category": "観光名所",
+          "lat": 35.6023241,
+          "lng": 140.1261924,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -334,24 +410,162 @@
       ],
       "coordinates": [
         [
-          35.6023241,
-          140.1261924
+          35.6059113,
+          140.1256605
         ],
         [
-          35.6237112,
-          140.1653348
+          35.6074473,
+          140.1223175
         ],
         [
           35.6292803,
           140.1270765
         ],
         [
-          35.60456,
-          140.127101
+          35.6023241,
+          140.1261924
         ],
         [
           35.6198607,
           140.0607929
+        ]
+      ]
+    },
+    {
+      "id": "osm-chiba-05",
+      "area": "chiba",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "千葉県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 374,
+      "legs": [
+        {
+          "from": "千葉駅",
+          "to": "千葉市立 加曽利貝塚博物館",
+          "distance_km": 4.83,
+          "mode": "public_transport",
+          "minutes": 22
+        },
+        {
+          "from": "千葉市立 加曽利貝塚博物館",
+          "to": "千葉市立郷土博物館（千葉城）",
+          "distance_km": 4.06,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "千葉市立郷土博物館（千葉城）",
+          "to": "とんでん東寺山店",
+          "distance_km": 2.75,
+          "mode": "public_transport",
+          "minutes": 13
+        },
+        {
+          "from": "とんでん東寺山店",
+          "to": "稲毛浅間神社",
+          "distance_km": 4.13,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "稲毛浅間神社",
+          "to": "天福寺",
+          "distance_km": 5.53,
+          "mode": "public_transport",
+          "minutes": 25
+        },
+        {
+          "from": "天福寺",
+          "to": "千葉駅",
+          "distance_km": 7.95,
+          "mode": "public_transport",
+          "minutes": 36
+        }
+      ],
+      "start": {
+        "name": "千葉駅",
+        "lat": 35.613,
+        "lng": 140.1135,
+        "to_first_km": 4.8,
+        "from_last_km": 8.0
+      },
+      "total_score": 46.0,
+      "center": [
+        35.635575,
+        140.120611
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-1420728764",
+          "name": "千葉市立 加曽利貝塚博物館",
+          "category": "博物館",
+          "lat": 35.6237112,
+          "lng": 140.1653348,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420728788",
+          "name": "千葉市立郷土博物館（千葉城）",
+          "category": "博物館",
+          "lat": 35.60456,
+          "lng": 140.127101,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6997014174",
+          "name": "とんでん東寺山店",
+          "category": "飲食店",
+          "lat": 35.6292803,
+          "lng": 140.1270765,
+          "stay_minutes": 60,
+          "score": 70.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-1554934358",
+          "name": "稲毛浅間神社",
+          "category": "観光名所",
+          "lat": 35.6365088,
+          "lng": 140.0822689,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1534974955",
+          "name": "天福寺",
+          "category": "観光名所",
+          "lat": 35.683816,
+          "lng": 140.1012742,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.6237112,
+          140.1653348
+        ],
+        [
+          35.60456,
+          140.127101
+        ],
+        [
+          35.6292803,
+          140.1270765
+        ],
+        [
+          35.6365088,
+          140.0822689
+        ],
+        [
+          35.683816,
+          140.1012742
         ]
       ]
     }

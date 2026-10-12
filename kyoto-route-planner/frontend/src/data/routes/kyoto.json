@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:59.795088+00:00",
+  "generated_at": "2026-10-12T04:55:47.022929+00:00",
   "area": "kyoto",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-kyoto-01",
       "area": "kyoto",
       "pattern": "half_day",
-      "theme": "nature",
+      "course": "half_day",
       "title": "京都府の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 159,
+      "estimated_minutes": 182,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "伏見稲荷大社",
+          "distance_km": 1.91,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "伏見稲荷大社",
+          "to": "南東から見た二条城東南隅櫓の眺め",
+          "distance_km": 4.9,
+          "mode": "public_transport",
+          "minutes": 23
+        },
+        {
+          "from": "南東から見た二条城東南隅櫓の眺め",
+          "to": "西から見た二条城東南隅櫓の眺め",
+          "distance_km": 0.04,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "西から見た二条城東南隅櫓の眺め",
+          "to": "京都駅",
+          "distance_km": 3.03,
+          "mode": "public_transport",
+          "minutes": 14
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 1.9,
+        "from_last_km": 3.0
+      },
       "total_score": 75.0,
       "center": [
         34.99772,
@@ -67,9 +105,46 @@
       "id": "osm-kyoto-02",
       "area": "kyoto",
       "pattern": "half_day",
-      "theme": "nature",
+      "course": "half_day",
       "title": "京都府の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 152,
+      "estimated_minutes": 189,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "北東から見た二条城本丸の城壁と内堀の眺望",
+          "distance_km": 3.36,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "北東から見た二条城本丸の城壁と内堀の眺望",
+          "to": "西から見た二条城東南隅櫓の眺め",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "西から見た二条城東南隅櫓の眺め",
+          "to": "平安神宮社号標",
+          "distance_km": 3.26,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "平安神宮社号標",
+          "to": "京都駅",
+          "distance_km": 3.8,
+          "mode": "public_transport",
+          "minutes": 18
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 3.4,
+        "from_last_km": 3.8
+      },
       "total_score": 75.0,
       "center": [
         35.014083,
@@ -126,9 +201,46 @@
       "id": "osm-kyoto-03",
       "area": "kyoto",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "京都府の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 173,
+      "estimated_minutes": 230,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "世界遺産　金閣鹿苑寺",
+          "distance_km": 6.48,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "世界遺産　金閣鹿苑寺",
+          "to": "二条城二ﾉ丸御殿",
+          "distance_km": 3.36,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "二条城二ﾉ丸御殿",
+          "to": "史蹟 慈照寺銀閣寺奮境内",
+          "distance_km": 4.71,
+          "mode": "public_transport",
+          "minutes": 22
+        },
+        {
+          "from": "史蹟 慈照寺銀閣寺奮境内",
+          "to": "京都駅",
+          "distance_km": 5.85,
+          "mode": "public_transport",
+          "minutes": 27
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 6.5,
+        "from_last_km": 5.9
+      },
       "total_score": 75.0,
       "center": [
         35.026559,
@@ -185,9 +297,60 @@
       "id": "osm-kyoto-04",
       "area": "kyoto",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "京都府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 298,
+      "estimated_minutes": 340,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "史蹟及名勝 銀閣寺慈照寺庭園",
+          "distance_km": 5.77,
+          "mode": "public_transport",
+          "minutes": 26
+        },
+        {
+          "from": "史蹟及名勝 銀閣寺慈照寺庭園",
+          "to": "平安神宮神苑",
+          "distance_km": 1.85,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "平安神宮神苑",
+          "to": "茶乃逢 二条城店",
+          "distance_km": 2.84,
+          "mode": "public_transport",
+          "minutes": 13
+        },
+        {
+          "from": "茶乃逢 二条城店",
+          "to": "眞言宗総本山 東寺",
+          "distance_km": 3.8,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "眞言宗総本山 東寺",
+          "to": "旧二条城の石垣",
+          "distance_km": 3.84,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "旧二条城の石垣",
+          "to": "京都駅",
+          "distance_km": 3.35,
+          "mode": "public_transport",
+          "minutes": 16
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 5.8,
+        "from_last_km": 3.3
+      },
       "total_score": 72.0,
       "center": [
         35.010009,
@@ -272,9 +435,60 @@
       "id": "osm-kyoto-05",
       "area": "kyoto",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "京都府の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 276,
+      "estimated_minutes": 322,
+      "legs": [
+        {
+          "from": "京都駅",
+          "to": "京都御所",
+          "distance_km": 4.16,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "京都御所",
+          "to": "京都御所入口",
+          "distance_km": 0.3,
+          "mode": "walk",
+          "minutes": 6
+        },
+        {
+          "from": "京都御所入口",
+          "to": "茶乃逢 二条城店",
+          "distance_km": 1.64,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "茶乃逢 二条城店",
+          "to": "京都市学校歴史博物館",
+          "distance_km": 1.97,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "京都市学校歴史博物館",
+          "to": "京都市考古資料館",
+          "distance_km": 3.57,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "京都市考古資料館",
+          "to": "京都駅",
+          "distance_km": 4.99,
+          "mode": "public_transport",
+          "minutes": 23
+        }
+      ],
+      "start": {
+        "name": "京都駅",
+        "lat": 34.9858,
+        "lng": 135.7588,
+        "to_first_km": 4.2,
+        "from_last_km": 5.0
+      },
       "total_score": 61.0,
       "center": [
         35.018652,
