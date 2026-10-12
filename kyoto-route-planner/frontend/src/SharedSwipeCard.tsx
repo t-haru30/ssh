@@ -17,6 +17,7 @@ export type SharedSwipeCardProps = {
   title: string;
   description?: string;
   summary?: string;
+  transportModeSummary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
   authorName?: string | null;
@@ -48,6 +49,7 @@ export function SharedSwipeCard({
   title,
   description,
   summary,
+  transportModeSummary,
   spots,
   imageUrl,
   authorName,
@@ -151,6 +153,9 @@ export function SharedSwipeCard({
         <h3 title={title}>{title}</h3>
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
+        {transportModeSummary && (
+          <p className="swipe-transport-modes">移動手段: {transportModeSummary}</p>
+        )}
         <ul className="swipe-spot-list">
           {spots.slice(0, MAX_VISIBLE_SPOTS).map((spot) => (
             <li key={spot.id}>

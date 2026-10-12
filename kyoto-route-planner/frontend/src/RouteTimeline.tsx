@@ -5,6 +5,7 @@ import type {
   RouteLeg,
   RouteTimelineItem,
 } from "./types";
+import { formatTransportModes } from "./transportModes";
 
 type TimelineSpot = Extract<RouteTimelineItem, { type: "spot" }> & {
   detail?: string;
@@ -367,7 +368,18 @@ function summarizeTimeline(items: TimelineItem[]) {
     if (item.type !== "transit") return sum;
     return sum + (item.duration_minutes ?? durationBetween(item.start_time, item.end_time) ?? 0);
   }, 0);
-  return { stops, first: times[0] ?? null, last: times[times.length - 1] ?? null, transitMinutes };
+  const transportModes = formatTransportModes(items
+    .filter((item): item is TimelineTransit => item.type === "transit")
+    .flatMap((item) => item.legs?.length
+      ? item.legs.map((leg) => leg.mode)
+      : [item.mode]));
+  return {
+    stops,
+    first: times[0] ?? null,
+    last: times[times.length - 1] ?? null,
+    transitMinutes,
+    transportModes,
+  };
 }
 
 export function RouteTimeline({ items }: RouteTimelineProps) {
@@ -380,6 +392,7 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
           <span>{summary.first} 出発 → {summary.last} 着</span>
           <span>立ち寄り {summary.stops}か所</span>
           {summary.transitMinutes > 0 && <span>移動 合計{formatDuration(summary.transitMinutes)}</span>}
+          <span>移動手段: {summary.transportModes}</span>
         </p>
       )}
       <ol className="timeline-list">

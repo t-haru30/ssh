@@ -27,7 +27,11 @@ const route: DatasetRoute = {
   theme: "temple",
   title: "寺院と庭園を巡る",
   estimated_minutes: 150,
-  legs: [],
+  legs: [
+    { from: "京都駅", to: "清水寺", distance_km: 1, mode: "car", minutes: 5 },
+    { from: "清水寺", to: "庭園", distance_km: 1, mode: "car", minutes: 5 },
+    { from: "庭園", to: "京都駅", distance_km: 1, mode: "walk", minutes: 15 },
+  ],
   start: { name: "京都駅", lat: 34.985849, lng: 135.758766, to_first_km: 1, from_last_km: 1 },
   total_score: 10,
   center: [135.76, 35.0],
@@ -60,8 +64,45 @@ describe("DiscoverCard", () => {
     expect(container.querySelector(".swipe-cover-placeholder")).toBeTruthy();
     expect(screen.getByText("半日コース")).toBeTruthy();
     expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
+    expect(screen.getByText("移動手段: 車・徒歩", { selector: ".swipe-transport-modes" })).toBeTruthy();
     expect(screen.getByText("清水寺", { selector: "strong" })).toBeTruthy();
     expect(screen.getByText("寺院")).toBeTruthy();
     expect(screen.getByText("しおりを開く", { selector: ".swipe-stamp.accept" })).toBeTruthy();
+  });
+
+  it("shows public transit when a route includes it", () => {
+    const routeWithTransit: DatasetRoute = {
+      ...route,
+      legs: [
+        ...route.legs,
+        { from: "庭園", to: "京都駅", distance_km: 1, mode: "public_transport", minutes: 10 },
+      ],
+    };
+
+    render(
+      <DiscoverCard
+        route={routeWithTransit}
+        depth={0}
+        exitDirection="like"
+        onSwipe={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText("移動手段: 車・徒歩・公共交通", { selector: ".swipe-transport-modes" }),
+    ).toBeTruthy();
+  });
+
+  it("marks the route mode as unset when no leg data is available", () => {
+    render(
+      <DiscoverCard
+        route={{ ...route, legs: [] }}
+        depth={0}
+        exitDirection="like"
+        onSwipe={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("移動手段: 未設定", { selector: ".swipe-transport-modes" })).toBeTruthy();
   });
 });

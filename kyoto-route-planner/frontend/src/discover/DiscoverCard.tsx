@@ -2,6 +2,7 @@ import { SharedSwipeCard } from "../SharedSwipeCard";
 import type { SharedSwipeDirection } from "../SharedSwipeCard";
 import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
+import { formatTransportModes } from "../transportModes";
 
 export type DiscoverDirection = "like" | "pass";
 
@@ -43,6 +44,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe }: DiscoverC
       summary={isIdea
         ? `${route.places.length}か所のスポットを巡るConcierGO`
         : `⏱ 総所要時間 約${formatMinutes(route.estimated_minutes)}`}
+      transportModeSummary={isIdea ? "経路未検索" : formatTransportModes(route.legs.map((leg) => leg.mode))}
       spots={isIdea
         ? route.places.map((place) => ({
           id: place.id,

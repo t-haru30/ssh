@@ -103,7 +103,7 @@ describe("RouteDetailModal", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<RouteDetailModal route={route} onClose={() => undefined} />);
-
+    expect(await screen.findByText("🚆 JR奈良線")).toBeTruthy();
     expect(await screen.findByText("🚆 JR奈良線")).toBeTruthy();
     expect(screen.getByText("運行時刻 09:02〜09:08")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
