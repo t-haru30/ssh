@@ -44,7 +44,7 @@
 .discover-mode .swipe-card { position: relative; inset: auto; grid-area: 1 / 1; width: 100%; height: auto; max-height: none; }
 .discover-mode .swipe-card[inert] { position: absolute; inset: 0; height: 100%; }
 .discover-mode .swipe-card-copy { flex: 0 1 auto; overflow: visible; padding: 24px; gap: 12px; }
-.discover-mode .swipe-card-copy h3 { font-size: 23px; line-height: 1.6; }
+.discover-mode .swipe-card-copy h3 { font-size: 23px; line-height: 1.6; text-wrap: balance; }
 .discover-mode .swipe-cover { max-height: 260px; }
 .discover-mode .swipe-story, .discover-mode .swipe-distance { font-size: 14px; line-height: 1.7; }
 .discover-mode .swipe-spot-copy strong { font-size: 14px; line-height: 1.6; }
