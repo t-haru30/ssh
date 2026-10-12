@@ -25,7 +25,7 @@ from app.models import (
     RouteLeg,
 )
 from app.poi_search import search_yahoo_catalog
-from app.places import resolve_origin
+from app.places import is_unsuitable_place, resolve_origin
 from app.search import parse_place_query
 
 ITINERARY_REQUEST_BUDGET_SECONDS = 55.0
@@ -355,7 +355,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     )
     all_spots = [
         hit.place for hit in spot_search.results
-        if not _is_lodging(hit.place)
+        if not _is_lodging(hit.place) and not is_unsuitable_place(hit.place)
     ]
     selected_hotel = min(
         hotels,
@@ -790,7 +790,10 @@ async def plan_itinerary(request: ItineraryRequest) -> ItinerarySuggestion:
             detail=detail or "Yahoo!ローカルサーチで条件に合うスポットが見つかりませんでした。",
         )
 
-    candidates = [hit.place for hit in search_result.results[: request.stop_count]]
+    candidates = [
+        hit.place for hit in search_result.results
+        if request.selected_places is not None or not is_unsuitable_place(hit.place)
+    ][: request.stop_count]
     if len(candidates) < request.stop_count:
         raise HTTPException(
             status_code=404,

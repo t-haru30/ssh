@@ -54,7 +54,8 @@ from app.models import (
     Theme,
 )
 
-from app.places import choose_place_sets, list_origins, resolve_origin
+from app.places import choose_place_sets, is_unsuitable_place, list_origins, resolve_origin
+from app.popularity import enrich_places_with_fame
 
 
 logger = logging.getLogger(__name__)
@@ -484,6 +485,13 @@ async def _route_candidates(
         raise HTTPException(
             status_code=404,
             detail=search.note or "Yahoo!ローカルサーチで条件に合う候補が見つかりませんでした。",
+        )
+    candidates = await enrich_places_with_fame(candidates)
+    candidates = [place for place in candidates if not is_unsuitable_place(place)]
+    if not candidates:
+        raise HTTPException(
+            status_code=404,
+            detail="観光に適した候補が見つかりませんでした。",
         )
     return candidates, f"候補地検索: {search.note}"
 

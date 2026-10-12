@@ -35,7 +35,16 @@ from app.models import (
     PlaceSearchResponse,
     RouteLeg,
 )
-from app.places import calculate_place_score, choose_place_sets, choose_places, list_origins
+from app.places import (
+    calculate_place_score,
+    choose_place_sets,
+    choose_places,
+    is_unsuitable_place,
+    list_origins,
+    score_breakdown,
+)
+from app.popularity import enrich_places_with_fame
+import httpx
 
 
 def sample_places() -> list[Place]:
@@ -346,7 +355,8 @@ class RoutePlannerTests(unittest.TestCase):
         ]
         search = AsyncMock(side_effect=[base_response, *landmark_responses])
 
-        with patch("app.main.search_yahoo_catalog", search):
+        with patch("app.main.search_yahoo_catalog", search), \
+             patch("app.main.enrich_places_with_fame", new=AsyncMock(side_effect=lambda places: places)):
             candidates, _ = asyncio.run(_route_candidates("history"))
 
         self.assertEqual(
@@ -386,7 +396,8 @@ class RoutePlannerTests(unittest.TestCase):
         )
         search = AsyncMock(return_value=response)
 
-        with patch("app.main.search_yahoo_catalog", new=search):
+        with patch("app.main.search_yahoo_catalog", new=search), \
+             patch("app.main.enrich_places_with_fame", new=AsyncMock(side_effect=lambda places: places)):
             candidates, _ = asyncio.run(_route_candidates("all", origin))
 
         self.assertEqual([candidate.name for candidate in candidates], ["高尾山"])
@@ -945,12 +956,15 @@ class RoutePlannerTests(unittest.TestCase):
 
     def test_yahoo_score_prioritizes_relevant_complete_place_records(self):
         popular = sample_places()[0].model_copy(update={
+            "themes": ["history", "nature"],
+            "tags": {"sitelinks": "40", "pageviews_30d": "3000"},
+        })
+        ordinary = sample_places()[1].model_copy(update={
             "category": "文化財",
             "description": "歴史ある寺院",
             "address": "京都市東山区",
             "themes": ["history", "nature"],
         })
-        ordinary = sample_places()[1]
 
         self.assertGreater(
             calculate_place_score(popular, "history"),
@@ -960,6 +974,50 @@ class RoutePlannerTests(unittest.TestCase):
             choose_places("nature", 1, "京都駅", [ordinary, popular])[0].id,
             popular.id,
         )
+
+    def test_information_completeness_does_not_add_score(self):
+        bare = sample_places()[0]
+        complete = bare.model_copy(update={
+            "category": "公園",
+            "description": "説明あり",
+            "address": "京都市",
+        })
+
+        self.assertEqual(
+            calculate_place_score(bare, "nature"),
+            calculate_place_score(complete, "nature"),
+        )
+        self.assertGreater(score_breakdown(complete, "nature")["confidence"], score_breakdown(bare, "nature")["confidence"])
+
+    def test_cemeteries_and_hospitals_are_excluded_from_selection(self):
+        base = sample_places()[0]
+        cemetery = base.model_copy(update={"id": "cemetery", "name": "中沢墓園", "category": "公園", "latitude": 35.0, "longitude": 135.76})
+        park = base.model_copy(update={"id": "park", "name": "蜆塚公園", "latitude": 35.05, "longitude": 135.8})
+        famous_graveyard = base.model_copy(update={"id": "okunoin", "name": "高野山奥の院墓地"})
+        notable_cemetery = base.model_copy(update={"id": "notable", "name": "有名霊園", "tags": {"sitelinks": "12"}})
+
+        self.assertTrue(is_unsuitable_place(cemetery))
+        self.assertFalse(is_unsuitable_place(famous_graveyard))
+        self.assertFalse(is_unsuitable_place(notable_cemetery))
+        selected = choose_places("all", 1, "京都駅", [cemetery, park])
+        self.assertEqual([place.id for place in selected], ["park"])
+
+    def test_missing_fame_data_uses_neutral_value_and_records_breakdown(self):
+        place = sample_places()[0]
+        breakdown = score_breakdown(place, "nature")
+
+        self.assertEqual(breakdown["fame_measured"], 0.0)
+        self.assertEqual(breakdown["fame"], 6.0)
+        selected = choose_places("nature", 1, "京都駅", [place])
+        self.assertEqual(selected[0].score_breakdown, score_breakdown(place, "nature"))
+
+    def test_fame_enrichment_failure_leaves_places_unchanged(self):
+        places = sample_places()
+
+        with patch("app.popularity._fetch_fame", new=AsyncMock(side_effect=httpx.ConnectError("down"))):
+            enriched = asyncio.run(enrich_places_with_fame(places))
+
+        self.assertEqual(enriched, places)
 
     def test_yahoo_score_uses_category_and_description_completeness(self):
         restaurant = sample_places()[2].model_copy(update={

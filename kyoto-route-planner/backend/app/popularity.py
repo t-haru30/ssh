@@ -1,4 +1,4 @@
-import sqlite3
+﻿import sqlite3
 import asyncio
 from math import asin, cos, radians, sin, sqrt
 from contextlib import closing
@@ -390,6 +390,82 @@ def _upsert_results(
                 (place.id, osm_score, wikidata_score, _log_score(views), open_data_score, total_score, POPULARITY_SCORE_VERSION, fetched_at),
             )
         connection.commit()
+
+
+_fame_cache: dict[str, tuple[datetime, dict[str, str]]] = {}
+FAME_REQUEST_TIMEOUT_SECONDS = 8.0
+FAME_TIMEOUT_SECONDS = 12.0
+
+
+async def _fetch_fame(places: list[Place]) -> None:
+    async with httpx.AsyncClient(
+        timeout=FAME_REQUEST_TIMEOUT_SECONDS,
+        headers={"User-Agent": POPULARITY_USER_AGENT},
+    ) as client:
+        batches = [places[offset : offset + 25] for offset in range(0, len(places), 25)]
+        results = await asyncio.gather(
+            *(_fetch_yahoo_wikidata(client, batch) for batch in batches)
+        )
+        wikidata: dict[str, dict[str, str]] = {}
+        place_qids: dict[str, str] = {}
+        for rows, qids in results:
+            wikidata.update(rows)
+            place_qids.update(qids)
+
+        async def pageviews_for(place: Place) -> int | None:
+            title = wikidata[place_qids[place.id]].get("jaTitle")
+            if not title:
+                return None
+            try:
+                return await _fetch_pageviews(client, title, "ja")
+            except (httpx.HTTPError, ValueError):
+                return None
+
+        matched = [place for place in places if place.id in place_qids]
+        views = await asyncio.gather(*(pageviews_for(place) for place in matched))
+        views_by_id = dict(zip((place.id for place in matched), views))
+
+    fetched_at = _now()
+    for place in places:
+        qid = place_qids.get(place.id)
+        if not qid:
+            _fame_cache[place.id] = (fetched_at, {})
+            continue
+        row = wikidata[qid]
+        tags = {"wikidata": qid}
+        if row.get("jaTitle"):
+            tags["wikipedia"] = f"ja:{row['jaTitle']}"
+        if row.get("sitelinks"):
+            tags["sitelinks"] = str(row["sitelinks"])
+        if views_by_id.get(place.id) is not None:
+            tags["pageviews_30d"] = str(views_by_id[place.id])
+        _fame_cache[place.id] = (fetched_at, tags)
+
+
+async def enrich_places_with_fame(places: list[Place]) -> list[Place]:
+    """Attach Wikidata sitelinks / pageviews as tags. Never raises on API failure.
+
+    Places whose lookup failed are left untouched so scoring falls back to a
+    neutral fame value instead of treating them as unknown-and-unpopular.
+    """
+    cutoff = _now() - WIKIDATA_TTL
+    pending = [
+        place
+        for place in places
+        if place.id not in _fame_cache or _fame_cache[place.id][0] < cutoff
+    ]
+    if pending:
+        try:
+            await asyncio.wait_for(_fetch_fame(pending), timeout=FAME_TIMEOUT_SECONDS)
+        except (asyncio.TimeoutError, httpx.HTTPError, ValueError) as error:
+            logger.warning("Fame enrichment skipped: %s", type(error).__name__)
+    enriched: list[Place] = []
+    for place in places:
+        cached = _fame_cache.get(place.id)
+        if cached and cached[1]:
+            place = place.model_copy(update={"tags": {**place.tags, **cached[1]}})
+        enriched.append(place)
+    return enriched
 
 
 def _place_score(place: Place) -> float:
