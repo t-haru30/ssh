@@ -20,6 +20,7 @@ class Place(BaseModel):
     themes: list[Theme] = Field(max_length=10)
     address: str = Field(default="", max_length=500)
     tags: dict[str, str] = Field(default_factory=dict)
+    score_breakdown: dict[str, float] | None = None
 
 class Origin(BaseModel):
     name: str = Field(min_length=1, max_length=80)

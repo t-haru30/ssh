@@ -1,5 +1,5 @@
 import random
-from math import asin, cos, radians, sin, sqrt
+from math import asin, cos, log10, radians, sin, sqrt
 from pathlib import Path
 import re
 
@@ -62,23 +62,58 @@ def resolve_origin(
     return origin
 
 
-def calculate_place_score(place: Place, theme: Theme) -> float:
-    """Score Yahoo places by tourism relevance and verified prominence signals."""
-    score = 0.0
-    score += 5 if place.category.strip() else 0
-    score += 5 if place.address.strip() else 0
-    score += 5 if place.description.strip() else 0
-    if theme != "all" and theme in place.themes:
-        score += 20
-    elif theme == "all" and place.themes:
-        score += 10
-    genre_code = place.tags.get("yahoo_genre_code", "")
-    if genre_code.startswith(("0424", "0305", "0303")):
-        score += 15
-    score += 10 if place.tags.get("wikidata", "").startswith("Q") else 0
-    score += 10 if place.tags.get("wikipedia", "").strip() else 0
+UNSUITABLE_PLACE_PATTERN = re.compile(
+    "墓園|墓地|霊園|霊苑|斎場|斎苑|火葬場|葬祭|葬儀|納骨|"
+    "工場|工業団地|病院|医院|クリニック|診療所|発電所|処理場|清掃センター"
+)
+FAMOUS_GRAVEYARD_NAMES = ("奥の院", "奥之院")
+FAME_EXCEPTION_SITELINKS = 10
+NEUTRAL_FAME = 10.0
+LINKED_FAME = 40.0
+FAME_WEIGHT = 0.6
+TOURISM_GENRE_PREFIXES = ("0424", "0305002", "0305003", "0303")
+LANDMARK_SCORE_FLOOR = {45.0: 90.0, 40.0: 85.0}
+
+
+def _sitelinks(place: Place) -> int | None:
+    try:
+        return int(place.tags["sitelinks"])
+    except (KeyError, ValueError):
+        return None
+
+
+def is_unsuitable_place(place: Place) -> bool:
+    """Exclude places that are not sightseeing destinations before scoring."""
+    if not UNSUITABLE_PLACE_PATTERN.search(f"{place.name} {place.category}"):
+        return False
+    if any(name in place.name for name in FAMOUS_GRAVEYARD_NAMES):
+        return False
+    return (_sitelinks(place) or 0) < FAME_EXCEPTION_SITELINKS
+
+
+def _fame_score(place: Place) -> tuple[float, bool]:
+    """Return (0-100 fame, whether it came from measured signals)."""
+    parts: list[float] = []
+    sitelinks = _sitelinks(place)
+    if sitelinks is not None:
+        parts.append(min(100.0, log10(sitelinks + 1) / log10(101) * 100))
+    try:
+        pageviews = int(place.tags["pageviews_30d"])
+    except (KeyError, ValueError):
+        pageviews = None
+    if pageviews is not None:
+        parts.append(min(100.0, log10(pageviews + 1) / 6 * 100))
+    if parts:
+        return sum(parts) / len(parts), True
+    if place.tags.get("wikidata", "").startswith("Q") or place.tags.get("wikipedia", "").strip():
+        return LINKED_FAME, True
+    # Unknown (e.g. external API failure) must not be treated as "unpopular".
+    return NEUTRAL_FAME, False
+
+
+def _landmark_boost(place: Place) -> float:
     normalized_name = re.sub(r"[\s　・]+", "", place.name)
-    score += max(
+    return max(
         (
             boost
             for landmark, boost in PROMINENT_LANDMARKS.items()
@@ -86,7 +121,45 @@ def calculate_place_score(place: Place, theme: Theme) -> float:
         ),
         default=0.0,
     )
-    return min(score, 100.0)
+
+
+def place_confidence(place: Place) -> float:
+    """Information completeness (0-1). Not part of the tourism score."""
+    filled = sum(
+        bool(value.strip()) for value in (place.category, place.address, place.description)
+    )
+    return round(filled / 3 * 0.7 + (0.3 if _fame_score(place)[1] else 0.0), 3)
+
+
+def score_breakdown(place: Place, theme: Theme) -> dict[str, float]:
+    genre_code = place.tags.get("yahoo_genre_code", "")
+    genre_fit = 25.0 if genre_code.startswith(TOURISM_GENRE_PREFIXES) else 15.0
+    if theme != "all" and theme in place.themes:
+        theme_fit = 20.0
+    elif theme == "all" and place.themes:
+        theme_fit = 8.0
+    else:
+        theme_fit = 0.0
+    fame, fame_known = _fame_score(place)
+    fame_points = fame * FAME_WEIGHT
+    subtotal = genre_fit + theme_fit + fame_points
+    boost = _landmark_boost(place)
+    floor = LANDMARK_SCORE_FLOOR.get(boost, 0.0)
+    landmark_adjustment = max(0.0, floor - subtotal)
+    return {
+        "genre_fit": round(genre_fit, 1),
+        "theme_fit": round(theme_fit, 1),
+        "fame": round(fame_points, 1),
+        "landmark_floor": round(landmark_adjustment, 1),
+        "total": round(min(subtotal + landmark_adjustment, 100.0), 1),
+        "fame_measured": 1.0 if fame_known else 0.0,
+        "confidence": place_confidence(place),
+    }
+
+
+def calculate_place_score(place: Place, theme: Theme) -> float:
+    """Score by genre/theme fit and nationwide fame (Wikidata sitelinks, pageviews)."""
+    return score_breakdown(place, theme)["total"]
 
 
 def _distance_km(first: tuple[float, float], second: tuple[float, float]) -> float:
@@ -147,6 +220,8 @@ def choose_places(
 
     remaining_by_id: dict[str, Place] = {}
     for place in candidates:
+        if is_unsuitable_place(place):
+            continue
         if theme == "all" or theme in place.themes:
             remaining_by_id.setdefault(place.id, place)
     remaining = list(remaining_by_id.values())
@@ -161,11 +236,12 @@ def choose_places(
             remaining,
             key=lambda place: (
                 -_selection_score(place, theme, current, cached_scores, variation),
+                -place_confidence(place),
                 place.id,
             ),
         )
         closest = ranked[0]
-        selected.append(closest)
+        selected.append(closest.model_copy(update={"score_breakdown": score_breakdown(closest, theme)}))
         remaining.remove(closest)
         current = (closest.latitude, closest.longitude)
 
@@ -221,7 +297,8 @@ def choose_place_sets(
     remaining = [
         place
         for place in candidates
-        if theme == "all" or theme in place.themes
+        if not is_unsuitable_place(place)
+        and (theme == "all" or theme in place.themes)
     ]
     routes = [first_route]
     rng = random.SystemRandom()
@@ -299,4 +376,12 @@ def choose_place_sets(
             used_ids.update(place.id for place in selected)
             used_categories.update(place.category for place in selected)
 
-    return routes
+    return [
+        [
+            place
+            if place.score_breakdown is not None
+            else place.model_copy(update={"score_breakdown": score_breakdown(place, theme)})
+            for place in route
+        ]
+        for route in routes
+    ]
