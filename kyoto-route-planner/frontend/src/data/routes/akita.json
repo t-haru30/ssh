@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:28.276492+00:00",
+  "generated_at": "2026-10-12T06:25:45.277821+00:00",
   "area": "akita",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "秋田県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 434,
+      "estimated_minutes": 494,
       "legs": [
         {
           "from": "秋田駅",
@@ -22,10 +22,17 @@
         },
         {
           "from": "秋田県立近代美術館",
-          "to": "美郷町歴史民俗資料館・佐々木毅記念室",
+          "to": "昼食: 要検討",
           "distance_km": 15.87,
           "mode": "car",
           "minutes": 36
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "美郷町歴史民俗資料館・佐々木毅記念室",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "美郷町歴史民俗資料館・佐々木毅記念室",
@@ -49,10 +56,10 @@
         "to_first_km": 59.3,
         "from_last_km": 39.2
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        39.442787,
-        140.557618
+        39.440765,
+        140.559104
       ],
       "spots": [
         {
@@ -64,6 +71,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-akita-1",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 39.4346999,
+          "lng": 140.5635596,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-7235324132",
@@ -90,6 +108,10 @@
         [
           39.2924778,
           140.5475726
+        ],
+        [
+          39.4346999,
+          140.5635596
         ],
         [
           39.4346999,
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "秋田県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 437,
+      "estimated_minutes": 497,
       "legs": [
         {
           "from": "秋田駅",
@@ -214,10 +236,17 @@
         },
         {
           "from": "蚶満寺",
-          "to": "龍源寺",
+          "to": "昼食: 要検討",
           "distance_km": 19.72,
           "mode": "car",
           "minutes": 44
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "龍源寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "龍源寺",
@@ -241,10 +270,10 @@
         "to_first_km": 59.0,
         "from_last_km": 36.4
       },
-      "total_score": 36.7,
+      "total_score": 27.5,
       "center": [
-        39.281349,
-        140.027356
+        39.268895,
+        140.053275
       ],
       "spots": [
         {
@@ -256,6 +285,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-akita-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 39.2315323,
+          "lng": 140.1310322,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-5179423528",
@@ -288,6 +328,10 @@
           140.1310322
         ],
         [
+          39.2315323,
+          140.1310322
+        ],
+        [
           39.396266,
           140.048091
         ]
@@ -299,135 +343,136 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "秋田県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 477,
+      "estimated_minutes": 521,
       "legs": [
         {
           "from": "秋田駅",
-          "to": "角館小学校跡",
-          "distance_km": 39.34,
+          "to": "小野寺氏彰徳碑",
+          "distance_km": 58.04,
           "mode": "car",
-          "minutes": 88
+          "minutes": 130
         },
         {
-          "from": "角館小学校跡",
-          "to": "南無妙法蓮華経碑",
-          "distance_km": 5.16,
-          "mode": "car",
-          "minutes": 12
+          "from": "小野寺氏彰徳碑",
+          "to": "横手かまくら吟社の碑",
+          "distance_km": 0.16,
+          "mode": "walk",
+          "minutes": 3
         },
         {
-          "from": "南無妙法蓮華経碑",
-          "to": "料亭 登喜和",
-          "distance_km": 4.6,
+          "from": "横手かまくら吟社の碑",
+          "to": "麺條 廣龍",
+          "distance_km": 1.01,
           "mode": "car",
-          "minutes": 11
+          "minutes": 3
         },
         {
-          "from": "料亭 登喜和",
-          "to": "中仙町民歌記念歌碑",
-          "distance_km": 5.63,
+          "from": "麺條 廣龍",
+          "to": "鈴木清文学碑",
+          "distance_km": 1.08,
           "mode": "car",
-          "minutes": 13
+          "minutes": 3
         },
         {
-          "from": "中仙町民歌記念歌碑",
-          "to": "稲荷神社",
-          "distance_km": 6.28,
+          "from": "鈴木清文学碑",
+          "to": "工芸展示館",
+          "distance_km": 3.95,
           "mode": "car",
-          "minutes": 15
+          "minutes": 9
         },
         {
-          "from": "稲荷神社",
+          "from": "工芸展示館",
           "to": "秋田駅",
-          "distance_km": 43.56,
+          "distance_km": 59.24,
           "mode": "car",
-          "minutes": 98
+          "minutes": 133
         }
       ],
       "start": {
         "name": "秋田駅",
         "lat": 39.7173,
         "lng": 140.1288,
-        "to_first_km": 39.3,
-        "from_last_km": 43.6
+        "to_first_km": 58.0,
+        "from_last_km": 59.2
       },
-      "total_score": 32.0,
+      "total_score": 30.0,
       "center": [
-        39.556139,
-        140.550209
+        39.314667,
+        140.565094
       ],
       "spots": [
         {
-          "place_id": "osm-node-10122953152",
-          "name": "角館小学校跡",
+          "place_id": "osm-node-10287067119",
+          "name": "小野寺氏彰徳碑",
           "category": "史跡",
-          "lat": 39.5988272,
-          "lng": 140.5617988,
+          "lat": 39.321254,
+          "lng": 140.5695592,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10185058557",
-          "name": "南無妙法蓮華経碑",
+          "place_id": "osm-node-10774883640",
+          "name": "横手かまくら吟社の碑",
           "category": "史跡",
-          "lat": 39.5547287,
-          "lng": 140.5432117,
+          "lat": 39.3224719,
+          "lng": 140.5705193,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10128172892",
-          "name": "料亭 登喜和",
+          "place_id": "osm-node-12025495037",
+          "name": "麺條 廣龍",
           "category": "飲食店",
-          "lat": 39.5935227,
-          "lng": 140.5618071,
+          "lat": 39.3136209,
+          "lng": 140.5677251,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「鈴木清文学碑」から徒歩目安約14分です。"
         },
         {
-          "place_id": "osm-node-11023072630",
-          "name": "中仙町民歌記念歌碑",
+          "place_id": "osm-node-10774883642",
+          "name": "鈴木清文学碑",
           "category": "史跡",
-          "lat": 39.5450642,
-          "lng": 140.5426655,
+          "lat": 39.3229694,
+          "lng": 140.5712235,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-7236578866",
-          "name": "稲荷神社",
-          "category": "観光名所",
-          "lat": 39.4885515,
-          "lng": 140.5415612,
+          "place_id": "osm-node-10720493540",
+          "name": "工芸展示館",
+          "category": "博物館",
+          "lat": 39.2930165,
+          "lng": 140.546441,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          39.5988272,
-          140.5617988
+          39.321254,
+          140.5695592
         ],
         [
-          39.5547287,
-          140.5432117
+          39.3224719,
+          140.5705193
         ],
         [
-          39.5935227,
-          140.5618071
+          39.3136209,
+          140.5677251
         ],
         [
-          39.5450642,
-          140.5426655
+          39.3229694,
+          140.5712235
         ],
         [
-          39.4885515,
-          140.5415612
+          39.2930165,
+          140.546441
         ]
       ]
     },
@@ -437,110 +482,111 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "秋田県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 504,
+      "estimated_minutes": 521,
       "legs": [
         {
           "from": "秋田駅",
-          "to": "ドンパン節発祥之地",
-          "distance_km": 40.28,
+          "to": "白水碑",
+          "distance_km": 58.0,
           "mode": "car",
-          "minutes": 90
+          "minutes": 130
         },
         {
-          "from": "ドンパン節発祥之地",
-          "to": "古城山城跡",
-          "distance_km": 6.82,
-          "mode": "car",
-          "minutes": 16
-        },
-        {
-          "from": "古城山城跡",
-          "to": "料亭 登喜和",
-          "distance_km": 1.25,
+          "from": "白水碑",
+          "to": "麺條 廣龍",
+          "distance_km": 1.07,
           "mode": "car",
           "minutes": 3
         },
         {
-          "from": "料亭 登喜和",
-          "to": "たつこ像",
-          "distance_km": 6.39,
-          "mode": "car",
-          "minutes": 15
+          "from": "麺條 廣龍",
+          "to": "石坂洋次郎文学碑",
+          "distance_km": 0.7,
+          "mode": "walk",
+          "minutes": 14
         },
         {
-          "from": "たつこ像",
-          "to": "堀川小太郎翁之碑",
-          "distance_km": 13.79,
-          "mode": "car",
-          "minutes": 31
+          "from": "石坂洋次郎文学碑",
+          "to": "孤松沼田先生之碑",
+          "distance_km": 0.05,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "堀川小太郎翁之碑",
+          "from": "孤松沼田先生之碑",
+          "to": "旧田村小学校 閉校記念碑",
+          "distance_km": 9.19,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "旧田村小学校 閉校記念碑",
           "to": "秋田駅",
-          "distance_km": 48.62,
+          "distance_km": 49.83,
           "mode": "car",
-          "minutes": 109
+          "minutes": 112
         }
       ],
       "start": {
         "name": "秋田駅",
         "lat": 39.7173,
         "lng": 140.1288,
-        "to_first_km": 40.3,
-        "from_last_km": 48.6
+        "to_first_km": 58.0,
+        "from_last_km": 49.8
       },
       "total_score": 30.0,
       "center": [
-        39.620635,
-        140.597366
+        39.326707,
+        140.55098
       ],
       "spots": [
         {
-          "place_id": "osm-node-11023072635",
-          "name": "ドンパン節発祥之地",
+          "place_id": "osm-node-10774883643",
+          "name": "白水碑",
           "category": "史跡",
-          "lat": 39.5450701,
-          "lng": 140.5425823,
+          "lat": 39.3228413,
+          "lng": 140.5712147,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2598309170",
-          "name": "古城山城跡",
-          "category": "史跡",
-          "lat": 39.6047474,
-          "lng": 140.5609195,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10128172892",
-          "name": "料亭 登喜和",
+          "place_id": "osm-node-12025495037",
+          "name": "麺條 廣龍",
           "category": "飲食店",
-          "lat": 39.5935227,
-          "lng": 140.5618071,
+          "lat": 39.3136209,
+          "lng": 140.5677251,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「石坂洋次郎文学碑」から徒歩目安約9分です。"
         },
         {
-          "place_id": "osm-node-4717673281",
-          "name": "たつこ像",
+          "place_id": "osm-node-10774883644",
+          "name": "石坂洋次郎文学碑",
           "category": "史跡",
-          "lat": 39.6244647,
-          "lng": 140.6246751,
+          "lat": 39.319692,
+          "lng": 140.5699147,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10089664153",
-          "name": "堀川小太郎翁之碑",
+          "place_id": "osm-node-10774883645",
+          "name": "孤松沼田先生之碑",
           "category": "史跡",
-          "lat": 39.7353696,
-          "lng": 140.6968461,
+          "lat": 39.3197246,
+          "lng": 140.5704962,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10728672633",
+          "name": "旧田村小学校 閉校記念碑",
+          "category": "史跡",
+          "lat": 39.357654,
+          "lng": 140.4755496,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -548,24 +594,24 @@
       ],
       "coordinates": [
         [
-          39.5450701,
-          140.5425823
+          39.3228413,
+          140.5712147
         ],
         [
-          39.6047474,
-          140.5609195
+          39.3136209,
+          140.5677251
         ],
         [
-          39.5935227,
-          140.5618071
+          39.319692,
+          140.5699147
         ],
         [
-          39.6244647,
-          140.6246751
+          39.3197246,
+          140.5704962
         ],
         [
-          39.7353696,
-          140.6968461
+          39.357654,
+          140.4755496
         ]
       ]
     }

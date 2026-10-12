@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:40.868905+00:00",
+  "generated_at": "2026-10-12T06:25:58.725167+00:00",
   "area": "yamanashi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -203,7 +203,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "山梨県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 310,
+      "estimated_minutes": 370,
       "legs": [
         {
           "from": "甲府駅",
@@ -221,10 +221,17 @@
         },
         {
           "from": "身延町歴史民俗資料館",
-          "to": "本遠寺",
+          "to": "昼食: 要検討",
           "distance_km": 9.85,
           "mode": "car",
           "minutes": 22
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "本遠寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "本遠寺",
@@ -241,10 +248,10 @@
         "to_first_km": 28.4,
         "from_last_km": 35.7
       },
-      "total_score": 43.3,
+      "total_score": 32.5,
       "center": [
-        35.412314,
-        138.453452
+        35.399803,
+        138.451534
       ],
       "spots": [
         {
@@ -266,6 +273,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-yamanashi-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.3622681,
+          "lng": 138.4457819,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-1923261787",
@@ -290,6 +308,10 @@
         [
           35.3622681,
           138.4457819
+        ],
+        [
+          35.3622681,
+          138.4457819
         ]
       ]
     },
@@ -299,42 +321,42 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "山梨県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 441,
+      "estimated_minutes": 400,
       "legs": [
         {
           "from": "甲府駅",
-          "to": "河口湖オルゴールの森美術館",
-          "distance_km": 24.21,
+          "to": "太宰治文学碑",
+          "distance_km": 22.96,
           "mode": "car",
-          "minutes": 54
+          "minutes": 52
         },
         {
-          "from": "河口湖オルゴールの森美術館",
-          "to": "小室浅間神社",
-          "distance_km": 4.37,
-          "mode": "car",
-          "minutes": 10
+          "from": "太宰治文学碑",
+          "to": "太宰治記念館",
+          "distance_km": 0.06,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "小室浅間神社",
-          "to": "天下茶屋",
-          "distance_km": 7.07,
-          "mode": "car",
-          "minutes": 16
+          "from": "太宰治記念館",
+          "to": "御坂峠",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "天下茶屋",
-          "to": "妙法寺",
-          "distance_km": 5.99,
+          "from": "御坂峠",
+          "to": "夢庵",
+          "distance_km": 10.96,
           "mode": "car",
-          "minutes": 14
+          "minutes": 25
         },
         {
-          "from": "妙法寺",
+          "from": "夢庵",
           "to": "都留市博物館ミュージアム都留",
-          "distance_km": 14.63,
-          "mode": "car",
-          "minutes": 33
+          "distance_km": 0.27,
+          "mode": "walk",
+          "minutes": 6
         },
         {
           "from": "都留市博物館ミュージアム都留",
@@ -348,54 +370,55 @@
         "name": "甲府駅",
         "lat": 35.667,
         "lng": 138.5686,
-        "to_first_km": 24.2,
+        "to_first_km": 23.0,
         "from_last_km": 33.1
       },
-      "total_score": 46.0,
+      "total_score": 34.0,
       "center": [
-        35.526632,
-        138.802308
+        35.553318,
+        138.832005
       ],
       "spots": [
         {
-          "place_id": "osm-node-1420936032",
-          "name": "河口湖オルゴールの森美術館",
+          "place_id": "osm-node-11282392631",
+          "name": "太宰治文学碑",
+          "category": "史跡",
+          "lat": 35.5565937,
+          "lng": 138.7832038,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11282392655",
+          "name": "太宰治記念館",
           "category": "博物館",
-          "lat": 35.522377,
-          "lng": 138.768691,
+          "lat": 35.556499,
+          "lng": 138.7838728,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10055316117",
-          "name": "小室浅間神社",
-          "category": "観光名所",
-          "lat": 35.4948598,
-          "lng": 138.8031488,
+          "place_id": "osm-node-496001614",
+          "name": "御坂峠",
+          "category": "展望地",
+          "lat": 35.5563725,
+          "lng": 138.7836798,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1798325969",
-          "name": "天下茶屋",
+          "place_id": "osm-node-2440992180",
+          "name": "夢庵",
           "category": "飲食店",
-          "lat": 35.5564619,
-          "lng": 138.7838598,
+          "lat": 35.547366,
+          "lng": 138.904334,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1139099964",
-          "name": "妙法寺",
-          "category": "観光名所",
-          "lat": 35.509699,
-          "lng": 138.7509058,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「都留市博物館ミュージアム都留」から徒歩目安約4分です。"
         },
         {
           "place_id": "osm-node-1420934794",
@@ -410,20 +433,20 @@
       ],
       "coordinates": [
         [
-          35.522377,
-          138.768691
+          35.5565937,
+          138.7832038
         ],
         [
-          35.4948598,
-          138.8031488
+          35.556499,
+          138.7838728
         ],
         [
-          35.5564619,
-          138.7838598
+          35.5563725,
+          138.7836798
         ],
         [
-          35.509699,
-          138.7509058
+          35.547366,
+          138.904334
         ],
         [
           35.549761,
@@ -436,43 +459,43 @@
       "area": "yamanashi",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "山梨県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 446,
+      "title": "山梨県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 423,
       "legs": [
         {
           "from": "甲府駅",
-          "to": "山ノ神のフジ",
-          "distance_km": 29.01,
+          "to": "河口湖オルゴールの森美術館",
+          "distance_km": 24.21,
           "mode": "car",
-          "minutes": 65
+          "minutes": 54
         },
         {
-          "from": "山ノ神のフジ",
-          "to": "月江寺",
-          "distance_km": 3.74,
+          "from": "河口湖オルゴールの森美術館",
+          "to": "富士博物館",
+          "distance_km": 2.12,
           "mode": "car",
-          "minutes": 9
+          "minutes": 5
         },
         {
-          "from": "月江寺",
-          "to": "天下茶屋",
-          "distance_km": 7.16,
-          "mode": "car",
-          "minutes": 16
+          "from": "富士博物館",
+          "to": "宝石博物館",
+          "distance_km": 0.37,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "from": "天下茶屋",
-          "to": "新倉富士浅間神社",
-          "distance_km": 6.41,
+          "from": "宝石博物館",
+          "to": "夢庵",
+          "distance_km": 13.59,
           "mode": "car",
-          "minutes": 15
+          "minutes": 31
         },
         {
-          "from": "新倉富士浅間神社",
+          "from": "夢庵",
           "to": "都留市商家資料館",
-          "distance_km": 11.26,
-          "mode": "car",
-          "minutes": 26
+          "distance_km": 0.52,
+          "mode": "walk",
+          "minutes": 10
         },
         {
           "from": "都留市商家資料館",
@@ -486,54 +509,55 @@
         "name": "甲府駅",
         "lat": 35.667,
         "lng": 138.5686,
-        "to_first_km": 29.0,
+        "to_first_km": 24.2,
         "from_last_km": 33.3
       },
-      "total_score": 44.0,
+      "total_score": 38.0,
       "center": [
-        35.523484,
-        138.824446
+        35.525999,
+        138.822007
       ],
       "spots": [
         {
-          "place_id": "osm-node-13037489469",
-          "name": "山ノ神のフジ",
-          "category": "観光名所",
-          "lat": 35.5162076,
-          "lng": 138.8303849,
+          "place_id": "osm-node-1420936032",
+          "name": "河口湖オルゴールの森美術館",
+          "category": "博物館",
+          "lat": 35.522377,
+          "lng": 138.768691,
           "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13039675084",
-          "name": "月江寺",
-          "category": "観光名所",
-          "lat": 35.4934141,
-          "lng": 138.8000223,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1798325969",
-          "name": "天下茶屋",
-          "category": "飲食店",
-          "lat": 35.5564619,
-          "lng": 138.7838598,
-          "stay_minutes": 60,
           "score": 50.0,
-          "role": "lunch"
+          "role": "stop"
         },
         {
-          "place_id": "osm-node-4539620102",
-          "name": "新倉富士浅間神社",
-          "category": "観光名所",
-          "lat": 35.5003121,
-          "lng": 138.8001336,
+          "place_id": "osm-node-1420929302",
+          "name": "富士博物館",
+          "category": "博物館",
+          "lat": 35.503433,
+          "lng": 138.76606,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3176585534",
+          "name": "宝石博物館",
+          "category": "博物館",
+          "lat": 35.5057921,
+          "lng": 138.7631208,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2440992180",
+          "name": "夢庵",
+          "category": "飲食店",
+          "lat": 35.547366,
+          "lng": 138.904334,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「都留市商家資料館」から徒歩目安約7分です。"
         },
         {
           "place_id": "osm-node-1420934796",
@@ -548,20 +572,20 @@
       ],
       "coordinates": [
         [
-          35.5162076,
-          138.8303849
+          35.522377,
+          138.768691
         ],
         [
-          35.4934141,
-          138.8000223
+          35.503433,
+          138.76606
         ],
         [
-          35.5564619,
-          138.7838598
+          35.5057921,
+          138.7631208
         ],
         [
-          35.5003121,
-          138.8001336
+          35.547366,
+          138.904334
         ],
         [
           35.551025,

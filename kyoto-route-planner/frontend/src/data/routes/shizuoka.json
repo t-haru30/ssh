@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:43.467322+00:00",
+  "generated_at": "2026-10-12T06:26:01.515806+00:00",
   "area": "shizuoka",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "静岡県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 395,
+      "estimated_minutes": 456,
       "legs": [
         {
           "from": "静岡駅",
@@ -118,10 +118,17 @@
         },
         {
           "from": "上原近代美術館",
-          "to": "浄感寺長八記念館",
-          "distance_km": 13.78,
+          "to": "さくら",
+          "distance_km": 13.83,
           "mode": "car",
           "minutes": 31
+        },
+        {
+          "from": "さくら",
+          "to": "浄感寺長八記念館",
+          "distance_km": 0.05,
+          "mode": "walk",
+          "minutes": 1
         },
         {
           "from": "浄感寺長八記念館",
@@ -145,10 +152,10 @@
         "to_first_km": 55.9,
         "from_last_km": 42.4
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        34.73478,
-        138.815864
+        34.738408,
+        138.805995
       ],
       "spots": [
         {
@@ -160,6 +167,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2373154926",
+          "name": "さくら",
+          "category": "飲食店",
+          "lat": 34.7492936,
+          "lng": 138.7763869,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「浄感寺長八記念館」から徒歩目安約1分です。"
         },
         {
           "place_id": "osm-node-1421001638",
@@ -188,6 +206,10 @@
           138.9255743
         ],
         [
+          34.7492936,
+          138.7763869
+        ],
+        [
           34.7494611,
           138.7769188
         ],
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "静岡県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 378,
+      "estimated_minutes": 442,
       "legs": [
         {
           "from": "静岡駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "佐野美術館",
-          "to": "沼津市明治史料館",
-          "distance_km": 5.29,
+          "to": "明治茶館",
+          "distance_km": 5.39,
           "mode": "car",
-          "minutes": 12
+          "minutes": 13
+        },
+        {
+          "from": "明治茶館",
+          "to": "沼津市明治史料館",
+          "distance_km": 0.16,
+          "mode": "walk",
+          "minutes": 3
         },
         {
           "from": "沼津市明治史料館",
@@ -241,10 +270,10 @@
         "to_first_km": 46.5,
         "from_last_km": 45.9
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        35.085481,
-        138.890151
+        35.094323,
+        138.881888
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-14234268252",
+          "name": "明治茶館",
+          "category": "飲食店",
+          "lat": 35.1208471,
+          "lng": 138.8570984,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「沼津市明治史料館」から徒歩目安約2分です。"
+        },
+        {
           "place_id": "osm-node-1420991053",
           "name": "沼津市明治史料館",
           "category": "博物館",
@@ -288,6 +328,10 @@
           138.9159324
         ],
         [
+          35.1208471,
+          138.8570984
+        ],
+        [
           35.1218534,
           138.8583389
         ]
@@ -299,145 +343,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "静岡県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 582,
-      "legs": [
-        {
-          "from": "静岡駅",
-          "to": "山中城",
-          "distance_km": 58.63,
-          "mode": "car",
-          "minutes": 131
-        },
-        {
-          "from": "山中城",
-          "to": "沼津城本丸址",
-          "distance_km": 13.68,
-          "mode": "car",
-          "minutes": 31
-        },
-        {
-          "from": "沼津城本丸址",
-          "to": "ハテルマ",
-          "distance_km": 5.76,
-          "mode": "car",
-          "minutes": 13
-        },
-        {
-          "from": "ハテルマ",
-          "to": "井上靖文学館",
-          "distance_km": 7.33,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "井上靖文学館",
-          "to": "かんなみ仏の里美術館",
-          "distance_km": 11.1,
-          "mode": "car",
-          "minutes": 25
-        },
-        {
-          "from": "かんなみ仏の里美術館",
-          "to": "静岡駅",
-          "distance_km": 55.64,
-          "mode": "car",
-          "minutes": 125
-        }
-      ],
-      "start": {
-        "name": "静岡駅",
-        "lat": 34.9718,
-        "lng": 138.389,
-        "to_first_km": 58.6,
-        "from_last_km": 55.6
-      },
-      "total_score": 46.0,
-      "center": [
-        35.133524,
-        138.922154
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1948889842",
-          "name": "山中城",
-          "category": "史跡",
-          "lat": 35.1564091,
-          "lng": 138.9924006,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2878896674",
-          "name": "沼津城本丸址",
-          "category": "史跡",
-          "lat": 35.0989175,
-          "lng": 138.8593499,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10053380968",
-          "name": "ハテルマ",
-          "category": "飲食店",
-          "lat": 35.1197594,
-          "lng": 138.917351,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4330587298",
-          "name": "井上靖文学館",
-          "category": "博物館",
-          "lat": 35.1724675,
-          "lng": 138.8688854,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5603024146",
-          "name": "かんなみ仏の里美術館",
-          "category": "博物館",
-          "lat": 35.120065,
-          "lng": 138.972784,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.1564091,
-          138.9924006
-        ],
-        [
-          35.0989175,
-          138.8593499
-        ],
-        [
-          35.1197594,
-          138.917351
-        ],
-        [
-          35.1724675,
-          138.8688854
-        ],
-        [
-          35.120065,
-          138.972784
-        ]
-      ]
-    },
-    {
-      "id": "osm-shizuoka-05",
-      "area": "shizuoka",
-      "pattern": "full_day",
-      "course": "full_day",
-      "title": "静岡県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 533,
+      "estimated_minutes": 513,
       "legs": [
         {
           "from": "静岡駅",
@@ -455,31 +361,31 @@
         },
         {
           "from": "伊豆国分寺",
-          "to": "ハテルマ",
-          "distance_km": 0.68,
-          "mode": "walk",
-          "minutes": 13
+          "to": "ふしみうなぎ",
+          "distance_km": 2.23,
+          "mode": "car",
+          "minutes": 5
         },
         {
-          "from": "ハテルマ",
+          "from": "ふしみうなぎ",
           "to": "劔刀石床別命神社",
-          "distance_km": 1.67,
-          "mode": "car",
-          "minutes": 4
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
         },
         {
           "from": "劔刀石床別命神社",
-          "to": "自転車の国 サイクルスポーツセンター",
-          "distance_km": 13.55,
+          "to": "山中城",
+          "distance_km": 7.2,
           "mode": "car",
-          "minutes": 31
+          "minutes": 17
         },
         {
-          "from": "自転車の国 サイクルスポーツセンター",
+          "from": "山中城",
           "to": "静岡駅",
-          "distance_km": 56.89,
+          "distance_km": 58.63,
           "mode": "car",
-          "minutes": 127
+          "minutes": 131
         }
       ],
       "start": {
@@ -487,12 +393,12 @@
         "lat": 34.9718,
         "lng": 138.389,
         "to_first_km": 51.3,
-        "from_last_km": 56.9
+        "from_last_km": 58.6
       },
       "total_score": 42.0,
       "center": [
-        35.09701,
-        138.938876
+        35.125232,
+        138.938152
       ],
       "spots": [
         {
@@ -516,14 +422,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10053380968",
-          "name": "ハテルマ",
+          "place_id": "osm-node-12220744432",
+          "name": "ふしみうなぎ",
           "category": "飲食店",
-          "lat": 35.1197594,
-          "lng": 138.917351,
+          "lat": 35.1137761,
+          "lng": 138.9331807,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
+          "role": "lunch",
+          "reason": "次の予定地「劔刀石床別命神社」から徒歩目安約2分です。"
         },
         {
           "place_id": "osm-node-11014938543",
@@ -536,11 +443,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6265466342",
-          "name": "自転車の国 サイクルスポーツセンター",
-          "category": "テーマパーク",
-          "lat": 35.0093148,
-          "lng": 139.0118498,
+          "place_id": "osm-node-1948889842",
+          "name": "山中城",
+          "category": "史跡",
+          "lat": 35.1564091,
+          "lng": 138.9924006,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -556,16 +463,155 @@
           138.9099139
         ],
         [
-          35.1197594,
-          138.917351
+          35.1137761,
+          138.9331807
         ],
         [
           35.1130085,
           138.9337133
         ],
         [
-          35.0093148,
-          139.0118498
+          35.1564091,
+          138.9924006
+        ]
+      ]
+    },
+    {
+      "id": "osm-shizuoka-05",
+      "area": "shizuoka",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "静岡県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 484,
+      "legs": [
+        {
+          "from": "静岡駅",
+          "to": "円明寺",
+          "distance_km": 50.71,
+          "mode": "car",
+          "minutes": 114
+        },
+        {
+          "from": "円明寺",
+          "to": "楽寿園",
+          "distance_km": 0.61,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "楽寿園",
+          "to": "季と",
+          "distance_km": 0.12,
+          "mode": "walk",
+          "minutes": 3
+        },
+        {
+          "from": "季と",
+          "to": "重ね福銭",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "重ね福銭",
+          "to": "沼津城本丸址",
+          "distance_km": 5.47,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "沼津城本丸址",
+          "to": "静岡駅",
+          "distance_km": 45.1,
+          "mode": "car",
+          "minutes": 101
+        }
+      ],
+      "start": {
+        "name": "静岡駅",
+        "lat": 34.9718,
+        "lng": 138.389,
+        "to_first_km": 50.7,
+        "from_last_km": 45.1
+      },
+      "total_score": 34.0,
+      "center": [
+        35.119153,
+        138.901149
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10174944194",
+          "name": "円明寺",
+          "category": "観光名所",
+          "lat": 35.1210576,
+          "lng": 138.9153589,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10314081448",
+          "name": "楽寿園",
+          "category": "史跡",
+          "lat": 35.125326,
+          "lng": 138.9110836,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12022851900",
+          "name": "季と",
+          "category": "飲食店",
+          "lat": 35.1252067,
+          "lng": 138.9098088,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「重ね福銭」から徒歩目安約1分です。"
+        },
+        {
+          "place_id": "osm-node-10314125309",
+          "name": "重ね福銭",
+          "category": "史跡",
+          "lat": 35.1252558,
+          "lng": 138.9101422,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2878896674",
+          "name": "沼津城本丸址",
+          "category": "史跡",
+          "lat": 35.0989175,
+          "lng": 138.8593499,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          35.1210576,
+          138.9153589
+        ],
+        [
+          35.125326,
+          138.9110836
+        ],
+        [
+          35.1252067,
+          138.9098088
+        ],
+        [
+          35.1252558,
+          138.9101422
+        ],
+        [
+          35.0989175,
+          138.8593499
         ]
       ]
     }

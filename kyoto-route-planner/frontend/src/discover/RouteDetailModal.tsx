@@ -29,7 +29,7 @@ function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][num
     access_point: "",
     latitude: spot.lat,
     longitude: spot.lng,
-    themes: [theme],
+    themes: [spot.role === "lunch" ? "food" : theme],
   };
 }
 
@@ -53,6 +53,8 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
         legs: route.legs,
         stayMinutes: route.spots.map((spot) => spot.stay_minutes),
         lunchIndexes: route.spots.flatMap((spot, index) => (spot.role === "lunch" ? [index] : [])),
+        spotDetails: route.spots.map((spot) => spot.reason),
+        returnByMinutes: route.course === "full_day" ? 19 * 60 : undefined,
       }
       : undefined;
     return buildRouteTimeline(start, places, "09:00", null, plan);

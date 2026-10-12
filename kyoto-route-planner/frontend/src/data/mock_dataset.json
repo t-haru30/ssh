@@ -56,19 +56,29 @@
       "id": "mock-kitayama-full",
       "area": "kyoto",
       "pattern": "full_day",
+      "course": "full_day",
       "theme": "all",
       "title": "金閣寺・龍安寺・仁和寺、北山の名所を一日で",
-      "estimated_minutes": 420,
-      "total_score": 56.4,
-      "center": [35.0359, 135.7242],
+      "estimated_minutes": 372,
+      "total_score": 55.9,
+      "center": [35.033536, 135.727165],
+      "start": { "name": "京都駅", "lat": 34.9858, "lng": 135.7588, "to_first_km": 6.5, "from_last_km": 5.4 },
+      "legs": [
+        { "from": "京都駅", "to": "金閣寺", "distance_km": 6.54, "mode": "public_transport", "minutes": 30 },
+        { "from": "金閣寺", "to": "龍安寺", "distance_km": 1.12, "mode": "public_transport", "minutes": 6 },
+        { "from": "龍安寺", "to": "仁和寺", "distance_km": 0.59, "mode": "walk", "minutes": 11 },
+        { "from": "仁和寺", "to": "北野天満宮", "distance_km": 1.99, "mode": "public_transport", "minutes": 9 },
+        { "from": "北野天満宮", "to": "CAFE FROSCH", "distance_km": 0.32, "mode": "walk", "minutes": 6 },
+        { "from": "CAFE FROSCH", "to": "京都駅", "distance_km": 5.36, "mode": "public_transport", "minutes": 25 }
+      ],
       "spots": [
         { "place_id": "m-kinkakuji", "name": "金閣寺", "category": "寺院", "lat": 35.0394, "lng": 135.7292, "stay_minutes": 60, "score": 80.1, "role": "stop" },
         { "place_id": "m-ryoanji", "name": "龍安寺", "category": "寺院", "lat": 35.0345, "lng": 135.7185, "stay_minutes": 60, "score": 60.5, "role": "stop" },
         { "place_id": "m-ninnaji", "name": "仁和寺", "category": "寺院", "lat": 35.031, "lng": 135.7137, "stay_minutes": 60, "score": 50.2, "role": "stop" },
         { "place_id": "m-kitano", "name": "北野天満宮", "category": "神社", "lat": 35.0316, "lng": 135.7355, "stay_minutes": 45, "score": 58.8, "role": "stop" },
-        { "place_id": "m-nishiki-lunch", "name": "錦市場", "category": "グルメ", "lat": 35.005, "lng": 135.7646, "stay_minutes": 60, "score": 51.0, "role": "lunch" }
+        { "place_id": "osm-node-2289950523", "name": "CAFE FROSCH", "category": "飲食店", "lat": 35.031179, "lng": 135.738926, "stay_minutes": 60, "score": 30.0, "role": "lunch", "reason": "次の予定地「北野天満宮」から徒歩目安約4分です。" }
       ],
-      "coordinates": [[35.0394, 135.7292], [35.0345, 135.7185], [35.031, 135.7137], [35.0316, 135.7355], [35.005, 135.7646]]
+      "coordinates": [[35.0394, 135.7292], [35.0345, 135.7185], [35.031, 135.7137], [35.0316, 135.7355], [35.031179, 135.738926]]
     },
     {
       "id": "mock-gion-food-half",

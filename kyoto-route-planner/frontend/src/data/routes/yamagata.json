@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:29.142463+00:00",
+  "generated_at": "2026-10-12T06:25:46.113117+00:00",
   "area": "yamagata",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "山形県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 402,
+      "estimated_minutes": 464,
       "legs": [
         {
           "from": "山形駅",
@@ -29,10 +29,17 @@
         },
         {
           "from": "ゆめりあ鉄道ギャラリー",
-          "to": "芭蕉・清風歴史資料館",
-          "distance_km": 19.43,
+          "to": "福原屋",
+          "distance_km": 19.39,
           "mode": "car",
           "minutes": 44
+        },
+        {
+          "from": "福原屋",
+          "to": "芭蕉・清風歴史資料館",
+          "distance_km": 0.06,
+          "mode": "walk",
+          "minutes": 2
         },
         {
           "from": "芭蕉・清風歴史資料館",
@@ -49,10 +56,10 @@
         "to_first_km": 58.1,
         "from_last_km": 40.4
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        38.713481,
-        140.335715
+        38.686839,
+        140.352976
       ],
       "spots": [
         {
@@ -76,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-5050137821",
+          "name": "福原屋",
+          "category": "飲食店",
+          "lat": 38.6069119,
+          "lng": 140.4047595,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「芭蕉・清風歴史資料館」から徒歩目安約1分です。"
+        },
+        {
           "place_id": "osm-node-5050137326",
           "name": "芭蕉・清風歴史資料館",
           "category": "博物館",
@@ -94,6 +112,10 @@
         [
           38.7631359,
           140.3054531
+        ],
+        [
+          38.6069119,
+          140.4047595
         ],
         [
           38.6064124,
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "山形県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 325,
+      "estimated_minutes": 385,
       "legs": [
         {
           "from": "山形駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "最上徳内記念館",
-          "to": "真下慶治郎記念美術館",
+          "to": "昼食: 要検討",
           "distance_km": 4.59,
           "mode": "car",
           "minutes": 11
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "真下慶治郎記念美術館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "真下慶治郎記念美術館",
@@ -241,10 +270,10 @@
         "to_first_km": 38.1,
         "from_last_km": 30.0
       },
-      "total_score": 50.0,
+      "total_score": 37.5,
       "center": [
-        38.529854,
-        140.369679
+        38.526838,
+        140.365718
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "lunch-undetermined-yamagata-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 38.5177926,
+          "lng": 140.353834,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
           "place_id": "osm-node-5059791529",
           "name": "真下慶治郎記念美術館",
           "category": "博物館",
@@ -286,6 +326,10 @@
         [
           38.4829144,
           140.382125
+        ],
+        [
+          38.5177926,
+          140.353834
         ],
         [
           38.5177926,
@@ -317,17 +361,17 @@
         },
         {
           "from": "上杉神社",
-          "to": "サイゼリヤ",
-          "distance_km": 1.57,
-          "mode": "car",
-          "minutes": 4
+          "to": "べに花庵",
+          "distance_km": 0.28,
+          "mode": "walk",
+          "minutes": 6
         },
         {
-          "from": "サイゼリヤ",
+          "from": "べに花庵",
           "to": "松岬神社",
-          "distance_km": 1.54,
-          "mode": "car",
-          "minutes": 4
+          "distance_km": 0.06,
+          "mode": "walk",
+          "minutes": 2
         },
         {
           "from": "松岬神社",
@@ -351,10 +395,10 @@
         "to_first_km": 42.4,
         "from_last_km": 35.6
       },
-      "total_score": 44.0,
+      "total_score": 42.0,
       "center": [
-        37.93258,
-        140.096113
+        37.929743,
+        140.095987
       ],
       "spots": [
         {
@@ -378,14 +422,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5153200224",
-          "name": "サイゼリヤ",
+          "place_id": "osm-node-1962664973",
+          "name": "べに花庵",
           "category": "飲食店",
-          "lat": 37.923087,
-          "lng": 140.1078147,
+          "lat": 37.9089028,
+          "lng": 140.1071852,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「松岬神社」から徒歩目安約1分です。"
         },
         {
           "place_id": "osm-node-416190573",
@@ -418,8 +463,8 @@
           140.1040578
         ],
         [
-          37.923087,
-          140.1078147
+          37.9089028,
+          140.1071852
         ],
         [
           37.9092579,
@@ -437,40 +482,40 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "山形県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 452,
+      "estimated_minutes": 441,
       "legs": [
         {
           "from": "山形駅",
-          "to": "愛宕神社",
-          "distance_km": 45.08,
-          "mode": "car",
-          "minutes": 101
-        },
-        {
-          "from": "愛宕神社",
           "to": "稽照殿",
-          "distance_km": 3.05,
+          "distance_km": 42.45,
           "mode": "car",
-          "minutes": 7
+          "minutes": 95
         },
         {
           "from": "稽照殿",
-          "to": "サイゼリヤ",
-          "distance_km": 1.53,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "サイゼリヤ",
           "to": "招魂碑",
-          "distance_km": 1.63,
-          "mode": "car",
-          "minutes": 4
+          "distance_km": 0.14,
+          "mode": "walk",
+          "minutes": 3
         },
         {
           "from": "招魂碑",
+          "to": "べに花庵",
+          "distance_km": 0.16,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "べに花庵",
+          "to": "従三位上杉曦山公之碑",
+          "distance_km": 0.15,
+          "mode": "walk",
+          "minutes": 3
+        },
+        {
+          "from": "従三位上杉曦山公之碑",
           "to": "結城豊太郎記念館",
-          "distance_km": 16.41,
+          "distance_km": 16.28,
           "mode": "car",
           "minutes": 37
         },
@@ -486,25 +531,15 @@
         "name": "山形駅",
         "lat": 38.2485,
         "lng": 140.3277,
-        "to_first_km": 45.1,
+        "to_first_km": 42.4,
         "from_last_km": 26.4
       },
-      "total_score": 38.0,
+      "total_score": 34.0,
       "center": [
-        37.936995,
-        140.111515
+        37.937038,
+        140.117579
       ],
       "spots": [
-        {
-          "place_id": "osm-node-7037879379",
-          "name": "愛宕神社",
-          "category": "観光名所",
-          "lat": 37.8953079,
-          "lng": 140.0748103,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-1962665090",
           "name": "稽照殿",
@@ -516,21 +551,32 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5153200224",
-          "name": "サイゼリヤ",
-          "category": "飲食店",
-          "lat": 37.923087,
-          "lng": 140.1078147,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-427883857",
           "name": "招魂碑",
           "category": "史跡",
           "lat": 37.9085492,
           "lng": 140.1053723,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1962664973",
+          "name": "べに花庵",
+          "category": "飲食店",
+          "lat": 37.9089028,
+          "lng": 140.1071852,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「従三位上杉曦山公之碑」から徒歩目安約2分です。"
+        },
+        {
+          "place_id": "osm-node-427883861",
+          "name": "従三位上杉曦山公之碑",
+          "category": "史跡",
+          "lat": 37.9097077,
+          "lng": 140.1057619,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -548,20 +594,20 @@
       ],
       "coordinates": [
         [
-          37.8953079,
-          140.0748103
-        ],
-        [
           37.9096087,
           140.1044884
         ],
         [
-          37.923087,
-          140.1078147
-        ],
-        [
           37.9085492,
           140.1053723
+        ],
+        [
+          37.9089028,
+          140.1071852
+        ],
+        [
+          37.9097077,
+          140.1057619
         ],
         [
           38.048422,

@@ -43,4 +43,35 @@ describe("buildRouteTimeline with a plan", () => {
     const items = buildRouteTimeline({ name: "駅", latitude: 35, longitude: 135 }, [place("a")], "09:00", 100);
     expect(items.filter((item) => item.type === "transit")).toHaveLength(2);
   });
+
+  it("shows lunch reasons, arrival and departure times, and late-day warnings", () => {
+    const items = buildRouteTimeline(
+      { name: "駅", latitude: 35, longitude: 135 },
+      [place("lunch")],
+      "09:00",
+      null,
+      {
+        legs: [
+          { mode: "car", minutes: 300 },
+          { mode: "car", minutes: 300 },
+        ],
+        stayMinutes: [60],
+        lunchIndexes: [0],
+        spotDetails: ["次の予定地から徒歩目安約5分です。"],
+        returnByMinutes: 19 * 60,
+      },
+    );
+    const spots = items.filter((item) => item.type === "spot");
+    expect(spots[1]).toMatchObject({
+      label: "昼食",
+      time: "14:00",
+      departure_time: "15:00",
+      detail: "次の予定地から徒歩目安約5分です。 昼食開始が13:30を過ぎる予定です。",
+    });
+    expect(spots[2]).toMatchObject({
+      role: "finish",
+      time: "20:00",
+      detail: "帰着が20:00頃となり、19:00を過ぎる見込みです。",
+    });
+  });
 });

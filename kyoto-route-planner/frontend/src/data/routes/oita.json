@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:56:00.197789+00:00",
+  "generated_at": "2026-10-12T06:26:19.314302+00:00",
   "area": "oita",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -203,7 +203,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "大分県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 400,
+      "estimated_minutes": 467,
       "legs": [
         {
           "from": "大分駅",
@@ -214,10 +214,17 @@
         },
         {
           "from": "福澤諭吉旧居",
-          "to": "中津城",
-          "distance_km": 0.43,
+          "to": "蓬莱観",
+          "distance_km": 0.59,
           "mode": "walk",
-          "minutes": 9
+          "minutes": 12
+        },
+        {
+          "from": "蓬莱観",
+          "to": "中津城",
+          "distance_km": 0.19,
+          "mode": "walk",
+          "minutes": 4
         },
         {
           "from": "中津城",
@@ -241,10 +248,10 @@
         "to_first_km": 56.7,
         "from_last_km": 56.8
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        33.608332,
-        131.190474
+        33.6076,
+        131.189101
       ],
       "spots": [
         {
@@ -256,6 +263,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2237754361",
+          "name": "蓬莱観",
+          "category": "飲食店",
+          "lat": 33.6054026,
+          "lng": 131.1849817,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「中津城」から徒歩目安約3分です。"
         },
         {
           "place_id": "osm-node-1423861515",
@@ -284,6 +302,10 @@
           131.1909282
         ],
         [
+          33.6054026,
+          131.1849817
+        ],
+        [
           33.6066484,
           131.1863802
         ],
@@ -299,135 +321,136 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "大分県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 462,
+      "estimated_minutes": 337,
       "legs": [
         {
           "from": "大分駅",
-          "to": "岡城",
-          "distance_km": 34.74,
+          "to": "別府市美術館",
+          "distance_km": 12.41,
           "mode": "car",
-          "minutes": 78
+          "minutes": 28
         },
         {
-          "from": "岡城",
-          "to": "鳥屋城",
-          "distance_km": 9.7,
+          "from": "別府市美術館",
+          "to": "別府港跡と天然砂湯跡",
+          "distance_km": 1.96,
           "mode": "car",
-          "minutes": 22
+          "minutes": 5
         },
         {
-          "from": "鳥屋城",
-          "to": "道の駅あさじ",
-          "distance_km": 5.71,
-          "mode": "car",
-          "minutes": 13
+          "from": "別府港跡と天然砂湯跡",
+          "to": "竹瓦界隈記念碑",
+          "distance_km": 0.11,
+          "mode": "walk",
+          "minutes": 3
         },
         {
-          "from": "道の駅あさじ",
-          "to": "旧竹田荘",
-          "distance_km": 6.57,
+          "from": "竹瓦界隈記念碑",
+          "to": "的山荘",
+          "distance_km": 10.27,
           "mode": "car",
-          "minutes": 15
+          "minutes": 23
         },
         {
-          "from": "旧竹田荘",
-          "to": "津賀牟礼城",
-          "distance_km": 3.45,
+          "from": "的山荘",
+          "to": "二階堂美術館",
+          "distance_km": 0.82,
           "mode": "car",
-          "minutes": 8
+          "minutes": 2
         },
         {
-          "from": "津賀牟礼城",
+          "from": "二階堂美術館",
           "to": "大分駅",
-          "distance_km": 38.58,
+          "distance_km": 16.06,
           "mode": "car",
-          "minutes": 86
+          "minutes": 36
         }
       ],
       "start": {
         "name": "大分駅",
         "lat": 33.2336,
         "lng": 131.6065,
-        "to_first_km": 34.7,
-        "from_last_km": 38.6
+        "to_first_km": 12.4,
+        "from_last_km": 16.1
       },
-      "total_score": 38.0,
+      "total_score": 34.0,
       "center": [
-        32.984917,
-        131.416581
+        33.3147,
+        131.515328
       ],
       "spots": [
         {
-          "place_id": "osm-node-2460191723",
-          "name": "岡城",
-          "category": "史跡",
-          "lat": 32.9692029,
-          "lng": 131.4078196,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-14145352001",
-          "name": "鳥屋城",
-          "category": "史跡",
-          "lat": 33.0530653,
-          "lng": 131.4366077,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5719492821",
-          "name": "道の駅あさじ",
-          "category": "飲食店",
-          "lat": 33.0026173,
-          "lng": 131.448133,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1423870388",
-          "name": "旧竹田荘",
+          "place_id": "osm-node-1423862836",
+          "name": "別府市美術館",
           "category": "博物館",
-          "lat": 32.9653239,
-          "lng": 131.3935455,
+          "lat": 33.2842616,
+          "lng": 131.4875287,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12847968897",
+          "name": "別府港跡と天然砂湯跡",
+          "category": "史跡",
+          "lat": 33.2774541,
+          "lng": 131.5070071,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-14025356801",
-          "name": "津賀牟礼城",
+          "place_id": "osm-node-12851837511",
+          "name": "竹瓦界隈記念碑",
           "category": "史跡",
-          "lat": 32.934375,
-          "lng": 131.3967996,
+          "lat": 33.2773639,
+          "lng": 131.5058461,
           "stay_minutes": 45,
           "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5442873009",
+          "name": "的山荘",
+          "category": "飲食店",
+          "lat": 33.3666944,
+          "lng": 131.5337782,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「二階堂美術館」から徒歩目安約11分です。"
+        },
+        {
+          "place_id": "osm-node-1423861848",
+          "name": "二階堂美術館",
+          "category": "博物館",
+          "lat": 33.367727,
+          "lng": 131.54248,
+          "stay_minutes": 45,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          32.9692029,
-          131.4078196
+          33.2842616,
+          131.4875287
         ],
         [
-          33.0530653,
-          131.4366077
+          33.2774541,
+          131.5070071
         ],
         [
-          33.0026173,
-          131.448133
+          33.2773639,
+          131.5058461
         ],
         [
-          32.9653239,
-          131.3935455
+          33.3666944,
+          131.5337782
         ],
         [
-          32.934375,
-          131.3967996
+          33.367727,
+          131.54248
         ]
       ]
     },
@@ -437,135 +460,136 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "大分県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 424,
+      "estimated_minutes": 311,
       "legs": [
         {
           "from": "大分駅",
-          "to": "朝倉文夫記念館",
-          "distance_km": 27.4,
+          "to": "別府築港之碑",
+          "distance_km": 10.55,
           "mode": "car",
-          "minutes": 62
+          "minutes": 24
         },
         {
-          "from": "朝倉文夫記念館",
-          "to": "竹田市立歴史資料館",
-          "distance_km": 8.43,
-          "mode": "car",
-          "minutes": 19
+          "from": "別府築港之碑",
+          "to": "鉄腕一代 稲尾和久 顕彰碑",
+          "distance_km": 0.01,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "竹田市立歴史資料館",
-          "to": "道の駅あさじ",
-          "distance_km": 6.59,
-          "mode": "car",
-          "minutes": 15
+          "from": "鉄腕一代 稲尾和久 顕彰碑",
+          "to": "山は富士 海は瀬戸内 湯は別府 記念碑",
+          "distance_km": 0.13,
+          "mode": "walk",
+          "minutes": 3
         },
         {
-          "from": "道の駅あさじ",
-          "to": "豊後大野市歴史民俗資料館",
-          "distance_km": 4.0,
+          "from": "山は富士 海は瀬戸内 湯は別府 記念碑",
+          "to": "ジョイフル大分古国府店",
+          "distance_km": 11.5,
           "mode": "car",
-          "minutes": 9
+          "minutes": 26
         },
         {
-          "from": "豊後大野市歴史民俗資料館",
-          "to": "豊後大野市清川歴史民俗資料室",
-          "distance_km": 4.12,
-          "mode": "car",
-          "minutes": 10
+          "from": "ジョイフル大分古国府店",
+          "to": "大分市美術館",
+          "distance_km": 0.73,
+          "mode": "walk",
+          "minutes": 14
         },
         {
-          "from": "豊後大野市清川歴史民俗資料室",
+          "from": "大分市美術館",
           "to": "大分駅",
-          "distance_km": 30.7,
+          "distance_km": 1.22,
           "mode": "car",
-          "minutes": 69
+          "minutes": 3
         }
       ],
       "start": {
         "name": "大分駅",
         "lat": 33.2336,
         "lng": 131.6065,
-        "to_first_km": 27.4,
-        "from_last_km": 30.7
+        "to_first_km": 10.6,
+        "from_last_km": 1.2
       },
-      "total_score": 34.0,
+      "total_score": 32.0,
       "center": [
-        32.987186,
-        131.454542
+        33.254793,
+        131.544797
       ],
       "spots": [
         {
-          "place_id": "osm-node-1423870477",
-          "name": "朝倉文夫記念館",
-          "category": "博物館",
-          "lat": 33.026935,
-          "lng": 131.446254,
+          "place_id": "osm-node-12851837600",
+          "name": "別府築港之碑",
+          "category": "史跡",
+          "lat": 33.277841,
+          "lng": 131.5060714,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423883394",
-          "name": "竹田市立歴史資料館",
-          "category": "博物館",
-          "lat": 32.965882,
-          "lng": 131.392692,
+          "place_id": "osm-node-12851837602",
+          "name": "鉄腕一代 稲尾和久 顕彰碑",
+          "category": "史跡",
+          "lat": 33.2778208,
+          "lng": 131.5059829,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5719492821",
-          "name": "道の駅あさじ",
+          "place_id": "osm-node-12851920533",
+          "name": "山は富士 海は瀬戸内 湯は別府 記念碑",
+          "category": "史跡",
+          "lat": 33.2774544,
+          "lng": 131.5046887,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12878263829",
+          "name": "ジョイフル大分古国府店",
           "category": "飲食店",
-          "lat": 33.0026173,
-          "lng": 131.448133,
+          "lat": 33.217517,
+          "lng": 131.605451,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「大分市美術館」から徒歩目安約10分です。"
         },
         {
-          "place_id": "osm-node-1423884116",
-          "name": "豊後大野市歴史民俗資料館",
+          "place_id": "osm-node-1423865896",
+          "name": "大分市美術館",
           "category": "博物館",
-          "lat": 32.972077,
-          "lng": 131.4708518,
+          "lat": 33.223333,
+          "lng": 131.601789,
           "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1423884144",
-          "name": "豊後大野市清川歴史民俗資料室",
-          "category": "博物館",
-          "lat": 32.968418,
-          "lng": 131.514779,
-          "stay_minutes": 45,
-          "score": 30.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          33.026935,
-          131.446254
+          33.277841,
+          131.5060714
         ],
         [
-          32.965882,
-          131.392692
+          33.2778208,
+          131.5059829
         ],
         [
-          33.0026173,
-          131.448133
+          33.2774544,
+          131.5046887
         ],
         [
-          32.972077,
-          131.4708518
+          33.217517,
+          131.605451
         ],
         [
-          32.968418,
-          131.514779
+          33.223333,
+          131.601789
         ]
       ]
     }

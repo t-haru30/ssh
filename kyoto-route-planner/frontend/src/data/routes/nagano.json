@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:41.657088+00:00",
+  "generated_at": "2026-10-12T06:25:59.526603+00:00",
   "area": "nagano",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "長野県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 396,
+      "estimated_minutes": 469,
       "legs": [
         {
           "from": "長野駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "小諸城",
-          "to": "田崎美術館",
-          "distance_km": 15.28,
+          "to": "川上庵",
+          "distance_km": 15.92,
           "mode": "car",
-          "minutes": 35
+          "minutes": 36
+        },
+        {
+          "from": "川上庵",
+          "to": "田崎美術館",
+          "distance_km": 0.64,
+          "mode": "walk",
+          "minutes": 12
         },
         {
           "from": "田崎美術館",
@@ -145,10 +152,10 @@
         "to_first_km": 45.7,
         "from_last_km": 47.4
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        36.335729,
-        138.502479
+        36.341747,
+        138.524483
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-4365275291",
+          "name": "川上庵",
+          "category": "飲食店",
+          "lat": 36.3598037,
+          "lng": 138.5904945,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「田崎美術館」から徒歩目安約8分です。"
+        },
+        {
           "place_id": "osm-node-5861593127",
           "name": "田崎美術館",
           "category": "博物館",
@@ -192,6 +210,10 @@
           138.4174412
         ],
         [
+          36.3598037,
+          138.5904945
+        ],
+        [
           36.3584841,
           138.5835634
         ]
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "長野県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 373,
+      "estimated_minutes": 443,
       "legs": [
         {
           "from": "長野駅",
@@ -214,10 +236,17 @@
         },
         {
           "from": "松本市立博物館",
-          "to": "田淵行男記念館",
-          "distance_km": 11.59,
+          "to": "そば庄",
+          "distance_km": 11.8,
           "mode": "car",
-          "minutes": 26
+          "minutes": 27
+        },
+        {
+          "from": "そば庄",
+          "to": "田淵行男記念館",
+          "distance_km": 0.43,
+          "mode": "walk",
+          "minutes": 9
         },
         {
           "from": "田淵行男記念館",
@@ -241,10 +270,10 @@
         "to_first_km": 49.4,
         "from_last_km": 41.6
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        36.305207,
-        137.921737
+        36.311162,
+        137.918132
       ],
       "spots": [
         {
@@ -256,6 +285,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2427329978",
+          "name": "そば庄",
+          "category": "飲食店",
+          "lat": 36.329026,
+          "lng": 137.907319,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「田淵行男記念館」から徒歩目安約6分です。"
         },
         {
           "place_id": "osm-node-2191766495",
@@ -284,6 +324,10 @@
           137.9690178
         ],
         [
+          36.329026,
+          137.907319
+        ],
+        [
           36.3257429,
           137.9047039
         ],
@@ -298,95 +342,65 @@
       "area": "nagano",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "長野県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 351,
+      "title": "長野県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 301,
       "legs": [
         {
           "from": "長野駅",
-          "to": "松代城",
-          "distance_km": 8.6,
-          "mode": "car",
-          "minutes": 20
-        },
-        {
-          "from": "松代城",
-          "to": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
-          "distance_km": 12.31,
-          "mode": "car",
-          "minutes": 28
-        },
-        {
-          "from": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
-          "to": "澤正",
-          "distance_km": 7.6,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "澤正",
           "to": "武井神社",
-          "distance_km": 6.59,
+          "distance_km": 1.51,
           "mode": "car",
-          "minutes": 15
+          "minutes": 4
         },
         {
           "from": "武井神社",
-          "to": "北野美術館",
-          "distance_km": 7.09,
-          "mode": "car",
-          "minutes": 16
+          "to": "西宮神社",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "北野美術館",
-          "to": "長野駅",
-          "distance_km": 6.39,
+          "from": "西宮神社",
+          "to": "往生寺",
+          "distance_km": 1.47,
           "mode": "car",
-          "minutes": 15
+          "minutes": 4
+        },
+        {
+          "from": "往生寺",
+          "to": "松代城",
+          "distance_km": 11.25,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "松代城",
+          "to": "そば",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "そば",
+          "to": "長野駅",
+          "distance_km": 8.78,
+          "mode": "car",
+          "minutes": 20
         }
       ],
       "start": {
         "name": "長野駅",
         "lat": 36.643,
         "lng": 138.1884,
-        "to_first_km": 8.6,
-        "from_last_km": 6.4
+        "to_first_km": 1.5,
+        "from_last_km": 8.8
       },
-      "total_score": 44.0,
+      "total_score": 40.0,
       "center": [
-        36.626277,
-        138.190282
+        36.622026,
+        138.190071
       ],
       "spots": [
-        {
-          "place_id": "osm-node-5217915021",
-          "name": "松代城",
-          "category": "史跡",
-          "lat": 36.5659201,
-          "lng": 138.196048,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6392271236",
-          "name": "大峰城模擬天守(旧大峰城チョウと自然の博物館)",
-          "category": "史跡",
-          "lat": 36.6755876,
-          "lng": 138.1769393,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10017070437",
-          "name": "澤正",
-          "category": "飲食店",
-          "lat": 36.615555,
-          "lng": 138.1361488,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-5788960550",
           "name": "武井神社",
@@ -398,36 +412,67 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6130355236",
-          "name": "北野美術館",
-          "category": "博物館",
-          "lat": 36.6178096,
-          "lng": 138.2527288,
+          "place_id": "osm-node-5788962093",
+          "name": "西宮神社",
+          "category": "観光名所",
+          "lat": 36.6573294,
+          "lng": 138.1898783,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5889187479",
+          "name": "往生寺",
+          "category": "観光名所",
+          "lat": 36.6659378,
+          "lng": 138.1773226,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5217915021",
+          "name": "松代城",
+          "category": "史跡",
+          "lat": 36.5659201,
+          "lng": 138.196048,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4365591155",
+          "name": "そば",
+          "category": "飲食店",
+          "lat": 36.5644279,
+          "lng": 138.1975606,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「松代城」から徒歩目安約3分です。"
         }
       ],
       "coordinates": [
-        [
-          36.5659201,
-          138.196048
-        ],
-        [
-          36.6755876,
-          138.1769393
-        ],
-        [
-          36.615555,
-          138.1361488
-        ],
         [
           36.6565136,
           138.1895432
         ],
         [
-          36.6178096,
-          138.2527288
+          36.6573294,
+          138.1898783
+        ],
+        [
+          36.6659378,
+          138.1773226
+        ],
+        [
+          36.5659201,
+          138.196048
+        ],
+        [
+          36.5644279,
+          138.1975606
         ]
       ]
     },
@@ -437,42 +482,42 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "長野県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 362,
+      "estimated_minutes": 349,
       "legs": [
         {
           "from": "長野駅",
-          "to": "西宮神社",
-          "distance_km": 1.6,
+          "to": "西方寺",
+          "distance_km": 1.53,
           "mode": "car",
           "minutes": 4
         },
         {
-          "from": "西宮神社",
-          "to": "南向塚古墳",
-          "distance_km": 2.74,
-          "mode": "car",
-          "minutes": 7
+          "from": "西方寺",
+          "to": "本願寺長野別院",
+          "distance_km": 0.31,
+          "mode": "walk",
+          "minutes": 6
         },
         {
-          "from": "南向塚古墳",
-          "to": "澤正",
-          "distance_km": 7.36,
-          "mode": "car",
-          "minutes": 17
+          "from": "本願寺長野別院",
+          "to": "明行寺",
+          "distance_km": 0.26,
+          "mode": "walk",
+          "minutes": 5
         },
         {
-          "from": "澤正",
-          "to": "市村神社",
-          "distance_km": 5.42,
+          "from": "明行寺",
+          "to": "おやき七福本店",
+          "distance_km": 19.72,
           "mode": "car",
-          "minutes": 13
+          "minutes": 44
         },
         {
-          "from": "市村神社",
+          "from": "おやき七福本店",
           "to": "荒砥城",
-          "distance_km": 17.49,
-          "mode": "car",
-          "minutes": 39
+          "distance_km": 0.39,
+          "mode": "walk",
+          "minutes": 8
         },
         {
           "from": "荒砥城",
@@ -486,54 +531,55 @@
         "name": "長野駅",
         "lat": 36.643,
         "lng": 138.1884,
-        "to_first_km": 1.6,
+        "to_first_km": 1.5,
         "from_last_km": 18.7
       },
       "total_score": 40.0,
       "center": [
-        36.604653,
-        138.173809
+        36.585053,
+        138.167575
       ],
       "spots": [
         {
-          "place_id": "osm-node-5788962093",
-          "name": "西宮神社",
+          "place_id": "osm-node-5889193685",
+          "name": "西方寺",
           "category": "観光名所",
-          "lat": 36.6573294,
-          "lng": 138.1898783,
+          "lat": 36.6565207,
+          "lng": 138.185288,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5794909151",
-          "name": "南向塚古墳",
-          "category": "史跡",
-          "lat": 36.6406039,
-          "lng": 138.2124725,
+          "place_id": "osm-node-5889244368",
+          "name": "本願寺長野別院",
+          "category": "観光名所",
+          "lat": 36.6538416,
+          "lng": 138.18642,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10017070437",
-          "name": "澤正",
+          "place_id": "osm-node-5905503848",
+          "name": "明行寺",
+          "category": "観光名所",
+          "lat": 36.6540481,
+          "lng": 138.1893755,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11273568223",
+          "name": "おやき七福本店",
           "category": "飲食店",
-          "lat": 36.615555,
-          "lng": 138.1361488,
+          "lat": 36.48111,
+          "lng": 138.1403763,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-5822472911",
-          "name": "市村神社",
-          "category": "観光名所",
-          "lat": 36.6300283,
-          "lng": 138.1941308,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「荒砥城」から徒歩目安約5分です。"
         },
         {
           "place_id": "osm-node-2501633997",
@@ -548,20 +594,20 @@
       ],
       "coordinates": [
         [
-          36.6573294,
-          138.1898783
+          36.6565207,
+          138.185288
         ],
         [
-          36.6406039,
-          138.2124725
+          36.6538416,
+          138.18642
         ],
         [
-          36.615555,
-          138.1361488
+          36.6540481,
+          138.1893755
         ],
         [
-          36.6300283,
-          138.1941308
+          36.48111,
+          138.1403763
         ],
         [
           36.479746,

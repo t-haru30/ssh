@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:37.949539+00:00",
+  "generated_at": "2026-10-12T06:25:55.281990+00:00",
   "area": "niigata",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -203,7 +203,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "新潟県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 303,
+      "estimated_minutes": 363,
       "legs": [
         {
           "from": "新潟駅",
@@ -221,10 +221,17 @@
         },
         {
           "from": "熊野若宮神社",
-          "to": "大輪寺",
+          "to": "昼食: 要検討",
           "distance_km": 0.48,
           "mode": "walk",
           "minutes": 9
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "大輪寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "大輪寺",
@@ -241,10 +248,10 @@
         "to_first_km": 23.6,
         "from_last_km": 34.3
       },
-      "total_score": 43.3,
+      "total_score": 32.5,
       "center": [
-        38.021697,
-        139.378895
+        38.030304,
+        139.38617
       ],
       "spots": [
         {
@@ -266,6 +273,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-niigata-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 38.0561255,
+          "lng": 139.4079946,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-7104785052",
@@ -290,6 +308,10 @@
         [
           38.0561255,
           139.4079946
+        ],
+        [
+          38.0561255,
+          139.4079946
         ]
       ]
     },
@@ -299,7 +321,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "新潟県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 270,
+      "estimated_minutes": 265,
       "legs": [
         {
           "from": "新潟駅",
@@ -317,17 +339,10 @@
         },
         {
           "from": "敦井美術館",
-          "to": "瓢亭（旧花岡家住宅）",
-          "distance_km": 1.63,
+          "to": "新潟市マンガの家",
+          "distance_km": 1.46,
           "mode": "car",
           "minutes": 4
-        },
-        {
-          "from": "瓢亭（旧花岡家住宅）",
-          "to": "新潟市マンガの家",
-          "distance_km": 0.45,
-          "mode": "walk",
-          "minutes": 9
         },
         {
           "from": "新潟市マンガの家",
@@ -338,6 +353,13 @@
         },
         {
           "from": "新潟市マンガ・アニメ情報館",
+          "to": "Chicke Works",
+          "distance_km": 0.21,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "Chicke Works",
           "to": "新潟駅",
           "distance_km": 0.86,
           "mode": "car",
@@ -351,10 +373,10 @@
         "to_first_km": 0.9,
         "from_last_km": 0.9
       },
-      "total_score": 40.0,
+      "total_score": 38.0,
       "center": [
-        37.918863,
-        139.051899
+        37.916802,
+        139.05316
       ],
       "spots": [
         {
@@ -378,16 +400,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-13762315648",
-          "name": "瓢亭（旧花岡家住宅）",
-          "category": "飲食店",
-          "lat": 37.924593,
-          "lng": 139.045976,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-4198186296",
           "name": "新潟市マンガの家",
           "category": "博物館",
@@ -406,6 +418,17 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11401179899",
+          "name": "Chicke Works",
+          "category": "飲食店",
+          "lat": 37.9142867,
+          "lng": 139.0522826,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「新潟市マンガ・アニメ情報館」から徒歩目安約3分です。"
         }
       ],
       "coordinates": [
@@ -418,16 +441,16 @@
           139.0595281
         ],
         [
-          37.924593,
-          139.045976
-        ],
-        [
           37.92061,
           139.044841
         ],
         [
           37.916071,
           139.0531746
+        ],
+        [
+          37.9142867,
+          139.0522826
         ]
       ]
     },
@@ -437,64 +460,94 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "新潟県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 323,
+      "estimated_minutes": 279,
       "legs": [
         {
           "from": "新潟駅",
-          "to": "大形神社",
-          "distance_km": 4.52,
+          "to": "水島稲荷神社",
+          "distance_km": 0.85,
           "mode": "car",
-          "minutes": 11
+          "minutes": 2
+        },
+        {
+          "from": "水島稲荷神社",
+          "to": "本立寺",
+          "distance_km": 1.72,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "本立寺",
+          "to": "題目寺",
+          "distance_km": 2.79,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "題目寺",
+          "to": "大形神社",
+          "distance_km": 6.6,
+          "mode": "car",
+          "minutes": 15
         },
         {
           "from": "大形神社",
-          "to": "即往寺",
-          "distance_km": 5.62,
+          "to": "ひとてま",
+          "distance_km": 0.84,
           "mode": "car",
-          "minutes": 13
+          "minutes": 2
         },
         {
-          "from": "即往寺",
-          "to": "瓢亭（旧花岡家住宅）",
-          "distance_km": 4.82,
-          "mode": "car",
-          "minutes": 11
-        },
-        {
-          "from": "瓢亭（旧花岡家住宅）",
-          "to": "諏訪神社",
-          "distance_km": 3.77,
+          "from": "ひとてま",
+          "to": "新潟駅",
+          "distance_km": 3.84,
           "mode": "car",
           "minutes": 9
-        },
-        {
-          "from": "諏訪神社",
-          "to": "金玉神社",
-          "distance_km": 8.96,
-          "mode": "car",
-          "minutes": 20
-        },
-        {
-          "from": "金玉神社",
-          "to": "新潟駅",
-          "distance_km": 8.36,
-          "mode": "car",
-          "minutes": 19
         }
       ],
       "start": {
         "name": "新潟駅",
         "lat": 37.9122,
         "lng": 139.0617,
-        "to_first_km": 4.5,
-        "from_last_km": 8.4
+        "to_first_km": 0.9,
+        "from_last_km": 3.8
       },
-      "total_score": 36.0,
+      "total_score": 32.0,
       "center": [
-        37.900107,
-        139.066704
+        37.923094,
+        139.070587
       ],
       "spots": [
+        {
+          "place_id": "osm-node-12885887072",
+          "name": "水島稲荷神社",
+          "category": "観光名所",
+          "lat": 37.9108658,
+          "lng": 139.0521486,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13016781832",
+          "name": "本立寺",
+          "category": "観光名所",
+          "lat": 37.92364,
+          "lng": 139.0632972,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13503038784",
+          "name": "題目寺",
+          "category": "観光名所",
+          "lat": 37.9181948,
+          "lng": 139.0322694,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
         {
           "place_id": "osm-node-5261087323",
           "name": "大形神社",
@@ -506,66 +559,37 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12648840813",
-          "name": "即往寺",
-          "category": "観光名所",
-          "lat": 37.8890733,
-          "lng": 139.077419,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13762315648",
-          "name": "瓢亭（旧花岡家住宅）",
+          "place_id": "osm-node-13206175406",
+          "name": "ひとてま",
           "category": "飲食店",
-          "lat": 37.924593,
-          "lng": 139.045976,
+          "lat": 37.9279032,
+          "lng": 139.1006845,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-12697894607",
-          "name": "諏訪神社",
-          "category": "観光名所",
-          "lat": 37.9081475,
-          "lng": 139.0835398,
-          "stay_minutes": 45,
           "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6126340892",
-          "name": "金玉神社",
-          "category": "観光名所",
-          "lat": 37.8438526,
-          "lng": 139.0220504,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「大形神社」から徒歩目安約11分です。"
         }
       ],
       "coordinates": [
+        [
+          37.9108658,
+          139.0521486
+        ],
+        [
+          37.92364,
+          139.0632972
+        ],
+        [
+          37.9181948,
+          139.0322694
+        ],
         [
           37.9348665,
           139.1045338
         ],
         [
-          37.8890733,
-          139.077419
-        ],
-        [
-          37.924593,
-          139.045976
-        ],
-        [
-          37.9081475,
-          139.0835398
-        ],
-        [
-          37.8438526,
-          139.0220504
+          37.9279032,
+          139.1006845
         ]
       ]
     }

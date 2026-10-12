@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:27.461106+00:00",
+  "generated_at": "2026-10-12T06:25:44.393428+00:00",
   "area": "miyagi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 335,
+      "estimated_minutes": 416,
       "legs": [
         {
           "from": "仙台駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "石ノ森萬画館",
+          "to": "コーヒーむぎ",
+          "distance_km": 0.43,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "コーヒーむぎ",
           "to": "震災遺構門脇小学校",
-          "distance_km": 1.06,
-          "mode": "car",
-          "minutes": 3
+          "distance_km": 0.79,
+          "mode": "walk",
+          "minutes": 15
         },
         {
           "from": "震災遺構門脇小学校",
@@ -145,10 +152,10 @@
         "to_first_km": 43.1,
         "from_last_km": 40.9
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        38.436776,
-        141.307308
+        38.43466,
+        141.307004
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-2179440714",
+          "name": "コーヒーむぎ",
+          "category": "飲食店",
+          "lat": 38.4283106,
+          "lng": 141.3060915,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「震災遺構門脇小学校」から徒歩目安約10分です。"
+        },
+        {
           "place_id": "osm-node-6956586991",
           "name": "震災遺構門脇小学校",
           "category": "史跡",
@@ -192,6 +210,10 @@
           141.3107621
         ],
         [
+          38.4283106,
+          141.3060915
+        ],
+        [
           38.4213241,
           141.3046647
         ]
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 401,
+      "estimated_minutes": 461,
       "legs": [
         {
           "from": "仙台駅",
@@ -214,10 +236,17 @@
         },
         {
           "from": "日本こけし館",
-          "to": "荒雄川神社",
+          "to": "昼食: 要検討",
           "distance_km": 10.89,
           "mode": "car",
           "minutes": 25
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "荒雄川神社",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "荒雄川神社",
@@ -241,10 +270,10 @@
         "to_first_km": 55.3,
         "from_last_km": 44.0
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        38.70338,
-        140.79632
+        38.706833,
+        140.80241
       ],
       "spots": [
         {
@@ -256,6 +285,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-miyagi-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 38.7171898,
+          "lng": 140.8206798,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-5011171936",
@@ -288,6 +328,10 @@
           140.8206798
         ],
         [
+          38.7171898,
+          140.8206798
+        ],
+        [
           38.6566076,
           140.8707409
         ]
@@ -299,7 +343,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 302,
+      "estimated_minutes": 323,
       "legs": [
         {
           "from": "仙台駅",
@@ -317,31 +361,31 @@
         },
         {
           "from": "仙台アンパンマンこどもミュージアム&モール",
-          "to": "サイゼリヤ",
-          "distance_km": 8.0,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "サイゼリヤ",
           "to": "芭蕉の辻",
-          "distance_km": 7.48,
+          "distance_km": 1.53,
           "mode": "car",
-          "minutes": 17
+          "minutes": 4
         },
         {
           "from": "芭蕉の辻",
-          "to": "仙台文学館",
-          "distance_km": 4.05,
+          "to": "塩竈市杉村惇美術館",
+          "distance_km": 14.16,
           "mode": "car",
-          "minutes": 10
+          "minutes": 32
         },
         {
-          "from": "仙台文学館",
+          "from": "塩竈市杉村惇美術館",
+          "to": "ふうらい坊",
+          "distance_km": 0.4,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "ふうらい坊",
           "to": "仙台駅",
-          "distance_km": 4.03,
+          "distance_km": 13.63,
           "mode": "car",
-          "minutes": 9
+          "minutes": 31
         }
       ],
       "start": {
@@ -349,12 +393,12 @@
         "lat": 38.2606,
         "lng": 140.8824,
         "to_first_km": 1.3,
-        "from_last_km": 4.0
+        "from_last_km": 13.6
       },
-      "total_score": 48.0,
+      "total_score": 46.0,
       "center": [
-        38.254986,
-        140.87504
+        38.28373,
+        140.932502
       ],
       "spots": [
         {
@@ -378,16 +422,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4524557791",
-          "name": "サイゼリヤ",
-          "category": "飲食店",
-          "lat": 38.1930652,
-          "lng": 140.8738728,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-6609197294",
           "name": "芭蕉の辻",
           "category": "展望地",
@@ -398,14 +432,25 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4684907291",
-          "name": "仙台文学館",
+          "place_id": "osm-node-4528178706",
+          "name": "塩竈市杉村惇美術館",
           "category": "博物館",
-          "lat": 38.2964999,
-          "lng": 140.8761426,
+          "lat": 38.3158067,
+          "lng": 141.0166124,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10711282204",
+          "name": "ふうらい坊",
+          "category": "飲食店",
+          "lat": 38.3174793,
+          "lng": 141.0207168,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「塩竈市杉村惇美術館」から徒歩目安約6分です。"
         }
       ],
       "coordinates": [
@@ -418,16 +463,16 @@
           140.8875014
         ],
         [
-          38.1930652,
-          140.8738728
-        ],
-        [
           38.2603275,
           140.8706195
         ],
         [
-          38.2964999,
-          140.8761426
+          38.3158067,
+          141.0166124
+        ],
+        [
+          38.3174793,
+          141.0207168
         ]
       ]
     },
@@ -436,75 +481,65 @@
       "area": "miyagi",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "宮城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 328,
+      "title": "宮城県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 311,
       "legs": [
         {
           "from": "仙台駅",
-          "to": "地底の森ミュージアム",
-          "distance_km": 4.29,
-          "mode": "car",
-          "minutes": 10
-        },
-        {
-          "from": "地底の森ミュージアム",
           "to": "満福寺",
-          "distance_km": 3.26,
+          "distance_km": 1.24,
           "mode": "car",
-          "minutes": 8
+          "minutes": 3
         },
         {
           "from": "満福寺",
-          "to": "サイゼリヤ",
-          "distance_km": 6.42,
+          "to": "仙台ホサナ教会",
+          "distance_km": 2.81,
           "mode": "car",
-          "minutes": 15
+          "minutes": 7
         },
         {
-          "from": "サイゼリヤ",
-          "to": "白山神社",
-          "distance_km": 6.98,
+          "from": "仙台ホサナ教会",
+          "to": "満願寺",
+          "distance_km": 0.92,
           "mode": "car",
-          "minutes": 16
+          "minutes": 3
         },
         {
-          "from": "白山神社",
-          "to": "震災遺構 仙台市立荒浜小学校",
-          "distance_km": 7.47,
+          "from": "満願寺",
+          "to": "菅野美術館",
+          "distance_km": 12.29,
           "mode": "car",
-          "minutes": 17
+          "minutes": 28
         },
         {
-          "from": "震災遺構 仙台市立荒浜小学校",
+          "from": "菅野美術館",
+          "to": "長町ラーメン",
+          "distance_km": 0.96,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "長町ラーメン",
           "to": "仙台駅",
-          "distance_km": 9.57,
+          "distance_km": 11.8,
           "mode": "car",
-          "minutes": 22
+          "minutes": 27
         }
       ],
       "start": {
         "name": "仙台駅",
         "lat": 38.2606,
         "lng": 140.8824,
-        "to_first_km": 4.3,
-        "from_last_km": 9.6
+        "to_first_km": 1.2,
+        "from_last_km": 11.8
       },
-      "total_score": 44.0,
+      "total_score": 40.0,
       "center": [
-        38.227902,
-        140.903398
+        38.280448,
+        140.929607
       ],
       "spots": [
-        {
-          "place_id": "osm-node-6863131655",
-          "name": "地底の森ミュージアム",
-          "category": "博物館",
-          "lat": 38.2227753,
-          "lng": 140.8725352,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-10744083032",
           "name": "満福寺",
@@ -516,56 +551,67 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4524557791",
-          "name": "サイゼリヤ",
-          "category": "飲食店",
-          "lat": 38.1930652,
-          "lng": 140.8738728,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4475431696",
-          "name": "白山神社",
+          "place_id": "osm-node-4686523090",
+          "name": "仙台ホサナ教会",
           "category": "観光名所",
-          "lat": 38.2513533,
-          "lng": 140.9034815,
+          "lat": 38.2724975,
+          "lng": 140.8718713,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4811335024",
-          "name": "震災遺構 仙台市立荒浜小学校",
-          "category": "史跡",
-          "lat": 38.2223376,
-          "lng": 140.9805636,
+          "place_id": "osm-node-8499863720",
+          "name": "満願寺",
+          "category": "観光名所",
+          "lat": 38.2655431,
+          "lng": 140.8775147,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4528209293",
+          "name": "菅野美術館",
+          "category": "博物館",
+          "lat": 38.3114141,
+          "lng": 141.0056234,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13311629584",
+          "name": "長町ラーメン",
+          "category": "飲食店",
+          "lat": 38.3028095,
+          "lng": 141.00649,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「菅野美術館」から徒歩目安約12分です。"
         }
       ],
       "coordinates": [
-        [
-          38.2227753,
-          140.8725352
-        ],
         [
           38.2499768,
           140.8865379
         ],
         [
-          38.1930652,
-          140.8738728
+          38.2724975,
+          140.8718713
         ],
         [
-          38.2513533,
-          140.9034815
+          38.2655431,
+          140.8775147
         ],
         [
-          38.2223376,
-          140.9805636
+          38.3114141,
+          141.0056234
+        ],
+        [
+          38.3028095,
+          141.00649
         ]
       ]
     }
