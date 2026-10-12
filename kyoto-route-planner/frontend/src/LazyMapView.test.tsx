@@ -10,7 +10,7 @@ const observerState = vi.hoisted(() => ({
 
 vi.mock("./MapView", () => ({
   MapView: (props: MapViewProps) => (
-    <div data-testid="loaded-map">{props.places[0]?.name ?? "empty-map"}</div>
+    <div data-testid="loaded-map" data-return-name={props.returnTo?.name}>{props.places[0]?.name ?? "empty-map"}</div>
   ),
 }));
 
@@ -48,6 +48,7 @@ describe("LazyMapView", () => {
           themes: ["temple"],
         }]}
         origin={null}
+        returnTo={{ name: "大阪駅", latitude: 34.7, longitude: 135.5 }}
       />,
     );
 
@@ -58,6 +59,7 @@ describe("LazyMapView", () => {
     });
 
     await waitFor(() => expect(screen.getByTestId("loaded-map").textContent).toBe("清水寺"));
+    expect(screen.getByTestId("loaded-map").getAttribute("data-return-name")).toBe("大阪駅");
     expect(observerState.disconnect).toHaveBeenCalledOnce();
   });
 });

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { isRecord, isRouteIdea } from "./apiValidation";
+import { isOrigin, isRecord, isSavedRouteIdea } from "./apiValidation";
 import type { RouteIdea } from "./SwipeCard";
 import { usePrefecture } from "./PrefectureContext";
 
@@ -35,7 +35,7 @@ const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 function isFavoriteRoute(value: unknown): value is FavoriteRoute {
   if (!isRecord(value)) return false;
   const favorite = value;
-  return isRouteIdea(value)
+  return isSavedRouteIdea(value)
     && typeof favorite.id === "string"
     && favorite.id.length > 0
     && typeof favorite.prefecture_code === "string"
@@ -43,7 +43,14 @@ function isFavoriteRoute(value: unknown): value is FavoriteRoute {
     && isRecord(favorite.tags)
     && Object.values(favorite.tags).every((tag) => typeof tag === "string")
     && typeof favorite.saved_at === "string"
-    && (favorite.pinned === undefined || typeof favorite.pinned === "boolean");
+    && (favorite.pinned === undefined || typeof favorite.pinned === "boolean")
+    && (favorite.origin === undefined || isOrigin(favorite.origin))
+    && (favorite.dwell_minutes === undefined
+      || (isRecord(favorite.dwell_minutes)
+        && !Array.isArray(favorite.dwell_minutes)
+        && Object.values(favorite.dwell_minutes).every((minutes) => (
+          typeof minutes === "number" && Number.isSafeInteger(minutes) && minutes >= 0
+        ))));
 }
 
 // 上限を超えたら、ピン留めされていない最も古いルート（配列の末尾側）から削除する
@@ -153,7 +160,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
       saved_at: new Date().toISOString(),
     };
     const trimmed = trimFavorites([favorite, ...favoritesRef.current]);
-    if (!trimmed) {
+    if (!trimmed || !trimmed.some((route) => route.id === id)) {
       setState((current) => ({
         ...current,
         error: `保存数が上限（${MAX_FAVORITES}件）に達し、すべてピン留めされています。ピン留めを外してから保存してください。`,

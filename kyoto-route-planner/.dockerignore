@@ -1,0 +1,13 @@
+.git
+.local
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.tsbuildinfo
+frontend/dist
+frontend/.vite
+backend/data

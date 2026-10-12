@@ -36,6 +36,8 @@ def validate_dataset(path: Path) -> dict[str, object]:
         errors.append("full_day_count")
     seen: set[str] = set()
     for route in routes:
+        if route.get("theme") not in {"all", "history", "temple", "nature", "food"}:
+            errors.append(f"{route.get('id')}:theme")
         spots = route.get("spots", [])
         coordinates = route.get("coordinates", [])
         if len(spots) != len(coordinates) or any([spot["lat"], spot["lng"]] != coordinate for spot, coordinate in zip(spots, coordinates)):

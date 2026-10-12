@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { PrefectureProvider } from "../PrefectureContext";
 import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
+import hokkaidoDataset from "../data/routes/hokkaido.json";
 
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 
@@ -13,7 +14,7 @@ afterEach(() => {
 });
 
 function renderDiscoverMode() {
-  render(
+  return render(
     <PrefectureProvider>
       <FavoritesProvider>
         <DiscoverMode active />
@@ -29,7 +30,8 @@ describe("DiscoverMode", () => {
     renderDiscoverMode();
 
     expect((screen.getByRole("combobox", { name: "都道府県" }) as HTMLSelectElement).value).toBe("kyoto");
-    expect(screen.getByText("京都府の実データに基づくサンプル（5件）")).toBeTruthy();
+    expect(screen.getByText("京都府のよりみち")).toBeTruthy();
+    expect(screen.getByText("5件の候補")).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -40,7 +42,7 @@ describe("DiscoverMode", () => {
     expect(nextOption.value).toBe("hokkaido");
     fireEvent.change(select, { target: { value: nextOption.value } });
 
-    expect(screen.getByText(`${nextOption.textContent}の実データに基づくサンプル（5件）`)).toBeTruthy();
+    expect(screen.getByText(`${nextOption.textContent}のよりみち`)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "しおりを開く" }));
 
     const favorites = JSON.parse(window.localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]");
@@ -49,6 +51,8 @@ describe("DiscoverMode", () => {
       prefecture_code: "01",
       prefecture_name: nextOption.textContent,
       copywriting_source: "fallback",
+      origin: { name: hokkaidoDataset.routes[0].start.name, latitude: hokkaidoDataset.routes[0].start.lat, longitude: hokkaidoDataset.routes[0].start.lng },
+      dwell_minutes: expect.any(Object),
     });
   });
 
@@ -82,5 +86,39 @@ describe("DiscoverMode", () => {
     renderDiscoverMode();
 
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("keeps the browsing position for each theme and when returning to the tab", () => {
+    const view = renderDiscoverMode();
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
+    expect(screen.getByText("1 / 2")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
+    expect(screen.getByText("2 / 5")).toBeTruthy();
+    view.rerender(<PrefectureProvider><FavoritesProvider><DiscoverMode active={false} /></FavoritesProvider></PrefectureProvider>);
+    view.rerender(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
+    expect(screen.getByText("2 / 5")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
+    expect(screen.getByText("2 / 2")).toBeTruthy();
+  });
+
+  it("shows an actionable empty state when the chosen theme has no routes", () => {
+    renderDiscoverMode();
+    fireEvent.click(screen.getByRole("button", { name: "グルメ" }));
+    expect(screen.getByText("この条件の候補は、まだありません")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "しおりを開く" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "すべての候補を見る" }));
+    expect(screen.getByText("5件の候補")).toBeTruthy();
+  });
+
+  it("filters by actual course length when an original half-day route returns after 14:00", () => {
+    renderDiscoverMode();
+    fireEvent.change(screen.getByRole("combobox", { name: "都道府県" }), { target: { value: "aichi" } });
+    fireEvent.click(screen.getByRole("button", { name: "半日" }));
+    expect(screen.getByText("1件の候補")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "1日" }));
+    expect(screen.getByText("4件の候補")).toBeTruthy();
+    expect(screen.getAllByText("1日コース").length).toBeGreaterThan(0);
   });
 });

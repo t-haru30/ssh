@@ -63,6 +63,18 @@ afterEach(() => {
 });
 
 describe("useFavorites", () => {
+  it("restores Discover routes with five stops without changing their saved data", () => {
+    const idea = makeIdea();
+    idea.places = Array.from({ length: 5 }, (_, index) => ({ ...idea.places[index % 2], id: `long-${index}` }));
+    const first = renderHook(() => useFavorites(), { wrapper });
+    act(() => { expect(first.result.current.saveFavorite(idea)).toBe(true); });
+    const originalStorage = window.localStorage.getItem(STORAGE_KEY);
+    first.unmount();
+    const restored = renderHook(() => useFavorites(), { wrapper });
+    expect(restored.result.current.error).toBeNull();
+    expect(restored.result.current.favorites[0].places).toHaveLength(5);
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe(originalStorage);
+  });
   it("saves a route with its prefecture metadata and persists it", () => {
     const { result } = renderHook(() => useFavorites(), { wrapper });
 
@@ -120,6 +132,87 @@ describe("useFavorites", () => {
     const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]");
     expect(stored).toHaveLength(MAX_FAVORITES);
     expect(stored[0].title).toBe(`清水寺と高台寺 ${MAX_FAVORITES}`);
+  });
+
+  it("rejects a new route when every saved route is pinned and allows retry after unpinning", () => {
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+    act(() => {
+      for (let index = 0; index < MAX_FAVORITES; index += 1) {
+        result.current.saveFavorite(makeIdea(index));
+      }
+    });
+    act(() => {
+      result.current.favorites.forEach((favorite) => result.current.togglePin(favorite.id));
+    });
+    const originalStorage = window.localStorage.getItem(STORAGE_KEY);
+    const firstId = result.current.favorites[0].id;
+    const newIdea = makeIdea(MAX_FAVORITES);
+    let saved = true;
+
+    act(() => {
+      saved = result.current.saveFavorite(newIdea);
+    });
+
+    expect(saved).toBe(false);
+    expect(result.current.error).toContain("すべてピン留め");
+    expect(result.current.isFavorite(newIdea)).toBe(false);
+    expect(result.current.favorites).toHaveLength(MAX_FAVORITES);
+    expect(result.current.favorites.every((favorite) => favorite.pinned)).toBe(true);
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe(originalStorage);
+
+    act(() => {
+      result.current.togglePin(firstId);
+      saved = result.current.saveFavorite(newIdea);
+    });
+
+    expect(saved).toBe(true);
+    expect(result.current.error).toBeNull();
+    expect(result.current.isFavorite(newIdea)).toBe(true);
+    expect(result.current.favorites).toHaveLength(MAX_FAVORITES);
+    expect(result.current.favorites.some((favorite) => favorite.id === firstId)).toBe(false);
+    expect(result.current.favorites.filter((favorite) => favorite.pinned)).toHaveLength(MAX_FAVORITES - 1);
+  });
+
+  it("restores the saved origin and individual dwell times after remounting", () => {
+    const metadata = {
+      origin: { name: "東京駅", latitude: 35.6812, longitude: 139.7671 },
+      dwell_minutes: { "kiyomizu-0": 45, "kodaiji-0": 60 },
+    };
+    const idea = { ...makeIdea(), ...metadata };
+    const first = renderHook(() => useFavorites(), { wrapper });
+    act(() => {
+      first.result.current.saveFavorite(idea);
+    });
+    first.unmount();
+
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+
+    expect(result.current.favorites).toHaveLength(1);
+    expect(result.current.favorites[0]).toMatchObject(metadata);
+    expect(result.current.error).toBeNull();
+  });
+
+  it.each([
+    { origin: { name: "範囲外の起点", latitude: 999, longitude: 139 } },
+    { dwell_minutes: [] },
+    { dwell_minutes: { "kiyomizu-0": "45" } },
+    { dwell_minutes: { "kiyomizu-0": -15 } },
+  ])("rejects invalid optional itinerary metadata without overwriting storage: %j", (metadata) => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const serialized = JSON.stringify([{
+      ...makeIdea(),
+      ...metadata,
+      id: "26:kiyomizu-0|kodaiji-0",
+      tags: { prefecture_code: "26", prefecture_name: "京都府" },
+      saved_at: "2026-10-10T00:00:00.000Z",
+    }]);
+    window.localStorage.setItem(STORAGE_KEY, serialized);
+
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+
+    expect(result.current.favorites).toHaveLength(0);
+    expect(result.current.error).toBeTruthy();
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe(serialized);
   });
 
   it("trims existing saved data to the newest 50 routes on load", () => {

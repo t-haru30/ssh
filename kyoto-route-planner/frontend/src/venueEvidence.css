@@ -1,0 +1,31 @@
+.venue-evidence { margin: 16px 0; padding: 17px 18px; border: 1px solid #d7e2d9; border-radius: 16px; background: #f5f8f3; color: #293f36; text-align: left; min-width: 0; }
+.venue-evidence-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: .88rem; }
+.venue-evidence-match { font-size: .72rem; margin: 8px 0 12px; color: #657166; }
+.venue-evidence-match summary { cursor: pointer; padding: 4px 0; }
+.venue-evidence-match .venue-evidence-text { margin: 8px 0; font-size: .73rem; }
+.venue-evidence-heading strong { font-size: inherit; }
+.venue-evidence .venue-evidence-badge { margin-left: auto; border-radius: 20px; padding: 3px 8px; background: #e3eddf; font-size: .67rem; color: #365844; }
+.venue-evidence .venue-evidence-intro { font-size: .79rem; line-height: 1.85; margin: 10px 0 13px; color: #506056; }
+.venue-evidence .venue-evidence-button { width: 100%; min-height: 42px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid #bccfbe; border-radius: 10px; padding: 9px 13px; background: white; color: #315540; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+.venue-evidence .venue-evidence-button:hover:not(:disabled) { background: #e9f0e5; border-color: #69866b; }
+.venue-evidence-button:disabled { opacity: .65; cursor: wait; }
+.venue-evidence a:focus-visible, .venue-evidence-button:focus-visible { outline: 3px solid #a47d36; outline-offset: 3px; }
+.venue-evidence-heading:focus-visible { outline: 2px solid #a47d36; outline-offset: 4px; border-radius: 3px; }
+.venue-evidence .venue-evidence-footnote { color: #657166; font-size: .68rem; line-height: 1.8; margin: 9px 0 0; }
+.venue-evidence .venue-evidence-status { color: #405842; font-size: .79rem; line-height: 1.9; margin: 12px 0 0; }
+.venue-evidence .venue-evidence-status.is-error { color: #964329; }
+.venue-evidence .venue-evidence-label { font-size: .69rem; color: #657166; margin: 12px 0 8px; }
+.venue-evidence .venue-evidence-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.95; font-size: .82rem; margin: 0 0 14px; }
+.venue-evidence-text sup { line-height: 0; margin-left: 3px; }
+.venue-evidence a { color: #356347; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.venue-evidence .venue-evidence-sources { display: grid; gap: 8px; list-style: none; padding: 12px 0 0; margin: 0; border-top: 1px solid #dce4d9; font-size: .73rem; }
+.venue-evidence .venue-evidence-sources li { display: block; padding: 0; margin: 0; border: 0; background: transparent; border-radius: 0; line-height: 1.7; }
+.venue-evidence-source-details { font-size: .75rem; margin-top: 12px; }
+.venue-evidence-source-details summary { color: #356347; cursor: pointer; padding: 5px 0; }
+.venue-search-suggestions { margin: 14px 0 0; max-width: 100%; overflow-x: auto; }
+.venue-evidence-setup { font-size: .75rem; margin-top: 12px; line-height: 1.9; }
+.venue-evidence-setup summary { cursor: pointer; font-weight: 600; }
+.venue-evidence-setup code { overflow-wrap: anywhere; font-size: .7rem; }
+.discover-modal-spots > li:has(.venue-evidence) { flex-wrap: wrap; }
+.discover-modal-spots > li > .venue-evidence { flex: 1 0 100%; width: 100%; box-sizing: border-box; margin: 12px 0 0; }
+@media (max-width: 480px) { .venue-evidence { padding: 14px; } }

@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { isOvernightItinerary, isRouteIdea, isSwipeItinerary, normalizeOvernightItinerary, normalizeSwipeItinerary } from "./apiValidation";
+import { isOvernightItinerary, isRouteIdea, isRouteSuggestions, isSwipeItinerary, normalizeOvernightItinerary, normalizeSwipeItinerary } from "./apiValidation";
+
+describe("route return destination and reasons", () => {
+  const origin = { name: "京都駅", latitude: 34.9858, longitude: 135.7588 };
+  const route = { origin, places: [{ id: "p", name: "公園", category: "公園", description: "", access_point: "", latitude: 35, longitude: 135.76, themes: ["nature"] }],
+    legs: [], title: null, story: null, total_minutes: null, departure_time: null, arrival_time: null, timeline: [], note: "", coordinates: [] };
+  it("accepts old responses and valid independent return endpoints", () => {
+    expect(isRouteSuggestions({ routes: [route] })).toBe(true);
+    expect(isRouteSuggestions({ routes: [{ ...route, return_to: origin, reasons: { p: "自然を楽しむ候補" } }] })).toBe(true);
+  });
+  it("rejects malformed destinations and non-text reasons", () => {
+    expect(isRouteSuggestions({ routes: [{ ...route, return_to: { ...origin, latitude: 999 } }] })).toBe(false);
+    expect(isRouteSuggestions({ routes: [{ ...route, reasons: { p: 42 } }] })).toBe(false);
+  });
+});
 
 describe("normalizeOvernightItinerary", () => {
   const catalogPlace = (id: string) => ({
