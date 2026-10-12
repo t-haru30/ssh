@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { buildRouteTimeline, RouteTimeline } from "../RouteTimeline";
-import { isRecord, isRouteSuggestion } from "../apiValidation";
+import { isOrigin, isRecord, isRouteSuggestion } from "../apiValidation";
 import type { Origin, Place, RouteSuggestion } from "../types";
 import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
@@ -45,6 +45,9 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   const [routeSuggestion, setRouteSuggestion] = useState<RouteSuggestion | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routeLoading, setRouteLoading] = useState(true);
+  const [currentOrigin, setCurrentOrigin] = useState<Origin | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const isStaticRoute = isDatasetRoute(route);
   const places = useMemo(
     () => isStaticRoute
@@ -58,9 +61,10 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       : AREA_STARTS.kyoto,
     [isStaticRoute, route],
   );
+  const origin = currentOrigin ?? start;
   const estimatedItems = useMemo(
-    () => buildRouteTimeline(start, places, "09:00", null),
-    [places, start],
+    () => buildRouteTimeline(origin, places, "09:00", null),
+    [places, origin],
   );
   const items = routeSuggestion?.timeline?.length
     ? routeSuggestion.timeline
@@ -90,7 +94,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
           body: JSON.stringify({
-            origin: start,
+            origin,
             places,
             departure_date: departureDate,
             departure_time: "09:00",
@@ -133,7 +137,67 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [places, start]);
+  }, [places, origin]);
+
+  async function useCurrentLocation() {
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError("このブラウザでは位置情報を取得できません。");
+      return;
+    }
+
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const { latitude, longitude } = coords;
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 15_000);
+        try {
+          const response = await fetch(
+            `/api/nearby-stations?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
+            { signal: controller.signal },
+          );
+          if (!response.ok) {
+            let message = `現在地周辺の駅検索に失敗しました（HTTP ${response.status}）。`;
+            try {
+              const payload: unknown = await response.json();
+              if (isRecord(payload) && typeof payload.detail === "string") {
+                message = payload.detail;
+              }
+            } catch {
+              // Retain the HTTP status message when the error body is not JSON.
+            }
+            throw new Error(message);
+          }
+          const payload: unknown = await response.json();
+          if (!Array.isArray(payload) || !payload.every(isOrigin) || payload.length === 0) {
+            throw new Error("現在地周辺の駅・停留所が見つかりませんでした。");
+          }
+          setCurrentOrigin(payload[0]);
+        } catch (error) {
+          setLocationError(
+            error instanceof Error && error.name === "AbortError"
+              ? "現在地周辺の駅検索がタイムアウトしました。"
+              : error instanceof Error
+              ? error.message
+              : "現在地周辺の駅を検索できませんでした。",
+          );
+        } finally {
+          window.clearTimeout(timeoutId);
+          setLocationLoading(false);
+        }
+      },
+      (error) => {
+        setLocationError(
+          error.code === GeolocationPositionError.PERMISSION_DENIED
+            ? "位置情報が許可されていません。ブラウザの設定を確認してください。"
+            : "現在地を取得できませんでした。位置情報の設定を確認してください。",
+        );
+        setLocationLoading(false);
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
+    );
+  }
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -176,12 +240,24 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           >
             <MapView
               places={places}
-              origin={start}
-              coordinates={[[start.latitude, start.longitude], ...coordinates]}
+              origin={origin}
+              coordinates={[[origin.latitude, origin.longitude], ...coordinates]}
               legs={[]}
             />
           </Suspense>
         </div>
+        <div className="discover-origin-control">
+          <span>出発地: {origin.name}</span>
+          <button
+            type="button"
+            onClick={() => void useCurrentLocation()}
+            disabled={locationLoading}
+          >
+            {locationLoading ? "現在地を確認中…" : "現在地から出発"}
+          </button>
+          {currentOrigin && <button type="button" onClick={() => setCurrentOrigin(null)}>元の出発地に戻す</button>}
+        </div>
+        {locationError && <p className="result-note" role="alert">{locationError}</p>}
         {routeLoading && <p role="status">駅すぱあとで運行時刻を検索しています…</p>}
         {routeError && (
           <p className="result-note" role="status">
