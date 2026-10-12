@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:45.111221+00:00",
+  "generated_at": "2026-10-12T03:36:16.582618+00:00",
   "area": "miyagi",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-miyagi-01",

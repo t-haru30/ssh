@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:57.225384+00:00",
+  "generated_at": "2026-10-12T03:36:55.876043+00:00",
   "area": "shizuoka",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-shizuoka-01",

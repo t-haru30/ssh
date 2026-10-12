@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:54.307761+00:00",
+  "generated_at": "2026-10-12T03:36:45.472659+00:00",
   "area": "ishikawa",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-ishikawa-01",

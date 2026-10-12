@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:06.905803+00:00",
+  "generated_at": "2026-10-12T03:37:30.813168+00:00",
   "area": "ehime",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-ehime-01",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:53:25.635419+00:00",
+  "generated_at": "2026-10-12T03:37:49.317840+00:00",
   "prefectures": [
     {
       "id": "hokkaido",
@@ -304,8 +304,8 @@
       "prefecture_code": "28",
       "name": "兵庫県",
       "center": [
-        34.823956,
-        135.28092
+        34.830264,
+        135.286493
       ],
       "route_count": 5,
       "file": "hyogo.json"
@@ -370,8 +370,8 @@
       "prefecture_code": "34",
       "name": "広島県",
       "center": [
-        34.426118,
-        132.453631
+        34.42937,
+        132.457313
       ],
       "route_count": 5,
       "file": "hiroshima.json"
@@ -403,8 +403,8 @@
       "prefecture_code": "37",
       "name": "香川県",
       "center": [
-        34.381041,
-        133.992358
+        34.327535,
+        134.000253
       ],
       "route_count": 5,
       "file": "kagawa.json"
@@ -458,8 +458,8 @@
       "prefecture_code": "42",
       "name": "長崎県",
       "center": [
-        32.896575,
-        129.971043
+        32.904952,
+        129.964184
       ],
       "route_count": 5,
       "file": "nagasaki.json"
@@ -469,8 +469,8 @@
       "prefecture_code": "43",
       "name": "熊本県",
       "center": [
-        32.784966,
-        130.760794
+        32.86662,
+        130.83611
       ],
       "route_count": 5,
       "file": "kumamoto.json"
@@ -513,8 +513,8 @@
       "prefecture_code": "47",
       "name": "沖縄県",
       "center": [
-        26.188553,
-        128.432447
+        26.288841,
+        127.728994
       ],
       "route_count": 5,
       "file": "okinawa.json"

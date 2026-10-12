@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:03.664348+00:00",
+  "generated_at": "2026-10-12T03:37:16.305363+00:00",
   "area": "tottori",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-tottori-01",

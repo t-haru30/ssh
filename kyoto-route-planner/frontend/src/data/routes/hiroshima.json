@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:05.161017+00:00",
+  "generated_at": "2026-10-12T03:37:22.890452+00:00",
   "area": "hiroshima",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-hiroshima-01",
@@ -187,11 +187,11 @@
       "pattern": "full_day",
       "theme": "history",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 307,
+      "estimated_minutes": 304,
       "total_score": 38.0,
       "center": [
-        34.336078,
-        132.330902
+        34.342356,
+        132.3239
       ],
       "spots": [
         {
@@ -235,11 +235,11 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423631831",
-          "name": "宮島水族館",
-          "category": "水族館",
-          "lat": 34.2954755,
-          "lng": 132.3156513,
+          "place_id": "osm-node-1423638572",
+          "name": "海の見える杜美術館",
+          "category": "博物館",
+          "lat": 34.326863,
+          "lng": 132.280645,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -263,8 +263,8 @@
           132.3417956
         ],
         [
-          34.2954755,
-          132.3156513
+          34.326863,
+          132.280645
         ]
       ]
     },
@@ -274,11 +274,11 @@
       "pattern": "full_day",
       "theme": "history",
       "title": "広島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 277,
-      "total_score": 38.0,
+      "estimated_minutes": 280,
+      "total_score": 34.0,
       "center": [
-        34.345106,
-        132.323638
+        34.355088,
+        132.34905
       ],
       "spots": [
         {
@@ -322,13 +322,13 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423638572",
-          "name": "海の見える杜美術館",
-          "category": "博物館",
-          "lat": 34.326863,
-          "lng": 132.280645,
+          "place_id": "osm-node-11108557131",
+          "name": "小橋勘太郎之碑",
+          "category": "史跡",
+          "lat": 34.3767736,
+          "lng": 132.4077054,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         }
       ],
@@ -350,8 +350,8 @@
           132.3380452
         ],
         [
-          34.326863,
-          132.280645
+          34.3767736,
+          132.4077054
         ]
       ]
     }

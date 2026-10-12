@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:08.221255+00:00",
+  "generated_at": "2026-10-12T03:37:38.805687+00:00",
   "area": "nagasaki",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-nagasaki-01",
@@ -126,25 +126,15 @@
       "id": "osm-nagasaki-03",
       "area": "nagasaki",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "長崎県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 174,
-      "total_score": 50.0,
+      "theme": "nature",
+      "title": "長崎県の自然スポットをめぐる半日ルート",
+      "estimated_minutes": 166,
+      "total_score": 46.7,
       "center": [
-        33.128214,
-        129.732387
+        33.170098,
+        129.698092
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1423797459",
-          "name": "ハウステンボス美術館・博物館",
-          "category": "博物館",
-          "lat": 33.0795856,
-          "lng": 129.7835755,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-1423798969",
           "name": "佐世保市博物館島瀬美術センター",
@@ -164,13 +154,19 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12463298700",
+          "name": "四反田遺跡",
+          "category": "史跡",
+          "lat": 33.2052377,
+          "lng": 129.6806905,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
-        [
-          33.0795856,
-          129.7835755
-        ],
         [
           33.172722,
           129.720668
@@ -178,6 +174,10 @@
         [
           33.1323347,
           129.692917
+        ],
+        [
+          33.2052377,
+          129.6806905
         ]
       ]
     },
