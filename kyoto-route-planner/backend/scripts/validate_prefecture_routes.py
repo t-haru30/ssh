@@ -10,7 +10,7 @@ import sys
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
-from scripts.generate_prefecture_routes import AREAS, _distance, _lunch_radius, _travel_minutes, on_main_landmass
+from scripts.generate_prefecture_routes import AREAS, STATIONS, _distance, _lunch_radius, build_legs, course_for, on_main_landmass
 
 
 def validate_dataset(path: Path) -> dict[str, object]:
@@ -42,12 +42,23 @@ def validate_dataset(path: Path) -> dict[str, object]:
             distance = _distance((first["lat"], first["lng"]), (second["lat"], second["lng"]))
             if distance > config.max_leg_km:
                 errors.append(f"{route.get('id')}:leg={distance:.2f}km")
-        expected = sum(spot["stay_minutes"] for spot in spots) + sum(
-            _travel_minutes(_distance((first["lat"], first["lng"]), (second["lat"], second["lng"])), config.mode)
-            for first, second in zip(spots, spots[1:])
-        )
+        start = route.get("start")
+        if not isinstance(start, dict) or start.get("name") != STATIONS[config.id][0]:
+            errors.append(f"{route.get('id')}:start")
+        elif spots:
+            origin = (start["lat"], start["lng"])
+            to_first = _distance(origin, (spots[0]["lat"], spots[0]["lng"]))
+            from_last = _distance((spots[-1]["lat"], spots[-1]["lng"]), origin)
+            if max(to_first, from_last) > data.get("start_radius_km", 0) + 0.05:
+                errors.append(f"{route.get('id')}:start_distance={max(to_first, from_last):.1f}km")
+        legs = route.get("legs", [])
+        if legs != build_legs(config, STATIONS[config.id], spots):
+            errors.append(f"{route.get('id')}:legs")
+        expected = sum(spot["stay_minutes"] for spot in spots) + sum(leg["minutes"] for leg in legs)
         if route.get("estimated_minutes") != expected:
             errors.append(f"{route.get('id')}:estimated_minutes")
+        if route.get("course") != course_for(route.get("pattern", ""), expected):
+            errors.append(f"{route.get('id')}:course")
         lunches = [index for index, spot in enumerate(spots) if spot.get("role") == "lunch"]
         if route.get("pattern") == "full_day":
             if lunches != [2]:

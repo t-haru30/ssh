@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:36.570238+00:00",
+  "generated_at": "2026-10-12T04:55:35.999326+00:00",
   "area": "tokyo",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-tokyo-01",
       "area": "tokyo",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "東京都の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 158,
+      "estimated_minutes": 202,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "五徳山江東寺",
+          "distance_km": 4.51,
+          "mode": "public_transport",
+          "minutes": 21
+        },
+        {
+          "from": "五徳山江東寺",
+          "to": "郵政博物館",
+          "distance_km": 1.76,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "郵政博物館",
+          "to": "東京大空襲・戦災資料センター",
+          "distance_km": 3.27,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "東京大空襲・戦災資料センター",
+          "to": "東京駅",
+          "distance_km": 4.98,
+          "mode": "public_transport",
+          "minutes": 23
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 4.5,
+        "from_last_km": 5.0
+      },
       "total_score": 56.7,
       "center": [
         35.695394,
@@ -67,9 +105,46 @@
       "id": "osm-tokyo-02",
       "area": "tokyo",
       "pattern": "half_day",
-      "theme": "all",
+      "course": "half_day",
       "title": "東京都の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 139,
+      "estimated_minutes": 272,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "伊興遺跡公園展示館",
+          "distance_km": 13.81,
+          "mode": "public_transport",
+          "minutes": 63
+        },
+        {
+          "from": "伊興遺跡公園展示館",
+          "to": "伊興遺跡",
+          "distance_km": 0.05,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "伊興遺跡",
+          "to": "白旗塚古墳",
+          "distance_km": 0.63,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "白旗塚古墳",
+          "to": "東京駅",
+          "distance_km": 13.55,
+          "mode": "public_transport",
+          "minutes": 61
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 13.8,
+        "from_last_km": 13.5
+      },
       "total_score": 43.3,
       "center": [
         35.803383,
@@ -126,9 +201,46 @@
       "id": "osm-tokyo-03",
       "area": "tokyo",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "東京都の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 167,
+      "estimated_minutes": 201,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "アートアクアリウム美術館 GINZA",
+          "distance_km": 1.1,
+          "mode": "public_transport",
+          "minutes": 5
+        },
+        {
+          "from": "アートアクアリウム美術館 GINZA",
+          "to": "在日韓人歴史資料館",
+          "distance_km": 3.41,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "在日韓人歴史資料館",
+          "to": "東京アニメセンター",
+          "distance_km": 3.48,
+          "mode": "public_transport",
+          "minutes": 16
+        },
+        {
+          "from": "東京アニメセンター",
+          "to": "東京駅",
+          "distance_km": 6.4,
+          "mode": "public_transport",
+          "minutes": 29
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 1.1,
+        "from_last_km": 6.4
+      },
       "total_score": 50.0,
       "center": [
         35.661416,
@@ -185,9 +297,60 @@
       "id": "osm-tokyo-04",
       "area": "tokyo",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "東京都の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 286,
+      "estimated_minutes": 369,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "久米美術館",
+          "distance_km": 7.02,
+          "mode": "public_transport",
+          "minutes": 32
+        },
+        {
+          "from": "久米美術館",
+          "to": "物流博物館",
+          "distance_km": 1.7,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "物流博物館",
+          "to": "日高屋",
+          "distance_km": 3.17,
+          "mode": "public_transport",
+          "minutes": 15
+        },
+        {
+          "from": "日高屋",
+          "to": "大田区立郷土博物館",
+          "distance_km": 1.8,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "大田区立郷土博物館",
+          "to": "東京科学大学博物館",
+          "distance_km": 3.1,
+          "mode": "public_transport",
+          "minutes": 14
+        },
+        {
+          "from": "東京科学大学博物館",
+          "to": "東京駅",
+          "distance_km": 11.13,
+          "mode": "public_transport",
+          "minutes": 51
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 7.0,
+        "from_last_km": 11.1
+      },
       "total_score": 50.0,
       "center": [
         35.612176,
@@ -272,9 +435,60 @@
       "id": "osm-tokyo-05",
       "area": "tokyo",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "東京都の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 296,
+      "estimated_minutes": 371,
+      "legs": [
+        {
+          "from": "東京駅",
+          "to": "荏原 畠山美術館",
+          "distance_km": 6.54,
+          "mode": "public_transport",
+          "minutes": 30
+        },
+        {
+          "from": "荏原 畠山美術館",
+          "to": "目黒寄生虫館",
+          "distance_km": 1.83,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "目黒寄生虫館",
+          "to": "日高屋",
+          "distance_km": 3.58,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "日高屋",
+          "to": "目黒区美術館",
+          "distance_km": 3.89,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "目黒区美術館",
+          "to": "サレジオ教会",
+          "distance_km": 2.51,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "サレジオ教会",
+          "to": "東京駅",
+          "distance_km": 9.94,
+          "mode": "public_transport",
+          "minutes": 45
+        }
+      ],
+      "start": {
+        "name": "東京駅",
+        "lat": 35.6812,
+        "lng": 139.7671,
+        "to_first_km": 6.5,
+        "from_last_km": 9.9
+      },
       "total_score": 48.0,
       "center": [
         35.624141,

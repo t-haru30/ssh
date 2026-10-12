@@ -1,75 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:22.885323+00:00",
+  "generated_at": "2026-10-12T04:55:29.877564+00:00",
   "area": "fukushima",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-fukushima-01",
       "area": "fukushima",
       "pattern": "half_day",
-      "theme": "all",
+      "course": "half_day",
       "title": "福島県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 170,
-      "total_score": 43.3,
-      "center": [
-        37.486587,
-        141.008384
-      ],
-      "spots": [
+      "estimated_minutes": 179,
+      "legs": [
         {
-          "place_id": "osm-node-13356312429",
-          "name": "福島原発事故現場",
-          "category": "史跡",
-          "lat": 37.4225465,
-          "lng": 141.0334596,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "福島駅",
+          "to": "旧堀切邸",
+          "distance_km": 8.82,
+          "mode": "car",
+          "minutes": 20
         },
         {
-          "place_id": "osm-node-13124229551",
-          "name": "正西寺",
-          "category": "観光名所",
-          "lat": 37.4915949,
-          "lng": 140.9817507,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "旧堀切邸",
+          "to": "常泉寺",
+          "distance_km": 0.09,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "place_id": "osm-node-2383843468",
-          "name": "日鷲神社",
-          "category": "観光名所",
-          "lat": 37.545621,
-          "lng": 141.009942,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "常泉寺",
+          "to": "西根神社",
+          "distance_km": 0.82,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "西根神社",
+          "to": "福島駅",
+          "distance_km": 8.56,
+          "mode": "car",
+          "minutes": 20
         }
       ],
-      "coordinates": [
-        [
-          37.4225465,
-          141.0334596
-        ],
-        [
-          37.4915949,
-          140.9817507
-        ],
-        [
-          37.545621,
-          141.009942
-        ]
-      ]
-    },
-    {
-      "id": "osm-fukushima-02",
-      "area": "fukushima",
-      "pattern": "half_day",
-      "theme": "all",
-      "title": "福島県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 138,
+      "start": {
+        "name": "福島駅",
+        "lat": 37.7541,
+        "lng": 140.4592,
+        "to_first_km": 8.8,
+        "from_last_km": 8.6
+      },
       "total_score": 43.3,
       "center": [
         37.832721,
@@ -123,44 +102,177 @@
       ]
     },
     {
-      "id": "osm-fukushima-03",
+      "id": "osm-fukushima-02",
       "area": "fukushima",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "福島県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 178,
-      "total_score": 43.3,
+      "course": "full_day",
+      "title": "福島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 426,
+      "legs": [
+        {
+          "from": "福島駅",
+          "to": "小田山城",
+          "distance_km": 54.62,
+          "mode": "car",
+          "minutes": 122
+        },
+        {
+          "from": "小田山城",
+          "to": "天鏡閣",
+          "distance_km": 9.88,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "天鏡閣",
+          "to": "福島県立博物館",
+          "distance_km": 10.26,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "福島県立博物館",
+          "to": "福島駅",
+          "distance_km": 54.81,
+          "mode": "car",
+          "minutes": 123
+        }
+      ],
+      "start": {
+        "name": "福島駅",
+        "lat": 37.7541,
+        "lng": 140.4592,
+        "to_first_km": 54.6,
+        "from_last_km": 54.8
+      },
+      "total_score": 50.0,
       "center": [
-        37.154759,
-        140.277593
+        37.497069,
+        139.973928
       ],
       "spots": [
         {
-          "place_id": "osm-node-1945096249",
-          "name": "小峰城",
+          "place_id": "osm-node-2375816536",
+          "name": "小田山城",
           "category": "史跡",
-          "lat": 37.1327408,
-          "lng": 140.2138267,
+          "lat": 37.4810461,
+          "lng": 139.9436707,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2458092628",
-          "name": "小峰城歴史館",
+          "place_id": "osm-node-3008117481",
+          "name": "天鏡閣",
           "category": "博物館",
-          "lat": 37.131222,
-          "lng": 140.2126112,
+          "lat": 37.5212863,
+          "lng": 140.043482,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2469766659",
-          "name": "宮ノ前古墳",
+          "place_id": "osm-node-423793540",
+          "name": "福島県立博物館",
+          "category": "博物館",
+          "lat": 37.4888744,
+          "lng": 139.9346302,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.4810461,
+          139.9436707
+        ],
+        [
+          37.5212863,
+          140.043482
+        ],
+        [
+          37.4888744,
+          139.9346302
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-03",
+      "area": "fukushima",
+      "pattern": "half_day",
+      "course": "full_day",
+      "title": "福島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 308,
+      "legs": [
+        {
+          "from": "福島駅",
+          "to": "三春城",
+          "distance_km": 34.84,
+          "mode": "car",
+          "minutes": 78
+        },
+        {
+          "from": "三春城",
+          "to": "福島さくら遊学舎",
+          "distance_km": 3.68,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "福島さくら遊学舎",
+          "to": "法蔵寺",
+          "distance_km": 3.34,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "法蔵寺",
+          "to": "福島駅",
+          "distance_km": 34.71,
+          "mode": "car",
+          "minutes": 78
+        }
+      ],
+      "start": {
+        "name": "福島駅",
+        "lat": 37.7541,
+        "lng": 140.4592,
+        "to_first_km": 34.8,
+        "from_last_km": 34.7
+      },
+      "total_score": 46.7,
+      "center": [
+        37.43332,
+        140.484944
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2493496615",
+          "name": "三春城",
           "category": "史跡",
-          "lat": 37.2003145,
-          "lng": 140.4063403,
+          "lat": 37.4421372,
+          "lng": 140.4960145,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4423159293",
+          "name": "福島さくら遊学舎",
+          "category": "博物館",
+          "lat": 37.4150849,
+          "lng": 140.4720483,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11268891466",
+          "name": "法蔵寺",
+          "category": "観光名所",
+          "lat": 37.4427383,
+          "lng": 140.4867697,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -168,16 +280,16 @@
       ],
       "coordinates": [
         [
-          37.1327408,
-          140.2138267
+          37.4421372,
+          140.4960145
         ],
         [
-          37.131222,
-          140.2126112
+          37.4150849,
+          140.4720483
         ],
         [
-          37.2003145,
-          140.4063403
+          37.4427383,
+          140.4867697
         ]
       ]
     },
@@ -185,15 +297,96 @@
       "id": "osm-fukushima-04",
       "area": "fukushima",
       "pattern": "full_day",
-      "theme": "all",
+      "course": "full_day",
       "title": "福島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 302,
-      "total_score": 38.0,
+      "estimated_minutes": 527,
+      "legs": [
+        {
+          "from": "福島駅",
+          "to": "正西寺",
+          "distance_km": 54.5,
+          "mode": "car",
+          "minutes": 122
+        },
+        {
+          "from": "正西寺",
+          "to": "日鷲神社",
+          "distance_km": 6.5,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "日鷲神社",
+          "to": "うなぎ 大坊",
+          "distance_km": 6.14,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "うなぎ 大坊",
+          "to": "浦尻貝塚",
+          "distance_km": 4.22,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "浦尻貝塚",
+          "to": "大悲山の石仏",
+          "distance_km": 4.48,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "大悲山の石仏",
+          "to": "福島駅",
+          "distance_km": 51.8,
+          "mode": "car",
+          "minutes": 116
+        }
+      ],
+      "start": {
+        "name": "福島駅",
+        "lat": 37.7541,
+        "lng": 140.4592,
+        "to_first_km": 54.5,
+        "from_last_km": 51.8
+      },
+      "total_score": 40.0,
       "center": [
-        37.534982,
-        140.994318
+        37.518121,
+        140.998352
       ],
       "spots": [
+        {
+          "place_id": "osm-node-13124229551",
+          "name": "正西寺",
+          "category": "観光名所",
+          "lat": 37.4915949,
+          "lng": 140.9817507,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2383843468",
+          "name": "日鷲神社",
+          "category": "観光名所",
+          "lat": 37.545621,
+          "lng": 141.009942,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13124349196",
+          "name": "うなぎ 大坊",
+          "category": "飲食店",
+          "lat": 37.4923224,
+          "lng": 140.9919236,
+          "stay_minutes": 60,
+          "score": 40.0,
+          "role": "lunch"
+        },
         {
           "place_id": "osm-node-3698775374",
           "name": "浦尻貝塚",
@@ -213,6 +406,114 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          37.4915949,
+          140.9817507
+        ],
+        [
+          37.545621,
+          141.009942
+        ],
+        [
+          37.4923224,
+          140.9919236
+        ],
+        [
+          37.5194953,
+          141.0253298
+        ],
+        [
+          37.5415721,
+          140.982812
+        ]
+      ]
+    },
+    {
+      "id": "osm-fukushima-05",
+      "area": "fukushima",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "福島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 528,
+      "legs": [
+        {
+          "from": "福島駅",
+          "to": "大聖寺",
+          "distance_km": 56.62,
+          "mode": "car",
+          "minutes": 127
+        },
+        {
+          "from": "大聖寺",
+          "to": "東京2020オリンピック聖火リレー記念碑",
+          "distance_km": 4.96,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "東京2020オリンピック聖火リレー記念碑",
+          "to": "うなぎ 大坊",
+          "distance_km": 4.5,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "うなぎ 大坊",
+          "to": "國玉神社",
+          "distance_km": 1.25,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "國玉神社",
+          "to": "馬頭観世音",
+          "distance_km": 14.33,
+          "mode": "car",
+          "minutes": 32
+        },
+        {
+          "from": "馬頭観世音",
+          "to": "福島駅",
+          "distance_km": 46.13,
+          "mode": "car",
+          "minutes": 103
+        }
+      ],
+      "start": {
+        "name": "福島駅",
+        "lat": 37.7541,
+        "lng": 140.4592,
+        "to_first_km": 56.6,
+        "from_last_km": 46.1
+      },
+      "total_score": 34.0,
+      "center": [
+        37.512702,
+        140.989673
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4893305722",
+          "name": "大聖寺",
+          "category": "観光名所",
+          "lat": 37.4976264,
+          "lng": 141.0146205,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12803403048",
+          "name": "東京2020オリンピック聖火リレー記念碑",
+          "category": "史跡",
+          "lat": 37.4535339,
+          "lng": 141.0063196,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
         },
         {
           "place_id": "osm-node-13124349196",
@@ -225,13 +526,13 @@
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-4893305722",
-          "name": "大聖寺",
+          "place_id": "osm-node-13124180380",
+          "name": "國玉神社",
           "category": "観光名所",
-          "lat": 37.4976264,
-          "lng": 141.0146205,
+          "lat": 37.4961357,
+          "lng": 140.9785984,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
@@ -247,111 +548,24 @@
       ],
       "coordinates": [
         [
-          37.5194953,
-          141.0253298
-        ],
-        [
-          37.5415721,
-          140.982812
-        ],
-        [
-          37.4923224,
-          140.9919236
-        ],
-        [
           37.4976264,
           141.0146205
         ],
         [
-          37.6238935,
-          140.9569049
-        ]
-      ]
-    },
-    {
-      "id": "osm-fukushima-05",
-      "area": "fukushima",
-      "pattern": "full_day",
-      "theme": "history",
-      "title": "福島県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 290,
-      "total_score": 32.0,
-      "center": [
-        37.512197,
-        140.984338
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-12803403048",
-          "name": "東京2020オリンピック聖火リレー記念碑",
-          "category": "史跡",
-          "lat": 37.4535339,
-          "lng": 141.0063196,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13124180380",
-          "name": "國玉神社",
-          "category": "観光名所",
-          "lat": 37.4961357,
-          "lng": 140.9785984,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13124349196",
-          "name": "うなぎ 大坊",
-          "category": "飲食店",
-          "lat": 37.4923224,
-          "lng": 140.9919236,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-13124718995",
-          "name": "金比羅大権現",
-          "category": "史跡",
-          "lat": 37.4952242,
-          "lng": 140.9879649,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12000083355",
-          "name": "相馬野馬追祭場地石碑",
-          "category": "史跡",
-          "lat": 37.6237687,
-          "lng": 140.9568855,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
           37.4535339,
           141.0063196
+        ],
+        [
+          37.4923224,
+          140.9919236
         ],
         [
           37.4961357,
           140.9785984
         ],
         [
-          37.4923224,
-          140.9919236
-        ],
-        [
-          37.4952242,
-          140.9879649
-        ],
-        [
-          37.6237687,
-          140.9568855
+          37.6238935,
+          140.9569049
         ]
       ]
     }

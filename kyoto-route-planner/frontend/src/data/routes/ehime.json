@@ -1,75 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:30.813168+00:00",
+  "generated_at": "2026-10-12T04:55:56.558832+00:00",
   "area": "ehime",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-ehime-01",
       "area": "ehime",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "愛媛県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 145,
-      "total_score": 46.7,
-      "center": [
-        33.219238,
-        132.564547
-      ],
-      "spots": [
+      "course": "half_day",
+      "title": "愛媛県の名所スポットをめぐる半日ルート",
+      "estimated_minutes": 282,
+      "legs": [
         {
-          "place_id": "osm-node-12035283135",
-          "name": "宇和島市立伊達博物館",
-          "category": "博物館",
-          "lat": 33.2159805,
-          "lng": 132.562659,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "松山駅",
+          "to": "久万美術館",
+          "distance_km": 24.49,
+          "mode": "car",
+          "minutes": 55
         },
         {
-          "place_id": "osm-node-1423733742",
-          "name": "宇和島市立歴史資料館",
-          "category": "博物館",
-          "lat": 33.226452,
-          "lng": 132.554664,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "久万美術館",
+          "to": "旧山中家住宅",
+          "distance_km": 6.85,
+          "mode": "car",
+          "minutes": 16
         },
         {
-          "place_id": "osm-node-12092844322",
-          "name": "大隆寺",
-          "category": "観光名所",
-          "lat": 33.2152819,
-          "lng": 132.5763182,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "旧山中家住宅",
+          "to": "上黒岩岩陰遺跡",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "上黒岩岩陰遺跡",
+          "to": "松山駅",
+          "distance_km": 31.41,
+          "mode": "car",
+          "minutes": 71
         }
       ],
-      "coordinates": [
-        [
-          33.2159805,
-          132.562659
-        ],
-        [
-          33.226452,
-          132.554664
-        ],
-        [
-          33.2152819,
-          132.5763182
-        ]
-      ]
-    },
-    {
-      "id": "osm-ehime-02",
-      "area": "ehime",
-      "pattern": "half_day",
-      "theme": "all",
-      "title": "愛媛県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 152,
+      "start": {
+        "name": "松山駅",
+        "lat": 33.83993,
+        "lng": 132.75074,
+        "to_first_km": 24.5,
+        "from_last_km": 31.4
+      },
       "total_score": 43.3,
       "center": [
         33.633173,
@@ -123,12 +102,49 @@
       ]
     },
     {
-      "id": "osm-ehime-03",
+      "id": "osm-ehime-02",
       "area": "ehime",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "愛媛県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
+      "course": "full_day",
+      "title": "愛媛県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 305,
+      "legs": [
+        {
+          "from": "松山駅",
+          "to": "今治城",
+          "distance_km": 34.28,
+          "mode": "car",
+          "minutes": 77
+        },
+        {
+          "from": "今治城",
+          "to": "今治市玉川近代美術館（徳生記念館）",
+          "distance_km": 7.36,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "今治市玉川近代美術館（徳生記念館）",
+          "to": "大西藤山歴史資料館",
+          "distance_km": 4.45,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "大西藤山歴史資料館",
+          "to": "松山駅",
+          "distance_km": 29.49,
+          "mode": "car",
+          "minutes": 66
+        }
+      ],
+      "start": {
+        "name": "松山駅",
+        "lat": 33.83993,
+        "lng": 132.75074,
+        "to_first_km": 34.3,
+        "from_last_km": 29.5
+      },
       "total_score": 50.0,
       "center": [
         34.048458,
@@ -182,12 +198,159 @@
       ]
     },
     {
+      "id": "osm-ehime-03",
+      "area": "ehime",
+      "pattern": "half_day",
+      "course": "half_day",
+      "title": "愛媛県の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 165,
+      "legs": [
+        {
+          "from": "松山駅",
+          "to": "湯築城",
+          "distance_km": 3.45,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "湯築城",
+          "to": "愛媛大学ミュージアム",
+          "distance_km": 1.43,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "愛媛大学ミュージアム",
+          "to": "松山城",
+          "distance_km": 0.71,
+          "mode": "walk",
+          "minutes": 14
+        },
+        {
+          "from": "松山城",
+          "to": "松山駅",
+          "distance_km": 1.52,
+          "mode": "car",
+          "minutes": 4
+        }
+      ],
+      "start": {
+        "name": "松山駅",
+        "lat": 33.83993,
+        "lng": 132.75074,
+        "to_first_km": 3.4,
+        "from_last_km": 1.5
+      },
+      "total_score": 50.0,
+      "center": [
+        33.84788,
+        132.774664
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2460130038",
+          "name": "湯築城",
+          "category": "史跡",
+          "lat": 33.8480881,
+          "lng": 132.7867746,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4523600452",
+          "name": "愛媛大学ミュージアム",
+          "category": "博物館",
+          "lat": 33.8499023,
+          "lng": 132.7714711,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-611661255",
+          "name": "松山城",
+          "category": "史跡",
+          "lat": 33.845651,
+          "lng": 132.7657463,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          33.8480881,
+          132.7867746
+        ],
+        [
+          33.8499023,
+          132.7714711
+        ],
+        [
+          33.845651,
+          132.7657463
+        ]
+      ]
+    },
+    {
       "id": "osm-ehime-04",
       "area": "ehime",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "愛媛県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 273,
+      "estimated_minutes": 411,
+      "legs": [
+        {
+          "from": "松山駅",
+          "to": "乗禅寺宝物館",
+          "distance_km": 32.16,
+          "mode": "car",
+          "minutes": 72
+        },
+        {
+          "from": "乗禅寺宝物館",
+          "to": "今治市河野美術館",
+          "distance_km": 3.81,
+          "mode": "car",
+          "minutes": 9
+        },
+        {
+          "from": "今治市河野美術館",
+          "to": "スターバックス",
+          "distance_km": 1.73,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "スターバックス",
+          "to": "愛媛文華館",
+          "distance_km": 1.46,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "愛媛文華館",
+          "to": "妙見山古墳",
+          "distance_km": 6.88,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "妙見山古墳",
+          "to": "松山駅",
+          "distance_km": 29.45,
+          "mode": "car",
+          "minutes": 66
+        }
+      ],
+      "start": {
+        "name": "松山駅",
+        "lat": 33.83993,
+        "lng": 132.75074,
+        "to_first_km": 32.2,
+        "from_last_km": 29.5
+      },
       "total_score": 38.0,
       "center": [
         34.062237,
@@ -272,9 +435,60 @@
       "id": "osm-ehime-05",
       "area": "ehime",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "愛媛県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 261,
+      "estimated_minutes": 400,
+      "legs": [
+        {
+          "from": "松山駅",
+          "to": "石清水八幡神社",
+          "distance_km": 29.9,
+          "mode": "car",
+          "minutes": 67
+        },
+        {
+          "from": "石清水八幡神社",
+          "to": "大手通碑",
+          "distance_km": 4.55,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "大手通碑",
+          "to": "スターバックス",
+          "distance_km": 1.43,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "スターバックス",
+          "to": "井原輝一翁像",
+          "distance_km": 2.02,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "井原輝一翁像",
+          "to": "砂原鶴松氏顕彰碑",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "砂原鶴松氏顕彰碑",
+          "to": "松山駅",
+          "distance_km": 32.22,
+          "mode": "car",
+          "minutes": 72
+        }
+      ],
+      "start": {
+        "name": "松山駅",
+        "lat": 33.83993,
+        "lng": 132.75074,
+        "to_first_km": 29.9,
+        "from_last_km": 32.2
+      },
       "total_score": 32.0,
       "center": [
         34.044342,

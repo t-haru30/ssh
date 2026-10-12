@@ -1,134 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:14.080460+00:00",
+  "generated_at": "2026-10-12T04:55:26.459303+00:00",
   "area": "iwate",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-iwate-01",
       "area": "iwate",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "岩手県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 200,
-      "total_score": 46.7,
-      "center": [
-        39.338263,
-        141.920846
-      ],
-      "spots": [
+      "estimated_minutes": 154,
+      "legs": [
         {
-          "place_id": "osm-node-10631028437",
-          "name": "風の電話",
-          "category": "史跡",
-          "lat": 39.3861142,
-          "lng": 141.9319051,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "盛岡駅",
+          "to": "盛岡城",
+          "distance_km": 1.2,
+          "mode": "car",
+          "minutes": 3
         },
         {
-          "place_id": "osm-node-1127676921",
-          "name": "釜石市立鉄の歴史館",
-          "category": "博物館",
-          "lat": 39.2554974,
-          "lng": 141.8940577,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "from": "盛岡城",
+          "to": "盛岡てがみ館",
+          "distance_km": 0.38,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "place_id": "osm-node-1224964207",
-          "name": "吉祥寺",
-          "category": "観光名所",
-          "lat": 39.3731781,
-          "lng": 141.9365749,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "from": "盛岡てがみ館",
+          "to": "もりおか町家物語館",
+          "distance_km": 1.02,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "もりおか町家物語館",
+          "to": "盛岡駅",
+          "distance_km": 2.14,
+          "mode": "car",
+          "minutes": 5
         }
       ],
-      "coordinates": [
-        [
-          39.3861142,
-          141.9319051
-        ],
-        [
-          39.2554974,
-          141.8940577
-        ],
-        [
-          39.3731781,
-          141.9365749
-        ]
-      ]
-    },
-    {
-      "id": "osm-iwate-02",
-      "area": "iwate",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "岩手県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 211,
-      "total_score": 50.0,
-      "center": [
-        38.893573,
-        141.206302
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-11338712063",
-          "name": "国鉄バス 鬼死骸停留所",
-          "category": "史跡",
-          "lat": 38.8914725,
-          "lng": 141.1209276,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4601402442",
-          "name": "岩手サファリパーク",
-          "category": "動物園",
-          "lat": 38.810509,
-          "lng": 141.2594353,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4833663292",
-          "name": "石と賢治のミュージアム",
-          "category": "博物館",
-          "lat": 38.9787383,
-          "lng": 141.238544,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          38.8914725,
-          141.1209276
-        ],
-        [
-          38.810509,
-          141.2594353
-        ],
-        [
-          38.9787383,
-          141.238544
-        ]
-      ]
-    },
-    {
-      "id": "osm-iwate-03",
-      "area": "iwate",
-      "pattern": "half_day",
-      "theme": "history",
-      "title": "岩手県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 139,
+      "start": {
+        "name": "盛岡駅",
+        "lat": 39.7013,
+        "lng": 141.1363,
+        "to_first_km": 1.2,
+        "from_last_km": 2.1
+      },
       "total_score": 46.7,
       "center": [
         39.697134,
@@ -182,64 +102,177 @@
       ]
     },
     {
-      "id": "osm-iwate-04",
+      "id": "osm-iwate-02",
       "area": "iwate",
-      "pattern": "full_day",
-      "theme": "history",
+      "pattern": "half_day",
+      "course": "full_day",
       "title": "岩手県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 322,
-      "total_score": 36.0,
+      "estimated_minutes": 397,
+      "legs": [
+        {
+          "from": "盛岡駅",
+          "to": "胆沢城",
+          "distance_km": 58.0,
+          "mode": "car",
+          "minutes": 130
+        },
+        {
+          "from": "胆沢城",
+          "to": "みちのく民俗村",
+          "distance_km": 10.04,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "みちのく民俗村",
+          "to": "花巻新渡戸記念館",
+          "distance_km": 13.56,
+          "mode": "car",
+          "minutes": 31
+        },
+        {
+          "from": "花巻新渡戸記念館",
+          "to": "盛岡駅",
+          "distance_km": 34.76,
+          "mode": "car",
+          "minutes": 78
+        }
+      ],
+      "start": {
+        "name": "盛岡駅",
+        "lat": 39.7013,
+        "lng": 141.1363,
+        "to_first_km": 58.0,
+        "from_last_km": 34.8
+      },
+      "total_score": 50.0,
       "center": [
-        39.398123,
-        141.939087
+        39.279634,
+        141.141869
       ],
       "spots": [
         {
-          "place_id": "osm-node-6681136897",
-          "name": "鯨と海の科学館",
-          "category": "博物館",
-          "lat": 39.4365907,
-          "lng": 141.9756505,
+          "place_id": "osm-node-2493490831",
+          "name": "胆沢城",
+          "category": "史跡",
+          "lat": 39.1797206,
+          "lng": 141.135224,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-14122649635",
-          "name": "吉里吉里坂",
-          "category": "史跡",
-          "lat": 39.3656884,
-          "lng": 141.9271848,
+          "place_id": "osm-node-2706219580",
+          "name": "みちのく民俗村",
+          "category": "博物館",
+          "lat": 39.2698932,
+          "lng": 141.1292261,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10092281887",
-          "name": "きりきり善兵衛",
-          "category": "飲食店",
-          "lat": 39.3913791,
-          "lng": 141.9439121,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
+          "place_id": "osm-node-3438493794",
+          "name": "花巻新渡戸記念館",
+          "category": "博物館",
+          "lat": 39.389289,
+          "lng": 141.161157,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.1797206,
+          141.135224
+        ],
+        [
+          39.2698932,
+          141.1292261
+        ],
+        [
+          39.389289,
+          141.161157
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-03",
+      "area": "iwate",
+      "pattern": "half_day",
+      "course": "full_day",
+      "title": "岩手県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 397,
+      "legs": [
+        {
+          "from": "盛岡駅",
+          "to": "遠野市立博物館",
+          "distance_km": 53.48,
+          "mode": "car",
+          "minutes": 120
         },
         {
-          "place_id": "osm-node-1759628003",
-          "name": "慰霊の鐘",
-          "category": "史跡",
-          "lat": 39.3288786,
-          "lng": 141.9005415,
+          "from": "遠野市立博物館",
+          "to": "常堅寺",
+          "distance_km": 4.69,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "常堅寺",
+          "to": "南部神社",
+          "distance_km": 4.79,
+          "mode": "car",
+          "minutes": 11
+        },
+        {
+          "from": "南部神社",
+          "to": "盛岡駅",
+          "distance_km": 53.44,
+          "mode": "car",
+          "minutes": 120
+        }
+      ],
+      "start": {
+        "name": "盛岡駅",
+        "lat": 39.7013,
+        "lng": 141.1363,
+        "to_first_km": 53.5,
+        "from_last_km": 53.4
+      },
+      "total_score": 43.3,
+      "center": [
+        39.336546,
+        141.542563
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2559699879",
+          "name": "遠野市立博物館",
+          "category": "博物館",
+          "lat": 39.3277638,
+          "lng": 141.5289336,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 50.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3810807183",
-          "name": "山田八幡宮",
+          "place_id": "osm-node-2559711351",
+          "name": "常堅寺",
           "category": "観光名所",
-          "lat": 39.4680759,
-          "lng": 141.9481442,
+          "lat": 39.3545011,
+          "lng": 141.5710403,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2985340551",
+          "name": "南部神社",
+          "category": "観光名所",
+          "lat": 39.3273736,
+          "lng": 141.5277152,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -247,24 +280,154 @@
       ],
       "coordinates": [
         [
-          39.4365907,
-          141.9756505
+          39.3277638,
+          141.5289336
         ],
         [
-          39.3656884,
-          141.9271848
+          39.3545011,
+          141.5710403
         ],
         [
-          39.3913791,
-          141.9439121
+          39.3273736,
+          141.5277152
+        ]
+      ]
+    },
+    {
+      "id": "osm-iwate-04",
+      "area": "iwate",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "岩手県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 310,
+      "legs": [
+        {
+          "from": "盛岡駅",
+          "to": "志波城",
+          "distance_km": 3.04,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "志波城",
+          "to": "石割桜",
+          "distance_km": 4.29,
+          "mode": "car",
+          "minutes": 10
+        },
+        {
+          "from": "石割桜",
+          "to": "初代",
+          "distance_km": 1.76,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "初代",
+          "to": "願教寺",
+          "distance_km": 2.27,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "願教寺",
+          "to": "湯舟沢環状列石",
+          "distance_km": 8.99,
+          "mode": "car",
+          "minutes": 21
+        },
+        {
+          "from": "湯舟沢環状列石",
+          "to": "盛岡駅",
+          "distance_km": 9.48,
+          "mode": "car",
+          "minutes": 22
+        }
+      ],
+      "start": {
+        "name": "盛岡駅",
+        "lat": 39.7013,
+        "lng": 141.1363,
+        "to_first_km": 3.0,
+        "from_last_km": 9.5
+      },
+      "total_score": 38.0,
+      "center": [
+        39.717587,
+        141.127991
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-2501424313",
+          "name": "志波城",
+          "category": "史跡",
+          "lat": 39.6864435,
+          "lng": 141.1064353,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6765472585",
+          "name": "石割桜",
+          "category": "観光名所",
+          "lat": 39.7037896,
+          "lng": 141.1512335,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10758307245",
+          "name": "初代",
+          "category": "飲食店",
+          "lat": 39.7035427,
+          "lng": 141.1306263,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch"
+        },
+        {
+          "place_id": "osm-node-9069190779",
+          "name": "願教寺",
+          "category": "観光名所",
+          "lat": 39.71303,
+          "lng": 141.1541726,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2477653799",
+          "name": "湯舟沢環状列石",
+          "category": "史跡",
+          "lat": 39.7811315,
+          "lng": 141.0974897,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          39.6864435,
+          141.1064353
         ],
         [
-          39.3288786,
-          141.9005415
+          39.7037896,
+          141.1512335
         ],
         [
-          39.4680759,
-          141.9481442
+          39.7035427,
+          141.1306263
+        ],
+        [
+          39.71303,
+          141.1541726
+        ],
+        [
+          39.7811315,
+          141.0974897
         ]
       ]
     },
@@ -272,86 +435,137 @@
       "id": "osm-iwate-05",
       "area": "iwate",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "岩手県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 281,
-      "total_score": 30.0,
+      "estimated_minutes": 346,
+      "legs": [
+        {
+          "from": "盛岡駅",
+          "to": "浅岸公民館・浅岸村役場跡地",
+          "distance_km": 3.49,
+          "mode": "car",
+          "minutes": 8
+        },
+        {
+          "from": "浅岸公民館・浅岸村役場跡地",
+          "to": "盛岡市道路元標",
+          "distance_km": 2.1,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "盛岡市道路元標",
+          "to": "初代",
+          "distance_km": 2.03,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "初代",
+          "to": "由来碑",
+          "distance_km": 5.06,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "由来碑",
+          "to": "高水寺城",
+          "distance_km": 18.39,
+          "mode": "car",
+          "minutes": 41
+        },
+        {
+          "from": "高水寺城",
+          "to": "盛岡駅",
+          "distance_km": 15.46,
+          "mode": "car",
+          "minutes": 35
+        }
+      ],
+      "start": {
+        "name": "盛岡駅",
+        "lat": 39.7013,
+        "lng": 141.1363,
+        "to_first_km": 3.5,
+        "from_last_km": 15.5
+      },
+      "total_score": 32.0,
       "center": [
-        39.368881,
-        141.893342
+        39.679286,
+        141.140767
       ],
       "spots": [
         {
-          "place_id": "osm-node-6370088213",
-          "name": "寄附",
+          "place_id": "osm-node-11586465313",
+          "name": "浅岸公民館・浅岸村役場跡地",
           "category": "史跡",
-          "lat": 39.3577415,
-          "lng": 141.8973099,
+          "lat": 39.7140306,
+          "lng": 141.1736483,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6370088214",
-          "name": "参宮記念碑",
+          "place_id": "osm-node-12709182113",
+          "name": "盛岡市道路元標",
           "category": "史跡",
-          "lat": 39.357727,
-          "lng": 141.8973126,
+          "lat": 39.7024281,
+          "lng": 141.1542615,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10092281887",
-          "name": "きりきり善兵衛",
+          "place_id": "osm-node-10758307245",
+          "name": "初代",
           "category": "飲食店",
-          "lat": 39.3913791,
-          "lng": 141.9439121,
+          "lat": 39.7035427,
+          "lng": 141.1306263,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch"
         },
         {
-          "place_id": "osm-node-6370088215",
-          "name": "東日本大震災　鎮魂之碑",
+          "place_id": "osm-node-13959957456",
+          "name": "由来碑",
           "category": "史跡",
-          "lat": 39.3577104,
-          "lng": 141.8973126,
+          "lat": 39.7112566,
+          "lng": 141.0722729,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-13897173874",
-          "name": "大槌町立小鎚小学校閉校記念碑",
+          "place_id": "osm-node-2494981196",
+          "name": "高水寺城",
           "category": "史跡",
-          "lat": 39.3798468,
-          "lng": 141.8308624,
+          "lat": 39.5651699,
+          "lng": 141.1730243,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          39.3577415,
-          141.8973099
+          39.7140306,
+          141.1736483
         ],
         [
-          39.357727,
-          141.8973126
+          39.7024281,
+          141.1542615
         ],
         [
-          39.3913791,
-          141.9439121
+          39.7035427,
+          141.1306263
         ],
         [
-          39.3577104,
-          141.8973126
+          39.7112566,
+          141.0722729
         ],
         [
-          39.3798468,
-          141.8308624
+          39.5651699,
+          141.1730243
         ]
       ]
     }

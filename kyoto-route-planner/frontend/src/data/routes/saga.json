@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:36.697410+00:00",
+  "generated_at": "2026-10-12T04:55:57.974219+00:00",
   "area": "saga",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-saga-01",
       "area": "saga",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 171,
+      "estimated_minutes": 284,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "梶峰城跡",
+          "distance_km": 19.03,
+          "mode": "car",
+          "minutes": 43
+        },
+        {
+          "from": "梶峰城跡",
+          "to": "獅子ケ城跡",
+          "distance_km": 8.07,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "獅子ケ城跡",
+          "to": "岸岳城跡",
+          "distance_km": 7.71,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "岸岳城跡",
+          "to": "佐賀駅",
+          "distance_km": 31.36,
+          "mode": "car",
+          "minutes": 70
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 19.0,
+        "from_last_km": 31.4
+      },
       "total_score": 50.0,
       "center": [
         33.307228,
@@ -67,9 +105,46 @@
       "id": "osm-saga-02",
       "area": "saga",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 153,
+      "estimated_minutes": 172,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "直鳥城跡",
+          "distance_km": 6.82,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "直鳥城跡",
+          "to": "佐賀城",
+          "distance_km": 6.95,
+          "mode": "car",
+          "minutes": 16
+        },
+        {
+          "from": "佐賀城",
+          "to": "佐賀バルーンミュージアム",
+          "distance_km": 0.82,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "佐賀バルーンミュージアム",
+          "to": "佐賀駅",
+          "distance_km": 1.33,
+          "mode": "car",
+          "minutes": 3
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 6.8,
+        "from_last_km": 1.3
+      },
       "total_score": 50.0,
       "center": [
         33.256847,
@@ -126,9 +201,46 @@
       "id": "osm-saga-03",
       "area": "saga",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "佐賀県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 162,
+      "estimated_minutes": 267,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "勝尾城跡",
+          "distance_km": 21.84,
+          "mode": "car",
+          "minutes": 49
+        },
+        {
+          "from": "勝尾城跡",
+          "to": "基肄城跡",
+          "distance_km": 6.58,
+          "mode": "car",
+          "minutes": 15
+        },
+        {
+          "from": "基肄城跡",
+          "to": "中冨記念くすり博物館",
+          "distance_km": 5.25,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "中冨記念くすり博物館",
+          "to": "佐賀駅",
+          "distance_km": 24.78,
+          "mode": "car",
+          "minutes": 56
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 21.8,
+        "from_last_km": 24.8
+      },
       "total_score": 46.7,
       "center": [
         33.414779,
@@ -185,9 +297,60 @@
       "id": "osm-saga-04",
       "area": "saga",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "佐賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 297,
+      "estimated_minutes": 437,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "おつぼ山神籠石",
+          "distance_km": 24.37,
+          "mode": "car",
+          "minutes": 55
+        },
+        {
+          "from": "おつぼ山神籠石",
+          "to": "嬉野市歴史民俗資料館",
+          "distance_km": 5.59,
+          "mode": "car",
+          "minutes": 13
+        },
+        {
+          "from": "嬉野市歴史民俗資料館",
+          "to": "ミスタードーナツ",
+          "distance_km": 7.52,
+          "mode": "car",
+          "minutes": 17
+        },
+        {
+          "from": "ミスタードーナツ",
+          "to": "廣福寺",
+          "distance_km": 1.29,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "廣福寺",
+          "to": "有田ポーセリンパーク",
+          "distance_km": 10.55,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "有田ポーセリンパーク",
+          "to": "佐賀駅",
+          "distance_km": 37.85,
+          "mode": "car",
+          "minutes": 85
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 24.4,
+        "from_last_km": 37.9
+      },
       "total_score": 34.0,
       "center": [
         33.171244,
@@ -272,9 +435,60 @@
       "id": "osm-saga-05",
       "area": "saga",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "佐賀県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 275,
+      "estimated_minutes": 414,
+      "legs": [
+        {
+          "from": "佐賀駅",
+          "to": "松原の松の記念碑",
+          "distance_km": 27.26,
+          "mode": "car",
+          "minutes": 61
+        },
+        {
+          "from": "松原の松の記念碑",
+          "to": "筈町河畔公園",
+          "distance_km": 0.71,
+          "mode": "walk",
+          "minutes": 14
+        },
+        {
+          "from": "筈町河畔公園",
+          "to": "ミスタードーナツ",
+          "distance_km": 0.37,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "ミスタードーナツ",
+          "to": "宝塔",
+          "distance_km": 5.92,
+          "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "宝塔",
+          "to": "鹿島城跡",
+          "distance_km": 7.99,
+          "mode": "car",
+          "minutes": 18
+        },
+        {
+          "from": "鹿島城跡",
+          "to": "佐賀駅",
+          "distance_km": 26.1,
+          "mode": "car",
+          "minutes": 59
+        }
+      ],
+      "start": {
+        "name": "佐賀駅",
+        "lat": 33.26418,
+        "lng": 130.29736,
+        "to_first_km": 27.3,
+        "from_last_km": 26.1
+      },
       "total_score": 34.0,
       "center": [
         33.170563,

@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:36:39.246104+00:00",
+  "generated_at": "2026-10-12T04:55:37.148935+00:00",
   "area": "kanagawa",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 20.0,
   "routes": [
     {
       "id": "osm-kanagawa-01",
       "area": "kanagawa",
       "pattern": "half_day",
-      "theme": "all",
+      "course": "half_day",
       "title": "神奈川県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 168,
+      "estimated_minutes": 202,
+      "legs": [
+        {
+          "from": "横浜駅",
+          "to": "祠 伏見稲荷大社講務本庁扱所",
+          "distance_km": 2.12,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "祠 伏見稲荷大社講務本庁扱所",
+          "to": "そごう美術館",
+          "distance_km": 2.11,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "そごう美術館",
+          "to": "清水寺",
+          "distance_km": 5.0,
+          "mode": "public_transport",
+          "minutes": 23
+        },
+        {
+          "from": "清水寺",
+          "to": "横浜駅",
+          "distance_km": 5.12,
+          "mode": "public_transport",
+          "minutes": 24
+        }
+      ],
+      "start": {
+        "name": "横浜駅",
+        "lat": 35.4658,
+        "lng": 139.6224,
+        "to_first_km": 2.1,
+        "from_last_km": 5.1
+      },
       "total_score": 60.0,
       "center": [
         35.457975,
@@ -67,13 +105,50 @@
       "id": "osm-kanagawa-02",
       "area": "kanagawa",
       "pattern": "half_day",
-      "theme": "history",
-      "title": "神奈川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 179,
-      "total_score": 50.0,
+      "course": "full_day",
+      "title": "神奈川県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 333,
+      "legs": [
+        {
+          "from": "横浜駅",
+          "to": "憲政碑",
+          "distance_km": 19.78,
+          "mode": "public_transport",
+          "minutes": 90
+        },
+        {
+          "from": "憲政碑",
+          "to": "早川城址",
+          "distance_km": 3.84,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "早川城址",
+          "to": "大和天満宮",
+          "distance_km": 5.37,
+          "mode": "public_transport",
+          "minutes": 25
+        },
+        {
+          "from": "大和天満宮",
+          "to": "横浜駅",
+          "distance_km": 14.26,
+          "mode": "public_transport",
+          "minutes": 65
+        }
+      ],
+      "start": {
+        "name": "横浜駅",
+        "lat": 35.4658,
+        "lng": 139.6224,
+        "to_first_km": 19.8,
+        "from_last_km": 14.3
+      },
+      "total_score": 46.7,
       "center": [
-        35.449675,
-        139.396635
+        35.458996,
+        139.429488
       ],
       "spots": [
         {
@@ -87,16 +162,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420815043",
-          "name": "厚木市子ども科学館",
-          "category": "博物館",
-          "lat": 35.4409469,
-          "lng": 139.3664028,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
           "place_id": "osm-node-1668185171",
           "name": "早川城址",
           "category": "史跡",
@@ -104,6 +169,16 @@
           "lng": 139.4194898,
           "stay_minutes": 45,
           "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1090131236",
+          "name": "大和天満宮",
+          "category": "観光名所",
+          "lat": 35.4689078,
+          "lng": 139.464962,
+          "stay_minutes": 45,
+          "score": 40.0,
           "role": "stop"
         }
       ],
@@ -113,12 +188,12 @@
           139.4040133
         ],
         [
-          35.4409469,
-          139.3664028
-        ],
-        [
           35.4379692,
           139.4194898
+        ],
+        [
+          35.4689078,
+          139.464962
         ]
       ]
     },
@@ -126,9 +201,46 @@
       "id": "osm-kanagawa-03",
       "area": "kanagawa",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "神奈川県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 173,
+      "estimated_minutes": 295,
+      "legs": [
+        {
+          "from": "横浜駅",
+          "to": "ローム斜面崩壊実験事故慰霊碑",
+          "distance_km": 16.82,
+          "mode": "public_transport",
+          "minutes": 76
+        },
+        {
+          "from": "ローム斜面崩壊実験事故慰霊碑",
+          "to": "電車とバスの博物館",
+          "distance_km": 3.79,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "電車とバスの博物館",
+          "to": "横浜市歴史博物館",
+          "distance_km": 4.39,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "横浜市歴史博物館",
+          "to": "横浜駅",
+          "distance_km": 10.19,
+          "mode": "public_transport",
+          "minutes": 46
+        }
+      ],
+      "start": {
+        "name": "横浜駅",
+        "lat": 35.4658,
+        "lng": 139.6224,
+        "to_first_km": 16.8,
+        "from_last_km": 10.2
+      },
       "total_score": 50.0,
       "center": [
         35.581943,
@@ -185,9 +297,60 @@
       "id": "osm-kanagawa-04",
       "area": "kanagawa",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "神奈川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 278,
+      "estimated_minutes": 314,
+      "legs": [
+        {
+          "from": "横浜駅",
+          "to": "ブリキのおもちゃ博物館",
+          "distance_km": 4.19,
+          "mode": "public_transport",
+          "minutes": 19
+        },
+        {
+          "from": "ブリキのおもちゃ博物館",
+          "to": "横浜三渓園",
+          "distance_km": 2.35,
+          "mode": "public_transport",
+          "minutes": 11
+        },
+        {
+          "from": "横浜三渓園",
+          "to": "不二家レストラン 横浜センター店",
+          "distance_km": 3.84,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "不二家レストラン 横浜センター店",
+          "to": "日本郵船歴史博物館",
+          "distance_km": 0.91,
+          "mode": "public_transport",
+          "minutes": 5
+        },
+        {
+          "from": "日本郵船歴史博物館",
+          "to": "横浜みなと博物館",
+          "distance_km": 0.67,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "横浜みなと博物館",
+          "to": "横浜駅",
+          "distance_km": 1.73,
+          "mode": "public_transport",
+          "minutes": 8
+        }
+      ],
+      "start": {
+        "name": "横浜駅",
+        "lat": 35.4658,
+        "lng": 139.6224,
+        "to_first_km": 4.2,
+        "from_last_km": 1.7
+      },
       "total_score": 50.0,
       "center": [
         35.440406,
@@ -272,9 +435,60 @@
       "id": "osm-kanagawa-05",
       "area": "kanagawa",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "神奈川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 295,
+      "estimated_minutes": 331,
+      "legs": [
+        {
+          "from": "横浜駅",
+          "to": "横浜ユーラシア文化館",
+          "distance_km": 2.88,
+          "mode": "public_transport",
+          "minutes": 13
+        },
+        {
+          "from": "横浜ユーラシア文化館",
+          "to": "横浜市八聖殿郷土資料館",
+          "distance_km": 3.98,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "横浜市八聖殿郷土資料館",
+          "to": "不二家レストラン 横浜センター店",
+          "distance_km": 4.36,
+          "mode": "public_transport",
+          "minutes": 20
+        },
+        {
+          "from": "不二家レストラン 横浜センター店",
+          "to": "横浜都市発展記念館",
+          "distance_km": 0.99,
+          "mode": "public_transport",
+          "minutes": 5
+        },
+        {
+          "from": "横浜都市発展記念館",
+          "to": "馬の博物館",
+          "distance_km": 2.64,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "馬の博物館",
+          "to": "横浜駅",
+          "distance_km": 5.06,
+          "mode": "public_transport",
+          "minutes": 23
+        }
+      ],
+      "start": {
+        "name": "横浜駅",
+        "lat": 35.4658,
+        "lng": 139.6224,
+        "to_first_km": 2.9,
+        "from_last_km": 5.1
+      },
       "total_score": 50.0,
       "center": [
         35.434848,

@@ -2,7 +2,7 @@ import json
 import unittest
 from pathlib import Path
 
-from scripts.generate_prefecture_routes import BOUNDARIES_PATH, FRONTEND_DATA_DIR, AREAS, on_main_landmass
+from scripts.generate_prefecture_routes import BOUNDARIES_PATH, FRONTEND_DATA_DIR, AREAS, STATIONS, _distance, on_main_landmass
 
 
 @unittest.skipUnless(BOUNDARIES_PATH.exists(), "prefecture boundaries are not available")
@@ -21,6 +21,19 @@ class PrefectureRouteLandmassTests(unittest.TestCase):
                 for spot in route["spots"]:
                     with self.subTest(route=route["id"], spot=spot["name"]):
                         self.assertTrue(on_main_landmass(area.code, spot["lat"], spot["lng"]))
+    def test_every_route_starts_at_the_capital_station_within_radius(self):
+        for area in AREAS:
+            dataset = json.loads(Path(FRONTEND_DATA_DIR / f"{area.id}.json").read_text(encoding="utf-8"))
+            name, latitude, longitude = STATIONS[area.id]
+            self.assertTrue(on_main_landmass(area.code, latitude, longitude), area.id)
+            for route in dataset["routes"]:
+                with self.subTest(route=route["id"]):
+                    self.assertEqual(route["start"]["name"], name)
+                    for spot in (route["spots"][0], route["spots"][-1]):
+                        self.assertLessEqual(
+                            _distance((latitude, longitude), (spot["lat"], spot["lng"])),
+                            dataset["start_radius_km"] + 0.05,
+                        )
 
 
 if __name__ == "__main__":

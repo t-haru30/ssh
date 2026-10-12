@@ -1,16 +1,54 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T03:37:38.805687+00:00",
+  "generated_at": "2026-10-12T04:55:59.010903+00:00",
   "area": "nagasaki",
-  "generator_version": "osm-deterministic-v2",
+  "generator_version": "osm-deterministic-v4",
+  "start_radius_km": 60.0,
   "routes": [
     {
       "id": "osm-nagasaki-01",
       "area": "nagasaki",
       "pattern": "half_day",
-      "theme": "history",
+      "course": "half_day",
       "title": "長崎県の歴史スポットをめぐる半日ルート",
-      "estimated_minutes": 146,
+      "estimated_minutes": 156,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "清水寺",
+          "distance_km": 1.87,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "清水寺",
+          "to": "シーボルト記念館",
+          "distance_km": 1.77,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "シーボルト記念館",
+          "to": "祈りの丘絵本美術館",
+          "distance_km": 3.11,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "祈りの丘絵本美術館",
+          "to": "長崎駅",
+          "distance_km": 1.91,
+          "mode": "car",
+          "minutes": 5
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 1.9,
+        "from_last_km": 1.9
+      },
       "total_score": 58.3,
       "center": [
         32.744173,
@@ -67,9 +105,46 @@
       "id": "osm-nagasaki-02",
       "area": "nagasaki",
       "pattern": "half_day",
-      "theme": "all",
-      "title": "長崎県の名所スポットをめぐる半日ルート",
-      "estimated_minutes": 181,
+      "course": "full_day",
+      "title": "長崎県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 360,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "清光山 江東寺",
+          "distance_km": 46.89,
+          "mode": "car",
+          "minutes": 105
+        },
+        {
+          "from": "清光山 江東寺",
+          "to": "オキチモズク",
+          "distance_km": 8.62,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "オキチモズク",
+          "to": "守山大塚古墳",
+          "distance_km": 11.48,
+          "mode": "car",
+          "minutes": 26
+        },
+        {
+          "from": "守山大塚古墳",
+          "to": "長崎駅",
+          "distance_km": 32.76,
+          "mode": "car",
+          "minutes": 74
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 46.9,
+        "from_last_km": 32.8
+      },
       "total_score": 50.0,
       "center": [
         32.825719,
@@ -126,9 +201,46 @@
       "id": "osm-nagasaki-03",
       "area": "nagasaki",
       "pattern": "half_day",
-      "theme": "nature",
-      "title": "長崎県の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 166,
+      "course": "full_day",
+      "title": "長崎県の自然スポットをめぐる一日ルート",
+      "estimated_minutes": 394,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "佐世保市博物館島瀬美術センター",
+          "distance_km": 48.74,
+          "mode": "car",
+          "minutes": 109
+        },
+        {
+          "from": "佐世保市博物館島瀬美術センター",
+          "to": "展海峰",
+          "distance_km": 5.18,
+          "mode": "car",
+          "minutes": 12
+        },
+        {
+          "from": "展海峰",
+          "to": "四反田遺跡",
+          "distance_km": 8.19,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "四反田遺跡",
+          "to": "長崎駅",
+          "distance_km": 53.33,
+          "mode": "car",
+          "minutes": 119
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 48.7,
+        "from_last_km": 53.3
+      },
       "total_score": 46.7,
       "center": [
         33.170098,
@@ -185,9 +297,60 @@
       "id": "osm-nagasaki-04",
       "area": "nagasaki",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "長崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 272,
+      "estimated_minutes": 373,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "天正遣欧少年使節顕彰之像",
+          "distance_km": 19.73,
+          "mode": "car",
+          "minutes": 44
+        },
+        {
+          "from": "天正遣欧少年使節顕彰之像",
+          "to": "黒丸踊像",
+          "distance_km": 0.23,
+          "mode": "walk",
+          "minutes": 5
+        },
+        {
+          "from": "黒丸踊像",
+          "to": "星乃珈琲店 長崎大村店",
+          "distance_km": 2.74,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "星乃珈琲店 長崎大村店",
+          "to": "玖島城址石垣復元完成記念碑",
+          "distance_km": 0.55,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "玖島城址石垣復元完成記念碑",
+          "to": "諫早神社",
+          "distance_km": 9.69,
+          "mode": "car",
+          "minutes": 22
+        },
+        {
+          "from": "諫早神社",
+          "to": "長崎駅",
+          "distance_km": 19.48,
+          "mode": "car",
+          "minutes": 44
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 19.7,
+        "from_last_km": 19.5
+      },
       "total_score": 32.0,
       "center": [
         32.897727,
@@ -272,9 +435,60 @@
       "id": "osm-nagasaki-05",
       "area": "nagasaki",
       "pattern": "full_day",
-      "theme": "history",
+      "course": "full_day",
       "title": "長崎県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 269,
+      "estimated_minutes": 372,
+      "legs": [
+        {
+          "from": "長崎駅",
+          "to": "少年鼓手 浜田謹吾",
+          "distance_km": 18.05,
+          "mode": "car",
+          "minutes": 41
+        },
+        {
+          "from": "少年鼓手 浜田謹吾",
+          "to": "歩兵第二十三旅團記念碑",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "歩兵第二十三旅團記念碑",
+          "to": "星乃珈琲店 長崎大村店",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "星乃珈琲店 長崎大村店",
+          "to": "歩兵少佐佐藤嘉平次君碑",
+          "distance_km": 0.59,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "歩兵少佐佐藤嘉平次君碑",
+          "to": "諫早市郷土館",
+          "distance_km": 10.49,
+          "mode": "car",
+          "minutes": 24
+        },
+        {
+          "from": "諫早市郷土館",
+          "to": "長崎駅",
+          "distance_km": 19.64,
+          "mode": "car",
+          "minutes": 44
+        }
+      ],
+      "start": {
+        "name": "長崎駅",
+        "lat": 32.75239,
+        "lng": 129.86892,
+        "to_first_km": 18.0,
+        "from_last_km": 19.6
+      },
       "total_score": 30.0,
       "center": [
         32.887042,
