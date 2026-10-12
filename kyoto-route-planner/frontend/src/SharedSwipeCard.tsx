@@ -81,6 +81,7 @@ export function SharedSwipeCard({
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
   const imageLoaded = loadedUrl === imageUrl;
+  const titleBoundary = title.indexOf("から、");
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (!isTop || isProcessing || swipedRef.current) return;
@@ -162,7 +163,10 @@ export function SharedSwipeCard({
       </div>
       <div className="swipe-card-copy">
         {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
-        <h3 title={title}>{title}</h3>
+        <h3 title={title}>{titleBoundary > 0 ? <>
+          <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
+          <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
+        </> : title}</h3>
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
