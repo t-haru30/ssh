@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SavedRoutesList } from "./SavedRoutesList";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
@@ -8,6 +8,7 @@ import { Onboarding, hasSeenOnboarding, markOnboardingSeen } from "./Onboarding"
 import { useFavorites } from "./useFavorites";
 
 type AppTab = "discover" | "search";
+const ACTIVE_TAB_STORAGE_KEY = "kyoto-route-planner:active-tab:v1";
 
 const tabs: { id: AppTab; label: string; caption: string }[] = [
   { id: "discover", label: "見つける", caption: "スワイプで選ぶ" },
@@ -15,11 +16,27 @@ const tabs: { id: AppTab; label: string; caption: string }[] = [
 ];
 
 function App() {
-  const [activeTab, setActiveTab] = useState<AppTab>("discover");
+  const [activeTab, setActiveTab] = useState<AppTab>(() => {
+    try {
+      const savedTab = window.localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+      return savedTab === "search" || savedTab === "discover" ? savedTab : "discover";
+    } catch (cause) {
+      console.error("Failed to restore active tab from localStorage.", cause);
+      return "discover";
+    }
+  });
   const [searchPreset, setSearchPreset] = useState<SearchPreset | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
   const { favorites, error } = useFavorites();
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab);
+    } catch (cause) {
+      console.error("Failed to save active tab to localStorage.", cause);
+    }
+  }, [activeTab]);
 
   function closeOnboarding() {
     markOnboardingSeen();

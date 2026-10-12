@@ -26,6 +26,47 @@ function localDateInputValue() {
 
 const REQUEST_TIMEOUT_MS = 60_000;
 const INITIAL_DATA_TIMEOUT_MS = 15_000;
+const SAVED_PLAN_STORAGE_KEY = "kyoto-route-planner:saved-plan:v1";
+const SEARCH_FORM_STORAGE_KEY = "kyoto-route-planner:search-form:v1";
+
+type SavedSearchFormState = {
+  originName: string;
+  nearbyStations: Origin[];
+  theme: Theme;
+  mood: string;
+  stopCount: number;
+  departureDate: string;
+  departureTime: string;
+  isOvernight: boolean;
+  regenerationCount: number;
+};
+
+function isSavedSearchFormState(value: unknown): value is SavedSearchFormState {
+  return isRecord(value)
+    && typeof value.originName === "string"
+    && Array.isArray(value.nearbyStations)
+    && value.nearbyStations.every(isOrigin)
+    && themes.some((item) => item.id === value.theme)
+    && typeof value.mood === "string"
+    && (value.stopCount === 1 || value.stopCount === 2 || value.stopCount === 3)
+    && typeof value.departureDate === "string"
+    && typeof value.departureTime === "string"
+    && typeof value.isOvernight === "boolean"
+    && typeof value.regenerationCount === "number"
+    && Number.isInteger(value.regenerationCount)
+    && value.regenerationCount >= 0;
+}
+
+function isSavedPlan(value: unknown): value is {
+  suggestions: RouteSuggestion[];
+  overnightSuggestion: OvernightItinerarySuggestion | null;
+} {
+  return isRecord(value)
+    && Array.isArray(value.suggestions)
+    && value.suggestions.length > 0
+    && isRouteSuggestions({ routes: value.suggestions })
+    && (value.overnightSuggestion === null || isOvernightItinerary(value.overnightSuggestion));
+}
 
 async function fetchWithTimeout(
   input: RequestInfo | URL,
@@ -117,9 +158,96 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   const [placeSourceWarning, setPlaceSourceWarning] = useState<string | null>(null);
   const [placeSourceState, setPlaceSourceState] = useState<"loading" | "success" | "error" | "idle">("loading");
   const [regenerationCount, setRegenerationCount] = useState(0);
+  const [hasRestoredSavedState, setHasRestoredSavedState] = useState(false);
   const requestIdRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
   const routeSwipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
+
+  useEffect(() => {
+    try {
+      const serializedPlan = window.localStorage.getItem(SAVED_PLAN_STORAGE_KEY);
+      if (serializedPlan) {
+        const savedPlan: unknown = JSON.parse(serializedPlan);
+        if (!isSavedPlan(savedPlan)) {
+          throw new Error("Saved route data has an invalid format.");
+        }
+        setSuggestions(savedPlan.suggestions);
+        setOvernightSuggestion(savedPlan.overnightSuggestion);
+      }
+    } catch (cause) {
+      console.error("Failed to restore saved route from localStorage.", cause);
+    }
+
+    try {
+      const serializedForm = window.localStorage.getItem(SEARCH_FORM_STORAGE_KEY);
+      if (serializedForm) {
+        const savedForm: unknown = JSON.parse(serializedForm);
+        if (!isSavedSearchFormState(savedForm)) {
+          throw new Error("Saved search form data has an invalid format.");
+        }
+        setOriginName(savedForm.originName);
+        setNearbyStations(savedForm.nearbyStations);
+        setTheme(savedForm.theme);
+        setMood(savedForm.mood);
+        setStopCount(savedForm.stopCount);
+        setDepartureDate(savedForm.departureDate);
+        setDepartureTime(savedForm.departureTime);
+        setIsOvernight(savedForm.isOvernight);
+        setRegenerationCount(savedForm.regenerationCount);
+      }
+    } catch (cause) {
+      console.error("Failed to restore search form from localStorage.", cause);
+    } finally {
+      setHasRestoredSavedState(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasRestoredSavedState) return;
+    try {
+      if (suggestions.length === 0 && !overnightSuggestion) {
+        window.localStorage.removeItem(SAVED_PLAN_STORAGE_KEY);
+        return;
+      }
+      window.localStorage.setItem(
+        SAVED_PLAN_STORAGE_KEY,
+        JSON.stringify({ suggestions, overnightSuggestion }),
+      );
+    } catch (cause) {
+      console.error("Failed to save route to localStorage.", cause);
+    }
+  }, [hasRestoredSavedState, overnightSuggestion, suggestions]);
+
+  useEffect(() => {
+    if (!hasRestoredSavedState) return;
+    const formState: SavedSearchFormState = {
+      originName,
+      nearbyStations,
+      theme,
+      mood,
+      stopCount,
+      departureDate,
+      departureTime,
+      isOvernight,
+      regenerationCount,
+    };
+    try {
+      window.localStorage.setItem(SEARCH_FORM_STORAGE_KEY, JSON.stringify(formState));
+    } catch (cause) {
+      console.error("Failed to save search form to localStorage.", cause);
+    }
+  }, [
+    departureDate,
+    departureTime,
+    hasRestoredSavedState,
+    isOvernight,
+    mood,
+    nearbyStations,
+    originName,
+    regenerationCount,
+    stopCount,
+    theme,
+  ]);
 
   useEffect(() => () => {
     requestIdRef.current += 1;
