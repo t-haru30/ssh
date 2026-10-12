@@ -209,5 +209,39 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result.fare_yen)
 
 
+    async def test_hotel_search_falls_back_to_generic_query_when_specific_query_finds_none(self):
+        hotel = catalog_place("hotel-1", "浜松ホテル", "ホテル")
+        day_one = catalog_place("place-1", "静かな庭園", "庭園")
+        day_two = catalog_place("place-2", "歴史資料館", "博物館")
+        search = AsyncMock(side_effect=[
+            search_response(),
+            search_response(hotel),
+            search_response(hotel, day_one, day_two),
+            search_response(),
+            search_response(),
+        ])
+        request = OvernightItineraryRequest(
+            query="観光",
+            departure_station="追分小学校／遠鉄バス",
+            origin_latitude=34.720549,
+            origin_longitude=137.721449,
+            departure_date=date(2026, 10, 9),
+            hotel_query="追分小学校／遠鉄バス ホテル 旅館",
+            stops_per_day=1,
+        )
+
+        with (
+            patch("app.itinerary.search_yahoo_catalog", new=search),
+            patch("app.itinerary.search_route", new=AsyncMock(return_value=(
+                [], 60, "09:00", datetime(2026, 10, 9, 12, 0),
+            ))),
+        ):
+            result = await plan_overnight_itinerary(request)
+
+        self.assertEqual(result.hotel.name, "浜松ホテル")
+        self.assertEqual(search.await_args_list[1].args[0], "ホテル 旅館")
+        self.assertEqual(search.await_args_list[1].kwargs["center"], (34.720549, 137.721449))
+
+
 if __name__ == "__main__":
     unittest.main()

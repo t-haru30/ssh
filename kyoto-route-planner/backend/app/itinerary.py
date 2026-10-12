@@ -43,6 +43,7 @@ LUNCH_CATEGORIES = (
 LUNCH_GENRE_PREFIX = "01"
 LUNCH_DISTANCE_KM = 1.0
 LUNCH_STAY_MINUTES = 60
+GENERIC_HOTEL_QUERY = "ホテル 旅館"
 LUNCH_SCORE_WEIGHTS = {
     "midday_hours": 20.0,
     "address": 5.0,
@@ -329,9 +330,11 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place)]
 
     if not hotels:
+        # 出発地名やテーマ語を含む検索語は、Yahoo!側で宿泊施設が0件になることがあるため、
+        # 座標と半径だけで絞る汎用語に切り替える
         fallback_search = await search_yahoo_catalog(
-            f"{origin.name} ホテル",
-            limit=10,
+            GENERIC_HOTEL_QUERY,
+            limit=20,
             center=search_center,
             radius_m=20_000,
         )
