@@ -26,7 +26,8 @@ from app.places import calculate_place_score
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-GENERATOR_VERSION = "osm-deterministic-v1"
+GENERATOR_VERSION = "osm-deterministic-v2"
+BOUNDARIES_PATH = BACKEND_DIR / "data" / "boundaries" / "jpn-adm1.geojson"
 EARTH_RADIUS_KM = 6371.0
 LUNCH_RADIUS_BY_MODE = {"car": 8.0, "public_transport": 5.0, "walk": 2.0}
 GRID_ROWS = 4
@@ -353,6 +354,51 @@ def _lunch_radius(config: AreaConfig) -> float:
     return LUNCH_RADIUS_BY_MODE[config.mode]
 
 
+_MAIN_LANDMASS_CACHE: dict[str, Any] = {}
+_BOUNDARY_FEATURES: dict[str, Any] = {}
+
+
+def _boundary_features() -> dict[str, Any]:
+    if not _BOUNDARY_FEATURES:
+        if not BOUNDARIES_PATH.exists():
+            raise RuntimeError(f"prefecture boundaries not found: {BOUNDARIES_PATH}")
+        data = json.loads(BOUNDARIES_PATH.read_text(encoding="utf-8"))
+        _BOUNDARY_FEATURES.update({item["properties"]["shapeISO"]: item["geometry"] for item in data["features"]})
+    return _BOUNDARY_FEATURES
+
+
+def main_landmass(code: str) -> Any:
+    """Prepared geometry of the prefecture's largest contiguous landmass.
+
+    Islands and detached parts are excluded so that no leg needs a ferry or flight,
+    which the distance-based travel time cannot represent.
+    """
+    if code not in _MAIN_LANDMASS_CACHE:
+        from shapely.geometry import shape
+        from shapely.prepared import prep
+
+        features = _boundary_features()
+        if code not in features:
+            raise RuntimeError(f"{code}: no boundary polygon")
+        geometry = shape(features[code])
+        parts = list(geometry.geoms) if geometry.geom_type == "MultiPolygon" else [geometry]
+        _MAIN_LANDMASS_CACHE[code] = prep(max(parts, key=lambda part: part.area))
+    return _MAIN_LANDMASS_CACHE[code]
+
+
+def on_main_landmass(code: str, latitude: float, longitude: float) -> bool:
+    from shapely.geometry import Point
+
+    return bool(main_landmass(code).covers(Point(longitude, latitude)))
+
+
+def _restrict_to_main_landmass(config: AreaConfig, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        item for item in candidates
+        if on_main_landmass(config.code, item["place"].latitude, item["place"].longitude)
+    ]
+
+
 def _dedupe(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[tuple[str, int, int]] = set()
     result = []
@@ -529,6 +575,8 @@ def generate_area(config: AreaConfig) -> dict[str, Any]:
     tourism_elements, food_elements = _fetch_area(config)
     candidates = _dedupe([item for element in tourism_elements if (item := _to_candidate(element)) is not None])
     foods = _dedupe([item for element in food_elements if (item := _to_candidate(element, True)) is not None])
+    candidates = _restrict_to_main_landmass(config, candidates)
+    foods = _restrict_to_main_landmass(config, foods)
     # Rank by score and trim so selection stays fast on dense prefectures (e.g. Tokyo).
     candidates = sorted(candidates, key=lambda item: (-item["score"], item["place"].id))[:MAX_TOURISM_CANDIDATES]
     foods = sorted(foods, key=lambda item: (-item["score"], item["place"].id))[:MAX_FOOD_CANDIDATES]

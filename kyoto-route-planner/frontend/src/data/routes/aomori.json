@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:43.601185+00:00",
+  "generated_at": "2026-10-12T03:36:12.064191+00:00",
   "area": "aomori",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-aomori-01",

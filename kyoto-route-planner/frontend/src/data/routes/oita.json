@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:49:09.554883+00:00",
+  "generated_at": "2026-10-12T03:37:43.001889+00:00",
   "area": "oita",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-oita-01",

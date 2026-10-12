@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-10T16:48:49.534581+00:00",
+  "generated_at": "2026-10-12T03:36:30.728860+00:00",
   "area": "saitama",
-  "generator_version": "osm-deterministic-v1",
+  "generator_version": "osm-deterministic-v2",
   "routes": [
     {
       "id": "osm-saitama-01",
