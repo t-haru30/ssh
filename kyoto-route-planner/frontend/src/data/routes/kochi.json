@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:56.846734+00:00",
+  "generated_at": "2026-10-12T06:26:15.830158+00:00",
   "area": "kochi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "高知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 312,
+      "estimated_minutes": 372,
       "legs": [
         {
           "from": "高知駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "香美市立吉井勇記念館",
-          "to": "定福寺",
+          "to": "昼食: 要検討",
           "distance_km": 12.57,
           "mode": "car",
           "minutes": 29
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "定福寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "定福寺",
@@ -145,10 +152,10 @@
         "to_first_km": 23.9,
         "from_last_km": 32.6
       },
-      "total_score": 46.7,
+      "total_score": 35.0,
       "center": [
-        33.715635,
-        133.803005
+        33.734996,
+        133.794567
       ],
       "spots": [
         {
@@ -170,6 +177,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-kochi-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.7930811,
+          "lng": 133.7692502,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-9672058059",
@@ -194,6 +212,10 @@
         [
           33.7930811,
           133.7692502
+        ],
+        [
+          33.7930811,
+          133.7692502
         ]
       ]
     },
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "高知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 429,
+      "estimated_minutes": 489,
       "legs": [
         {
           "from": "高知駅",
@@ -214,10 +236,17 @@
         },
         {
           "from": "道の駅ゆすはら",
-          "to": "四万十川源流之碑",
+          "to": "昼食: 要検討",
           "distance_km": 13.2,
           "mode": "car",
           "minutes": 30
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "四万十川源流之碑",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "四万十川源流之碑",
@@ -241,10 +270,10 @@
         "to_first_km": 59.0,
         "from_last_km": 51.8
       },
-      "total_score": 36.7,
+      "total_score": 27.5,
       "center": [
-        33.408,
-        133.014211
+        33.416358,
+        133.028733
       ],
       "spots": [
         {
@@ -256,6 +285,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-kochi-3",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.4414352,
+          "lng": 133.0723001,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         },
         {
           "place_id": "osm-node-4176351612",
@@ -288,6 +328,10 @@
           133.0723001
         ],
         [
+          33.4414352,
+          133.0723001
+        ],
+        [
           33.3943212,
           133.0251708
         ]
@@ -298,184 +342,46 @@
       "area": "kochi",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "高知県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 453,
-      "legs": [
-        {
-          "from": "高知駅",
-          "to": "ひょうたん桜",
-          "distance_km": 34.74,
-          "mode": "car",
-          "minutes": 78
-        },
-        {
-          "from": "ひょうたん桜",
-          "to": "鎌井田放水口",
-          "distance_km": 6.5,
-          "mode": "car",
-          "minutes": 15
-        },
-        {
-          "from": "鎌井田放水口",
-          "to": "CAFE and BEEFかる。",
-          "distance_km": 7.56,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "CAFE and BEEFかる。",
-          "to": "中津渓谷",
-          "distance_km": 6.21,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "中津渓谷",
-          "to": "安徳天皇陵参考地",
-          "distance_km": 7.22,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "安徳天皇陵参考地",
-          "to": "高知駅",
-          "distance_km": 31.9,
-          "mode": "car",
-          "minutes": 72
-        }
-      ],
-      "start": {
-        "name": "高知駅",
-        "lat": 33.5675,
-        "lng": 133.5436,
-        "to_first_km": 34.7,
-        "from_last_km": 31.9
-      },
-      "total_score": 24.0,
-      "center": [
-        33.572307,
-        133.180901
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-13707028101",
-          "name": "ひょうたん桜",
-          "category": "観光名所",
-          "lat": 33.5880575,
-          "lng": 133.1694126,
-          "stay_minutes": 45,
-          "score": 20.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3920902041",
-          "name": "鎌井田放水口",
-          "category": "観光名所",
-          "lat": 33.5697281,
-          "lng": 133.2360735,
-          "stay_minutes": 45,
-          "score": 20.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10110831067",
-          "name": "CAFE and BEEFかる。",
-          "category": "飲食店",
-          "lat": 33.6069803,
-          "lng": 133.1678247,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-5537378623",
-          "name": "中津渓谷",
-          "category": "観光名所",
-          "lat": 33.5609988,
-          "lng": 133.1297313,
-          "stay_minutes": 45,
-          "score": 20.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3920902037",
-          "name": "安徳天皇陵参考地",
-          "category": "史跡",
-          "lat": 33.5357687,
-          "lng": 133.2014633,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          33.5880575,
-          133.1694126
-        ],
-        [
-          33.5697281,
-          133.2360735
-        ],
-        [
-          33.6069803,
-          133.1678247
-        ],
-        [
-          33.5609988,
-          133.1297313
-        ],
-        [
-          33.5357687,
-          133.2014633
-        ]
-      ]
-    },
-    {
-      "id": "osm-kochi-05",
-      "area": "kochi",
-      "pattern": "full_day",
-      "course": "full_day",
       "title": "高知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 308,
+      "estimated_minutes": 302,
       "legs": [
         {
           "from": "高知駅",
-          "to": "中山高陽先生誕生地碑",
-          "distance_km": 0.91,
+          "to": "高知市立龍馬の生まれたまち記念館",
+          "distance_km": 2.15,
           "mode": "car",
-          "minutes": 3
+          "minutes": 5
         },
         {
-          "from": "中山高陽先生誕生地碑",
-          "to": "槇村浩生誕の地碑",
-          "distance_km": 0.5,
+          "from": "高知市立龍馬の生まれたまち記念館",
+          "to": "日中不再戦",
+          "distance_km": 0.53,
           "mode": "walk",
           "minutes": 10
         },
         {
-          "from": "槇村浩生誕の地碑",
-          "to": "銀龍閣",
-          "distance_km": 2.41,
-          "mode": "car",
-          "minutes": 6
-        },
-        {
-          "from": "銀龍閣",
-          "to": "高知市立龍馬の生まれたまち記念館",
-          "distance_km": 0.56,
+          "from": "日中不再戦",
+          "to": "大高坂松王丸の記念碑",
+          "distance_km": 0.51,
           "mode": "walk",
-          "minutes": 11
+          "minutes": 10
         },
         {
-          "from": "高知市立龍馬の生まれたまち記念館",
+          "from": "大高坂松王丸の記念碑",
           "to": "第32番札所 禅師峰寺",
-          "distance_km": 8.7,
+          "distance_km": 8.19,
           "mode": "car",
-          "minutes": 20
+          "minutes": 19
         },
         {
           "from": "第32番札所 禅師峰寺",
+          "to": "昼食: 要検討",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "昼食: 要検討",
           "to": "高知駅",
           "distance_km": 7.75,
           "mode": "car",
@@ -486,45 +392,15 @@
         "name": "高知駅",
         "lat": 33.5675,
         "lng": 133.5436,
-        "to_first_km": 0.9,
+        "to_first_km": 2.2,
         "from_last_km": 7.7
       },
-      "total_score": 38.0,
+      "total_score": 28.0,
       "center": [
-        33.552625,
-        133.547796
+        33.545852,
+        133.561215
       ],
       "spots": [
-        {
-          "place_id": "osm-node-12713046129",
-          "name": "中山高陽先生誕生地碑",
-          "category": "史跡",
-          "lat": 33.559524,
-          "lng": 133.541236,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12727124046",
-          "name": "槇村浩生誕の地碑",
-          "category": "史跡",
-          "lat": 33.563714,
-          "lng": 133.5431773,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10221647513",
-          "name": "銀龍閣",
-          "category": "飲食店",
-          "lat": 33.5567703,
-          "lng": 133.5185855,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-1423747784",
           "name": "高知市立龍馬の生まれたまち記念館",
@@ -536,6 +412,26 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-11374033398",
+          "name": "日中不再戦",
+          "category": "史跡",
+          "lat": 33.5607859,
+          "lng": 133.5269077,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12701781617",
+          "name": "大高坂松王丸の記念碑",
+          "category": "史跡",
+          "lat": 33.5586507,
+          "lng": 133.5317918,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
           "place_id": "osm-node-1078632741",
           "name": "第32番札所 禅師峰寺",
           "category": "観光名所",
@@ -544,28 +440,178 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-kochi-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.5267092,
+          "lng": 133.6113941,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
         }
       ],
       "coordinates": [
-        [
-          33.559524,
-          133.541236
-        ],
-        [
-          33.563714,
-          133.5431773
-        ],
-        [
-          33.5567703,
-          133.5185855
-        ],
         [
           33.556407,
           133.524589
         ],
         [
+          33.5607859,
+          133.5269077
+        ],
+        [
+          33.5586507,
+          133.5317918
+        ],
+        [
           33.5267092,
           133.6113941
+        ],
+        [
+          33.5267092,
+          133.6113941
+        ]
+      ]
+    },
+    {
+      "id": "osm-kochi-05",
+      "area": "kochi",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "高知県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 298,
+      "legs": [
+        {
+          "from": "高知駅",
+          "to": "高野寺",
+          "distance_km": 1.19,
+          "mode": "car",
+          "minutes": 3
+        },
+        {
+          "from": "高野寺",
+          "to": "高知県懐徳館",
+          "distance_km": 0.59,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "高知県懐徳館",
+          "to": "山内一豊公之像",
+          "distance_km": 0.19,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "山内一豊公之像",
+          "to": "新宮神社",
+          "distance_km": 8.69,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "新宮神社",
+          "to": "昼食: 要検討",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "高知駅",
+          "distance_km": 8.15,
+          "mode": "car",
+          "minutes": 19
+        }
+      ],
+      "start": {
+        "name": "高知駅",
+        "lat": 33.5675,
+        "lng": 133.5436,
+        "to_first_km": 1.2,
+        "from_last_km": 8.2
+      },
+      "total_score": 26.0,
+      "center": [
+        33.548676,
+        133.568595
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12725573699",
+          "name": "高野寺",
+          "category": "観光名所",
+          "lat": 33.5582014,
+          "lng": 133.537169,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423748051",
+          "name": "高知県懐徳館",
+          "category": "博物館",
+          "lat": 33.5606603,
+          "lng": 133.531502,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2483356217",
+          "name": "山内一豊公之像",
+          "category": "史跡",
+          "lat": 33.5610415,
+          "lng": 133.5335144,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1078633742",
+          "name": "新宮神社",
+          "category": "観光名所",
+          "lat": 33.5317387,
+          "lng": 133.6203944,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-kochi-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.5317387,
+          "lng": 133.6203944,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        }
+      ],
+      "coordinates": [
+        [
+          33.5582014,
+          133.537169
+        ],
+        [
+          33.5606603,
+          133.531502
+        ],
+        [
+          33.5610415,
+          133.5335144
+        ],
+        [
+          33.5317387,
+          133.6203944
+        ],
+        [
+          33.5317387,
+          133.6203944
         ]
       ]
     }

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:53.079705+00:00",
+  "generated_at": "2026-10-12T06:26:12.042278+00:00",
   "area": "okayama",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -203,7 +203,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "岡山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 343,
+      "estimated_minutes": 423,
       "legs": [
         {
           "from": "岡山駅",
@@ -221,10 +221,17 @@
         },
         {
           "from": "津山城跡",
+          "to": "月下老",
+          "distance_km": 0.49,
+          "mode": "walk",
+          "minutes": 10
+        },
+        {
+          "from": "月下老",
           "to": "城東むかし町家",
-          "distance_km": 1.1,
-          "mode": "car",
-          "minutes": 3
+          "distance_km": 0.67,
+          "mode": "walk",
+          "minutes": 13
         },
         {
           "from": "城東むかし町家",
@@ -241,10 +248,10 @@
         "to_first_km": 44.6,
         "from_last_km": 45.0
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        35.062362,
-        134.008992
+        35.062115,
+        134.009215
       ],
       "spots": [
         {
@@ -268,6 +275,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-13062651706",
+          "name": "月下老",
+          "category": "飲食店",
+          "lat": 35.0613758,
+          "lng": 134.0098826,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「城東むかし町家」から徒歩目安約9分です。"
+        },
+        {
           "place_id": "osm-node-3939057630",
           "name": "城東むかし町家",
           "category": "博物館",
@@ -288,6 +306,10 @@
           134.0048125
         ],
         [
+          35.0613758,
+          134.0098826
+        ],
+        [
           35.0632119,
           134.0168992
         ]
@@ -299,74 +321,64 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "岡山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 338,
+      "estimated_minutes": 344,
       "legs": [
         {
           "from": "岡山駅",
-          "to": "備前長船刀剣博物館",
-          "distance_km": 18.31,
-          "mode": "car",
-          "minutes": 41
-        },
-        {
-          "from": "備前長船刀剣博物館",
           "to": "亀山城",
-          "distance_km": 6.65,
+          "distance_km": 11.7,
           "mode": "car",
-          "minutes": 15
+          "minutes": 27
         },
         {
           "from": "亀山城",
-          "to": "かつ庵",
-          "distance_km": 1.31,
+          "to": "浦間茶臼山古墳",
+          "distance_km": 2.79,
           "mode": "car",
-          "minutes": 3
+          "minutes": 7
         },
         {
-          "from": "かつ庵",
-          "to": "窪八幡宮",
-          "distance_km": 4.74,
+          "from": "浦間茶臼山古墳",
+          "to": "新庄山展望台",
+          "distance_km": 2.35,
           "mode": "car",
-          "minutes": 11
+          "minutes": 6
         },
         {
-          "from": "窪八幡宮",
-          "to": "大多羅寄宮跡",
-          "distance_km": 3.88,
+          "from": "新庄山展望台",
+          "to": "中華そば まるや",
+          "distance_km": 6.26,
           "mode": "car",
+          "minutes": 14
+        },
+        {
+          "from": "中華そば まるや",
+          "to": "備前長船刀剣博物館",
+          "distance_km": 0.47,
+          "mode": "walk",
           "minutes": 9
         },
         {
-          "from": "大多羅寄宮跡",
+          "from": "備前長船刀剣博物館",
           "to": "岡山駅",
-          "distance_km": 8.26,
+          "distance_km": 18.31,
           "mode": "car",
-          "minutes": 19
+          "minutes": 41
         }
       ],
       "start": {
         "name": "岡山駅",
         "lat": 34.6666,
         "lng": 133.9181,
-        "to_first_km": 18.3,
-        "from_last_km": 8.3
+        "to_first_km": 11.7,
+        "from_last_km": 18.3
       },
-      "total_score": 46.0,
+      "total_score": 40.0,
       "center": [
-        34.6948,
-        134.050562
+        34.71117,
+        134.074372
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1423609042",
-          "name": "備前長船刀剣博物館",
-          "category": "博物館",
-          "lat": 34.721634,
-          "lng": 134.106905,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-6363948327",
           "name": "亀山城",
@@ -376,154 +388,6 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12369044045",
-          "name": "かつ庵",
-          "category": "飲食店",
-          "lat": 34.7095717,
-          "lng": 134.0503794,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-10307783128",
-          "name": "窪八幡宮",
-          "category": "観光名所",
-          "lat": 34.6669744,
-          "lng": 134.0506986,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11789472350",
-          "name": "大多羅寄宮跡",
-          "category": "史跡",
-          "lat": 34.6693182,
-          "lng": 134.0083214,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.721634,
-          134.106905
-        ],
-        [
-          34.7065004,
-          134.0365047
-        ],
-        [
-          34.7095717,
-          134.0503794
-        ],
-        [
-          34.6669744,
-          134.0506986
-        ],
-        [
-          34.6693182,
-          134.0083214
-        ]
-      ]
-    },
-    {
-      "id": "osm-okayama-05",
-      "area": "okayama",
-      "pattern": "full_day",
-      "course": "full_day",
-      "title": "岡山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 346,
-      "legs": [
-        {
-          "from": "岡山駅",
-          "to": "両宮山古墳",
-          "distance_km": 11.21,
-          "mode": "car",
-          "minutes": 25
-        },
-        {
-          "from": "両宮山古墳",
-          "to": "牟佐大塚古墳",
-          "distance_km": 2.85,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "牟佐大塚古墳",
-          "to": "かつ庵",
-          "distance_km": 6.95,
-          "mode": "car",
-          "minutes": 16
-        },
-        {
-          "from": "かつ庵",
-          "to": "浦間茶臼山古墳",
-          "distance_km": 1.49,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "浦間茶臼山古墳",
-          "to": "大賀島寺",
-          "distance_km": 7.74,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "大賀島寺",
-          "to": "岡山駅",
-          "distance_km": 15.88,
-          "mode": "car",
-          "minutes": 36
-        }
-      ],
-      "start": {
-        "name": "岡山駅",
-        "lat": 34.6666,
-        "lng": 133.9181,
-        "to_first_km": 11.2,
-        "from_last_km": 15.9
-      },
-      "total_score": 42.0,
-      "center": [
-        34.705528,
-        134.037148
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-1909489715",
-          "name": "両宮山古墳",
-          "category": "史跡",
-          "lat": 34.7397868,
-          "lng": 134.0024868,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2478977058",
-          "name": "牟佐大塚古墳",
-          "category": "史跡",
-          "lat": 34.7252186,
-          "lng": 133.9768055,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-12369044045",
-          "name": "かつ庵",
-          "category": "飲食店",
-          "lat": 34.7095717,
-          "lng": 134.0503794,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-4262869689",
@@ -536,36 +400,196 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12230830576",
-          "name": "大賀島寺",
-          "category": "観光名所",
-          "lat": 34.6430051,
-          "lng": 134.0893781,
+          "place_id": "osm-node-12230830581",
+          "name": "新庄山展望台",
+          "category": "展望地",
+          "lat": 34.6919072,
+          "lng": 134.0534842,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12531389191",
+          "name": "中華そば まるや",
+          "category": "飲食店",
+          "lat": 34.7257522,
+          "lng": 134.1082761,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「備前長船刀剣博物館」から徒歩目安約6分です。"
+        },
+        {
+          "place_id": "osm-node-1423609042",
+          "name": "備前長船刀剣博物館",
+          "category": "博物館",
+          "lat": 34.721634,
+          "lng": 134.106905,
+          "stay_minutes": 45,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          34.7397868,
-          134.0024868
-        ],
-        [
-          34.7252186,
-          133.9768055
-        ],
-        [
-          34.7095717,
-          134.0503794
+          34.7065004,
+          134.0365047
         ],
         [
           34.7100582,
           134.0666904
         ],
         [
-          34.6430051,
-          134.0893781
+          34.6919072,
+          134.0534842
+        ],
+        [
+          34.7257522,
+          134.1082761
+        ],
+        [
+          34.721634,
+          134.106905
+        ]
+      ]
+    },
+    {
+      "id": "osm-okayama-05",
+      "area": "okayama",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "岡山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 295,
+      "legs": [
+        {
+          "from": "岡山駅",
+          "to": "西大寺鉄道廣谷駅跡",
+          "distance_km": 8.73,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "西大寺鉄道廣谷駅跡",
+          "to": "福寿稲荷大明神",
+          "distance_km": 2.13,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "福寿稲荷大明神",
+          "to": "ライオンズの森",
+          "distance_km": 0.8,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "ライオンズの森",
+          "to": "岡山原尾島食堂",
+          "distance_km": 8.41,
+          "mode": "car",
+          "minutes": 19
+        },
+        {
+          "from": "岡山原尾島食堂",
+          "to": "点字ブロック発祥の地",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "点字ブロック発祥の地",
+          "to": "岡山駅",
+          "distance_km": 3.11,
+          "mode": "car",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "岡山駅",
+        "lat": 34.6666,
+        "lng": 133.9181,
+        "to_first_km": 8.7,
+        "from_last_km": 3.1
+      },
+      "total_score": 34.0,
+      "center": [
+        34.662355,
+        133.998454
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-11292244183",
+          "name": "西大寺鉄道廣谷駅跡",
+          "category": "史跡",
+          "lat": 34.663313,
+          "lng": 134.0134404,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12245962498",
+          "name": "福寿稲荷大明神",
+          "category": "史跡",
+          "lat": 34.6537586,
+          "lng": 134.0336621,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13826875368",
+          "name": "ライオンズの森",
+          "category": "史跡",
+          "lat": 34.6563061,
+          "lng": 134.0418705,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13015076349",
+          "name": "岡山原尾島食堂",
+          "category": "飲食店",
+          "lat": 34.6692396,
+          "lng": 133.951278,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「点字ブロック発祥の地」から徒歩目安約1分です。"
+        },
+        {
+          "place_id": "osm-node-6897346761",
+          "name": "点字ブロック発祥の地",
+          "category": "史跡",
+          "lat": 34.6691573,
+          "lng": 133.9520166,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.663313,
+          134.0134404
+        ],
+        [
+          34.6537586,
+          134.0336621
+        ],
+        [
+          34.6563061,
+          134.0418705
+        ],
+        [
+          34.6692396,
+          133.951278
+        ],
+        [
+          34.6691573,
+          133.9520166
         ]
       ]
     }

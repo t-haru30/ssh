@@ -10,7 +10,17 @@ import sys
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
-from scripts.generate_prefecture_routes import AREAS, STATIONS, _distance, _lunch_radius, build_legs, course_for, on_main_landmass
+from app.models import Place
+from scripts.generate_prefecture_routes import (
+    AREAS,
+    LUNCH_FALLBACK_RADIUS_KM,
+    STATIONS,
+    _distance,
+    _lunch_insertion_index,
+    build_legs,
+    course_for,
+    on_main_landmass,
+)
 
 
 def validate_dataset(path: Path) -> dict[str, object]:
@@ -60,11 +70,37 @@ def validate_dataset(path: Path) -> dict[str, object]:
         if route.get("course") != course_for(route.get("pattern", ""), expected):
             errors.append(f"{route.get('id')}:course")
         lunches = [index for index, spot in enumerate(spots) if spot.get("role") == "lunch"]
-        if route.get("pattern") == "full_day":
-            if lunches != [2]:
-                errors.append(f"{route.get('id')}:lunch_position")
-            elif any(_distance((spots[lunches[0]]["lat"], spots[lunches[0]]["lng"]), (spots[index]["lat"], spots[index]["lng"])) > _lunch_radius(config) for index in (1, 3)):
-                errors.append(f"{route.get('id')}:lunch_distance")
+        if route.get("course") == "full_day":
+            if len(lunches) != 1:
+                errors.append(f"{route.get('id')}:lunch_count={len(lunches)}")
+            else:
+                sightseeing = [spot for spot in spots if spot.get("role") != "lunch"]
+                candidates = [
+                    {
+                        "place": Place(
+                            id=spot["place_id"],
+                            name=spot["name"],
+                            category=spot["category"],
+                            description="",
+                            access_point="",
+                            latitude=spot["lat"],
+                            longitude=spot["lng"],
+                            themes=["all"],
+                        ),
+                        "score": spot["score"],
+                    }
+                    for spot in sightseeing
+                ]
+                expected_position = _lunch_insertion_index(config, candidates)
+                if lunches[0] != expected_position:
+                    errors.append(f"{route.get('id')}:lunch_position={lunches[0]},expected={expected_position}")
+                anchor = sightseeing[min(expected_position, len(sightseeing) - 1)]
+                distance = _distance(
+                    (spots[lunches[0]]["lat"], spots[lunches[0]]["lng"]),
+                    (anchor["lat"], anchor["lng"]),
+                )
+                if distance > LUNCH_FALLBACK_RADIUS_KM + 0.01:
+                    errors.append(f"{route.get('id')}:lunch_distance={distance:.2f}km")
         elif lunches:
             errors.append(f"{route.get('id')}:unexpected_lunch")
     spot_sets = [set(spot["place_id"] for spot in route["spots"]) for route in routes]

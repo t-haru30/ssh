@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:32.648487+00:00",
+  "generated_at": "2026-10-12T06:25:49.724277+00:00",
   "area": "saitama",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -299,7 +299,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "埼玉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 446,
+      "estimated_minutes": 443,
       "legs": [
         {
           "from": "大宮駅",
@@ -310,31 +310,31 @@
         },
         {
           "from": "八潮市立資料館",
-          "to": "百代橋",
-          "distance_km": 2.51,
-          "mode": "public_transport",
-          "minutes": 12
-        },
-        {
-          "from": "百代橋",
-          "to": "寺田軒",
-          "distance_km": 2.0,
-          "mode": "public_transport",
-          "minutes": 10
-        },
-        {
-          "from": "寺田軒",
           "to": "回向院",
-          "distance_km": 0.07,
-          "mode": "walk",
-          "minutes": 2
+          "distance_km": 1.31,
+          "mode": "public_transport",
+          "minutes": 6
         },
         {
           "from": "回向院",
+          "to": "更科",
+          "distance_km": 0.56,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "更科",
+          "to": "浄捷寺",
+          "distance_km": 0.4,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "浄捷寺",
           "to": "川口市立科学館",
-          "distance_km": 7.8,
+          "distance_km": 6.97,
           "mode": "public_transport",
-          "minutes": 36
+          "minutes": 32
         },
         {
           "from": "川口市立科学館",
@@ -351,10 +351,10 @@
         "to_first_km": 19.9,
         "from_last_km": 12.3
       },
-      "total_score": 46.0,
+      "total_score": 42.0,
       "center": [
-        35.830237,
-        139.7914
+        35.827087,
+        139.7889
       ],
       "spots": [
         {
@@ -368,31 +368,32 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-5886897885",
-          "name": "百代橋",
-          "category": "展望地",
-          "lat": 35.8444397,
-          "lng": 139.8040542,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10948376172",
-          "name": "寺田軒",
-          "category": "飲食店",
-          "lat": 35.8264897,
-          "lng": 139.8057923,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-12193797588",
           "name": "回向院",
           "category": "観光名所",
           "lat": 35.826149,
           "lng": 139.8063806,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12193977925",
+          "name": "更科",
+          "category": "飲食店",
+          "lat": 35.8262714,
+          "lng": 139.8001776,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「浄捷寺」から徒歩目安約5分です。"
+        },
+        {
+          "place_id": "osm-node-12193797591",
+          "name": "浄捷寺",
+          "category": "観光名所",
+          "lat": 35.8289062,
+          "lng": 139.7971696,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -414,16 +415,16 @@
           139.820914
         ],
         [
-          35.8444397,
-          139.8040542
-        ],
-        [
-          35.8264897,
-          139.8057923
-        ],
-        [
           35.826149,
           139.8063806
+        ],
+        [
+          35.8262714,
+          139.8001776
+        ],
+        [
+          35.8289062,
+          139.7971696
         ],
         [
           35.8276765,
@@ -437,94 +438,64 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "埼玉県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 450,
+      "estimated_minutes": 439,
       "legs": [
         {
           "from": "大宮駅",
-          "to": "浄捷寺",
-          "distance_km": 17.83,
-          "mode": "public_transport",
-          "minutes": 81
-        },
-        {
-          "from": "浄捷寺",
-          "to": "傑傳寺",
-          "distance_km": 3.41,
-          "mode": "public_transport",
-          "minutes": 16
-        },
-        {
-          "from": "傑傳寺",
-          "to": "寺田軒",
-          "distance_km": 4.19,
-          "mode": "public_transport",
-          "minutes": 19
-        },
-        {
-          "from": "寺田軒",
           "to": "草加神社",
-          "distance_km": 0.49,
-          "mode": "walk",
-          "minutes": 10
+          "distance_km": 18.17,
+          "mode": "public_transport",
+          "minutes": 82
         },
         {
           "from": "草加神社",
-          "to": "宝厳院",
-          "distance_km": 4.84,
+          "to": "真蔵院",
+          "distance_km": 0.84,
           "mode": "public_transport",
-          "minutes": 22
+          "minutes": 4
         },
         {
-          "from": "宝厳院",
-          "to": "大宮駅",
-          "distance_km": 13.58,
+          "from": "真蔵院",
+          "to": "むさし",
+          "distance_km": 1.71,
           "mode": "public_transport",
-          "minutes": 62
+          "minutes": 8
+        },
+        {
+          "from": "むさし",
+          "to": "宝持院",
+          "distance_km": 0.39,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "宝持院",
+          "to": "百代橋",
+          "distance_km": 3.69,
+          "mode": "public_transport",
+          "minutes": 17
+        },
+        {
+          "from": "百代橋",
+          "to": "大宮駅",
+          "distance_km": 17.63,
+          "mode": "public_transport",
+          "minutes": 80
         }
       ],
       "start": {
         "name": "大宮駅",
         "lat": 35.9065,
         "lng": 139.624,
-        "to_first_km": 17.8,
-        "from_last_km": 13.6
+        "to_first_km": 18.2,
+        "from_last_km": 17.6
       },
       "total_score": 40.0,
       "center": [
-        35.829625,
-        139.782197
+        35.825148,
+        139.79846
       ],
       "spots": [
-        {
-          "place_id": "osm-node-12193797591",
-          "name": "浄捷寺",
-          "category": "観光名所",
-          "lat": 35.8289062,
-          "lng": 139.7971696,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4395978047",
-          "name": "傑傳寺",
-          "category": "観光名所",
-          "lat": 35.8279289,
-          "lng": 139.7593419,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10948376172",
-          "name": "寺田軒",
-          "category": "飲食店",
-          "lat": 35.8264897,
-          "lng": 139.8057923,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
-        },
         {
           "place_id": "osm-node-4396009152",
           "name": "草加神社",
@@ -536,36 +507,67 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12709313821",
-          "name": "宝厳院",
+          "place_id": "osm-node-4415842586",
+          "name": "真蔵院",
           "category": "観光名所",
-          "lat": 35.8372306,
-          "lng": 139.7481619,
+          "lat": 35.8278158,
+          "lng": 139.7911724,
           "stay_minutes": 45,
           "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10065616691",
+          "name": "むさし",
+          "category": "飲食店",
+          "lat": 35.8141298,
+          "lng": 139.7999114,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「宝持院」から徒歩目安約5分です。"
+        },
+        {
+          "place_id": "osm-node-5682658868",
+          "name": "宝持院",
+          "category": "観光名所",
+          "lat": 35.8117825,
+          "lng": 139.796642,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5886897885",
+          "name": "百代橋",
+          "category": "展望地",
+          "lat": 35.8444397,
+          "lng": 139.8040542,
+          "stay_minutes": 45,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          35.8289062,
-          139.7971696
-        ],
-        [
-          35.8279289,
-          139.7593419
-        ],
-        [
-          35.8264897,
-          139.8057923
-        ],
-        [
           35.8275706,
           139.8005179
         ],
         [
-          35.8372306,
-          139.7481619
+          35.8278158,
+          139.7911724
+        ],
+        [
+          35.8141298,
+          139.7999114
+        ],
+        [
+          35.8117825,
+          139.796642
+        ],
+        [
+          35.8444397,
+          139.8040542
         ]
       ]
     }

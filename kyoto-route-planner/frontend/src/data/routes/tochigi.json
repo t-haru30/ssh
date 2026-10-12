@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:31.205894+00:00",
+  "generated_at": "2026-10-12T06:25:48.181942+00:00",
   "area": "tochigi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "栃木県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 305,
+      "estimated_minutes": 370,
       "legs": [
         {
           "from": "宇都宮駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "滝尾神社",
-          "to": "報徳二宮神社",
-          "distance_km": 9.74,
+          "to": "さか村",
+          "distance_km": 9.94,
           "mode": "car",
-          "minutes": 22
+          "minutes": 23
+        },
+        {
+          "from": "さか村",
+          "to": "報徳二宮神社",
+          "distance_km": 0.2,
+          "mode": "walk",
+          "minutes": 4
         },
         {
           "from": "報徳二宮神社",
@@ -145,10 +152,10 @@
         "to_first_km": 29.1,
         "from_last_km": 26.3
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        36.754758,
-        139.663989
+        36.747322,
+        139.670899
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-3141799997",
+          "name": "さか村",
+          "category": "飲食店",
+          "lat": 36.7250137,
+          "lng": 139.6916285,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「報徳二宮神社」から徒歩目安約3分です。"
+        },
+        {
           "place_id": "osm-node-4100075935",
           "name": "報徳二宮神社",
           "category": "観光名所",
@@ -192,6 +210,10 @@
           139.5920315
         ],
         [
+          36.7250137,
+          139.6916285
+        ],
+        [
           36.7256592,
           139.6894921
         ]
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "栃木県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 384,
+      "estimated_minutes": 449,
       "legs": [
         {
           "from": "宇都宮駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "那須オルゴール美術館",
-          "to": "那須とりっくあーとぴあ",
-          "distance_km": 1.57,
+          "to": "バターのいとこ",
+          "distance_km": 2.3,
           "mode": "car",
-          "minutes": 4
+          "minutes": 6
+        },
+        {
+          "from": "バターのいとこ",
+          "to": "那須とりっくあーとぴあ",
+          "distance_km": 1.09,
+          "mode": "car",
+          "minutes": 3
         },
         {
           "from": "那須とりっくあーとぴあ",
@@ -241,10 +270,10 @@
         "to_first_km": 52.7,
         "from_last_km": 53.9
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        37.032228,
-        140.030816
+        37.029972,
+        140.03043
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-10728995420",
+          "name": "バターのいとこ",
+          "category": "飲食店",
+          "lat": 37.0232022,
+          "lng": 140.0292717,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「那須とりっくあーとぴあ」から徒歩目安約14分です。"
+        },
+        {
           "place_id": "osm-node-5913206351",
           "name": "那須とりっくあーとぴあ",
           "category": "博物館",
@@ -288,6 +328,10 @@
           140.0276907
         ],
         [
+          37.0232022,
+          140.0292717
+        ],
+        [
           37.0313873,
           140.0359861
         ]
@@ -298,111 +342,112 @@
       "area": "tochigi",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "栃木県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 396,
+      "title": "栃木県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 417,
       "legs": [
         {
           "from": "宇都宮駅",
-          "to": "益子参考館",
-          "distance_km": 21.21,
+          "to": "今泉神社",
+          "distance_km": 23.46,
           "mode": "car",
-          "minutes": 48
+          "minutes": 53
         },
         {
-          "from": "益子参考館",
-          "to": "能仁寺",
-          "distance_km": 5.6,
+          "from": "今泉神社",
+          "to": "大宮神社",
+          "distance_km": 1.05,
           "mode": "car",
-          "minutes": 13
+          "minutes": 3
         },
         {
-          "from": "能仁寺",
-          "to": "益子焼カフェレストラン 壺々炉",
-          "distance_km": 4.68,
-          "mode": "car",
-          "minutes": 11
+          "from": "大宮神社",
+          "to": "光永寺",
+          "distance_km": 0.42,
+          "mode": "walk",
+          "minutes": 8
         },
         {
-          "from": "益子焼カフェレストラン 壺々炉",
-          "to": "市貝町立歴史民俗資料館",
-          "distance_km": 7.3,
+          "from": "光永寺",
+          "to": "昼食: 要検討",
+          "distance_km": 14.95,
           "mode": "car",
-          "minutes": 17
+          "minutes": 34
         },
         {
-          "from": "市貝町立歴史民俗資料館",
-          "to": "真岡市科学教育センター",
-          "distance_km": 12.22,
-          "mode": "car",
-          "minutes": 28
+          "from": "昼食: 要検討",
+          "to": "唐沢山城",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
-          "from": "真岡市科学教育センター",
+          "from": "唐沢山城",
           "to": "宇都宮駅",
-          "distance_km": 17.19,
+          "distance_km": 35.07,
           "mode": "car",
-          "minutes": 39
+          "minutes": 79
         }
       ],
       "start": {
         "name": "宇都宮駅",
         "lat": 36.5592,
         "lng": 139.8985,
-        "to_first_km": 21.2,
-        "from_last_km": 17.2
+        "to_first_km": 23.5,
+        "from_last_km": 35.1
       },
-      "total_score": 44.0,
+      "total_score": 28.0,
       "center": [
-        36.466766,
-        140.076426
+        36.374577,
+        139.69492
       ],
       "spots": [
         {
-          "place_id": "osm-node-1678432284",
-          "name": "益子参考館",
-          "category": "博物館",
-          "lat": 36.470045,
-          "lng": 140.1083527,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4664831632",
-          "name": "能仁寺",
+          "place_id": "osm-node-4574406626",
+          "name": "今泉神社",
           "category": "観光名所",
-          "lat": 36.4345853,
-          "lng": 140.0639179,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4158742789",
-          "name": "益子焼カフェレストラン 壺々炉",
-          "category": "飲食店",
-          "lat": 36.463551,
-          "lng": 140.101806,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-11305178494",
-          "name": "市貝町立歴史民俗資料館",
-          "category": "博物館",
-          "lat": 36.5286656,
-          "lng": 140.0917298,
+          "lat": 36.3841847,
+          "lng": 139.7520752,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-11475661228",
-          "name": "真岡市科学教育センター",
-          "category": "博物館",
-          "lat": 36.4369837,
-          "lng": 140.0163216,
+          "place_id": "osm-node-4574406629",
+          "name": "大宮神社",
+          "category": "観光名所",
+          "lat": 36.3918888,
+          "lng": 139.7588934,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4580708302",
+          "name": "光永寺",
+          "category": "観光名所",
+          "lat": 36.3890306,
+          "lng": 139.7619618,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-tochigi-4",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 36.3538912,
+          "lng": 139.6008339,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
+          "place_id": "osm-node-2501554801",
+          "name": "唐沢山城",
+          "category": "史跡",
+          "lat": 36.3538912,
+          "lng": 139.6008339,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -410,24 +455,24 @@
       ],
       "coordinates": [
         [
-          36.470045,
-          140.1083527
+          36.3841847,
+          139.7520752
         ],
         [
-          36.4345853,
-          140.0639179
+          36.3918888,
+          139.7588934
         ],
         [
-          36.463551,
-          140.101806
+          36.3890306,
+          139.7619618
         ],
         [
-          36.5286656,
-          140.0917298
+          36.3538912,
+          139.6008339
         ],
         [
-          36.4369837,
-          140.0163216
+          36.3538912,
+          139.6008339
         ]
       ]
     },
@@ -436,111 +481,112 @@
       "area": "tochigi",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "栃木県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 392,
+      "title": "栃木県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 472,
       "legs": [
         {
           "from": "宇都宮駅",
-          "to": "大中寺",
-          "distance_km": 29.05,
+          "to": "門田稲荷神社",
+          "distance_km": 48.98,
           "mode": "car",
-          "minutes": 65
+          "minutes": 110
         },
         {
-          "from": "大中寺",
-          "to": "大平山神社",
-          "distance_km": 0.52,
+          "from": "門田稲荷神社",
+          "to": "山邊村道路元標",
+          "distance_km": 0.09,
           "mode": "walk",
-          "minutes": 10
+          "minutes": 2
         },
         {
-          "from": "大平山神社",
-          "to": "サイゼリヤ",
+          "from": "山邊村道路元標",
+          "to": "大日茶屋",
+          "distance_km": 2.08,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "大日茶屋",
+          "to": "出世稲荷大権現",
+          "distance_km": 0.12,
+          "mode": "walk",
+          "minutes": 3
+        },
+        {
+          "from": "出世稲荷大権現",
+          "to": "栗田美術館",
           "distance_km": 6.62,
           "mode": "car",
           "minutes": 15
         },
         {
-          "from": "サイゼリヤ",
-          "to": "国分寺",
-          "distance_km": 5.5,
-          "mode": "car",
-          "minutes": 13
-        },
-        {
-          "from": "国分寺",
-          "to": "壬生町おもちゃ博物館",
-          "distance_km": 7.92,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "壬生町おもちゃ博物館",
+          "from": "栗田美術館",
           "to": "宇都宮駅",
-          "distance_km": 13.5,
+          "distance_km": 43.17,
           "mode": "car",
-          "minutes": 31
+          "minutes": 97
         }
       ],
       "start": {
         "name": "宇都宮駅",
         "lat": 36.5592,
         "lng": 139.8985,
-        "to_first_km": 29.1,
-        "from_last_km": 13.5
+        "to_first_km": 49.0,
+        "from_last_km": 43.2
       },
-      "total_score": 42.0,
+      "total_score": 36.0,
       "center": [
-        36.3943,
-        139.751821
+        36.327692,
+        139.459456
       ],
       "spots": [
         {
-          "place_id": "osm-node-2493357531",
-          "name": "大中寺",
+          "place_id": "osm-node-4365433930",
+          "name": "門田稲荷神社",
           "category": "観光名所",
-          "lat": 36.359688,
-          "lng": 139.688778,
+          "lat": 36.3239897,
+          "lng": 139.4354848,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2493409810",
-          "name": "大平山神社",
-          "category": "観光名所",
-          "lat": 36.3626322,
-          "lng": 139.6932291,
+          "place_id": "osm-node-10182281830",
+          "name": "山邊村道路元標",
+          "category": "史跡",
+          "lat": 36.3232661,
+          "lng": 139.4358406,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6145265429",
-          "name": "サイゼリヤ",
+          "place_id": "osm-node-2285448127",
+          "name": "大日茶屋",
           "category": "飲食店",
-          "lat": 36.3966976,
-          "lng": 139.7538703,
+          "lat": 36.3368254,
+          "lng": 139.4518383,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「出世稲荷大権現」から徒歩目安約2分です。"
         },
         {
-          "place_id": "osm-node-4134893207",
-          "name": "国分寺",
-          "category": "観光名所",
-          "lat": 36.3907402,
-          "lng": 139.8148805,
+          "place_id": "osm-node-10185073887",
+          "name": "出世稲荷大権現",
+          "category": "史跡",
+          "lat": 36.3377191,
+          "lng": 139.4525059,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-8735832677",
-          "name": "壬生町おもちゃ博物館",
+          "place_id": "osm-node-1536042537",
+          "name": "栗田美術館",
           "category": "博物館",
-          "lat": 36.4617422,
-          "lng": 139.8083465,
+          "lat": 36.3166595,
+          "lng": 139.5216088,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -548,24 +594,24 @@
       ],
       "coordinates": [
         [
-          36.359688,
-          139.688778
+          36.3239897,
+          139.4354848
         ],
         [
-          36.3626322,
-          139.6932291
+          36.3232661,
+          139.4358406
         ],
         [
-          36.3966976,
-          139.7538703
+          36.3368254,
+          139.4518383
         ],
         [
-          36.3907402,
-          139.8148805
+          36.3377191,
+          139.4525059
         ],
         [
-          36.4617422,
-          139.8083465
+          36.3166595,
+          139.5216088
         ]
       ]
     }

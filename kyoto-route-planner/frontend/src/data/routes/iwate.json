@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:26.459303+00:00",
+  "generated_at": "2026-10-12T06:25:43.331280+00:00",
   "area": "iwate",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "岩手県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 397,
+      "estimated_minutes": 463,
       "legs": [
         {
           "from": "盛岡駅",
@@ -118,10 +118,17 @@
         },
         {
           "from": "胆沢城",
-          "to": "みちのく民俗村",
-          "distance_km": 10.04,
+          "to": "レストランくさの",
+          "distance_km": 11.27,
           "mode": "car",
-          "minutes": 23
+          "minutes": 26
+        },
+        {
+          "from": "レストランくさの",
+          "to": "みちのく民俗村",
+          "distance_km": 1.33,
+          "mode": "car",
+          "minutes": 3
         },
         {
           "from": "みちのく民俗村",
@@ -145,10 +152,10 @@
         "to_first_km": 58.0,
         "from_last_km": 34.8
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        39.279634,
-        141.141869
+        39.279883,
+        141.137006
       ],
       "spots": [
         {
@@ -160,6 +167,17 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13516132060",
+          "name": "レストランくさの",
+          "category": "飲食店",
+          "lat": 39.2806303,
+          "lng": 141.1224182,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「みちのく民俗村」から徒歩目安約17分です。"
         },
         {
           "place_id": "osm-node-2706219580",
@@ -188,6 +206,10 @@
           141.135224
         ],
         [
+          39.2806303,
+          141.1224182
+        ],
+        [
           39.2698932,
           141.1292261
         ],
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "岩手県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 397,
+      "estimated_minutes": 463,
       "legs": [
         {
           "from": "盛岡駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "常堅寺",
-          "to": "南部神社",
-          "distance_km": 4.79,
+          "to": "ばんがり伊藤家店",
+          "distance_km": 4.56,
           "mode": "car",
           "minutes": 11
+        },
+        {
+          "from": "ばんがり伊藤家店",
+          "to": "南部神社",
+          "distance_km": 0.28,
+          "mode": "walk",
+          "minutes": 6
         },
         {
           "from": "南部神社",
@@ -241,10 +270,10 @@
         "to_first_km": 53.5,
         "from_last_km": 53.4
       },
-      "total_score": 43.3,
+      "total_score": 40.0,
       "center": [
-        39.336546,
-        141.542563
+        39.334864,
+        141.539083
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-12099359993",
+          "name": "ばんがり伊藤家店",
+          "category": "飲食店",
+          "lat": 39.3298176,
+          "lng": 141.5286436,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「南部神社」から徒歩目安約4分です。"
+        },
+        {
           "place_id": "osm-node-2985340551",
           "name": "南部神社",
           "category": "観光名所",
@@ -288,6 +328,10 @@
           141.5710403
         ],
         [
+          39.3298176,
+          141.5286436
+        ],
+        [
           39.3273736,
           141.5277152
         ]
@@ -298,75 +342,65 @@
       "area": "iwate",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "岩手県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 310,
+      "title": "岩手県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 302,
       "legs": [
         {
           "from": "盛岡駅",
-          "to": "志波城",
-          "distance_km": 3.04,
-          "mode": "car",
-          "minutes": 7
-        },
-        {
-          "from": "志波城",
           "to": "石割桜",
-          "distance_km": 4.29,
+          "distance_km": 1.31,
           "mode": "car",
-          "minutes": 10
+          "minutes": 3
         },
         {
           "from": "石割桜",
-          "to": "初代",
-          "distance_km": 1.76,
+          "to": "原敬先生像",
+          "distance_km": 0.18,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "原敬先生像",
+          "to": "腰曲輪",
+          "distance_km": 0.47,
+          "mode": "walk",
+          "minutes": 9
+        },
+        {
+          "from": "腰曲輪",
+          "to": "湯舟沢環状列石",
+          "distance_km": 10.12,
+          "mode": "car",
+          "minutes": 23
+        },
+        {
+          "from": "湯舟沢環状列石",
+          "to": "中華そば なると",
+          "distance_km": 1.37,
           "mode": "car",
           "minutes": 4
         },
         {
-          "from": "初代",
-          "to": "願教寺",
-          "distance_km": 2.27,
-          "mode": "car",
-          "minutes": 6
-        },
-        {
-          "from": "願教寺",
-          "to": "湯舟沢環状列石",
-          "distance_km": 8.99,
-          "mode": "car",
-          "minutes": 21
-        },
-        {
-          "from": "湯舟沢環状列石",
+          "from": "中華そば なると",
           "to": "盛岡駅",
-          "distance_km": 9.48,
+          "distance_km": 8.14,
           "mode": "car",
-          "minutes": 22
+          "minutes": 19
         }
       ],
       "start": {
         "name": "盛岡駅",
         "lat": 39.7013,
         "lng": 141.1363,
-        "to_first_km": 3.0,
-        "from_last_km": 9.5
+        "to_first_km": 1.3,
+        "from_last_km": 8.1
       },
-      "total_score": 38.0,
+      "total_score": 34.0,
       "center": [
-        39.717587,
-        141.127991
+        39.731639,
+        141.131573
       ],
       "spots": [
-        {
-          "place_id": "osm-node-2501424313",
-          "name": "志波城",
-          "category": "史跡",
-          "lat": 39.6864435,
-          "lng": 141.1064353,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-6765472585",
           "name": "石割桜",
@@ -378,23 +412,23 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10758307245",
-          "name": "初代",
-          "category": "飲食店",
-          "lat": 39.7035427,
-          "lng": 141.1306263,
-          "stay_minutes": 60,
+          "place_id": "osm-node-5237302821",
+          "name": "原敬先生像",
+          "category": "史跡",
+          "lat": 39.7030072,
+          "lng": 141.1530859,
+          "stay_minutes": 45,
           "score": 30.0,
-          "role": "lunch"
+          "role": "stop"
         },
         {
-          "place_id": "osm-node-9069190779",
-          "name": "願教寺",
-          "category": "観光名所",
-          "lat": 39.71303,
-          "lng": 141.1541726,
+          "place_id": "osm-node-5237552588",
+          "name": "腰曲輪",
+          "category": "史跡",
+          "lat": 39.6995225,
+          "lng": 141.1499636,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
@@ -406,28 +440,39 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-14221214148",
+          "name": "中華そば なると",
+          "category": "飲食店",
+          "lat": 39.7707463,
+          "lng": 141.1060939,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「湯舟沢環状列石」から徒歩目安約18分です。"
         }
       ],
       "coordinates": [
-        [
-          39.6864435,
-          141.1064353
-        ],
         [
           39.7037896,
           141.1512335
         ],
         [
-          39.7035427,
-          141.1306263
+          39.7030072,
+          141.1530859
         ],
         [
-          39.71303,
-          141.1541726
+          39.6995225,
+          141.1499636
         ],
         [
           39.7811315,
           141.0974897
+        ],
+        [
+          39.7707463,
+          141.1060939
         ]
       ]
     },
@@ -437,100 +482,90 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "岩手県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 346,
+      "estimated_minutes": 320,
       "legs": [
         {
           "from": "盛岡駅",
-          "to": "浅岸公民館・浅岸村役場跡地",
-          "distance_km": 3.49,
+          "to": "池野祐壽翁紀徳碑",
+          "distance_km": 1.14,
           "mode": "car",
-          "minutes": 8
+          "minutes": 3
         },
         {
-          "from": "浅岸公民館・浅岸村役場跡地",
-          "to": "盛岡市道路元標",
-          "distance_km": 2.1,
-          "mode": "car",
-          "minutes": 5
+          "from": "池野祐壽翁紀徳碑",
+          "to": "月待つや　独り古城乃　松のもと",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "盛岡市道路元標",
-          "to": "初代",
-          "distance_km": 2.03,
-          "mode": "car",
-          "minutes": 5
+          "from": "月待つや　独り古城乃　松のもと",
+          "to": "二ノ丸",
+          "distance_km": 0.1,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "初代",
-          "to": "由来碑",
-          "distance_km": 5.06,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "由来碑",
+          "from": "二ノ丸",
           "to": "高水寺城",
-          "distance_km": 18.39,
+          "distance_km": 15.19,
           "mode": "car",
-          "minutes": 41
+          "minutes": 34
         },
         {
           "from": "高水寺城",
-          "to": "盛岡駅",
-          "distance_km": 15.46,
+          "to": "焼肉冷麺よかろ",
+          "distance_km": 1.0,
           "mode": "car",
-          "minutes": 35
+          "minutes": 3
+        },
+        {
+          "from": "焼肉冷麺よかろ",
+          "to": "盛岡駅",
+          "distance_km": 16.36,
+          "mode": "car",
+          "minutes": 37
         }
       ],
       "start": {
         "name": "盛岡駅",
         "lat": 39.7013,
         "lng": 141.1363,
-        "to_first_km": 3.5,
-        "from_last_km": 15.5
+        "to_first_km": 1.1,
+        "from_last_km": 16.4
       },
       "total_score": 32.0,
       "center": [
-        39.679286,
-        141.140767
+        39.644349,
+        141.158472
       ],
       "spots": [
         {
-          "place_id": "osm-node-11586465313",
-          "name": "浅岸公民館・浅岸村役場跡地",
+          "place_id": "osm-node-5237586473",
+          "name": "池野祐壽翁紀徳碑",
           "category": "史跡",
-          "lat": 39.7140306,
-          "lng": 141.1736483,
+          "lat": 39.6997052,
+          "lng": 141.1495185,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-12709182113",
-          "name": "盛岡市道路元標",
+          "place_id": "osm-node-5239356553",
+          "name": "月待つや　独り古城乃　松のもと",
           "category": "史跡",
-          "lat": 39.7024281,
-          "lng": 141.1542615,
+          "lat": 39.6997614,
+          "lng": 141.1497273,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10758307245",
-          "name": "初代",
-          "category": "飲食店",
-          "lat": 39.7035427,
-          "lng": 141.1306263,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-13959957456",
-          "name": "由来碑",
+          "place_id": "osm-node-5240351146",
+          "name": "二ノ丸",
           "category": "史跡",
-          "lat": 39.7112566,
-          "lng": 141.0722729,
+          "lat": 39.700591,
+          "lng": 141.1500786,
           "stay_minutes": 45,
           "score": 30.0,
           "role": "stop"
@@ -544,28 +579,39 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12984945193",
+          "name": "焼肉冷麺よかろ",
+          "category": "飲食店",
+          "lat": 39.5565192,
+          "lng": 141.1700119,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「高水寺城」から徒歩目安約13分です。"
         }
       ],
       "coordinates": [
         [
-          39.7140306,
-          141.1736483
+          39.6997052,
+          141.1495185
         ],
         [
-          39.7024281,
-          141.1542615
+          39.6997614,
+          141.1497273
         ],
         [
-          39.7035427,
-          141.1306263
-        ],
-        [
-          39.7112566,
-          141.0722729
+          39.700591,
+          141.1500786
         ],
         [
           39.5651699,
           141.1730243
+        ],
+        [
+          39.5565192,
+          141.1700119
         ]
       ]
     }

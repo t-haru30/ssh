@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:44.442996+00:00",
+  "generated_at": "2026-10-12T06:26:02.753431+00:00",
   "area": "aichi",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 329,
+      "estimated_minutes": 398,
       "legs": [
         {
           "from": "名古屋駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "岩崎城",
-          "to": "長久手市郷土資料室",
-          "distance_km": 3.18,
+          "to": "豊龍園",
+          "distance_km": 2.81,
           "mode": "public_transport",
-          "minutes": 15
+          "minutes": 13
+        },
+        {
+          "from": "豊龍園",
+          "to": "長久手市郷土資料室",
+          "distance_km": 0.57,
+          "mode": "walk",
+          "minutes": 11
         },
         {
           "from": "長久手市郷土資料室",
@@ -145,10 +152,10 @@
         "to_first_km": 18.8,
         "from_last_km": 15.2
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        35.164471,
-        137.05993
+        35.165926,
+        137.05579
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-10825872629",
+          "name": "豊龍園",
+          "category": "飲食店",
+          "lat": 35.1702887,
+          "lng": 137.0433703,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「長久手市郷土資料室」から徒歩目安約8分です。"
+        },
+        {
           "place_id": "osm-node-1319911990",
           "name": "長久手市郷土資料室",
           "category": "博物館",
@@ -192,6 +210,10 @@
           137.04255
         ],
         [
+          35.1702887,
+          137.0433703
+        ],
+        [
           35.1732378,
           137.0484666
         ]
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 328,
+      "estimated_minutes": 389,
       "legs": [
         {
           "from": "名古屋駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "ガスエネルギー館",
-          "to": "東海市立平洲記念館・東海市立郷土資料館",
-          "distance_km": 3.9,
+          "to": "トマト記念館",
+          "distance_km": 2.47,
           "mode": "public_transport",
-          "minutes": 18
+          "minutes": 12
+        },
+        {
+          "from": "トマト記念館",
+          "to": "東海市立平洲記念館・東海市立郷土資料館",
+          "distance_km": 1.46,
+          "mode": "public_transport",
+          "minutes": 7
         },
         {
           "from": "東海市立平洲記念館・東海市立郷土資料館",
@@ -243,8 +272,8 @@
       },
       "total_score": 50.0,
       "center": [
-        35.051039,
-        136.931703
+        35.048733,
+        136.925787
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-2958054522",
+          "name": "トマト記念館",
+          "category": "飲食店",
+          "lat": 35.041814,
+          "lng": 136.9080403,
+          "stay_minutes": 60,
+          "score": 50.0,
+          "role": "lunch",
+          "reason": "次の予定地「東海市立平洲記念館・東海市立郷土資料館」から徒歩目安約19分です。"
+        },
+        {
           "place_id": "osm-node-1423988291",
           "name": "東海市立平洲記念館・東海市立郷土資料館",
           "category": "博物館",
@@ -288,6 +328,10 @@
           136.897283
         ],
         [
+          35.041814,
+          136.9080403
+        ],
+        [
           35.031476,
           136.917935
         ]
@@ -299,7 +343,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 360,
+      "estimated_minutes": 338,
       "legs": [
         {
           "from": "名古屋駅",
@@ -317,31 +361,31 @@
         },
         {
           "from": "桑山美術館",
-          "to": "喫茶マウンテン",
-          "distance_km": 0.76,
+          "to": "香積院",
+          "distance_km": 0.36,
           "mode": "walk",
-          "minutes": 15
+          "minutes": 7
         },
         {
-          "from": "喫茶マウンテン",
-          "to": "藤原師長謫居跡",
-          "distance_km": 4.16,
+          "from": "香積院",
+          "to": "スターバックス",
+          "distance_km": 6.75,
           "mode": "public_transport",
-          "minutes": 19
+          "minutes": 31
         },
         {
-          "from": "藤原師長謫居跡",
-          "to": "名古屋市市政資料館",
-          "distance_km": 7.38,
-          "mode": "public_transport",
-          "minutes": 34
+          "from": "スターバックス",
+          "to": "下水道科学館",
+          "distance_km": 0.34,
+          "mode": "walk",
+          "minutes": 7
         },
         {
-          "from": "名古屋市市政資料館",
+          "from": "下水道科学館",
           "to": "名古屋駅",
-          "distance_km": 2.86,
+          "distance_km": 3.06,
           "mode": "public_transport",
-          "minutes": 13
+          "minutes": 14
         }
       ],
       "start": {
@@ -349,12 +393,12 @@
         "lat": 35.1709,
         "lng": 136.8815,
         "to_first_km": 7.8,
-        "from_last_km": 2.9
+        "from_last_km": 3.1
       },
-      "total_score": 50.0,
+      "total_score": 44.0,
       "center": [
-        35.148202,
-        136.943491
+        35.165291,
+        136.936053
       ],
       "spots": [
         {
@@ -378,31 +422,32 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1293327558",
-          "name": "喫茶マウンテン",
-          "category": "飲食店",
-          "lat": 35.1446887,
-          "lng": 136.9606364,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-5285745536",
-          "name": "藤原師長謫居跡",
-          "category": "史跡",
-          "lat": 35.1168726,
-          "lng": 136.9300782,
+          "place_id": "osm-node-2044401045",
+          "name": "香積院",
+          "category": "観光名所",
+          "lat": 35.1469683,
+          "lng": 136.9571842,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423950532",
-          "name": "名古屋市市政資料館",
+          "place_id": "osm-node-10267397257",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 35.1891439,
+          "lng": 136.9037813,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「下水道科学館」から徒歩目安約5分です。"
+        },
+        {
+          "place_id": "osm-node-1423948145",
+          "name": "下水道科学館",
           "category": "博物館",
-          "lat": 35.181226,
-          "lng": 136.910322,
+          "lat": 35.192116,
+          "lng": 136.902882,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -418,16 +463,16 @@
           136.9536004
         ],
         [
-          35.1446887,
-          136.9606364
+          35.1469683,
+          136.9571842
         ],
         [
-          35.1168726,
-          136.9300782
+          35.1891439,
+          136.9037813
         ],
         [
-          35.181226,
-          136.910322
+          35.192116,
+          136.902882
         ]
       ]
     },
@@ -437,110 +482,111 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "愛知県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 334,
+      "estimated_minutes": 337,
       "legs": [
         {
           "from": "名古屋駅",
-          "to": "ヤマザキマザック美術館",
-          "distance_km": 3.49,
+          "to": "浄昇寺",
+          "distance_km": 8.3,
           "mode": "public_transport",
-          "minutes": 16
+          "minutes": 38
         },
         {
-          "from": "ヤマザキマザック美術館",
-          "to": "あいち銭湯資料館",
-          "distance_km": 1.83,
+          "from": "浄昇寺",
+          "to": "桃巌寺",
+          "distance_km": 1.88,
           "mode": "public_transport",
           "minutes": 9
         },
         {
-          "from": "あいち銭湯資料館",
-          "to": "喫茶マウンテン",
-          "distance_km": 4.39,
+          "from": "桃巌寺",
+          "to": "動物慰霊碑",
+          "distance_km": 1.11,
           "mode": "public_transport",
-          "minutes": 20
+          "minutes": 5
         },
         {
-          "from": "喫茶マウンテン",
-          "to": "日本基督教団 金城教会",
-          "distance_km": 4.96,
+          "from": "動物慰霊碑",
+          "to": "アンティキ",
+          "distance_km": 6.42,
           "mode": "public_transport",
-          "minutes": 23
+          "minutes": 29
         },
         {
-          "from": "日本基督教団 金城教会",
-          "to": "下水道科学館",
-          "distance_km": 2.49,
-          "mode": "public_transport",
-          "minutes": 12
+          "from": "アンティキ",
+          "to": "名古屋市市政資料館",
+          "distance_km": 0.13,
+          "mode": "walk",
+          "minutes": 3
         },
         {
-          "from": "下水道科学館",
+          "from": "名古屋市市政資料館",
           "to": "名古屋駅",
-          "distance_km": 3.06,
+          "distance_km": 2.86,
           "mode": "public_transport",
-          "minutes": 14
+          "minutes": 13
         }
       ],
       "start": {
         "name": "名古屋駅",
         "lat": 35.1709,
         "lng": 136.8815,
-        "to_first_km": 3.5,
-        "from_last_km": 3.1
+        "to_first_km": 8.3,
+        "from_last_km": 2.9
       },
-      "total_score": 48.0,
+      "total_score": 38.0,
       "center": [
-        35.168018,
-        136.924114
+        35.164672,
+        136.945701
       ],
       "spots": [
         {
-          "place_id": "osm-node-5296408386",
-          "name": "ヤマザキマザック美術館",
-          "category": "博物館",
-          "lat": 35.1710573,
-          "lng": 136.9198961,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-9817775117",
-          "name": "あいち銭湯資料館",
-          "category": "博物館",
-          "lat": 35.1552551,
-          "lng": 136.9141123,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1293327558",
-          "name": "喫茶マウンテン",
-          "category": "飲食店",
-          "lat": 35.1446887,
-          "lng": 136.9606364,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-10250677040",
-          "name": "日本基督教団 金城教会",
+          "place_id": "osm-node-2045049301",
+          "name": "浄昇寺",
           "category": "観光名所",
-          "lat": 35.1769743,
-          "lng": 136.923041,
+          "lat": 35.144275,
+          "lng": 136.966813,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423948145",
-          "name": "下水道科学館",
+          "place_id": "osm-node-956645286",
+          "name": "桃巌寺",
+          "category": "観光名所",
+          "lat": 35.161062,
+          "lng": 136.9646536,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11038630278",
+          "name": "動物慰霊碑",
+          "category": "史跡",
+          "lat": 35.1565543,
+          "lng": 136.9755493,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10248417386",
+          "name": "アンティキ",
+          "category": "飲食店",
+          "lat": 35.1802417,
+          "lng": 136.9111691,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「名古屋市市政資料館」から徒歩目安約2分です。"
+        },
+        {
+          "place_id": "osm-node-1423950532",
+          "name": "名古屋市市政資料館",
           "category": "博物館",
-          "lat": 35.192116,
-          "lng": 136.902882,
+          "lat": 35.181226,
+          "lng": 136.910322,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -548,24 +594,24 @@
       ],
       "coordinates": [
         [
-          35.1710573,
-          136.9198961
+          35.144275,
+          136.966813
         ],
         [
-          35.1552551,
-          136.9141123
+          35.161062,
+          136.9646536
         ],
         [
-          35.1446887,
-          136.9606364
+          35.1565543,
+          136.9755493
         ],
         [
-          35.1769743,
-          136.923041
+          35.1802417,
+          136.9111691
         ],
         [
-          35.192116,
-          136.902882
+          35.181226,
+          136.910322
         ]
       ]
     }

@@ -9,6 +9,7 @@ import type {
 type TimelineSpot = Extract<RouteTimelineItem, { type: "spot" }> & {
   detail?: string;
   label?: string;
+  departure_time?: string | null;
 };
 
 type TimelineTransit = Extract<RouteTimelineItem, { type: "transit" }> & {
@@ -107,6 +108,8 @@ export type TimelinePlan = {
   legs: Array<{ mode: "public_transport" | "car" | "walk"; minutes: number }>;
   stayMinutes: number[];
   lunchIndexes?: number[];
+  spotDetails?: Array<string | undefined>;
+  returnByMinutes?: number;
 };
 
 const PLAN_MODE_LABEL = { walk: "徒歩", car: "車", public_transport: "公共交通" } as const;
@@ -164,6 +167,15 @@ export function buildRouteTimeline(
       summary: legSummary(index, duration),
     });
     const stay = usePlan ? plan.stayMinutes[index] : 90;
+    const isLunch = usePlan && plan.lunchIndexes?.includes(index) === true;
+    const lunchDetails = isLunch
+      ? [
+        plan.spotDetails?.[index],
+        currentMinutes !== null && currentMinutes > 13 * 60 + 30
+          ? "昼食開始が13:30を過ぎる予定です。"
+          : undefined,
+      ].filter((detail): detail is string => Boolean(detail)).join(" ")
+      : undefined;
     items.push({
       type: "spot",
       role: "stop",
@@ -172,7 +184,8 @@ export function buildRouteTimeline(
       category: place.category,
       time: formatTime(currentMinutes),
       stay_minutes: stay,
-      ...(usePlan && plan.lunchIndexes?.includes(index) ? { label: "昼食" } : {}),
+      departure_time: currentMinutes === null ? null : formatTime(currentMinutes + stay),
+      ...(isLunch ? { label: "昼食", detail: lunchDetails } : {}),
     });
     if (currentMinutes !== null) currentMinutes += stay;
   });
@@ -200,6 +213,12 @@ export function buildRouteTimeline(
     category: "帰着地",
     time: formatTime(currentMinutes),
     stay_minutes: 0,
+    ...(usePlan
+      && plan.returnByMinutes !== undefined
+      && currentMinutes !== null
+      && currentMinutes > plan.returnByMinutes
+      ? { detail: `帰着が${formatTime(currentMinutes)}頃となり、19:00を過ぎる見込みです。` }
+      : {}),
   });
   return items;
 }
@@ -288,6 +307,7 @@ export function buildDayTimeline(
           : place?.category ?? "立ち寄り",
       time: scheduleItem.start_time,
       stay_minutes: scheduleItem.kind === "visit" ? stayMinutes : 0,
+      departure_time: scheduleItem.kind === "visit" ? scheduleItem.end_time : null,
       detail: scheduleItem.kind === "lunch" && place?.address
         ? `${scheduleItem.detail} · ${place.address}`
         : scheduleItem.detail,
@@ -338,7 +358,9 @@ function LegList({ legs }: { legs: RouteLeg[] }) {
 }
 
 function summarizeTimeline(items: TimelineItem[]) {
-  const stops = items.filter((item) => item.type === "spot" && item.role === "stop").length;
+  const stops = items.filter(
+    (item) => item.type === "spot" && item.role === "stop" && item.label !== "昼食",
+  ).length;
   const times = items.flatMap((item) => (item.type === "spot" ? [item.time] : [item.start_time, item.end_time]))
     .filter((value): value is string => Boolean(value));
   const transitMinutes = items.reduce((sum, item) => {
@@ -399,16 +421,19 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
             );
           }
 
-          if (item.role === "stop") stopIndex += 1;
+          if (item.role === "stop" && item.label !== "昼食") stopIndex += 1;
           return (
             <li
-              className={`timeline-row timeline-spot timeline-${item.role}`}
+              className={`timeline-row timeline-spot timeline-${item.role}${item.label === "昼食" ? " timeline-lunch" : ""}`}
               key={`spot-${item.place_id ?? index}`}
               data-spot-id={item.place_id ?? (item.role === "start" ? "origin" : undefined)}
             >
-              <time className="timeline-time">{item.time ?? "—"}</time>
+              <time className="timeline-time">
+                {item.role === "stop" && <span>到着</span>}
+                {item.time ?? "—"}
+              </time>
               <span className="timeline-marker" aria-hidden="true">
-                {item.role === "start" ? "出" : item.role === "finish" ? "帰" : stopIndex}
+                {item.role === "start" ? "出" : item.role === "finish" ? "帰" : item.label === "昼食" ? "昼" : stopIndex}
               </span>
               <article className="timeline-spot-card">
                 <small>{item.label ?? roleLabel(item.role, stopIndex)}</small>
@@ -417,6 +442,9 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
                   <span className="timeline-category">{item.category}</span>
                 )}
                 {item.detail && <span className="timeline-category">{item.detail}</span>}
+                {item.departure_time && (
+                  <span className="timeline-stay">出発目安 {item.departure_time}</span>
+                )}
                 {item.stay_minutes > 0 && (
                   <span className="timeline-stay">滞在目安 {formatDuration(item.stay_minutes)}</span>
                 )}

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:37.148935+00:00",
+  "generated_at": "2026-10-12T06:25:54.424295+00:00",
   "area": "kanagawa",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "神奈川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 333,
+      "estimated_minutes": 400,
       "legs": [
         {
           "from": "横浜駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "早川城址",
-          "to": "大和天満宮",
-          "distance_km": 5.37,
+          "to": "や台ずし",
+          "distance_km": 5.38,
           "mode": "public_transport",
           "minutes": 25
+        },
+        {
+          "from": "や台ずし",
+          "to": "大和天満宮",
+          "distance_km": 0.33,
+          "mode": "walk",
+          "minutes": 7
         },
         {
           "from": "大和天満宮",
@@ -145,10 +152,10 @@
         "to_first_km": 19.8,
         "from_last_km": 14.3
       },
-      "total_score": 46.7,
+      "total_score": 42.5,
       "center": [
-        35.458996,
-        139.429488
+        35.462036,
+        139.437778
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-11309248512",
+          "name": "や台ずし",
+          "category": "飲食店",
+          "lat": 35.4711585,
+          "lng": 139.4626463,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「大和天満宮」から徒歩目安約5分です。"
+        },
+        {
           "place_id": "osm-node-1090131236",
           "name": "大和天満宮",
           "category": "観光名所",
@@ -190,6 +208,10 @@
         [
           35.4379692,
           139.4194898
+        ],
+        [
+          35.4711585,
+          139.4626463
         ],
         [
           35.4689078,
@@ -299,7 +321,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "神奈川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 314,
+      "estimated_minutes": 332,
       "legs": [
         {
           "from": "横浜駅",
@@ -310,24 +332,10 @@
         },
         {
           "from": "ブリキのおもちゃ博物館",
-          "to": "横浜三渓園",
-          "distance_km": 2.35,
-          "mode": "public_transport",
-          "minutes": 11
-        },
-        {
-          "from": "横浜三渓園",
-          "to": "不二家レストラン 横浜センター店",
-          "distance_km": 3.84,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "不二家レストラン 横浜センター店",
           "to": "日本郵船歴史博物館",
-          "distance_km": 0.91,
+          "distance_km": 1.88,
           "mode": "public_transport",
-          "minutes": 5
+          "minutes": 9
         },
         {
           "from": "日本郵船歴史博物館",
@@ -338,10 +346,24 @@
         },
         {
           "from": "横浜みなと博物館",
-          "to": "横浜駅",
-          "distance_km": 1.73,
+          "to": "アンダーブラフコーヒー",
+          "distance_km": 2.85,
           "mode": "public_transport",
-          "minutes": 8
+          "minutes": 13
+        },
+        {
+          "from": "アンダーブラフコーヒー",
+          "to": "横浜三渓園",
+          "distance_km": 1.81,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "横浜三渓園",
+          "to": "横浜駅",
+          "distance_km": 6.35,
+          "mode": "public_transport",
+          "minutes": 29
         }
       ],
       "start": {
@@ -349,12 +371,12 @@
         "lat": 35.4658,
         "lng": 139.6224,
         "to_first_km": 4.2,
-        "from_last_km": 1.7
+        "from_last_km": 6.3
       },
-      "total_score": 50.0,
+      "total_score": 46.0,
       "center": [
-        35.440406,
-        139.643331
+        35.43799,
+        139.647067
       ],
       "spots": [
         {
@@ -366,26 +388,6 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1420813557",
-          "name": "横浜三渓園",
-          "category": "博物館",
-          "lat": 35.417037,
-          "lng": 139.658776,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11062734959",
-          "name": "不二家レストラン 横浜センター店",
-          "category": "飲食店",
-          "lat": 35.4442809,
-          "lng": 139.632768,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-1420822813",
@@ -406,6 +408,27 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10570515609",
+          "name": "アンダーブラフコーヒー",
+          "category": "飲食店",
+          "lat": 35.4322005,
+          "lng": 139.651447,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「横浜三渓園」から徒歩目安約23分です。"
+        },
+        {
+          "place_id": "osm-node-1420813557",
+          "name": "横浜三渓園",
+          "category": "博物館",
+          "lat": 35.417037,
+          "lng": 139.658776,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
         }
       ],
       "coordinates": [
@@ -414,20 +437,20 @@
           139.653063
         ],
         [
-          35.417037,
-          139.658776
-        ],
-        [
-          35.4442809,
-          139.632768
-        ],
-        [
           35.450362,
           139.639421
         ],
         [
           35.452709,
           139.632629
+        ],
+        [
+          35.4322005,
+          139.651447
+        ],
+        [
+          35.417037,
+          139.658776
         ]
       ]
     },
@@ -437,7 +460,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "神奈川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 331,
+      "estimated_minutes": 318,
       "legs": [
         {
           "from": "横浜駅",
@@ -448,38 +471,38 @@
         },
         {
           "from": "横浜ユーラシア文化館",
-          "to": "横浜市八聖殿郷土資料館",
-          "distance_km": 3.98,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "横浜市八聖殿郷土資料館",
-          "to": "不二家レストラン 横浜センター店",
-          "distance_km": 4.36,
-          "mode": "public_transport",
-          "minutes": 20
-        },
-        {
-          "from": "不二家レストラン 横浜センター店",
           "to": "横浜都市発展記念館",
-          "distance_km": 0.99,
-          "mode": "public_transport",
-          "minutes": 5
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
         },
         {
           "from": "横浜都市発展記念館",
-          "to": "馬の博物館",
-          "distance_km": 2.64,
+          "to": "三菱みなとみらい技術館",
+          "distance_km": 1.61,
           "mode": "public_transport",
-          "minutes": 12
+          "minutes": 8
         },
         {
-          "from": "馬の博物館",
-          "to": "横浜駅",
-          "distance_km": 5.06,
+          "from": "三菱みなとみらい技術館",
+          "to": "昼食: 要検討",
+          "distance_km": 5.51,
           "mode": "public_transport",
-          "minutes": 23
+          "minutes": 25
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "横浜市八聖殿郷土資料館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
+        },
+        {
+          "from": "横浜市八聖殿郷土資料館",
+          "to": "横浜駅",
+          "distance_km": 6.82,
+          "mode": "public_transport",
+          "minutes": 31
         }
       ],
       "start": {
@@ -487,12 +510,12 @@
         "lat": 35.4658,
         "lng": 139.6224,
         "to_first_km": 2.9,
-        "from_last_km": 5.1
+        "from_last_km": 6.8
       },
-      "total_score": 50.0,
+      "total_score": 40.0,
       "center": [
-        35.434848,
-        139.644808
+        35.435644,
+        139.649284
       ],
       "spots": [
         {
@@ -506,26 +529,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420824058",
-          "name": "横浜市八聖殿郷土資料館",
-          "category": "博物館",
-          "lat": 35.415075,
-          "lng": 139.664813,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11062734959",
-          "name": "不二家レストラン 横浜センター店",
-          "category": "飲食店",
-          "lat": 35.4442809,
-          "lng": 139.632768,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
           "place_id": "osm-node-1420825726",
           "name": "横浜都市発展記念館",
           "category": "博物館",
@@ -536,11 +539,32 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420834306",
-          "name": "馬の博物館",
+          "place_id": "osm-node-863002235",
+          "name": "三菱みなとみらい技術館",
           "category": "博物館",
-          "lat": 35.4225483,
-          "lng": 139.6397486,
+          "lat": 35.4557307,
+          "lng": 139.6300831,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "lunch-undetermined-kanagawa-5",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 35.415075,
+          "lng": 139.664813,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
+          "place_id": "osm-node-1420824058",
+          "name": "横浜市八聖殿郷土資料館",
+          "category": "博物館",
+          "lat": 35.415075,
+          "lng": 139.664813,
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
@@ -552,20 +576,20 @@
           139.6432801
         ],
         [
-          35.415075,
-          139.664813
-        ],
-        [
-          35.4442809,
-          139.632768
-        ],
-        [
           35.4461073,
           139.6434318
         ],
         [
-          35.4225483,
-          139.6397486
+          35.4557307,
+          139.6300831
+        ],
+        [
+          35.415075,
+          139.664813
+        ],
+        [
+          35.415075,
+          139.664813
         ]
       ]
     }

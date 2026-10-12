@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:25.748156+00:00",
+  "generated_at": "2026-10-12T06:25:42.679078+00:00",
   "area": "aomori",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "青森県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 363,
+      "estimated_minutes": 424,
       "legs": [
         {
           "from": "青森駅",
@@ -29,10 +29,17 @@
         },
         {
           "from": "津軽こけし館",
-          "to": "弘前昇天教会",
-          "distance_km": 17.18,
+          "to": "喫茶 人魚姫",
+          "distance_km": 17.2,
           "mode": "car",
           "minutes": 39
+        },
+        {
+          "from": "喫茶 人魚姫",
+          "to": "弘前昇天教会",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
         },
         {
           "from": "弘前昇天教会",
@@ -49,10 +56,10 @@
         "to_first_km": 32.9,
         "from_last_km": 33.7
       },
-      "total_score": 46.7,
+      "total_score": 42.5,
       "center": [
-        40.605649,
-        140.539806
+        40.604104,
+        140.523085
       ],
       "spots": [
         {
@@ -76,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-1512752160",
+          "name": "喫茶 人魚姫",
+          "category": "飲食店",
+          "lat": 40.5994687,
+          "lng": 140.4729223,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「弘前昇天教会」から徒歩目安約1分です。"
+        },
+        {
           "place_id": "osm-node-1512752163",
           "name": "弘前昇天教会",
           "category": "観光名所",
@@ -94,6 +112,10 @@
         [
           40.606429,
           140.6764977
+        ],
+        [
+          40.5994687,
+          140.4729223
         ],
         [
           40.5993763,
@@ -203,7 +225,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "青森県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 406,
+      "estimated_minutes": 467,
       "legs": [
         {
           "from": "青森駅",
@@ -221,10 +243,17 @@
         },
         {
           "from": "青函トンネル記念館",
-          "to": "龍飛埼灯台",
-          "distance_km": 0.62,
+          "to": "お食事処たっぴ",
+          "distance_km": 0.46,
           "mode": "walk",
-          "minutes": 12
+          "minutes": 9
+        },
+        {
+          "from": "お食事処たっぴ",
+          "to": "龍飛埼灯台",
+          "distance_km": 0.18,
+          "mode": "walk",
+          "minutes": 4
         },
         {
           "from": "龍飛埼灯台",
@@ -241,10 +270,10 @@
         "to_first_km": 57.4,
         "from_last_km": 58.0
       },
-      "total_score": 46.7,
+      "total_score": 42.5,
       "center": [
-        41.255525,
-        140.345194
+        41.25605,
+        140.344951
       ],
       "spots": [
         {
@@ -268,6 +297,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-3013666933",
+          "name": "お食事処たっぴ",
+          "category": "飲食店",
+          "lat": 41.2576253,
+          "lng": 140.3442202,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「龍飛埼灯台」から徒歩目安約3分です。"
+        },
+        {
           "place_id": "osm-node-3906862678",
           "name": "龍飛埼灯台",
           "category": "観光名所",
@@ -288,6 +328,10 @@
           140.3466908
         ],
         [
+          41.2576253,
+          140.3442202
+        ],
+        [
           41.2584925,
           140.3424107
         ]
@@ -299,7 +343,7 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "青森県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 288,
+      "estimated_minutes": 282,
       "legs": [
         {
           "from": "青森駅",
@@ -317,30 +361,30 @@
         },
         {
           "from": "青森県立郷土館 (Aomori Prefectural Museum)",
-          "to": "とんこつらーめん 虎の家",
-          "distance_km": 0.61,
+          "to": "廣田神社",
+          "distance_km": 0.74,
           "mode": "walk",
-          "minutes": 12
+          "minutes": 14
         },
         {
-          "from": "とんこつらーめん 虎の家",
+          "from": "廣田神社",
           "to": "みちのく北方漁船博物館",
-          "distance_km": 2.59,
+          "distance_km": 2.2,
           "mode": "car",
-          "minutes": 6
+          "minutes": 5
         },
         {
           "from": "みちのく北方漁船博物館",
-          "to": "青森県立美術館",
-          "distance_km": 3.91,
+          "to": "炭焼店ひろた",
+          "distance_km": 0.87,
           "mode": "car",
-          "minutes": 9
+          "minutes": 2
         },
         {
-          "from": "青森県立美術館",
+          "from": "炭焼店ひろた",
           "to": "青森駅",
-          "distance_km": 3.65,
-          "mode": "car",
+          "distance_km": 0.46,
+          "mode": "walk",
           "minutes": 9
         }
       ],
@@ -349,12 +393,12 @@
         "lat": 40.82887,
         "lng": 140.73357,
         "to_first_km": 0.8,
-        "from_last_km": 3.6
+        "from_last_km": 0.5
       },
       "total_score": 38.0,
       "center": [
-        40.824053,
-        140.733158
+        40.828694,
+        140.737503
       ],
       "spots": [
         {
@@ -378,14 +422,14 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-10000200180",
-          "name": "とんこつらーめん 虎の家",
-          "category": "飲食店",
-          "lat": 40.8217622,
-          "lng": 140.7482761,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
+          "place_id": "osm-node-5651283773",
+          "name": "廣田神社",
+          "category": "観光名所",
+          "lat": 40.8224856,
+          "lng": 140.7426408,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
         },
         {
           "place_id": "osm-node-2350408300",
@@ -398,14 +442,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-318411516",
-          "name": "青森県立美術館",
-          "category": "博物館",
-          "lat": 40.8072917,
-          "lng": 140.7008863,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "place_id": "osm-node-6154938795",
+          "name": "炭焼店ひろた",
+          "category": "飲食店",
+          "lat": 40.8297745,
+          "lng": 140.7282446,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「みちのく北方漁船博物館」から徒歩目安約11分です。"
         }
       ],
       "coordinates": [
@@ -418,16 +463,16 @@
           140.748663
         ],
         [
-          40.8217622,
-          140.7482761
+          40.8224856,
+          140.7426408
         ],
         [
           40.8372734,
           140.7252379
         ],
         [
-          40.8072917,
-          140.7008863
+          40.8297745,
+          140.7282446
         ]
       ]
     },
@@ -436,75 +481,65 @@
       "area": "aomori",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "青森県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 318,
+      "title": "青森県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 290,
       "legs": [
         {
           "from": "青森駅",
-          "to": "廣田神社",
-          "distance_km": 1.04,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "廣田神社",
           "to": "蓮華寺",
-          "distance_km": 0.59,
-          "mode": "walk",
-          "minutes": 12
+          "distance_km": 1.43,
+          "mode": "car",
+          "minutes": 4
         },
         {
           "from": "蓮華寺",
-          "to": "とんこつらーめん 虎の家",
-          "distance_km": 0.27,
-          "mode": "walk",
-          "minutes": 6
-        },
-        {
-          "from": "とんこつらーめん 虎の家",
           "to": "開通記念碑",
-          "distance_km": 0.82,
-          "mode": "car",
-          "minutes": 2
+          "distance_km": 0.76,
+          "mode": "walk",
+          "minutes": 15
         },
         {
           "from": "開通記念碑",
-          "to": "夢宅寺",
-          "distance_km": 11.47,
-          "mode": "car",
-          "minutes": 26
+          "to": "松原市民館建設記念碑",
+          "distance_km": 0.08,
+          "mode": "walk",
+          "minutes": 2
         },
         {
-          "from": "夢宅寺",
-          "to": "青森駅",
-          "distance_km": 12.74,
+          "from": "松原市民館建設記念碑",
+          "to": "青森県立美術館",
+          "distance_km": 5.14,
           "mode": "car",
-          "minutes": 29
+          "minutes": 12
+        },
+        {
+          "from": "青森県立美術館",
+          "to": "五千年の星",
+          "distance_km": 0.4,
+          "mode": "walk",
+          "minutes": 8
+        },
+        {
+          "from": "五千年の星",
+          "to": "青森駅",
+          "distance_km": 3.83,
+          "mode": "car",
+          "minutes": 9
         }
       ],
       "start": {
         "name": "青森駅",
         "lat": 40.82887,
         "lng": 140.73357,
-        "to_first_km": 1.0,
-        "from_last_km": 12.7
+        "to_first_km": 1.4,
+        "from_last_km": 3.8
       },
-      "total_score": 36.0,
+      "total_score": 34.0,
       "center": [
-        40.835468,
-        140.772505
+        40.816814,
+        140.732769
       ],
       "spots": [
-        {
-          "place_id": "osm-node-5651283773",
-          "name": "廣田神社",
-          "category": "観光名所",
-          "lat": 40.8224856,
-          "lng": 140.7426408,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-5651344764",
           "name": "蓮華寺",
@@ -514,16 +549,6 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-10000200180",
-          "name": "とんこつらーめん 虎の家",
-          "category": "飲食店",
-          "lat": 40.8217622,
-          "lng": 140.7482761,
-          "stay_minutes": 60,
-          "score": 30.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-10255133244",
@@ -536,36 +561,57 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-7168788723",
-          "name": "夢宅寺",
-          "category": "観光名所",
-          "lat": 40.8868969,
-          "lng": 140.8641766,
+          "place_id": "osm-node-11005381277",
+          "name": "松原市民館建設記念碑",
+          "category": "史跡",
+          "lat": 40.8217703,
+          "lng": 140.7588981,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-318411516",
+          "name": "青森県立美術館",
+          "category": "博物館",
+          "lat": 40.8072917,
+          "lng": 140.7008863,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12997708577",
+          "name": "五千年の星",
+          "category": "飲食店",
+          "lat": 40.8088132,
+          "lng": 140.6966281,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「青森県立美術館」から徒歩目安約5分です。"
         }
       ],
       "coordinates": [
         [
-          40.8224856,
-          140.7426408
-        ],
-        [
           40.8240813,
           140.7493736
-        ],
-        [
-          40.8217622,
-          140.7482761
         ],
         [
           40.8221143,
           140.7580572
         ],
         [
-          40.8868969,
-          140.8641766
+          40.8217703,
+          140.7588981
+        ],
+        [
+          40.8072917,
+          140.7008863
+        ],
+        [
+          40.8088132,
+          140.6966281
         ]
       ]
     }

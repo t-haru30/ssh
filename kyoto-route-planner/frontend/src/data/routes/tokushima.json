@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:55.120939+00:00",
+  "generated_at": "2026-10-12T06:26:14.133457+00:00",
   "area": "tokushima",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "徳島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 384,
+      "estimated_minutes": 444,
       "legs": [
         {
           "from": "徳島駅",
@@ -29,10 +29,17 @@
         },
         {
           "from": "大里松原海岸",
-          "to": "海蔵寺",
+          "to": "昼食: 要検討",
           "distance_km": 8.68,
           "mode": "car",
           "minutes": 20
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "海蔵寺",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "海蔵寺",
@@ -49,10 +56,10 @@
         "to_first_km": 46.5,
         "from_last_km": 46.7
       },
-      "total_score": 43.3,
+      "total_score": 32.5,
       "center": [
-        33.647958,
-        134.405301
+        33.652916,
+        134.410244
       ],
       "spots": [
         {
@@ -76,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "lunch-undetermined-tokushima-1",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 33.6677893,
+          "lng": 134.4250725,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
           "place_id": "osm-node-11860265455",
           "name": "海蔵寺",
           "category": "観光名所",
@@ -94,6 +112,10 @@
         [
           33.6067921,
           134.3664783
+        ],
+        [
+          33.6677893,
+          134.4250725
         ],
         [
           33.6677893,
@@ -298,42 +320,42 @@
       "area": "tokushima",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "徳島県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 391,
+      "title": "徳島県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 381,
       "legs": [
         {
           "from": "徳島駅",
-          "to": "千福寺",
-          "distance_km": 22.0,
+          "to": "福井住吉神社海嘯潮痕標石",
+          "distance_km": 26.65,
           "mode": "car",
-          "minutes": 50
+          "minutes": 60
         },
         {
-          "from": "千福寺",
-          "to": "第22番札所 平等寺",
-          "distance_km": 10.04,
+          "from": "福井住吉神社海嘯潮痕標石",
+          "to": "大原地神上棟式記念碑",
+          "distance_km": 1.3,
           "mode": "car",
-          "minutes": 23
+          "minutes": 3
         },
         {
-          "from": "第22番札所 平等寺",
-          "to": "大菩薩峠",
-          "distance_km": 4.01,
+          "from": "大原地神上棟式記念碑",
+          "to": "鵠和光神社石碑",
+          "distance_km": 1.63,
           "mode": "car",
-          "minutes": 9
+          "minutes": 4
         },
         {
-          "from": "大菩薩峠",
-          "to": "津峯神社",
-          "distance_km": 5.14,
+          "from": "鵠和光神社石碑",
+          "to": "マクドナルド",
+          "distance_km": 7.47,
           "mode": "car",
-          "minutes": 12
+          "minutes": 17
         },
         {
-          "from": "津峯神社",
+          "from": "マクドナルド",
           "to": "皇子神社",
-          "distance_km": 4.18,
-          "mode": "car",
+          "distance_km": 0.53,
+          "mode": "walk",
           "minutes": 10
         },
         {
@@ -348,54 +370,55 @@
         "name": "徳島駅",
         "lat": 34.0742,
         "lng": 134.5517,
-        "to_first_km": 22.0,
+        "to_first_km": 26.6,
         "from_last_km": 20.9
       },
-      "total_score": 42.0,
+      "total_score": 32.0,
       "center": [
-        33.883903,
-        134.640471
+        33.878083,
+        134.648966
       ],
       "spots": [
         {
-          "place_id": "osm-node-12012595665",
-          "name": "千福寺",
-          "category": "観光名所",
-          "lat": 33.9032923,
-          "lng": 134.6719581,
+          "place_id": "osm-node-8463026997",
+          "name": "福井住吉神社海嘯潮痕標石",
+          "category": "史跡",
+          "lat": 33.845755,
+          "lng": 134.638999,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-294063123",
-          "name": "第22番札所 平等寺",
-          "category": "観光名所",
-          "lat": 33.8521418,
-          "lng": 134.5823363,
+          "place_id": "osm-node-8463026998",
+          "name": "大原地神上棟式記念碑",
+          "category": "史跡",
+          "lat": 33.847086,
+          "lng": 134.624965,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3783232849",
-          "name": "大菩薩峠",
+          "place_id": "osm-node-8463026999",
+          "name": "鵠和光神社石碑",
+          "category": "史跡",
+          "lat": 33.861353,
+          "lng": 134.629145,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3783232848",
+          "name": "マクドナルド",
           "category": "飲食店",
-          "lat": 33.8509109,
-          "lng": 134.6257341,
+          "lat": 33.9177806,
+          "lng": 134.6730036,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4503370182",
-          "name": "津峯神社",
-          "category": "観光名所",
-          "lat": 33.8947325,
-          "lng": 134.6436111,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「皇子神社」から徒歩目安約7分です。"
         },
         {
           "place_id": "osm-node-12012592617",
@@ -410,20 +433,20 @@
       ],
       "coordinates": [
         [
-          33.9032923,
-          134.6719581
+          33.845755,
+          134.638999
         ],
         [
-          33.8521418,
-          134.5823363
+          33.847086,
+          134.624965
         ],
         [
-          33.8509109,
-          134.6257341
+          33.861353,
+          134.629145
         ],
         [
-          33.8947325,
-          134.6436111
+          33.9177806,
+          134.6730036
         ],
         [
           33.9184381,
@@ -436,136 +459,137 @@
       "area": "tokushima",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "徳島県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 427,
+      "title": "徳島県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 305,
       "legs": [
         {
           "from": "徳島駅",
-          "to": "潮吹休憩所",
-          "distance_km": 32.83,
+          "to": "剣山神社",
+          "distance_km": 1.46,
           "mode": "car",
-          "minutes": 74
+          "minutes": 4
         },
         {
-          "from": "潮吹休憩所",
-          "to": "たちばな観音",
-          "distance_km": 10.64,
-          "mode": "car",
-          "minutes": 24
+          "from": "剣山神社",
+          "to": "滝薬師",
+          "distance_km": 0.66,
+          "mode": "walk",
+          "minutes": 13
         },
         {
-          "from": "たちばな観音",
-          "to": "大菩薩峠",
-          "distance_km": 3.18,
+          "from": "滝薬師",
+          "to": "本福寺",
+          "distance_km": 2.45,
           "mode": "car",
-          "minutes": 8
+          "minutes": 6
         },
         {
-          "from": "大菩薩峠",
-          "to": "橘湾展望地",
-          "distance_km": 3.19,
+          "from": "本福寺",
+          "to": "弁慶の岩屋",
+          "distance_km": 8.92,
           "mode": "car",
-          "minutes": 8
+          "minutes": 20
         },
         {
-          "from": "橘湾展望地",
-          "to": "第21番札所 太龍寺",
-          "distance_km": 10.83,
+          "from": "弁慶の岩屋",
+          "to": "餃子の王将",
+          "distance_km": 1.27,
           "mode": "car",
-          "minutes": 25
+          "minutes": 3
         },
         {
-          "from": "第21番札所 太龍寺",
+          "from": "餃子の王将",
           "to": "徳島駅",
-          "distance_km": 21.49,
+          "distance_km": 8.34,
           "mode": "car",
-          "minutes": 48
+          "minutes": 19
         }
       ],
       "start": {
         "name": "徳島駅",
         "lat": 34.0742,
         "lng": 134.5517,
-        "to_first_km": 32.8,
-        "from_last_km": 21.5
+        "to_first_km": 1.5,
+        "from_last_km": 8.3
       },
-      "total_score": 36.0,
+      "total_score": 38.0,
       "center": [
-        33.854379,
-        134.608096
+        34.040922,
+        134.560891
       ],
       "spots": [
         {
-          "place_id": "osm-node-11774835569",
-          "name": "潮吹休憩所",
-          "category": "展望地",
-          "lat": 33.7837206,
-          "lng": 134.6150951,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-388198935",
-          "name": "たちばな観音",
-          "category": "史跡",
-          "lat": 33.8773335,
-          "lng": 134.638889,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3783232849",
-          "name": "大菩薩峠",
-          "category": "飲食店",
-          "lat": 33.8509109,
-          "lng": 134.6257341,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-388198936",
-          "name": "橘湾展望地",
-          "category": "展望地",
-          "lat": 33.8774221,
-          "lng": 134.6389719,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13478796431",
-          "name": "第21番札所 太龍寺",
+          "place_id": "osm-node-2093377335",
+          "name": "剣山神社",
           "category": "観光名所",
-          "lat": 33.8825075,
-          "lng": 134.5217889,
+          "lat": 34.0683542,
+          "lng": 134.5374644,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2093377378",
+          "name": "滝薬師",
+          "category": "観光名所",
+          "lat": 34.0725422,
+          "lng": 134.5425565,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-267493603",
+          "name": "本福寺",
+          "category": "観光名所",
+          "lat": 34.0708086,
+          "lng": 134.5690989,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11075672112",
+          "name": "弁慶の岩屋",
+          "category": "史跡",
+          "lat": 33.9911529,
+          "lng": 134.5802948,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6084573586",
+          "name": "餃子の王将",
+          "category": "飲食店",
+          "lat": 34.0017543,
+          "lng": 134.5750414,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「弁慶の岩屋」から徒歩目安約16分です。"
         }
       ],
       "coordinates": [
         [
-          33.7837206,
-          134.6150951
+          34.0683542,
+          134.5374644
         ],
         [
-          33.8773335,
-          134.638889
+          34.0725422,
+          134.5425565
         ],
         [
-          33.8509109,
-          134.6257341
+          34.0708086,
+          134.5690989
         ],
         [
-          33.8774221,
-          134.6389719
+          33.9911529,
+          134.5802948
         ],
         [
-          33.8825075,
-          134.5217889
+          34.0017543,
+          134.5750414
         ]
       ]
     }

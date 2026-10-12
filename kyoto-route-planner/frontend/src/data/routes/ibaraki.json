@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:30.570997+00:00",
+  "generated_at": "2026-10-12T06:25:47.532910+00:00",
   "area": "ibaraki",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -203,7 +203,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "茨城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 388,
+      "estimated_minutes": 453,
       "legs": [
         {
           "from": "水戸駅",
@@ -221,10 +221,17 @@
         },
         {
           "from": "牛久大仏",
-          "to": "茨城県つくば美術館",
-          "distance_km": 14.95,
+          "to": "スターバックス",
+          "distance_km": 14.82,
           "mode": "car",
           "minutes": 34
+        },
+        {
+          "from": "スターバックス",
+          "to": "茨城県つくば美術館",
+          "distance_km": 0.24,
+          "mode": "walk",
+          "minutes": 5
         },
         {
           "from": "茨城県つくば美術館",
@@ -241,10 +248,10 @@
         "to_first_km": 40.4,
         "from_last_km": 45.6
       },
-      "total_score": 50.0,
+      "total_score": 45.0,
       "center": [
-        36.050808,
-        140.176887
+        36.058795,
+        140.160519
       ],
       "spots": [
         {
@@ -268,6 +275,17 @@
           "role": "stop"
         },
         {
+          "place_id": "osm-node-1947772626",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 36.082757,
+          "lng": 140.1114135,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「茨城県つくば美術館」から徒歩目安約3分です。"
+        },
+        {
           "place_id": "osm-node-5470739382",
           "name": "茨城県つくば美術館",
           "category": "博物館",
@@ -288,6 +306,10 @@
           140.2202483
         ],
         [
+          36.082757,
+          140.1114135
+        ],
+        [
           36.0848074,
           140.1121226
         ]
@@ -298,50 +320,50 @@
       "area": "ibaraki",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "茨城県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 499,
+      "title": "茨城県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 481,
       "legs": [
         {
           "from": "水戸駅",
-          "to": "根本寺",
-          "distance_km": 46.86,
+          "to": "鹿島神宮",
+          "distance_km": 46.85,
           "mode": "car",
           "minutes": 105
         },
         {
+          "from": "鹿島神宮",
+          "to": "鹿島神宮",
+          "distance_km": 0.18,
+          "mode": "walk",
+          "minutes": 4
+        },
+        {
+          "from": "鹿島神宮",
+          "to": "やまびこ",
+          "distance_km": 0.67,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "やまびこ",
+          "to": "剣聖塚原卜傳先生像",
+          "distance_km": 0.86,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "剣聖塚原卜傳先生像",
+          "to": "根本寺",
+          "distance_km": 0.6,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
           "from": "根本寺",
-          "to": "鹿島神宮",
-          "distance_km": 1.1,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "鹿島神宮",
-          "to": "サイゼリヤ",
-          "distance_km": 1.21,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "サイゼリヤ",
-          "to": "鹿島神宮",
-          "distance_km": 1.32,
-          "mode": "car",
-          "minutes": 3
-        },
-        {
-          "from": "鹿島神宮",
-          "to": "息栖神社",
-          "distance_km": 9.18,
-          "mode": "car",
-          "minutes": 21
-        },
-        {
-          "from": "息栖神社",
           "to": "水戸駅",
-          "distance_km": 55.59,
+          "distance_km": 46.86,
           "mode": "car",
-          "minutes": 124
+          "minutes": 105
         }
       ],
       "start": {
@@ -349,24 +371,14 @@
         "lat": 36.3711,
         "lng": 140.4764,
         "to_first_km": 46.9,
-        "from_last_km": 55.6
+        "from_last_km": 46.9
       },
-      "total_score": 38.0,
+      "total_score": 34.0,
       "center": [
-        35.950199,
-        140.629665
+        35.966804,
+        140.627656
       ],
       "spots": [
-        {
-          "place_id": "osm-node-13325551140",
-          "name": "根本寺",
-          "category": "観光名所",
-          "lat": 35.9659,
-          "lng": 140.6198348,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-2090595610",
           "name": "鹿島神宮",
@@ -376,16 +388,6 @@
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1962590577",
-          "name": "サイゼリヤ",
-          "category": "飲食店",
-          "lat": 35.9622318,
-          "lng": 140.6422578,
-          "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-11865592062",
@@ -398,132 +400,15 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3241897688",
-          "name": "息栖神社",
-          "category": "観光名所",
-          "lat": 35.8858155,
-          "lng": 140.6251097,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          35.9659,
-          140.6198348
-        ],
-        [
-          35.9687708,
-          140.6315435
-        ],
-        [
-          35.9622318,
-          140.6422578
-        ],
-        [
-          35.9682766,
-          140.6295812
-        ],
-        [
-          35.8858155,
-          140.6251097
-        ]
-      ]
-    },
-    {
-      "id": "osm-ibaraki-05",
-      "area": "ibaraki",
-      "pattern": "full_day",
-      "course": "full_day",
-      "title": "茨城県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 490,
-      "legs": [
-        {
-          "from": "水戸駅",
-          "to": "坂戸神社",
-          "distance_km": 44.78,
-          "mode": "car",
-          "minutes": 100
-        },
-        {
-          "from": "坂戸神社",
-          "to": "神栖民俗資料館",
-          "distance_km": 10.02,
-          "mode": "car",
-          "minutes": 23
-        },
-        {
-          "from": "神栖民俗資料館",
-          "to": "サイゼリヤ",
-          "distance_km": 7.26,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "サイゼリヤ",
-          "to": "剣聖塚原卜傳先生像",
-          "distance_km": 1.65,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "剣聖塚原卜傳先生像",
-          "to": "郷土資料館",
-          "distance_km": 7.29,
-          "mode": "car",
-          "minutes": 17
-        },
-        {
-          "from": "郷土資料館",
-          "to": "水戸駅",
-          "distance_km": 39.82,
-          "mode": "car",
-          "minutes": 89
-        }
-      ],
-      "start": {
-        "name": "水戸駅",
-        "lat": 36.3711,
-        "lng": 140.4764,
-        "to_first_km": 44.8,
-        "from_last_km": 39.8
-      },
-      "total_score": 32.0,
-      "center": [
-        35.969777,
-        140.63135
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-13325551142",
-          "name": "坂戸神社",
-          "category": "観光名所",
-          "lat": 35.9868455,
-          "lng": 140.6256658,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-2706600960",
-          "name": "神栖民俗資料館",
-          "category": "博物館",
-          "lat": 35.8971261,
-          "lng": 140.6364894,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1962590577",
-          "name": "サイゼリヤ",
+          "place_id": "osm-node-13325515082",
+          "name": "やまびこ",
           "category": "飲食店",
-          "lat": 35.9622318,
-          "lng": 140.6422578,
+          "lat": 35.9625202,
+          "lng": 140.631668,
           "stay_minutes": 60,
-          "score": 40.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「剣聖塚原卜傳先生像」から徒歩目安約11分です。"
         },
         {
           "place_id": "osm-node-4353347387",
@@ -536,36 +421,175 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-13516137591",
-          "name": "郷土資料館",
-          "category": "博物館",
-          "lat": 36.0341276,
-          "lng": 140.6266864,
+          "place_id": "osm-node-13325551140",
+          "name": "根本寺",
+          "category": "観光名所",
+          "lat": 35.9659,
+          "lng": 140.6198348,
           "stay_minutes": 45,
-          "score": 30.0,
+          "score": 40.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          35.9868455,
-          140.6256658
+          35.9687708,
+          140.6315435
         ],
         [
-          35.8971261,
-          140.6364894
+          35.9682766,
+          140.6295812
         ],
         [
-          35.9622318,
-          140.6422578
+          35.9625202,
+          140.631668
         ],
         [
           35.9685525,
           140.6256522
         ],
         [
-          36.0341276,
-          140.6266864
+          35.9659,
+          140.6198348
+        ]
+      ]
+    },
+    {
+      "id": "osm-ibaraki-05",
+      "area": "ibaraki",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "茨城県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 462,
+      "legs": [
+        {
+          "from": "水戸駅",
+          "to": "海の幸",
+          "distance_km": 45.19,
+          "mode": "car",
+          "minutes": 101
+        },
+        {
+          "from": "海の幸",
+          "to": "八竜神社",
+          "distance_km": 2.49,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "八竜神社",
+          "to": "フライングガーデン",
+          "distance_km": 1.41,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "フライングガーデン",
+          "to": "稲荷神社",
+          "distance_km": 1.58,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "稲荷神社",
+          "to": "新治郡衙跡",
+          "distance_km": 8.58,
+          "mode": "car",
+          "minutes": 20
+        },
+        {
+          "from": "新治郡衙跡",
+          "to": "水戸駅",
+          "distance_km": 38.8,
+          "mode": "car",
+          "minutes": 87
+        }
+      ],
+      "start": {
+        "name": "水戸駅",
+        "lat": 36.3711,
+        "lng": 140.4764,
+        "to_first_km": 45.2,
+        "from_last_km": 38.8
+      },
+      "total_score": 32.0,
+      "center": [
+        36.320103,
+        139.979934
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-12303530568",
+          "name": "海の幸",
+          "category": "史跡",
+          "lat": 36.3049395,
+          "lng": 139.9785921,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12669559031",
+          "name": "八竜神社",
+          "category": "観光名所",
+          "lat": 36.3225071,
+          "lng": 139.9613528,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10044094918",
+          "name": "フライングガーデン",
+          "category": "飲食店",
+          "lat": 36.3099091,
+          "lng": 139.9628255,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「稲荷神社」から徒歩目安約20分です。"
+        },
+        {
+          "place_id": "osm-node-12669559036",
+          "name": "稲荷神社",
+          "category": "観光名所",
+          "lat": 36.3212804,
+          "lng": 139.9522702,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2210761162",
+          "name": "新治郡衙跡",
+          "category": "史跡",
+          "lat": 36.3418793,
+          "lng": 140.0446314,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          36.3049395,
+          139.9785921
+        ],
+        [
+          36.3225071,
+          139.9613528
+        ],
+        [
+          36.3099091,
+          139.9628255
+        ],
+        [
+          36.3212804,
+          139.9522702
+        ],
+        [
+          36.3418793,
+          140.0446314
         ]
       ]
     }

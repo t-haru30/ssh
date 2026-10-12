@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:50.848377+00:00",
+  "generated_at": "2026-10-12T06:26:09.275644+00:00",
   "area": "nara",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -299,74 +299,64 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "奈良県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 376,
+      "estimated_minutes": 361,
       "legs": [
         {
           "from": "奈良駅",
-          "to": "生駒ふるさとミュージアム",
-          "distance_km": 10.53,
+          "to": "東洋民俗博物館",
+          "distance_km": 6.03,
           "mode": "public_transport",
-          "minutes": 48
+          "minutes": 28
         },
         {
-          "from": "生駒ふるさとミュージアム",
-          "to": "東洋民俗博物館",
-          "distance_km": 4.9,
+          "from": "東洋民俗博物館",
+          "to": "添御県坐 神社",
+          "distance_km": 2.09,
+          "mode": "public_transport",
+          "minutes": 10
+        },
+        {
+          "from": "添御県坐 神社",
+          "to": "菖蒲池神社",
+          "distance_km": 1.93,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "菖蒲池神社",
+          "to": "オランダ屋",
+          "distance_km": 5.06,
           "mode": "public_transport",
           "minutes": 23
         },
         {
-          "from": "東洋民俗博物館",
-          "to": "百楽荘",
-          "distance_km": 1.69,
-          "mode": "public_transport",
-          "minutes": 8
-        },
-        {
-          "from": "百楽荘",
-          "to": "霊山寺",
-          "distance_km": 2.46,
-          "mode": "public_transport",
-          "minutes": 12
-        },
-        {
-          "from": "霊山寺",
-          "to": "念仏寺",
-          "distance_km": 7.48,
-          "mode": "public_transport",
-          "minutes": 34
-        },
-        {
-          "from": "念仏寺",
-          "to": "奈良駅",
-          "distance_km": 0.57,
+          "from": "オランダ屋",
+          "to": "生駒ふるさとミュージアム",
+          "distance_km": 0.12,
           "mode": "walk",
-          "minutes": 11
+          "minutes": 3
+        },
+        {
+          "from": "生駒ふるさとミュージアム",
+          "to": "奈良駅",
+          "distance_km": 10.53,
+          "mode": "public_transport",
+          "minutes": 48
         }
       ],
       "start": {
         "name": "奈良駅",
         "lat": 34.6815,
         "lng": 135.819,
-        "to_first_km": 10.5,
-        "from_last_km": 0.6
+        "to_first_km": 6.0,
+        "from_last_km": 10.5
       },
-      "total_score": 44.0,
+      "total_score": 40.0,
       "center": [
-        34.688782,
-        135.753727
+        34.692607,
+        135.732788
       ],
       "spots": [
-        {
-          "place_id": "osm-node-2863583647",
-          "name": "生駒ふるさとミュージアム",
-          "category": "博物館",
-          "lat": 34.6906016,
-          "lng": 135.7043733,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-1423069493",
           "name": "東洋民俗博物館",
@@ -378,124 +368,6 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1495040828",
-          "name": "百楽荘",
-          "category": "飲食店",
-          "lat": 34.6958527,
-          "lng": 135.7389692,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-1460596999",
-          "name": "霊山寺",
-          "category": "観光名所",
-          "lat": 34.6741025,
-          "lng": 135.7437426,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-11018982619",
-          "name": "念仏寺",
-          "category": "観光名所",
-          "lat": 34.6836169,
-          "lng": 135.824707,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          34.6906016,
-          135.7043733
-        ],
-        [
-          34.699735,
-          135.756845
-        ],
-        [
-          34.6958527,
-          135.7389692
-        ],
-        [
-          34.6741025,
-          135.7437426
-        ],
-        [
-          34.6836169,
-          135.824707
-        ]
-      ]
-    },
-    {
-      "id": "osm-nara-05",
-      "area": "nara",
-      "pattern": "full_day",
-      "course": "full_day",
-      "title": "奈良県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 396,
-      "legs": [
-        {
-          "from": "奈良駅",
-          "to": "添御県坐 神社",
-          "distance_km": 7.3,
-          "mode": "public_transport",
-          "minutes": 33
-        },
-        {
-          "from": "添御県坐 神社",
-          "to": "登弥神社",
-          "distance_km": 3.82,
-          "mode": "public_transport",
-          "minutes": 18
-        },
-        {
-          "from": "登弥神社",
-          "to": "百楽荘",
-          "distance_km": 4.6,
-          "mode": "public_transport",
-          "minutes": 21
-        },
-        {
-          "from": "百楽荘",
-          "to": "長弓寺",
-          "distance_km": 2.74,
-          "mode": "public_transport",
-          "minutes": 13
-        },
-        {
-          "from": "長弓寺",
-          "to": "往馬大社",
-          "distance_km": 4.97,
-          "mode": "public_transport",
-          "minutes": 23
-        },
-        {
-          "from": "往馬大社",
-          "to": "奈良駅",
-          "distance_km": 10.54,
-          "mode": "public_transport",
-          "minutes": 48
-        }
-      ],
-      "start": {
-        "name": "奈良駅",
-        "lat": 34.6815,
-        "lng": 135.819,
-        "to_first_km": 7.3,
-        "from_last_km": 10.5
-      },
-      "total_score": 42.0,
-      "center": [
-        34.688251,
-        135.735093
-      ],
-      "spots": [
-        {
           "place_id": "osm-node-1497275221",
           "name": "添御県坐 神社",
           "category": "観光名所",
@@ -506,41 +378,171 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1499667448",
-          "name": "登弥神社",
+          "place_id": "osm-node-2059302538",
+          "name": "菖蒲池神社",
           "category": "観光名所",
-          "lat": 34.6609833,
-          "lng": 135.7659638,
+          "lat": 34.6935676,
+          "lng": 135.7592927,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1495040828",
-          "name": "百楽荘",
+          "place_id": "osm-node-3743670144",
+          "name": "オランダ屋",
           "category": "飲食店",
-          "lat": 34.6958527,
-          "lng": 135.7389692,
+          "lat": 34.6915841,
+          "lng": 135.7039521,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「生駒ふるさとミュージアム」から徒歩目安約2分です。"
         },
         {
-          "place_id": "osm-node-2021222109",
-          "name": "長弓寺",
-          "category": "観光名所",
-          "lat": 34.7185634,
-          "lng": 135.7273021,
+          "place_id": "osm-node-2863583647",
+          "name": "生駒ふるさとミュージアム",
+          "category": "博物館",
+          "lat": 34.6906016,
+          "lng": 135.7043733,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
+          "role": "stop"
+        }
+      ],
+      "coordinates": [
+        [
+          34.699735,
+          135.756845
+        ],
+        [
+          34.6875457,
+          135.7394746
+        ],
+        [
+          34.6935676,
+          135.7592927
+        ],
+        [
+          34.6915841,
+          135.7039521
+        ],
+        [
+          34.6906016,
+          135.7043733
+        ]
+      ]
+    },
+    {
+      "id": "osm-nara-05",
+      "area": "nara",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "奈良県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 449,
+      "legs": [
+        {
+          "from": "奈良駅",
+          "to": "初瀬町道路元標",
+          "distance_km": 18.49,
+          "mode": "public_transport",
+          "minutes": 84
+        },
+        {
+          "from": "初瀬町道路元標",
+          "to": "野見宿禰顕彰碑",
+          "distance_km": 1.72,
+          "mode": "public_transport",
+          "minutes": 8
+        },
+        {
+          "from": "野見宿禰顕彰碑",
+          "to": "柿の葉ずしヤマト",
+          "distance_km": 0.61,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "柿の葉ずしヤマト",
+          "to": "十二柱神社",
+          "distance_km": 0.6,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "十二柱神社",
+          "to": "纏向遺跡",
+          "distance_km": 5.22,
+          "mode": "public_transport",
+          "minutes": 24
+        },
+        {
+          "from": "纏向遺跡",
+          "to": "奈良駅",
+          "distance_km": 15.17,
+          "mode": "public_transport",
+          "minutes": 69
+        }
+      ],
+      "start": {
+        "name": "奈良駅",
+        "lat": 34.6815,
+        "lng": 135.819,
+        "to_first_km": 18.5,
+        "from_last_km": 15.2
+      },
+      "total_score": 32.0,
+      "center": [
+        34.530561,
+        135.88323
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-10607799701",
+          "name": "初瀬町道路元標",
+          "category": "史跡",
+          "lat": 34.5322563,
+          "lng": 135.9080786,
+          "stay_minutes": 45,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2041504892",
-          "name": "往馬大社",
-          "category": "観光名所",
-          "lat": 34.6783097,
-          "lng": 135.7037568,
+          "place_id": "osm-node-10844891312",
+          "name": "野見宿禰顕彰碑",
+          "category": "史跡",
+          "lat": 34.5253338,
+          "lng": 135.8913386,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3347350388",
+          "name": "柿の葉ずしヤマト",
+          "category": "飲食店",
+          "lat": 34.5237301,
+          "lng": 135.8850049,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「十二柱神社」から徒歩目安約8分です。"
+        },
+        {
+          "place_id": "osm-node-10844891315",
+          "name": "十二柱神社",
+          "category": "史跡",
+          "lat": 34.5252386,
+          "lng": 135.891347,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10061562077",
+          "name": "纏向遺跡",
+          "category": "史跡",
+          "lat": 34.5462442,
+          "lng": 135.8403817,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
@@ -548,24 +550,24 @@
       ],
       "coordinates": [
         [
-          34.6875457,
-          135.7394746
+          34.5322563,
+          135.9080786
         ],
         [
-          34.6609833,
-          135.7659638
+          34.5253338,
+          135.8913386
         ],
         [
-          34.6958527,
-          135.7389692
+          34.5237301,
+          135.8850049
         ],
         [
-          34.7185634,
-          135.7273021
+          34.5252386,
+          135.891347
         ],
         [
-          34.6783097,
-          135.7037568
+          34.5462442,
+          135.8403817
         ]
       ]
     }

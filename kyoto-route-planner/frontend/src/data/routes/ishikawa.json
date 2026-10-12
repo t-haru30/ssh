@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:39.406873+00:00",
+  "generated_at": "2026-10-12T06:25:57.121294+00:00",
   "area": "ishikawa",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -107,7 +107,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "石川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 321,
+      "estimated_minutes": 381,
       "legs": [
         {
           "from": "金沢駅",
@@ -125,10 +125,17 @@
         },
         {
           "from": "栗田末松君 木尾久雄君 彰徳碑",
-          "to": "太鼓の里資料館",
+          "to": "昼食: 要検討",
           "distance_km": 9.93,
           "mode": "public_transport",
           "minutes": 45
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "太鼓の里資料館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "太鼓の里資料館",
@@ -145,10 +152,10 @@
         "to_first_km": 15.0,
         "from_last_km": 14.7
       },
-      "total_score": 40.0,
+      "total_score": 30.0,
       "center": [
-        36.462479,
-        136.593503
+        36.469634,
+        136.576158
       ],
       "spots": [
         {
@@ -172,6 +179,17 @@
           "role": "stop"
         },
         {
+          "place_id": "lunch-undetermined-ishikawa-2",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 36.4911003,
+          "lng": 136.5241219,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
           "place_id": "osm-node-1420929113",
           "name": "太鼓の里資料館",
           "category": "博物館",
@@ -190,6 +208,10 @@
         [
           36.4521999,
           136.6240581
+        ],
+        [
+          36.4911003,
+          136.5241219
         ],
         [
           36.4911003,
@@ -299,42 +321,42 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "石川県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 311,
+      "estimated_minutes": 322,
       "legs": [
         {
           "from": "金沢駅",
-          "to": "金沢能楽美術館",
-          "distance_km": 2.06,
+          "to": "上安原南の移り変わり",
+          "distance_km": 5.53,
           "mode": "public_transport",
-          "minutes": 10
+          "minutes": 25
         },
         {
-          "from": "金沢能楽美術館",
-          "to": "鈴木大拙館",
-          "distance_km": 0.52,
+          "from": "上安原南の移り変わり",
+          "to": "馬場川に設置された旧蓮田水門石柱",
+          "distance_km": 0.64,
           "mode": "walk",
-          "minutes": 10
+          "minutes": 12
         },
         {
-          "from": "鈴木大拙館",
-          "to": "からやま　金沢久安店",
-          "distance_km": 3.74,
+          "from": "馬場川に設置された旧蓮田水門石柱",
+          "to": "箔巧館",
+          "distance_km": 0.9,
           "mode": "public_transport",
-          "minutes": 17
+          "minutes": 5
         },
         {
-          "from": "からやま　金沢久安店",
-          "to": "加賀本多博物館",
-          "distance_km": 3.86,
+          "from": "箔巧館",
+          "to": "BONNY BUTTERFLY",
+          "distance_km": 6.27,
           "mode": "public_transport",
-          "minutes": 18
+          "minutes": 29
         },
         {
-          "from": "加賀本多博物館",
+          "from": "BONNY BUTTERFLY",
           "to": "徳田秋聲記念館",
-          "distance_km": 1.45,
-          "mode": "public_transport",
-          "minutes": 7
+          "distance_km": 0.09,
+          "mode": "walk",
+          "minutes": 2
         },
         {
           "from": "徳田秋聲記念館",
@@ -348,54 +370,55 @@
         "name": "金沢駅",
         "lat": 36.5781,
         "lng": 136.6478,
-        "to_first_km": 2.1,
+        "to_first_km": 5.5,
         "from_last_km": 1.9
       },
-      "total_score": 46.0,
+      "total_score": 34.0,
       "center": [
-        36.556415,
-        136.656301
+        36.565295,
+        136.622343
       ],
       "spots": [
         {
-          "place_id": "osm-node-2143998240",
-          "name": "金沢能楽美術館",
-          "category": "博物館",
-          "lat": 36.5615671,
-          "lng": 136.6581216,
+          "place_id": "osm-node-13307601227",
+          "name": "上安原南の移り変わり",
+          "category": "史跡",
+          "lat": 36.5585757,
+          "lng": 136.5908401,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2143998242",
-          "name": "鈴木大拙館",
-          "category": "博物館",
-          "lat": 36.55772,
-          "lng": 136.661369,
+          "place_id": "osm-node-13987257585",
+          "name": "馬場川に設置された旧蓮田水門石柱",
+          "category": "史跡",
+          "lat": 36.5640223,
+          "lng": 136.588565,
           "stay_minutes": 45,
-          "score": 50.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1020082249",
-          "name": "からやま　金沢久安店",
+          "place_id": "osm-node-8356934244",
+          "name": "箔巧館",
+          "category": "博物館",
+          "lat": 36.5612925,
+          "lng": 136.5980798,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13255275201",
+          "name": "BONNY BUTTERFLY",
           "category": "飲食店",
-          "lat": 36.5334209,
-          "lng": 136.6324265,
+          "lat": 36.5716844,
+          "lng": 136.6670698,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4351519494",
-          "name": "加賀本多博物館",
-          "category": "博物館",
-          "lat": 36.5584649,
-          "lng": 136.6624243,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「徳田秋聲記念館」から徒歩目安約2分です。"
         },
         {
           "place_id": "osm-node-2143998216",
@@ -410,20 +433,20 @@
       ],
       "coordinates": [
         [
-          36.5615671,
-          136.6581216
+          36.5585757,
+          136.5908401
         ],
         [
-          36.55772,
-          136.661369
+          36.5640223,
+          136.588565
         ],
         [
-          36.5334209,
-          136.6324265
+          36.5612925,
+          136.5980798
         ],
         [
-          36.5584649,
-          136.6624243
+          36.5716844,
+          136.6670698
         ],
         [
           36.570902,
@@ -437,135 +460,136 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "石川県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 335,
+      "estimated_minutes": 272,
       "legs": [
         {
           "from": "金沢駅",
-          "to": "にし茶屋街",
-          "distance_km": 2.35,
-          "mode": "public_transport",
-          "minutes": 11
-        },
-        {
-          "from": "にし茶屋街",
-          "to": "東大寺領横江荘荘家跡",
-          "distance_km": 5.86,
-          "mode": "public_transport",
-          "minutes": 27
-        },
-        {
-          "from": "東大寺領横江荘荘家跡",
-          "to": "からやま　金沢久安店",
-          "distance_km": 4.79,
-          "mode": "public_transport",
-          "minutes": 22
-        },
-        {
-          "from": "からやま　金沢久安店",
-          "to": "金澤神社 兼六園鎮守",
-          "distance_km": 4.06,
-          "mode": "public_transport",
-          "minutes": 19
-        },
-        {
-          "from": "金澤神社 兼六園鎮守",
-          "to": "宇多須神社",
-          "distance_km": 1.47,
-          "mode": "public_transport",
-          "minutes": 7
-        },
-        {
-          "from": "宇多須神社",
-          "to": "金沢駅",
-          "distance_km": 1.9,
+          "to": "妙応寺",
+          "distance_km": 1.85,
           "mode": "public_transport",
           "minutes": 9
+        },
+        {
+          "from": "妙応寺",
+          "to": "長久寺",
+          "distance_km": 0.04,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "長久寺",
+          "to": "全性寺",
+          "distance_km": 0.07,
+          "mode": "walk",
+          "minutes": 2
+        },
+        {
+          "from": "全性寺",
+          "to": "金沢能楽美術館",
+          "distance_km": 1.93,
+          "mode": "public_transport",
+          "minutes": 9
+        },
+        {
+          "from": "金沢能楽美術館",
+          "to": "古都美",
+          "distance_km": 0.02,
+          "mode": "walk",
+          "minutes": 1
+        },
+        {
+          "from": "古都美",
+          "to": "金沢駅",
+          "distance_km": 2.07,
+          "mode": "public_transport",
+          "minutes": 10
         }
       ],
       "start": {
         "name": "金沢駅",
         "lat": 36.5781,
         "lng": 136.6478,
-        "to_first_km": 2.4,
-        "from_last_km": 1.9
+        "to_first_km": 1.8,
+        "from_last_km": 2.1
       },
-      "total_score": 38.0,
+      "total_score": 40.0,
       "center": [
-        36.55461,
-        136.638687
+        36.570294,
+        136.664499
       ],
       "spots": [
         {
-          "place_id": "osm-node-2146147847",
-          "name": "にし茶屋街",
+          "place_id": "osm-node-3465695846",
+          "name": "妙応寺",
           "category": "観光名所",
-          "lat": 36.5569543,
-          "lng": 136.6474604,
+          "lat": 36.5758464,
+          "lng": 136.6683073,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-3496246393",
-          "name": "東大寺領横江荘荘家跡",
-          "category": "史跡",
-          "lat": 36.549142,
-          "lng": 136.582546,
+          "place_id": "osm-node-3465696710",
+          "name": "長久寺",
+          "category": "観光名所",
+          "lat": 36.5760018,
+          "lng": 136.6686532,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1020082249",
-          "name": "からやま　金沢久安店",
+          "place_id": "osm-node-3465698700",
+          "name": "全性寺",
+          "category": "観光名所",
+          "lat": 36.5765248,
+          "lng": 136.6691275,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2143998240",
+          "name": "金沢能楽美術館",
+          "category": "博物館",
+          "lat": 36.5615671,
+          "lng": 136.6581216,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-6393674786",
+          "name": "古都美",
           "category": "飲食店",
-          "lat": 36.5334209,
-          "lng": 136.6324265,
+          "lat": 36.5615278,
+          "lng": 136.6582875,
           "stay_minutes": 60,
           "score": 30.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4351528522",
-          "name": "金澤神社 兼六園鎮守",
-          "category": "観光名所",
-          "lat": 36.5604815,
-          "lng": 136.6628621,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-3465220834",
-          "name": "宇多須神社",
-          "category": "観光名所",
-          "lat": 36.5730488,
-          "lng": 136.6681409,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "role": "lunch",
+          "reason": "次の予定地「金沢能楽美術館」から徒歩目安約1分です。"
         }
       ],
       "coordinates": [
         [
-          36.5569543,
-          136.6474604
+          36.5758464,
+          136.6683073
         ],
         [
-          36.549142,
-          136.582546
+          36.5760018,
+          136.6686532
         ],
         [
-          36.5334209,
-          136.6324265
+          36.5765248,
+          136.6691275
         ],
         [
-          36.5604815,
-          136.6628621
+          36.5615671,
+          136.6581216
         ],
         [
-          36.5730488,
-          136.6681409
+          36.5615278,
+          136.6582875
         ]
       ]
     }

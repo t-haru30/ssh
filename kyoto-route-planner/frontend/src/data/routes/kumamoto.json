@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:59.573202+00:00",
+  "generated_at": "2026-10-12T06:26:18.613850+00:00",
   "area": "kumamoto",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "熊本県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 343,
+      "estimated_minutes": 403,
       "legs": [
         {
           "from": "熊本駅",
@@ -29,10 +29,17 @@
         },
         {
           "from": "上色見熊野座神社",
-          "to": "阿蘇火山博物館",
+          "to": "昼食: 要検討",
           "distance_km": 10.54,
           "mode": "car",
           "minutes": 24
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "阿蘇火山博物館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "阿蘇火山博物館",
@@ -49,10 +56,10 @@
         "to_first_km": 37.5,
         "from_last_km": 35.5
       },
-      "total_score": 45.0,
+      "total_score": 33.8,
       "center": [
-        32.846505,
-        131.10035
+        32.856254,
+        131.088292
       ],
       "spots": [
         {
@@ -76,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "lunch-undetermined-kumamoto-1",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 32.8855019,
+          "lng": 131.0521153,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
           "place_id": "osm-node-13419528877",
           "name": "阿蘇火山博物館",
           "category": "博物館",
@@ -94,6 +112,10 @@
         [
           32.8538036,
           131.158503
+        ],
+        [
+          32.8855019,
+          131.0521153
         ],
         [
           32.8855019,
@@ -298,181 +320,43 @@
       "area": "kumamoto",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "熊本県の自然スポットをめぐる一日ルート",
-      "estimated_minutes": 390,
+      "title": "熊本県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 312,
       "legs": [
         {
           "from": "熊本駅",
-          "to": "熊本空港　阿蘇くまもと空港",
-          "distance_km": 16.57,
+          "to": "熊本市上水道発祥之地",
+          "distance_km": 6.98,
           "mode": "car",
-          "minutes": 37
+          "minutes": 16
         },
         {
-          "from": "熊本空港　阿蘇くまもと空港",
-          "to": "大津町道路元標",
-          "distance_km": 5.08,
-          "mode": "car",
-          "minutes": 12
-        },
-        {
-          "from": "大津町道路元標",
-          "to": "道の駅大津",
-          "distance_km": 2.11,
-          "mode": "car",
-          "minutes": 5
-        },
-        {
-          "from": "道の駅大津",
-          "to": "小森神社",
-          "distance_km": 5.48,
-          "mode": "car",
+          "from": "熊本市上水道発祥之地",
+          "to": "光照寺",
+          "distance_km": 0.68,
+          "mode": "walk",
           "minutes": 13
         },
         {
-          "from": "小森神社",
-          "to": "阿蘇北向谷原始林",
-          "distance_km": 7.87,
+          "from": "光照寺",
+          "to": "菅原神社",
+          "distance_km": 0.76,
+          "mode": "walk",
+          "minutes": 15
+        },
+        {
+          "from": "菅原神社",
+          "to": "うな専",
+          "distance_km": 8.04,
           "mode": "car",
           "minutes": 18
         },
         {
-          "from": "阿蘇北向谷原始林",
-          "to": "熊本駅",
-          "distance_km": 28.87,
-          "mode": "car",
-          "minutes": 65
-        }
-      ],
-      "start": {
-        "name": "熊本駅",
-        "lat": 32.79,
-        "lng": 130.689,
-        "to_first_km": 16.6,
-        "from_last_km": 28.9
-      },
-      "total_score": 32.0,
-      "center": [
-        32.859666,
-        130.902072
-      ],
-      "spots": [
-        {
-          "place_id": "osm-node-5350727221",
-          "name": "熊本空港　阿蘇くまもと空港",
-          "category": "展望地",
-          "lat": 32.8342217,
-          "lng": 130.8583736,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-9713319709",
-          "name": "大津町道路元標",
-          "category": "史跡",
-          "lat": 32.8791566,
-          "lng": 130.8682565,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4160431422",
-          "name": "道の駅大津",
-          "category": "飲食店",
-          "lat": 32.8810535,
-          "lng": 130.8906923,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-10656554154",
-          "name": "小森神社",
-          "category": "観光名所",
-          "lat": 32.8344595,
-          "lng": 130.9099079,
-          "stay_minutes": 45,
-          "score": 20.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4129736499",
-          "name": "阿蘇北向谷原始林",
-          "category": "展望地",
-          "lat": 32.8694387,
-          "lng": 130.9831291,
-          "stay_minutes": 45,
-          "score": 30.0,
-          "role": "stop"
-        }
-      ],
-      "coordinates": [
-        [
-          32.8342217,
-          130.8583736
-        ],
-        [
-          32.8791566,
-          130.8682565
-        ],
-        [
-          32.8810535,
-          130.8906923
-        ],
-        [
-          32.8344595,
-          130.9099079
-        ],
-        [
-          32.8694387,
-          130.9831291
-        ]
-      ]
-    },
-    {
-      "id": "osm-kumamoto-05",
-      "area": "kumamoto",
-      "pattern": "full_day",
-      "course": "full_day",
-      "title": "熊本県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 290,
-      "legs": [
-        {
-          "from": "熊本駅",
-          "to": "島田美術館",
-          "distance_km": 2.21,
-          "mode": "car",
-          "minutes": 5
-        },
-        {
-          "from": "島田美術館",
-          "to": "熊本県立美術館",
-          "distance_km": 1.37,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "熊本県立美術館",
-          "to": "うどんウエスト",
-          "distance_km": 5.94,
-          "mode": "car",
-          "minutes": 14
-        },
-        {
-          "from": "うどんウエスト",
-          "to": "北岡神社",
-          "distance_km": 7.74,
-          "mode": "car",
-          "minutes": 18
-        },
-        {
-          "from": "北岡神社",
+          "from": "うな専",
           "to": "蓮台寺",
-          "distance_km": 2.12,
-          "mode": "car",
-          "minutes": 5
+          "distance_km": 0.28,
+          "mode": "walk",
+          "minutes": 6
         },
         {
           "from": "蓮台寺",
@@ -486,54 +370,55 @@
         "name": "熊本駅",
         "lat": 32.79,
         "lng": 130.689,
-        "to_first_km": 2.2,
+        "to_first_km": 7.0,
         "from_last_km": 1.8
       },
-      "total_score": 42.0,
+      "total_score": 28.0,
       "center": [
-        32.808049,
-        130.699009
+        32.815137,
+        130.709001
       ],
       "spots": [
         {
-          "place_id": "osm-node-1423802761",
-          "name": "島田美術館",
-          "category": "博物館",
-          "lat": 32.809728,
-          "lng": 130.686067,
+          "place_id": "osm-node-11005763232",
+          "name": "熊本市上水道発祥之地",
+          "category": "史跡",
+          "lat": 32.8458911,
+          "lng": 130.7229747,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1423808780",
-          "name": "熊本県立美術館",
-          "category": "博物館",
-          "lat": 32.807451,
-          "lng": 130.7004739,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-5348347822",
-          "name": "うどんウエスト",
-          "category": "飲食店",
-          "lat": 32.8561107,
-          "lng": 130.7266227,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-2753126214",
-          "name": "北岡神社",
+          "place_id": "osm-node-4158636340",
+          "name": "光照寺",
           "category": "観光名所",
-          "lat": 32.792974,
-          "lng": 130.6916459,
+          "lat": 32.8397419,
+          "lng": 130.722969,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 20.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4162322356",
+          "name": "菅原神社",
+          "category": "観光名所",
+          "lat": 32.8429132,
+          "lng": 130.7157512,
+          "stay_minutes": 45,
+          "score": 20.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-12397125092",
+          "name": "うな専",
+          "category": "飲食店",
+          "lat": 32.7731566,
+          "lng": 130.6930782,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「蓮台寺」から徒歩目安約4分です。"
         },
         {
           "place_id": "osm-node-12829675155",
@@ -548,24 +433,163 @@
       ],
       "coordinates": [
         [
-          32.809728,
-          130.686067
+          32.8458911,
+          130.7229747
         ],
         [
-          32.807451,
-          130.7004739
+          32.8397419,
+          130.722969
         ],
         [
-          32.8561107,
-          130.7266227
+          32.8429132,
+          130.7157512
         ],
         [
-          32.792974,
-          130.6916459
+          32.7731566,
+          130.6930782
         ],
         [
           32.7739819,
           130.6902331
+        ]
+      ]
+    },
+    {
+      "id": "osm-kumamoto-05",
+      "area": "kumamoto",
+      "pattern": "full_day",
+      "course": "full_day",
+      "title": "熊本県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 279,
+      "legs": [
+        {
+          "from": "熊本駅",
+          "to": "熊本県立美術館分館",
+          "distance_km": 2.57,
+          "mode": "car",
+          "minutes": 6
+        },
+        {
+          "from": "熊本県立美術館分館",
+          "to": "熊本英学校跡",
+          "distance_km": 1.5,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "熊本英学校跡",
+          "to": "九州学院発祥之地 ルーテル神学校跡",
+          "distance_km": 0.68,
+          "mode": "walk",
+          "minutes": 13
+        },
+        {
+          "from": "九州学院発祥之地 ルーテル神学校跡",
+          "to": "島田美術館",
+          "distance_km": 3.01,
+          "mode": "car",
+          "minutes": 7
+        },
+        {
+          "from": "島田美術館",
+          "to": "Minshuku Hiroshimaya",
+          "distance_km": 0.81,
+          "mode": "car",
+          "minutes": 2
+        },
+        {
+          "from": "Minshuku Hiroshimaya",
+          "to": "熊本駅",
+          "distance_km": 3.01,
+          "mode": "car",
+          "minutes": 7
+        }
+      ],
+      "start": {
+        "name": "熊本駅",
+        "lat": 32.79,
+        "lng": 130.689,
+        "to_first_km": 2.6,
+        "from_last_km": 3.0
+      },
+      "total_score": 34.0,
+      "center": [
+        32.806851,
+        130.703794
+      ],
+      "spots": [
+        {
+          "place_id": "osm-node-4941409380",
+          "name": "熊本県立美術館分館",
+          "category": "博物館",
+          "lat": 32.8065587,
+          "lng": 130.7081811,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10250854594",
+          "name": "熊本英学校跡",
+          "category": "史跡",
+          "lat": 32.7976484,
+          "lng": 130.7202042,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-10250854595",
+          "name": "九州学院発祥之地 ルーテル神学校跡",
+          "category": "史跡",
+          "lat": 32.8033374,
+          "lng": 130.7173941,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1423802761",
+          "name": "島田美術館",
+          "category": "博物館",
+          "lat": 32.809728,
+          "lng": 130.686067,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-13003613410",
+          "name": "Minshuku Hiroshimaya",
+          "category": "飲食店",
+          "lat": 32.8169815,
+          "lng": 130.6871251,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「島田美術館」から徒歩目安約11分です。"
+        }
+      ],
+      "coordinates": [
+        [
+          32.8065587,
+          130.7081811
+        ],
+        [
+          32.7976484,
+          130.7202042
+        ],
+        [
+          32.8033374,
+          130.7173941
+        ],
+        [
+          32.809728,
+          130.686067
+        ],
+        [
+          32.8169815,
+          130.6871251
         ]
       ]
     }

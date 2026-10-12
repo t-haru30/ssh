@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:34.025669+00:00",
+  "generated_at": "2026-10-12T06:25:50.665781+00:00",
   "area": "chiba",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 20.0,
   "routes": [
     {
@@ -298,43 +298,43 @@
       "area": "chiba",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "千葉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 331,
+      "title": "千葉県の名所スポットをめぐる一日ルート",
+      "estimated_minutes": 316,
       "legs": [
         {
           "from": "千葉駅",
-          "to": "お茶の水",
-          "distance_km": 1.35,
+          "to": "来迎寺",
+          "distance_km": 1.64,
           "mode": "public_transport",
-          "minutes": 7
+          "minutes": 8
         },
         {
-          "from": "お茶の水",
-          "to": "千葉市科学館",
-          "distance_km": 0.35,
+          "from": "来迎寺",
+          "to": "大日寺",
+          "distance_km": 0.07,
           "mode": "walk",
-          "minutes": 7
+          "minutes": 2
         },
         {
-          "from": "千葉市科学館",
-          "to": "とんでん東寺山店",
-          "distance_km": 2.47,
+          "from": "大日寺",
+          "to": "展望デッキ",
+          "distance_km": 2.73,
           "mode": "public_transport",
-          "minutes": 12
+          "minutes": 13
         },
         {
-          "from": "とんでん東寺山店",
-          "to": "高徳寺",
-          "distance_km": 3.0,
+          "from": "展望デッキ",
+          "to": "スターバックス",
+          "distance_km": 5.27,
           "mode": "public_transport",
-          "minutes": 14
+          "minutes": 24
         },
         {
-          "from": "高徳寺",
+          "from": "スターバックス",
           "to": "稲毛記念館",
-          "distance_km": 6.23,
+          "distance_km": 1.46,
           "mode": "public_transport",
-          "minutes": 29
+          "minutes": 7
         },
         {
           "from": "稲毛記念館",
@@ -348,54 +348,55 @@
         "name": "千葉駅",
         "lat": 35.613,
         "lng": 140.1135,
-        "to_first_km": 1.4,
+        "to_first_km": 1.6,
         "from_last_km": 4.8
       },
-      "total_score": 52.0,
+      "total_score": 38.0,
       "center": [
-        35.612965,
-        140.112408
+        35.629689,
+        140.095495
       ],
       "spots": [
         {
-          "place_id": "osm-node-4437117898",
-          "name": "お茶の水",
-          "category": "史跡",
-          "lat": 35.6059113,
-          "lng": 140.1256605,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6886812265",
-          "name": "千葉市科学館",
-          "category": "博物館",
-          "lat": 35.6074473,
-          "lng": 140.1223175,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-6997014174",
-          "name": "とんでん東寺山店",
-          "category": "飲食店",
-          "lat": 35.6292803,
-          "lng": 140.1270765,
-          "stay_minutes": 60,
-          "score": 70.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-10113440540",
-          "name": "高徳寺",
+          "place_id": "osm-node-5061516145",
+          "name": "来迎寺",
           "category": "観光名所",
-          "lat": 35.6023241,
-          "lng": 140.1261924,
+          "lat": 35.6270337,
+          "lng": 140.108019,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5061516146",
+          "name": "大日寺",
+          "category": "観光名所",
+          "lat": 35.6276114,
+          "lng": 140.107606,
+          "stay_minutes": 45,
+          "score": 40.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-4665455096",
+          "name": "展望デッキ",
+          "category": "展望地",
+          "lat": 35.6461161,
+          "lng": 140.1274493,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2209790395",
+          "name": "スターバックス",
+          "category": "飲食店",
+          "lat": 35.627822,
+          "lng": 140.073608,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「稲毛記念館」から徒歩目安約19分です。"
         },
         {
           "place_id": "osm-node-1566648053",
@@ -410,20 +411,20 @@
       ],
       "coordinates": [
         [
-          35.6059113,
-          140.1256605
+          35.6270337,
+          140.108019
         ],
         [
-          35.6074473,
-          140.1223175
+          35.6276114,
+          140.107606
         ],
         [
-          35.6292803,
-          140.1270765
+          35.6461161,
+          140.1274493
         ],
         [
-          35.6023241,
-          140.1261924
+          35.627822,
+          140.073608
         ],
         [
           35.6198607,
@@ -437,135 +438,136 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "千葉県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 374,
+      "estimated_minutes": 295,
       "legs": [
         {
           "from": "千葉駅",
-          "to": "千葉市立 加曽利貝塚博物館",
-          "distance_km": 4.83,
+          "to": "Animal Park",
+          "distance_km": 3.72,
           "mode": "public_transport",
-          "minutes": 22
+          "minutes": 17
         },
         {
-          "from": "千葉市立 加曽利貝塚博物館",
-          "to": "千葉市立郷土博物館（千葉城）",
-          "distance_km": 4.06,
+          "from": "Animal Park",
+          "to": "御力石",
+          "distance_km": 3.66,
           "mode": "public_transport",
-          "minutes": 19
+          "minutes": 17
         },
         {
-          "from": "千葉市立郷土博物館（千葉城）",
-          "to": "とんでん東寺山店",
-          "distance_km": 2.75,
-          "mode": "public_transport",
-          "minutes": 13
+          "from": "御力石",
+          "to": "亀岩",
+          "distance_km": 0.03,
+          "mode": "walk",
+          "minutes": 1
         },
         {
-          "from": "とんでん東寺山店",
-          "to": "稲毛浅間神社",
-          "distance_km": 4.13,
-          "mode": "public_transport",
-          "minutes": 19
+          "from": "亀岩",
+          "to": "フレッシュロースター珈琲問屋",
+          "distance_km": 0.53,
+          "mode": "walk",
+          "minutes": 10
         },
         {
-          "from": "稲毛浅間神社",
-          "to": "天福寺",
-          "distance_km": 5.53,
-          "mode": "public_transport",
-          "minutes": 25
+          "from": "フレッシュロースター珈琲問屋",
+          "to": "お茶の水",
+          "distance_km": 0.14,
+          "mode": "walk",
+          "minutes": 3
         },
         {
-          "from": "天福寺",
+          "from": "お茶の水",
           "to": "千葉駅",
-          "distance_km": 7.95,
+          "distance_km": 1.35,
           "mode": "public_transport",
-          "minutes": 36
+          "minutes": 7
         }
       ],
       "start": {
         "name": "千葉駅",
         "lat": 35.613,
         "lng": 140.1135,
-        "to_first_km": 4.8,
-        "from_last_km": 8.0
+        "to_first_km": 3.7,
+        "from_last_km": 1.4
       },
-      "total_score": 46.0,
+      "total_score": 34.0,
       "center": [
-        35.635575,
-        140.120611
+        35.616248,
+        140.124843
       ],
       "spots": [
         {
-          "place_id": "osm-node-1420728764",
-          "name": "千葉市立 加曽利貝塚博物館",
-          "category": "博物館",
-          "lat": 35.6237112,
-          "lng": 140.1653348,
+          "place_id": "osm-node-5275449621",
+          "name": "Animal Park",
+          "category": "動物園",
+          "lat": 35.644746,
+          "lng": 140.126424,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-1420728788",
-          "name": "千葉市立郷土博物館（千葉城）",
-          "category": "博物館",
-          "lat": 35.60456,
-          "lng": 140.127101,
+          "place_id": "osm-node-6497794000",
+          "name": "御力石",
+          "category": "史跡",
+          "lat": 35.6118841,
+          "lng": 140.1235335,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-6997014174",
-          "name": "とんでん東寺山店",
+          "place_id": "osm-node-6497794011",
+          "name": "亀岩",
+          "category": "史跡",
+          "lat": 35.6116521,
+          "lng": 140.1235003,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-11597969161",
+          "name": "フレッシュロースター珈琲問屋",
           "category": "飲食店",
-          "lat": 35.6292803,
-          "lng": 140.1270765,
+          "lat": 35.6070476,
+          "lng": 140.125095,
           "stay_minutes": 60,
-          "score": 70.0,
-          "role": "lunch"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「お茶の水」から徒歩目安約2分です。"
         },
         {
-          "place_id": "osm-node-1554934358",
-          "name": "稲毛浅間神社",
-          "category": "観光名所",
-          "lat": 35.6365088,
-          "lng": 140.0822689,
+          "place_id": "osm-node-4437117898",
+          "name": "お茶の水",
+          "category": "史跡",
+          "lat": 35.6059113,
+          "lng": 140.1256605,
           "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-1534974955",
-          "name": "天福寺",
-          "category": "観光名所",
-          "lat": 35.683816,
-          "lng": 140.1012742,
-          "stay_minutes": 45,
-          "score": 40.0,
+          "score": 50.0,
           "role": "stop"
         }
       ],
       "coordinates": [
         [
-          35.6237112,
-          140.1653348
+          35.644746,
+          140.126424
         ],
         [
-          35.60456,
-          140.127101
+          35.6118841,
+          140.1235335
         ],
         [
-          35.6292803,
-          140.1270765
+          35.6116521,
+          140.1235003
         ],
         [
-          35.6365088,
-          140.0822689
+          35.6070476,
+          140.125095
         ],
         [
-          35.683816,
-          140.1012742
+          35.6059113,
+          140.1256605
         ]
       ]
     }

@@ -26,7 +26,7 @@ from app.places import calculate_place_score
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-GENERATOR_VERSION = "osm-deterministic-v4"
+GENERATOR_VERSION = "osm-deterministic-v5"
 # Legs up to this straight-line distance are walked (about 15 minutes).
 WALK_MAX_KM = 0.8
 # Routes depart at 09:00; one that returns after 14:00 is shown as a full-day course.
@@ -40,7 +40,9 @@ def course_for(pattern: str, estimated_minutes: int) -> str:
     return "half_day"
 BOUNDARIES_PATH = BACKEND_DIR / "data" / "boundaries" / "jpn-adm1.geojson"
 EARTH_RADIUS_KM = 6371.0
-LUNCH_RADIUS_BY_MODE = {"car": 8.0, "public_transport": 5.0, "walk": 2.0}
+LUNCH_RADIUS_KM = 1.0
+LUNCH_FALLBACK_RADIUS_KM = 2.0
+LUNCH_WALKING_KM_PER_HOUR = 4.8
 GRID_ROWS = 4
 GRID_COLUMNS = 4
 # Every route starts and ends at the central station of the prefectural capital.
@@ -416,8 +418,89 @@ def _travel_minutes(distance_km: float, mode: str) -> int:
     return math.ceil(distance_km * detour / speed * 60)
 
 
-def _lunch_radius(config: AreaConfig) -> float:
-    return LUNCH_RADIUS_BY_MODE[config.mode]
+def _lunch_insertion_index(
+    config: AreaConfig,
+    ordered: list[dict[str, Any]],
+) -> int:
+    station = STATIONS[config.id]
+    sightseeing_spots = [_spot(item, "stop") for item in ordered]
+    legs = build_legs(config, station, sightseeing_spots)
+    current_minutes = DEPARTURE_MINUTES
+    for index, spot in enumerate(sightseeing_spots):
+        current_minutes += legs[index]["minutes"]
+        if current_minutes >= 12 * 60:
+            return index
+        current_minutes += spot["stay_minutes"]
+    return len(ordered)
+
+
+def _lunch_spot(
+    config: AreaConfig,
+    ordered: list[dict[str, Any]],
+    foods: list[dict[str, Any]],
+    route_index: int,
+) -> tuple[int, dict[str, Any]]:
+    insertion_index = _lunch_insertion_index(config, ordered)
+    anchor_index = min(insertion_index, len(ordered) - 1)
+    anchor = ordered[anchor_index]["place"]
+    if insertion_index == 0:
+        station = STATIONS[config.id]
+        previous = (station[1], station[2])
+    else:
+        previous_place = ordered[insertion_index - 1]["place"]
+        previous = (previous_place.latitude, previous_place.longitude)
+    distances = [
+        (
+            _distance(
+                (candidate["place"].latitude, candidate["place"].longitude),
+                (anchor.latitude, anchor.longitude),
+            ),
+            _distance(
+                previous,
+                (candidate["place"].latitude, candidate["place"].longitude),
+            ),
+            candidate,
+        )
+        for candidate in foods
+    ]
+    nearby = [
+        (distance, previous_distance, candidate)
+        for distance, previous_distance, candidate in distances
+        if distance <= LUNCH_RADIUS_KM and previous_distance <= config.max_leg_km
+    ]
+    if not nearby:
+        nearby = [
+            (distance, previous_distance, candidate)
+            for distance, previous_distance, candidate in distances
+            if distance <= LUNCH_FALLBACK_RADIUS_KM and previous_distance <= config.max_leg_km
+        ]
+    if not nearby:
+        return insertion_index, {
+            "place_id": f"lunch-undetermined-{config.id}-{route_index + 1}",
+            "name": "昼食: 要検討",
+            "category": "要検討",
+            "lat": anchor.latitude,
+            "lng": anchor.longitude,
+            "stay_minutes": 60,
+            "score": 0.0,
+            "role": "lunch",
+            "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。",
+        }
+
+    distance, _previous_distance, selected = min(
+        nearby,
+        key=lambda option: (
+            option[0],
+            -option[2]["score"],
+            option[2]["place"].id,
+        ),
+    )
+    spot = _spot(selected, "lunch")
+    walking_minutes = math.ceil(distance / LUNCH_WALKING_KM_PER_HOUR * 60)
+    spot["reason"] = (
+        f"次の予定地「{anchor.name}」から徒歩目安約{walking_minutes}分です。"
+    )
+    return insertion_index, spot
 
 
 _MAIN_LANDMASS_CACHE: dict[str, Any] = {}
@@ -478,7 +561,7 @@ def _dedupe(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _select_routes(config: AreaConfig, candidates: list[dict[str, Any]], foods: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    if len(candidates) < 16:
+    if len(candidates) < 17:
         raise RuntimeError(f"{config.id}: only {len(candidates)} tourism candidates were returned")
     remaining = candidates[:]
     routes: list[dict[str, Any]] = []
@@ -498,60 +581,86 @@ def _select_routes(config: AreaConfig, candidates: list[dict[str, Any]], foods: 
                     if _distance(
                         (food["place"].latitude, food["place"].longitude),
                         (item["place"].latitude, item["place"].longitude),
-                    ) <= _lunch_radius(config)
+                    ) <= LUNCH_FALLBACK_RADIUS_KM
                 ]
                 if len(nearby) >= count and len(close) >= 3:
                     lunch_options.append((food, nearby, close))
-            if not lunch_options:
-                raise RuntimeError(f"{config.id}: no lunch cluster with four tourism candidates")
-            lunch, nearby, close = min(lunch_options, key=lambda option: (-option[0]["score"], option[0]["place"].id))
-            ranked_close = sorted(close, key=lambda item: (-item["score"], item["place"].id))
-            first = ranked_close[0]
-            second_options = [
-                item for item in ranked_close[1:]
-                if _distance((first["place"].latitude, first["place"].longitude), (item["place"].latitude, item["place"].longitude)) <= config.max_leg_km
-            ]
-            if not second_options:
-                raise RuntimeError(f"{config.id}: lunch cluster has no morning pair within the leg limit")
-            second = second_options[0]
-            third = next(item for item in ranked_close if item is not first and item is not second)
-            ordered = [first, second, third]
-            remaining_nearby = [item for item in nearby if item not in ordered]
-            while len(ordered) < count:
-                current = ordered[-1]["place"]
-                options = [
-                    item for item in remaining_nearby
-                    if _distance((current.latitude, current.longitude), (item["place"].latitude, item["place"].longitude)) <= config.max_leg_km
+            if lunch_options:
+                _food, nearby, close = min(
+                    lunch_options,
+                    key=lambda option: (-option[0]["score"], option[0]["place"].id),
+                )
+                ranked_close = sorted(close, key=lambda item: (-item["score"], item["place"].id))
+                first = ranked_close[0]
+                second_options = [
+                    item for item in ranked_close[1:]
+                    if _distance(
+                        (first["place"].latitude, first["place"].longitude),
+                        (item["place"].latitude, item["place"].longitude),
+                    ) <= config.max_leg_km
                 ]
-                if not options:
-                    raise RuntimeError(f"{config.id}: could not complete lunch cluster")
-                next_item = min(options, key=lambda item: (-item["score"], item["place"].id))
-                ordered.append(next_item)
-                remaining_nearby.remove(next_item)
+                ordered = []
+                if second_options:
+                    second = second_options[0]
+                    third = next(item for item in ranked_close if item is not first and item is not second)
+                    ordered = [first, second, third]
+                    remaining_nearby = [item for item in nearby if item not in ordered]
+                    while len(ordered) < count:
+                        current = ordered[-1]["place"]
+                        options = [
+                            item for item in remaining_nearby
+                            if _distance(
+                                (current.latitude, current.longitude),
+                                (item["place"].latitude, item["place"].longitude),
+                            ) <= config.max_leg_km
+                        ]
+                        if not options:
+                            ordered = []
+                            break
+                        next_item = min(options, key=lambda item: (-item["score"], item["place"].id))
+                        ordered.append(next_item)
+                        remaining_nearby.remove(next_item)
+            else:
+                ordered = []
+            if not ordered:
+                lunch_ready = [
+                    item for item in remaining
+                    if any(
+                        _distance(
+                            (item["place"].latitude, item["place"].longitude),
+                            (food["place"].latitude, food["place"].longitude),
+                        ) <= LUNCH_FALLBACK_RADIUS_KM
+                        for food in foods
+                    )
+                ]
+                seed_pool = lunch_ready or remaining
+                seed = min(seed_pool, key=lambda item: (-item["score"], item["place"].id))
+                ordered = [seed]
+                pool = [item for item in remaining if item is not seed]
+                while len(ordered) < count:
+                    current = ordered[-1]["place"]
+                    options = [
+                        item for item in pool
+                        if _distance(
+                            (current.latitude, current.longitude),
+                            (item["place"].latitude, item["place"].longitude),
+                        ) <= config.max_leg_km
+                    ]
+                    if not options:
+                        raise RuntimeError(f"{config.id}: could not build route {route_index + 1} within distance limits")
+                    next_item = min(options, key=lambda item: (-item["score"], item["place"].id))
+                    ordered.append(next_item)
+                    pool.remove(next_item)
             for item in ordered:
                 if item in remaining:
                     remaining.remove(item)
-            spots = [_spot(ordered[0], "stop"), _spot(ordered[1], "stop"), _spot(lunch, "lunch"), _spot(ordered[2], "stop"), _spot(ordered[3], "stop")]
+            spots = [_spot(item, "stop") for item in ordered]
+            lunch_index, lunch = _lunch_spot(config, ordered, foods, route_index)
+            spots.insert(lunch_index, lunch)
             routes.append(_route(config, route_index, pattern, ordered, spots))
             continue
-        if pattern == "full_day":
-            lunch_ready = [
-                item for item in remaining
-                if any(
-                    _distance(
-                        (item["place"].latitude, item["place"].longitude),
-                        (food["place"].latitude, food["place"].longitude),
-                    ) <= _lunch_radius(config)
-                    for food in foods
-                )
-            ]
-            if not lunch_ready:
-                raise RuntimeError(f"{config.id}: no tourism candidate near a lunch candidate")
-            seed = min(lunch_ready, key=lambda item: (-item["score"], item["place"].id))
-        else:
-            seed = remaining[0]
         selected: list[dict[str, Any]] = []
-        for seed in ([seed] if pattern == "full_day" else remaining[:]):
+        for seed in remaining[:]:
             chain = [seed]
             pool = [item for item in remaining if item is not seed]
             while len(chain) < count:
@@ -575,18 +684,8 @@ def _select_routes(config: AreaConfig, candidates: list[dict[str, Any]], foods: 
         # Keep chain order: every consecutive leg was already checked against max_leg_km.
         ordered = selected
         spots = [_spot(item, "stop") for item in ordered]
-        if pattern == "full_day":
-            lunch_anchor = (ordered[1]["place"], ordered[2]["place"])
-            lunch_candidates = [
-                item for item in foods
-                if _distance((item["place"].latitude, item["place"].longitude), (lunch_anchor[0].latitude, lunch_anchor[0].longitude)) <= _lunch_radius(config)
-                and _distance((item["place"].latitude, item["place"].longitude), (lunch_anchor[1].latitude, lunch_anchor[1].longitude)) <= _lunch_radius(config)
-            ]
-            if not lunch_candidates:
-                raise RuntimeError(f"{config.id}: no lunch candidate near route {route_index + 1}")
-            lunch = min(lunch_candidates, key=lambda item: (-item["score"], item["place"].id))
-            spots.insert(2, _spot(lunch, "lunch"))
-        routes.append(_route(config, route_index, pattern, ordered, spots))
+        route = _route(config, route_index, pattern, ordered, spots)
+        routes.append(_add_course_lunch(config, route, ordered, foods, route_index))
     return routes
 
 
@@ -665,6 +764,23 @@ def _route(config: AreaConfig, index: int, pattern: str, ordered: list[dict[str,
         "spots": spots,
         "coordinates": [[spot["lat"], spot["lng"]] for spot in spots],
     }
+
+
+def _add_course_lunch(
+    config: AreaConfig,
+    route: dict[str, Any],
+    ordered: list[dict[str, Any]],
+    foods: list[dict[str, Any]],
+    route_index: int,
+) -> dict[str, Any]:
+    if route["course"] != "full_day" or any(
+        spot.get("role") == "lunch" for spot in route["spots"]
+    ):
+        return route
+    lunch_index, lunch = _lunch_spot(config, ordered, foods, route_index)
+    spots = list(route["spots"])
+    spots.insert(lunch_index, lunch)
+    return _route(config, route_index, route["pattern"], ordered, spots)
 
 
 def generate_area(config: AreaConfig) -> dict[str, Any]:

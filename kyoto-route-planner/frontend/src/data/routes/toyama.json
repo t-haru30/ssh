@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-10-12T04:55:38.464436+00:00",
+  "generated_at": "2026-10-12T06:25:56.035030+00:00",
   "area": "toyama",
-  "generator_version": "osm-deterministic-v4",
+  "generator_version": "osm-deterministic-v5",
   "start_radius_km": 60.0,
   "routes": [
     {
@@ -11,7 +11,7 @@
       "pattern": "half_day",
       "course": "full_day",
       "title": "富山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 326,
+      "estimated_minutes": 386,
       "legs": [
         {
           "from": "富山駅",
@@ -29,10 +29,17 @@
         },
         {
           "from": "千光寺",
-          "to": "魚津歴史民俗博物館",
+          "to": "昼食: 要検討",
           "distance_km": 10.66,
           "mode": "car",
           "minutes": 24
+        },
+        {
+          "from": "昼食: 要検討",
+          "to": "魚津歴史民俗博物館",
+          "distance_km": 0.0,
+          "mode": "walk",
+          "minutes": 0
         },
         {
           "from": "魚津歴史民俗博物館",
@@ -49,10 +56,10 @@
         "to_first_km": 41.1,
         "from_last_km": 25.2
       },
-      "total_score": 58.3,
+      "total_score": 43.8,
       "center": [
-        36.874359,
-        137.527034
+        36.862307,
+        137.507562
       ],
       "spots": [
         {
@@ -76,6 +83,17 @@
           "role": "stop"
         },
         {
+          "place_id": "lunch-undetermined-toyama-1",
+          "name": "昼食: 要検討",
+          "category": "要検討",
+          "lat": 36.826154,
+          "lng": 137.449147,
+          "stay_minutes": 60,
+          "score": 0.0,
+          "role": "lunch",
+          "reason": "近くの飲食店候補が見つからないため、昼食場所は要検討です。"
+        },
+        {
           "place_id": "osm-node-1420917910",
           "name": "魚津歴史民俗博物館",
           "category": "博物館",
@@ -94,6 +112,10 @@
         [
           36.8641374,
           137.5591444
+        ],
+        [
+          36.826154,
+          137.449147
         ],
         [
           36.826154,
@@ -299,74 +321,64 @@
       "pattern": "full_day",
       "course": "full_day",
       "title": "富山県の歴史スポットをめぐる一日ルート",
-      "estimated_minutes": 302,
+      "estimated_minutes": 288,
       "legs": [
         {
           "from": "富山駅",
+          "to": "富山市ガラス美術館",
+          "distance_km": 1.44,
+          "mode": "car",
+          "minutes": 4
+        },
+        {
+          "from": "富山市ガラス美術館",
+          "to": "楽翠亭美術館",
+          "distance_km": 2.02,
+          "mode": "car",
+          "minutes": 5
+        },
+        {
+          "from": "楽翠亭美術館",
+          "to": "天門橋",
+          "distance_km": 0.55,
+          "mode": "walk",
+          "minutes": 11
+        },
+        {
+          "from": "天門橋",
           "to": "富山県埋蔵文化財センター",
-          "distance_km": 3.1,
+          "distance_km": 2.83,
           "mode": "car",
           "minutes": 7
         },
         {
           "from": "富山県埋蔵文化財センター",
-          "to": "富山市ガラス美術館",
-          "distance_km": 3.94,
+          "to": "万さく",
+          "distance_km": 0.59,
+          "mode": "walk",
+          "minutes": 12
+        },
+        {
+          "from": "万さく",
+          "to": "富山駅",
+          "distance_km": 3.62,
           "mode": "car",
           "minutes": 9
-        },
-        {
-          "from": "富山市ガラス美術館",
-          "to": "ゼッテリア",
-          "distance_km": 1.39,
-          "mode": "car",
-          "minutes": 4
-        },
-        {
-          "from": "ゼッテリア",
-          "to": "楽翠亭美術館",
-          "distance_km": 0.68,
-          "mode": "walk",
-          "minutes": 13
-        },
-        {
-          "from": "楽翠亭美術館",
-          "to": "富山ガラス工房",
-          "distance_km": 6.43,
-          "mode": "car",
-          "minutes": 15
-        },
-        {
-          "from": "富山ガラス工房",
-          "to": "富山駅",
-          "distance_km": 5.99,
-          "mode": "car",
-          "minutes": 14
         }
       ],
       "start": {
         "name": "富山駅",
         "lat": 36.7012,
         "lng": 137.2132,
-        "to_first_km": 3.1,
-        "from_last_km": 6.0
+        "to_first_km": 1.4,
+        "from_last_km": 3.6
       },
-      "total_score": 48.0,
+      "total_score": 42.0,
       "center": [
-        36.700304,
-        137.194621
+        36.704796,
+        137.199752
       ],
       "spots": [
-        {
-          "place_id": "osm-node-1420915028",
-          "name": "富山県埋蔵文化財センター",
-          "category": "博物館",
-          "lat": 36.710546,
-          "lng": 137.180459,
-          "stay_minutes": 45,
-          "score": 50.0,
-          "role": "stop"
-        },
         {
           "place_id": "osm-node-3769895563",
           "name": "富山市ガラス美術館",
@@ -376,16 +388,6 @@
           "stay_minutes": 45,
           "score": 50.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13758884223",
-          "name": "ゼッテリア",
-          "category": "飲食店",
-          "lat": 36.7008608,
-          "lng": 137.2140603,
-          "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
         },
         {
           "place_id": "osm-node-6543300485",
@@ -398,36 +400,57 @@
           "role": "stop"
         },
         {
-          "place_id": "osm-node-2971297433",
-          "name": "富山ガラス工房",
-          "category": "美術館",
-          "lat": 36.6953677,
-          "lng": 137.1464069,
+          "place_id": "osm-node-10968875309",
+          "name": "天門橋",
+          "category": "展望地",
+          "lat": 36.7092026,
+          "lng": 137.2121558,
           "stay_minutes": 45,
-          "score": 40.0,
+          "score": 30.0,
           "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420915028",
+          "name": "富山県埋蔵文化財センター",
+          "category": "博物館",
+          "lat": 36.710546,
+          "lng": 137.180459,
+          "stay_minutes": 45,
+          "score": 50.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-5030689911",
+          "name": "万さく",
+          "category": "飲食店",
+          "lat": 36.7094816,
+          "lng": 137.1739664,
+          "stay_minutes": 60,
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「富山県埋蔵文化財センター」から徒歩目安約8分です。"
         }
       ],
       "coordinates": [
         [
-          36.710546,
-          137.180459
-        ],
-        [
           36.6883464,
           137.2149413
-        ],
-        [
-          36.7008608,
-          137.2140603
         ],
         [
           36.7064012,
           137.2172356
         ],
         [
-          36.6953677,
-          137.1464069
+          36.7092026,
+          137.2121558
+        ],
+        [
+          36.710546,
+          137.180459
+        ],
+        [
+          36.7094816,
+          137.1739664
         ]
       ]
     },
@@ -436,136 +459,137 @@
       "area": "toyama",
       "pattern": "full_day",
       "course": "full_day",
-      "title": "富山県の名所スポットをめぐる一日ルート",
-      "estimated_minutes": 330,
+      "title": "富山県の歴史スポットをめぐる一日ルート",
+      "estimated_minutes": 295,
       "legs": [
         {
           "from": "富山駅",
-          "to": "中島閘門",
-          "distance_km": 2.78,
+          "to": "大谷和子こども美術館",
+          "distance_km": 1.53,
           "mode": "car",
-          "minutes": 7
+          "minutes": 4
         },
         {
-          "from": "中島閘門",
-          "to": "加茂神社",
-          "distance_km": 7.17,
+          "from": "大谷和子こども美術館",
+          "to": "富山県教育記念館",
+          "distance_km": 1.12,
           "mode": "car",
-          "minutes": 16
+          "minutes": 3
         },
         {
-          "from": "加茂神社",
-          "to": "ゼッテリア",
-          "distance_km": 7.9,
-          "mode": "car",
-          "minutes": 18
+          "from": "富山県教育記念館",
+          "to": "越中万葉の歌碑・歌石板①",
+          "distance_km": 0.52,
+          "mode": "walk",
+          "minutes": 10
         },
         {
-          "from": "ゼッテリア",
-          "to": "長慶寺",
-          "distance_km": 2.42,
+          "from": "越中万葉の歌碑・歌石板①",
+          "to": "富山ガラス工房",
+          "distance_km": 5.91,
           "mode": "car",
-          "minutes": 6
+          "minutes": 14
         },
         {
-          "from": "長慶寺",
-          "to": "蓮王寺",
-          "distance_km": 8.15,
-          "mode": "car",
-          "minutes": 19
+          "from": "富山ガラス工房",
+          "to": "番やのすし",
+          "distance_km": 0.44,
+          "mode": "walk",
+          "minutes": 9
         },
         {
-          "from": "蓮王寺",
+          "from": "番やのすし",
           "to": "富山駅",
-          "distance_km": 10.38,
+          "distance_km": 6.33,
           "mode": "car",
-          "minutes": 24
+          "minutes": 15
         }
       ],
       "start": {
         "name": "富山駅",
         "lat": 36.7012,
         "lng": 137.2132,
-        "to_first_km": 2.8,
-        "from_last_km": 10.4
+        "to_first_km": 1.5,
+        "from_last_km": 6.3
       },
-      "total_score": 42.0,
+      "total_score": 32.0,
       "center": [
-        36.720845,
-        137.17328
+        36.693613,
+        137.187196
       ],
       "spots": [
         {
-          "place_id": "osm-node-3464122747",
-          "name": "中島閘門",
+          "place_id": "osm-node-1420914148",
+          "name": "大谷和子こども美術館",
+          "category": "博物館",
+          "lat": 36.687744,
+          "lng": 137.216727,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-1420915044",
+          "name": "富山県教育記念館",
+          "category": "博物館",
+          "lat": 36.697821,
+          "lng": 137.21704,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-3449898147",
+          "name": "越中万葉の歌碑・歌石板①",
           "category": "史跡",
-          "lat": 36.7256291,
-          "lng": 137.2196877,
+          "lat": 36.6947112,
+          "lng": 137.2127014,
+          "stay_minutes": 45,
+          "score": 30.0,
+          "role": "stop"
+        },
+        {
+          "place_id": "osm-node-2971297433",
+          "name": "富山ガラス工房",
+          "category": "美術館",
+          "lat": 36.6953677,
+          "lng": 137.1464069,
           "stay_minutes": 45,
           "score": 40.0,
           "role": "stop"
         },
         {
-          "place_id": "osm-node-4350658305",
-          "name": "加茂神社",
-          "category": "観光名所",
-          "lat": 36.7421525,
-          "lng": 137.1419584,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13758884223",
-          "name": "ゼッテリア",
+          "place_id": "osm-node-5593560432",
+          "name": "番やのすし",
           "category": "飲食店",
-          "lat": 36.7008608,
-          "lng": 137.2140603,
+          "lat": 36.6924231,
+          "lng": 137.1431033,
           "stay_minutes": 60,
-          "score": 50.0,
-          "role": "lunch"
-        },
-        {
-          "place_id": "osm-node-4355000441",
-          "name": "長慶寺",
-          "category": "観光名所",
-          "lat": 36.7115139,
-          "lng": 137.1904123,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
-        },
-        {
-          "place_id": "osm-node-4405129933",
-          "name": "蓮王寺",
-          "category": "観光名所",
-          "lat": 36.7240691,
-          "lng": 137.1002835,
-          "stay_minutes": 45,
-          "score": 40.0,
-          "role": "stop"
+          "score": 30.0,
+          "role": "lunch",
+          "reason": "次の予定地「富山ガラス工房」から徒歩目安約6分です。"
         }
       ],
       "coordinates": [
         [
-          36.7256291,
-          137.2196877
+          36.687744,
+          137.216727
         ],
         [
-          36.7421525,
-          137.1419584
+          36.697821,
+          137.21704
         ],
         [
-          36.7008608,
-          137.2140603
+          36.6947112,
+          137.2127014
         ],
         [
-          36.7115139,
-          137.1904123
+          36.6953677,
+          137.1464069
         ],
         [
-          36.7240691,
-          137.1002835
+          36.6924231,
+          137.1431033
         ]
       ]
     }

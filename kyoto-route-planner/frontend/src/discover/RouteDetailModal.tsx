@@ -30,8 +30,15 @@ function toPlace(spot: DatasetRoute["spots"][number], theme: Place["themes"][num
     access_point: "",
     latitude: spot.lat,
     longitude: spot.lng,
-    themes: [theme],
+    themes: [spot.role === "lunch" ? "food" : theme],
   };
+}
+
+function addMinutes(time: string | null, minutes: number) {
+  const match = time?.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  if (!match) return null;
+  const total = (Number(match[1]) * 60 + Number(match[2]) + minutes) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
 
 export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetailModalProps) {
@@ -61,13 +68,37 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       legs: route.legs,
       stayMinutes: route.spots.map((spot) => spot.stay_minutes),
       lunchIndexes: route.spots.flatMap((spot, index) => (spot.role === "lunch" ? [index] : [])),
+      spotDetails: route.spots.map((spot) => spot.reason),
+      returnByMinutes: route.course === "full_day" ? 19 * 60 : undefined,
     };
   }, [isStaticRoute, route]);
   const estimatedItems = useMemo(
     () => buildRouteTimeline(origin, places, "09:00", null, plan),
     [places, origin, plan],
   );
-  const items = routeSuggestion?.timeline?.length ? routeSuggestion.timeline : estimatedItems;
+  const items = useMemo(() => {
+    if (!routeSuggestion?.timeline?.length) return estimatedItems;
+    return routeSuggestion.timeline.map((item, index) => {
+      const estimated = estimatedItems[index];
+      if (
+        item.type !== "spot"
+        || estimated?.type !== "spot"
+        || item.role !== estimated.role
+        || item.place_id !== estimated.place_id
+      ) {
+        return item;
+      }
+      return {
+        ...item,
+        label: estimated.label,
+        detail: estimated.detail,
+        stay_minutes: estimated.stay_minutes,
+        departure_time: item.role === "stop"
+          ? addMinutes(item.time, estimated.stay_minutes)
+          : undefined,
+      };
+    });
+  }, [estimatedItems, routeSuggestion]);
   const coordinates: [number, number][] = isStaticRoute
     ? route.coordinates
     : route.places.map((place) => [place.latitude, place.longitude]);
