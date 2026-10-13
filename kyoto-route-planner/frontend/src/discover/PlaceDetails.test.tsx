@@ -22,6 +22,69 @@ function toggle(details: HTMLDetailsElement, open: boolean) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("destination introductions", () => {
+  const notice = { text: "展示替えのため全館臨時休館", url: "https://museum.example.jp/news/closure", starts_on: "2026-10-20", ends_on: "2026-10-22" };
+  it.each(["verified", "link_only"])("shows sourced closure separately from normal information for %s", async status => {
+    const notices = [notice, { ...notice, text: "表示しない二件目" }];
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, closed_days: "年中無休", status, notices } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.description);
+    expect(screen.getByText("臨時休館のお知らせ")).toBeTruthy();
+    expect(screen.getByText("2026-10-20〜2026-10-22")).toBeTruthy();
+    expect(screen.getByText(notice.text)).toBeTruthy();
+    const link = screen.getByRole("link", { name: "臨時休館の公式出典" });
+    expect(link.getAttribute("href")).toBe(notice.url);
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(screen.queryByText("表示しない二件目")).toBeNull();
+    expect(screen.queryByText("年中無休") !== null).toBe(status === "verified");
+  });
+  it.each([
+    { url: "javascript:alert(1)" }, { url: "https://127.0.0.1/" }, { url: "https://office.internal/" },
+    { url: "https://user:secret@museum.example.jp/" }, { starts_on: "2026-2-01" },
+    { starts_on: "2026-02-30" }, { ends_on: "2026-10-19" }, { text: "  " },
+  ])("omits malformed closure notice %j", async invalid => {
+    const status = "verified", notices = [{ ...notice, ...invalid }];
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, closed_days: "年中無休", status, notices } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.description);
+    expect(screen.queryByText("臨時休館のお知らせ")).toBeNull();
+    expect(screen.queryByRole("link", { name: "臨時休館の公式出典" })).toBeNull();
+    expect(screen.getByText("年中無休")).toBeTruthy();
+  });
+  it("keeps older responses without notices unchanged", async () => {
+    const status = "verified", notices = undefined;
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, closed_days: "年中無休", status, notices } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.description);
+    expect(screen.queryByText("臨時休館のお知らせ")).toBeNull();
+    expect(screen.getByText("年中無休")).toBeTruthy();
+  });
+
+  it("links each confirmed field to its directly read official source", async () => {
+    const field_sources = { opening_hours: "https://garden.example.jp/hours", closed_days: "https://garden.example.jp/calendar", admission: "https://garden.example.jp/fees" };
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, field_sources } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.description);
+    for (const [key, label] of [["opening_hours", "開館・営業時間"], ["closed_days", "休館・定休日"], ["admission", "入館・利用料金"]] as const) {
+      const link = screen.getByRole("link", { name: `${label}の出典` });
+      expect(link.getAttribute("href")).toBe(field_sources[key]);
+      expect(link.closest("dd")?.textContent).toContain(official[key]);
+      expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+    }
+  });
+  it.each(["javascript:alert(1)", "https://127.0.0.1/", "https://office.internal/", "https://user:secret@garden.example.jp/"])("omits unsafe field source %s while retaining confirmed values", async source => {
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, field_sources: { opening_hours: source } } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.opening_hours);
+    expect(screen.queryByRole("link", { name: "開館・営業時間の出典" })).toBeNull();
+  });
+  it.each(["verified", "link_only"])("omits source links for unknown fields in %s responses", async status => {
+    vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official: { ...official, status, opening_hours: null, closed_days: null, admission: null,
+      field_sources: { opening_hours: official.url, closed_days: official.url, admission: official.url } } })));
+    render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
+    await screen.findByText(official.description);
+    expect(screen.getAllByText("未確認")).toHaveLength(3);
+    expect(screen.queryByRole("link", { name: /の出典$/ })).toBeNull();
+  });
   it("prefers the official introduction and attributes highlights alongside route recommendations", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => response({ ...article, official })));
     render(<PlaceIntroduction enableOfficialSearch={false} place={place} recommendations={["前の立ち寄り先から近い場所です。"]} />);
@@ -36,6 +99,7 @@ describe("destination introductions", () => {
     expect(within(guide).getByText(official.opening_hours)).toBeTruthy();
     expect(within(guide).getByText(official.closed_days)).toBeTruthy();
     expect(within(guide).getByText(official.admission)).toBeTruthy();
+    expect(within(guide).queryByRole("link", { name: /の出典$/ })).toBeNull();
     expect(within(guide).getByText(/公式ページを確認/).textContent).toContain("2026/10/12");
     expect(within(guide).getByRole("link", { name: /公式サイトで最新の案内を見る/ }).getAttribute("href")).toBe(official.url);
   });

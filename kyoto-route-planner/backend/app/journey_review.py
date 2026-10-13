@@ -10,7 +10,7 @@ from app.official_place_info import OfficialPlaceInfo, fetch_official_place_info
 from app.venue_evidence import VenueEvidence, configured, fetch_venue_evidence
 
 TOTAL_SECONDS = 45.0
-OFFICIAL_SECONDS = 7.0
+OFFICIAL_SECONDS = 13.0
 SEARCH_SECONDS = 12.0
 MAX_PLACES = 3
 MAX_SEARCHES = 2

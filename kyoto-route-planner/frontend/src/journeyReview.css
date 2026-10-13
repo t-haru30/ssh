@@ -28,3 +28,7 @@
 .journey-review-evidence { padding-top: 12px; border-top: 1px solid var(--line); }
 .journey-review :is(a, button, summary):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 @media (max-width: 480px) { .journey-review { padding: 16px; } .journey-review-results > li { padding: 14px; } .journey-review dl > div { grid-template-columns: 1fr; gap: 3px; } }
+.journey-review-source { display: inline-block; margin-left: 8px; font-size: 12px; white-space: nowrap; }
+
+.journey-review-official-notice { margin: 12px 0; padding: 12px 14px; border-left: 3px solid #a65b24; border-radius: 6px; background: #fff6e9; }
+.journey-review-official-notice p { margin: 6px 0; }
