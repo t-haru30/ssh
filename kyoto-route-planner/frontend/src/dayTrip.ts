@@ -31,6 +31,7 @@ export type TripPlan = {
   totalCost: number | null;
   unknownCosts: number;
   estimatedTravel: boolean;
+  unknownTravelSegments?: number[];
   violations: string[];
 };
 
@@ -57,8 +58,9 @@ export function distanceKm(a: Origin | Place, b: Origin | Place) {
     + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin((b.longitude - a.longitude) * rad / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, x)));
 }
+export const minimumDwell = (place: Place) => ["trip-arrival", "trip-return"].includes(place.id) ? 15 : 30;
 export function newTripStop(place: Place, dwellMinutes = 90): TripStop {
-  return { place, dwellMinutes: Math.max(15, Math.min(360, dwellMinutes)), locked: false, anchorTime: null, spending: null, completed: false, completedStart: null, completedEnd: null, completedTravel: null };
+  return { place, dwellMinutes: Math.max(minimumDwell(place), Math.min(360, dwellMinutes)), locked: false, anchorTime: null, spending: null, completed: false, completedStart: null, completedEnd: null, completedTravel: null };
 }
 /** Completed visits must remain a contiguous prefix in their recorded order. */
 export function completedStopCount(stops: TripStop[]) {
@@ -107,10 +109,13 @@ export function scheduleTrip(
   if (stops.some(stop => stop.completed) && !baselineValid) historyViolations.push("経路条件が変更されています。訪問済みの時刻は記録を保持し、未訪問の移動時間は概算します。");
   const hasDuration = baselineValid && route.total_minutes !== null && Number.isFinite(route.total_minutes) && route.total_minutes >= 0;
   const sumDistance = distances.reduce((sum, distance) => sum + distance, 0);
-  const durations = hasDuration
+  const transits = baselineValid ? route.timeline?.filter(item => item.type === "transit") ?? [] : [];
+  const hasSegments = transits.length === distances.length && transits.every(item => !item.is_estimate && item.duration_minutes !== null && Number.isFinite(item.duration_minutes) && item.duration_minutes >= 0);
+  const durations = hasSegments ? transits.map(item => item.duration_minutes!) : hasDuration
     ? distances.map(distance => Math.floor((route.total_minutes ?? 0) * (sumDistance ? distance / sumDistance : 1 / distances.length)))
     : distances.map(distance => Math.ceil(distance * 1000 * 1.3 / 80));
-  if (hasDuration) durations[durations.length - 1] += (route.total_minutes ?? 0) - durations.reduce((sum, duration) => sum + duration, 0);
+  if (hasDuration && !hasSegments) durations[durations.length - 1] += (route.total_minutes ?? 0) - durations.reduce((sum, duration) => sum + duration, 0);
+  const unknownTravelSegments = !hasDuration && !hasSegments ? distances.flatMap((distance, i) => distance > 5 ? [i] : []) : [];
   let current = departure;
   const scheduled = stops.map((stop, index): ScheduledStop => {
     if (stop.completed) {
@@ -139,28 +144,29 @@ export function scheduleTrip(
   const unknownCosts = costs.filter(cost => cost === null).length;
   const knownCost = costs.reduce<number>((sum, cost) => sum + (cost ?? 0), 0);
   const violations: string[] = [...historyViolations];
+  if (unknownTravelSegments.length) violations.push("長距離区間の交通情報が未確認です。交通経路を検索してから時間枠に合わせて調整してください。");
   const overMinutes = returnMinute - departure - input.availableMinutes;
-  if (overMinutes > 0) violations.push(`帰着目標を${overMinutes}分超過します。`);
+  if (overMinutes > 0 && !unknownTravelSegments.length) violations.push(`帰着目標を${overMinutes}分超過します。`);
   if (knownCost > input.budget) violations.push(`判明している費用だけで予算を${(knownCost - input.budget).toLocaleString("ja-JP")}円超過します。`);
   for (const stop of scheduled) if (stop.late > 0) violations.push(`${stop.place.name}の固定開始に${stop.late}分間に合いません。`);
   if (unknownCosts) violations.push(`費用が${unknownCosts}項目未入力・未確認のため、予算内かは未判定です。`);
   if (!stops.length) violations.push("立ち寄り先がありません。候補を追加してください。");
-  return { input, origin, returnTo, date, stops: scheduled, transport, transportEstimate, travelMinutes: scheduled.reduce((sum, stop) => sum + stop.travel, returnTravel), returnMinute, returnTravel, knownCost, travelCost: fare, totalCost: unknownCosts ? null : knownCost, unknownCosts, estimatedTravel: !hasDuration, violations };
+  return { input, origin, returnTo, date, stops: scheduled, transport, transportEstimate, travelMinutes: scheduled.reduce((sum, stop) => sum + stop.travel, returnTravel), returnMinute, returnTravel, knownCost, travelCost: fare, totalCost: unknownCosts ? null : knownCost, unknownCosts, estimatedTravel: !hasDuration && !hasSegments, unknownTravelSegments, violations };
 }
 
 function fits(plan: TripPlan) {
-  return plan.stops.length > 0 && plan.returnMinute <= clockMinutes(plan.input.departureTime) + plan.input.availableMinutes
+  return !plan.unknownTravelSegments?.length && plan.stops.length > 0 && plan.returnMinute <= clockMinutes(plan.input.departureTime) + plan.input.availableMinutes
     && plan.knownCost <= plan.input.budget && plan.stops.every(stop => stop.late === 0);
 }
 function fitDurations(base: TripPlan, stops: TripStop[]) {
-  const next = stops.map(stop => ({ ...stop }));
+  const next = stops.map(stop => ({ ...stop, dwellMinutes: stop.locked || stop.completed ? stop.dwellMinutes : Math.max(minimumDwell(stop.place), stop.dwellMinutes) }));
   const compute = () => ({ ...scheduleTrip(base.input, base.origin, base.date, next, base.transport, base.transportEstimate, base.returnTo),
     ...(base.planningEstimates ? { planningEstimates: base.planningEstimates } : {}) });
   let plan = compute();
   for (let anchor = 0; anchor < next.length; anchor++) {
     for (let i = anchor - 1; i >= 0 && plan.stops[anchor].late > 0; i--) {
       if (next[i].locked || next[i].completed) continue;
-      next[i].dwellMinutes -= Math.min(plan.stops[anchor].late, Math.max(0, next[i].dwellMinutes - 15));
+      next[i].dwellMinutes -= Math.min(plan.stops[anchor].late, Math.max(0, next[i].dwellMinutes - minimumDwell(next[i].place)));
       plan = compute();
     }
   }
@@ -168,7 +174,7 @@ function fitDurations(base: TripPlan, stops: TripStop[]) {
     const over = plan.returnMinute - clockMinutes(base.input.departureTime) - base.input.availableMinutes;
     if (over <= 0) break;
     if (next[i].locked || next[i].completed) continue;
-    next[i].dwellMinutes -= Math.min(over, Math.max(0, next[i].dwellMinutes - 15));
+    next[i].dwellMinutes -= Math.min(over, Math.max(0, next[i].dwellMinutes - minimumDwell(next[i].place)));
     plan = compute();
   }
   return plan;

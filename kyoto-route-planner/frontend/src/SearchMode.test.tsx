@@ -157,7 +157,7 @@ describe("SearchMode nearby departures", () => {
     vi.stubGlobal("fetch", fetchMock);
     const getCurrentPosition = vi.fn((success: PositionCallback) => {
       success({
-        coords: { latitude: 35.123, longitude: 135.456 },
+        coords: { latitude: 34.986, longitude: 135.758 },
         timestamp: Date.now(),
       } as GeolocationPosition);
     });
@@ -178,7 +178,7 @@ describe("SearchMode nearby departures", () => {
     expect(within(departureSelect).getByRole("option", { name: "周辺地下鉄駅" })).toBeTruthy();
     expect(within(departureSelect).getByRole("option", { name: "京都駅" })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/nearby-stations?latitude=35.123&longitude=135.456",
+      "/api/nearby-stations?latitude=34.986&longitude=135.758",
       expect.anything(),
     );
 
@@ -331,7 +331,7 @@ describe("SearchMode local initial proposal", () => {
     fireEvent.click(screen.getByRole("button", { name: /この条件で旅程を提案する/ }));
     expect(await screen.findByRole("heading", { name: "駅前公園" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "川辺カフェ" })).toBeNull();
-    expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("140");
+    expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("20");
     expect((screen.getByLabelText("1人あたりの予算（円）") as HTMLInputElement).value).toBe("500");
     expect(screen.getAllByText(/帰着駅/).length).toBeGreaterThan(0);
     expect(screen.getByText(/登録カテゴリ「公園」.*希望の自然/)).toBeTruthy();
@@ -485,4 +485,28 @@ describe("editing-only entry", () => {
     expect(onDiscover).toHaveBeenCalledOnce();
     await waitFor(() => expect(fetch).toHaveBeenCalled());
   });
+});
+
+it("renames a plan without restoring a removed stop, and updates the same saved card", async () => {
+  localStorage.setItem(SAVED_PLAN_STORAGE_KEY, JSON.stringify({ suggestions: [savedRoute], overnightSuggestion: null }));
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [savedRoute.origin] })));
+  const view = render(<SearchMode active />);
+  await screen.findByLabelText("プラン名");
+  await waitFor(() => expect((screen.getByRole("button", { name: "♡ この旅程を保存" }) as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.change(screen.getByLabelText("プラン名"), { target: { value: "週末の散歩" } });
+  fireEvent.click(screen.getByRole("button", { name: "♡ この旅程を保存" }));
+  await screen.findByText(/保存しました/);
+  fireEvent.change(screen.getByLabelText("プラン名"), { target: { value: "私の週末" } });
+  fireEvent.click(screen.getByRole("button", { name: "♡ この旅程を保存" }));
+  await screen.findByText(/元のプランを更新しました/);
+  const favorites = JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1")!);
+  expect(favorites).toHaveLength(1);
+  expect(favorites[0]).toMatchObject({ title: "私の週末", edited: true });
+  const fold = view.container.querySelector<HTMLDetailsElement>(".trip-stop-fold")!;
+  fireEvent.click(fold.querySelector("summary")!);
+  fireEvent.click(screen.getByRole("button", { name: "保存済みスポットを削除" }));
+  fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
+  fireEvent.change(screen.getByLabelText("プラン名"), { target: { value: "新しい散歩" } });
+  await waitFor(() => expect(readJourneyDraft()?.plan.stops).toHaveLength(0));
+  expect(readJourneyDraft()?.title).toBe("新しい散歩");
 });

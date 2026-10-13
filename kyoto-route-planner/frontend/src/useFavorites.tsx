@@ -16,12 +16,14 @@ export type FavoriteRoute = RouteIdea & {
   tags: Record<string, string>;
   saved_at: string;
   pinned?: boolean;
+  edited?: boolean;
 };
 
 type FavoritesContextValue = {
   favorites: FavoriteRoute[];
   error: string | null;
   saveFavorite: (idea: RouteIdea) => boolean;
+  replaceFavorite: (id: string, idea: RouteIdea) => boolean;
   removeFavorite: (id: string) => boolean;
   togglePin: (id: string) => boolean;
   isFavorite: (idea: RouteIdea) => boolean;
@@ -174,7 +176,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     const prefectureCode = idea.prefecture_code ?? prefecture.code;
     const prefectureName = idea.prefecture_name ?? prefecture.name;
     const id = favoriteId(idea, prefectureCode);
-    if (favoritesRef.current.some((favorite) => favorite.id === id)) return false;
+    if (favoritesRef.current.some((favorite) => (favorite.id === id || favoriteId(favorite, favorite.prefecture_code) === id))) return false;
     const favorite: FavoriteRoute = {
       ...idea,
       id,
@@ -197,6 +199,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     return persist(trimmed);
   }, [persist, prefecture]);
 
+  const replaceFavorite = useCallback((id: string, idea: RouteIdea) => {
+    const original = favoritesRef.current.find(item => item.id === id);
+    if (!original || !isSavedRouteIdea(idea) || !hasValidJourneyFile(idea) || !hasValidOvernight(idea)) return false;
+    const updated: FavoriteRoute = { ...original, ...idea, prefecture_code: idea.prefecture_code ?? original.prefecture_code, prefecture_name: idea.prefecture_name ?? original.prefecture_name, id, edited: true, saved_at: new Date().toISOString() };
+    return persist(favoritesRef.current.map(item => item.id === id ? updated : item));
+  }, [persist]);
+
   const togglePin = useCallback((id: string) => {
     const current = favoritesRef.current;
     if (!current.some((favorite) => favorite.id === id)) return false;
@@ -215,17 +224,18 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     if (!isSavedRouteIdea(idea) || !hasValidJourneyFile(idea) || !hasValidOvernight(idea)) return false;
     const prefectureCode = idea.prefecture_code ?? prefecture.code;
     const id = favoriteId(idea, prefectureCode);
-    return favoritesRef.current.some((favorite) => favorite.id === id);
+    return favoritesRef.current.some((favorite) => favorite.id === id || favoriteId(favorite, favorite.prefecture_code) === id);
   }, [prefecture]);
 
   const value = useMemo(() => ({
     favorites: state.favorites,
     error: state.error,
     saveFavorite,
+    replaceFavorite,
     removeFavorite,
     togglePin,
     isFavorite,
-  }), [isFavorite, removeFavorite, saveFavorite, togglePin, state]);
+  }), [isFavorite, removeFavorite, saveFavorite, replaceFavorite, togglePin, state]);
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }

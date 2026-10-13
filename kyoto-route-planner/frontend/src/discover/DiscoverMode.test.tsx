@@ -58,17 +58,17 @@ it("requests location only on click and sends its coordinates as the departure",
   fireEvent.click(screen.getByRole("button", { name: "現在地を使う" }));
   expect((screen.getByRole("button", { name: /おすすめ旅程を見る/ }) as HTMLButtonElement).disabled).toBe(true);
   location.succeed();
-  expect(screen.getByText("現在地を出発地点に設定しました。")).toBeTruthy();
+  expect(await screen.findByText("現在地を出発地点に設定しました。")).toBeTruthy();
   await generate();
   const request = vi.mocked(fetch).mock.calls.find(([url]) => url === "/api/discover")![1];
   expect(JSON.parse(String(request?.body)).origin).toEqual({ name: "京都駅", latitude: 34.985849, longitude: 135.758766 });
 });
 
-it.each([1, 2, 3])("keeps the selected station when location fails (%s) and allows retry", code => {
+it.each([1, 2, 3])("keeps the selected station when location fails (%s) and allows retry", async code => {
   const location = mockLocation(); mount(); next();
   fireEvent.click(screen.getByRole("button", { name: "現在地を使う" }));
   location.fail(code);
-  expect(screen.getByText(/駅名から選んでください/)).toBeTruthy();
+  expect(await screen.findByText(/駅名から選んでください/)).toBeTruthy();
   expect((screen.getByRole("combobox", { name: "出発地点" }) as HTMLSelectElement).selectedOptions[0].textContent).toBe("京都駅");
   fireEvent.click(screen.getByRole("button", { name: "現在地を使う" }));
   expect(location.getCurrentPosition).toHaveBeenCalledTimes(2);
@@ -273,4 +273,16 @@ it("allows returning users to jump to 02 with their saved preferences and shows 
   const tags = screen.getByRole("button", { name: "提案タグを選択" });
   const question = screen.getByRole("group", { name: "家族でどんな時間を過ごしたい？" });
   expect(tags.compareDocumentPosition(question) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+it("shows unanswered tags without selection and restores the full deck on ordinary regeneration", async () => {
+  const view = mount();
+  expect(screen.getByRole("button", { name: "指定しない" }).getAttribute("aria-pressed")).toBe("false");
+  next(); await generate();
+  const initialCount = view.container.querySelector(".discover-progress")?.textContent;
+  fireEvent.click(screen.getByRole("button", { name: "いいね ♥" }));
+  fireEvent.click(screen.getByRole("button", { name: "行き先を選び直す" }));
+  await generate();
+  expect(view.container.querySelector(".discover-progress")?.textContent).toBe(initialCount);
+  expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false);
 });

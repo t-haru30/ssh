@@ -677,7 +677,27 @@ async def search_place_catalog(
     center = (payload.center_latitude, payload.center_longitude) if payload.center_latitude is not None else None
     if center is None:
         return await search_yahoo_catalog(payload.query)
-    return await search_yahoo_catalog(payload.query, center=center, radius_m=20_000)
+    base = await search_yahoo_catalog(payload.query, center=center, radius_m=20_000)
+    if os.getenv("PLACE_SEARCH_PROVIDER") != "public_catalog":
+        return base
+    from app.openpoi import enrich_candidates, normalized
+    request_scope = DiscoverRequest(area="editor", prefecture_name=base.query.region or "全国",
+        origin=Origin(name="観光の起点", latitude=center[0], longitude=center[1]), radius_km=20)
+    pool, status = await enrich_candidates(request_scope, tuple(hit.place for hit in base.results), query=payload.query)
+    hits = list(base.results)
+    existing = {hit.place.id for hit in hits}
+    for place in pool:
+        if place.id in existing:
+            continue
+        # Direct text search is independent of the original route's proposed stops.
+        if base.query.region and place.region != base.query.region:
+            continue
+        hits.append(PlaceSearchHit(place=place, score=100 if normalized(payload.query) in normalized(place.name) else 50,
+            distance_m=round(_distance_km(center, (place.latitude, place.longitude)) * 1000)))
+    hits.sort(key=lambda hit: (-hit.score, hit.distance_m or 0))
+    note = "OpenStreetMapとOpenPOIの候補を検索しました。営業時間・料金は未確認です。" if status == "ready" else "外部の追加候補を取得できなかったため、登録済みの施設を表示しています。"
+    return PlaceSearchResponse(query=base.query, results=hits[:20], note=note)
+
 
 
 @app.post("/api/itineraries", response_model=ItinerarySuggestion)

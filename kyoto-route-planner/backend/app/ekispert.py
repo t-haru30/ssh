@@ -220,7 +220,17 @@ def _station_via_points(via_points: list[str]) -> list[str]:
         f"{origin.latitude},{origin.longitude}": origin.name.removesuffix("駅")
         for origin in list_origins()
     }
-    return [names.get(point, point) for point in via_points]
+    result = []
+    for point in via_points:
+        if point in names:
+            result.append(names[point])
+        elif re.fullmatch(r"-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?", point):
+            # Include nearby alternatives instead of committing to a single bus stop.
+            # https://docs.ekispert.com/v1/dictionary/coordinate-information/
+            result.append(f"{point},wgs84,1000")
+        else:
+            result.append(point)
+    return result
 _QUERY_KEY_PATTERN = re.compile(r"([?&]key=)[^&\s]+", re.IGNORECASE)
 
 

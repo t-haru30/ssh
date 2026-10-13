@@ -305,3 +305,21 @@ describe("useFavorites", () => {
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe("{invalid");
   });
 });
+
+it("replaces an edited source atomically, retains its identity and pin, and does not duplicate", () => {
+  const { result } = renderHook(() => useFavorites(), { wrapper });
+  act(() => { result.current.saveFavorite(makeIdea()); });
+  const id = result.current.favorites[0].id;
+  act(() => { result.current.togglePin(id); });
+  const edited = { ...snapshotIdea(60), title: "編集した旅" };
+  act(() => { expect(result.current.replaceFavorite(id, edited)).toBe(true); });
+  expect(result.current.favorites).toHaveLength(1);
+  expect(result.current.favorites[0]).toMatchObject({ id, title: "編集した旅", edited: true, pinned: true });
+  expect(result.current.isFavorite(edited)).toBe(true);
+  act(() => { expect(result.current.saveFavorite(edited)).toBe(false); });
+  const before = localStorage.getItem(STORAGE_KEY);
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("quota"); });
+  act(() => { expect(result.current.replaceFavorite(id, makeIdea(2))).toBe(false); });
+  expect(localStorage.getItem(STORAGE_KEY)).toBe(before);
+  expect(result.current.favorites[0].title).toBe("編集した旅");
+});

@@ -5,7 +5,7 @@ import prefectureIndex from "./data/routes/index.json";
 import { parseJourneyFile } from "./journeyFile";
 import { parseOvernightSnapshot, type OvernightSnapshot } from "./overnightFavorite";
 
-export type SearchPreset = { theme: Theme; stopCount: number; nonce: number; places: Place[]; origin: Origin; title: string; dwellMinutes: Record<string, number>; autoSearch?: boolean; returnTo?: Origin; tripPlan?: import("./dayTrip").TripPlan; overnightSnapshot?: OvernightSnapshot };
+export type SearchPreset = { sourceFavoriteId?: string; theme: Theme; stopCount: number; nonce: number; places: Place[]; origin: Origin; title: string; dwellMinutes: Record<string, number>; autoSearch?: boolean; returnTo?: Origin; tripPlan?: import("./dayTrip").TripPlan; overnightSnapshot?: OvernightSnapshot };
 export function routeSelection(route: DatasetRoute | RouteIdea, includeTransfers = false): SearchPreset {
   if ("overnight_snapshot" in route && route.overnight_snapshot) {
     const snapshot = parseOvernightSnapshot(route.overnight_snapshot);

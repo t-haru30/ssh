@@ -157,3 +157,15 @@
 .trip-stop-fold .trip-stop-header { margin:0; }
 .trip-stop-fold:not([open]) h4 { font-size:16px; }
 .trip-stops .trip-stop > article { padding:14px 16px; }
+
+.trip-duration-input { display: flex; gap: 12px; }
+.trip-duration-input label { display: flex; align-items: center; gap: 6px; }
+.trip-duration-input input { width: 5em; }
+.trip-adjustment > summary, .journey-review-fold > summary { cursor: pointer; padding: 16px 0; font-weight: 700; }
+.trip-return-fields .station-search { margin-top: 8px; }
+.trip-same-return { min-height: 48px; }
+
+.plan-title-input { display: grid; gap: 8px; margin-top: 12px; color: var(--ink-muted, #617068); font-size: .9rem; }
+.plan-title-input input { width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid #d8e0df; border-radius: 12px; background: var(--surface, #fff); color: var(--ink, #243c32); font: inherit; font-size: 1rem; }
+.results-heading > div:first-child { min-width: 0; flex: 1 1 260px; }
+.favorite-edited { display: inline-block; padding: 3px 8px; border-radius: 8px; background: #e9f2ec; color: #23493d; font-size: .8rem; }
