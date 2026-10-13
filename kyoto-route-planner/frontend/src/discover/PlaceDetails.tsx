@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Place } from "../types";
 import { TripDialog } from "../DayTripEditor";
 import { isRecord } from "../apiValidation";
+import { readOfficialNotices, type OfficialNotice } from "../officialNotices";
 import { googleMapsUrl } from "../mapLinks";
 import { OfficialPlaceSearch } from "./OfficialPlaceSearch";
 import "./placeDetails.css";
@@ -22,6 +23,8 @@ type OfficialInfo = {
   opening_hours: string | null;
   closed_days: string | null;
   admission: string | null;
+  field_sources: Partial<Record<"opening_hours" | "closed_days" | "admission", string>>;
+  notices: OfficialNotice[];
   checked_at: string | null;
   status: "verified" | "link_only";
 };
@@ -43,7 +46,15 @@ function readOfficial(value: unknown): OfficialInfo | null {
   if (!url || (value.status !== "verified" && value.status !== "link_only")) return null;
   const text = (key: string) => typeof value[key] === "string" && value[key].trim() ? (value[key] as string).trim() : null;
   const verified = value.status === "verified";
+  const field_sources: OfficialInfo["field_sources"] = {};
+  if (verified && isRecord(value.field_sources)) {
+    for (const key of ["opening_hours", "closed_days", "admission"] as const) {
+      const source = publicWebUrl(value.field_sources[key]);
+      if (text(key) && source) field_sources[key] = source;
+    }
+  }
   return { url, status: value.status, description: text("description"),
+    field_sources, notices: readOfficialNotices(value.notices, publicWebUrl),
     description_source_url: publicWebUrl(value.description_source_url) ?? url,
     highlights: Array.isArray(value.highlights) ? value.highlights.filter((item): item is string => typeof item === "string" && Boolean(item.trim())).slice(0, 3) : [],
     opening_hours: verified ? text("opening_hours") : null, closed_days: verified ? text("closed_days") : null,
@@ -126,11 +137,17 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], en
         <p className="place-details-source">出典：<a href={introduction.source_url} target="_blank" rel="noopener noreferrer">{introduction.source_title} — Wikipediaの寄稿者</a>（冒頭の抜粋・<a href={introduction.license_url} target="_blank" rel="noopener noreferrer">{introduction.license_name}</a>）</p>
       </div> : <p role="status" className="place-details-status">この場所に一致する詳しい説明は、現在確認できません。施設の案内や地図をご確認ください。</p>}
     {!detailsLoading && <section className="place-official-guide" aria-label="訪問前の確認"><h4>訪問前の確認</h4>
-      {(official || !enableOfficialSearch) && <dl><div><dt>開館・営業時間</dt><dd>{official?.opening_hours ?? "未確認"}</dd></div>
-        <div><dt>休館・定休日</dt><dd>{official?.closed_days ?? "未確認"}</dd></div>
-        <div><dt>入館・利用料金</dt><dd>{official?.admission ?? "未確認"}</dd></div></dl>}
+      {(official || !enableOfficialSearch) && <dl>{([
+        ["opening_hours", "開館・営業時間"], ["closed_days", "休館・定休日"], ["admission", "入館・利用料金"],
+      ] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{official?.[key] ?? "未確認"}
+        {official?.[key] && official.field_sources[key] && <> <a href={official.field_sources[key]} target="_blank" rel="noopener noreferrer" aria-label={`${label}の出典`}>出典</a></>}
+      </dd></div>)}</dl>}
+      {official?.notices.map(notice => <aside className="place-official-notice" aria-label="臨時休館のお知らせ" key={notice.url}>
+        <h4>臨時休館のお知らせ</h4><p>{notice.starts_on}〜{notice.ends_on}</p><p>{notice.text}</p>
+        <a href={notice.url} target="_blank" rel="noopener noreferrer">臨時休館の公式出典</a>
+      </aside>)}
       {official ? <><a className="place-details-official-link" href={official.url} target="_blank" rel="noopener noreferrer">公式サイトで最新の案内を見る <span aria-hidden="true">↗</span></a>
-        <p className="place-details-source">{official.status === "verified" ? `公式ページを確認${official.checked_at && !Number.isNaN(Date.parse(official.checked_at)) ? `：${new Date(official.checked_at).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}` : ""}。` : "公式ページの内容は取得できませんでした。"}未確認の項目や臨時休館・展示替えは、リンク先でご確認ください。</p></>
+        <p className="place-details-source">{official.status === "verified" ? `公式ページを確認${official.checked_at && !Number.isNaN(Date.parse(official.checked_at)) ? `：${new Date(official.checked_at).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}` : ""}。` : official.notices.length ? "公式のお知らせを取得しました。通常の開館情報は未確認です。" : "公式ページの内容は取得できませんでした。"}未確認の項目や臨時休館・展示替えは、リンク先でご確認ください。</p></>
         : !enableOfficialSearch && <><p className="place-details-status">公式サイトを確認できませんでした。開館時間・最終入館・休館日を、施設へお問い合わせいただくか検索してご確認ください。</p>
           <a className="place-details-official-link" href={`https://www.google.com/search?q=${encodeURIComponent(`${place.name} ${place.address ?? ""} 公式 開館時間 休館日`)}`} target="_blank" rel="noopener noreferrer">施設名で公式案内を探す <span aria-hidden="true">↗</span></a></>}
       {needsOfficialSearch && <OfficialPlaceSearch key={place.id} place={place} />}

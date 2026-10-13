@@ -14,6 +14,51 @@ const click = () => fireEvent.click(screen.getByRole("button", { name: "出発�
 function deferred() { let resolve!: (value: Response) => void; const promise = new Promise<Response>(done => { resolve = done; }); return { promise, resolve }; }
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe("JourneyReview", () => {
+  const notice = { text: "展示替えのため全館臨時休館", url: "https://museum.example.jp/news/closure", starts_on: "2026-10-20", ends_on: "2026-10-22" };
+  it.each(["verified", "link_only"])("shows sourced closure separately from normal information for %s", async status => {
+    const notices = [notice, { ...notice, text: "表示しない二件目" }];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(payload([{ ...result, official: { ...official, closed_days: "年中無休", status, notices } }]))));
+    render(<JourneyReview places={[place]} departureDate="2026-10-15" />); click();
+    await screen.findByRole("link", { name: /公式案内を開く/ });
+    expect(screen.getByText("臨時休館のお知らせ")).toBeTruthy();
+    expect(screen.getByText("2026-10-20〜2026-10-22")).toBeTruthy();
+    expect(screen.getByText(notice.text)).toBeTruthy();
+    const link = screen.getByRole("link", { name: "臨時休館の公式出典" });
+    expect(link.getAttribute("href")).toBe(notice.url);
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(screen.queryByText("表示しない二件目")).toBeNull();
+    expect(screen.queryByText("年中無休") !== null).toBe(status === "verified");
+  });
+  it.each([
+    { url: "javascript:alert(1)" }, { url: "https://127.0.0.1/" }, { url: "https://office.internal/" },
+    { url: "https://user:secret@museum.example.jp/" }, { starts_on: "2026-2-01" },
+    { starts_on: "2026-02-30" }, { ends_on: "2026-10-19" }, { text: "  " },
+  ])("omits malformed closure notice %j", async invalid => {
+    const status = "verified", notices = [{ ...notice, ...invalid }];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(payload([{ ...result, official: { ...official, closed_days: "年中無休", status, notices } }]))));
+    render(<JourneyReview places={[place]} departureDate="2026-10-15" />); click();
+    await screen.findByRole("link", { name: /公式案内を開く/ });
+    expect(screen.queryByText("臨時休館のお知らせ")).toBeNull();
+    expect(screen.queryByRole("link", { name: "臨時休館の公式出典" })).toBeNull();
+    expect(screen.getByText("年中無休")).toBeTruthy();
+  });
+  it("keeps older responses without notices unchanged", async () => {
+    const status = "verified", notices = undefined;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(payload([{ ...result, official: { ...official, closed_days: "年中無休", status, notices } }]))));
+    render(<JourneyReview places={[place]} departureDate="2026-10-15" />); click();
+    await screen.findByRole("link", { name: /公式案内を開く/ });
+    expect(screen.queryByText("臨時休館のお知らせ")).toBeNull();
+    expect(screen.getByText("年中無休")).toBeTruthy();
+  });
+
+  it("links each known field to its own official source and rejects unsafe or unknown-field sources", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(payload([{ ...result, official: { ...official, admission: null,
+      field_sources: { opening_hours: "https://museum.example.jp/guide", closed_days: "javascript:alert(1)", admission: "https://museum.example.jp/fees" } } }]))));
+    render(<JourneyReview places={[place]} departureDate="2026-10-15" />); click();
+    expect((await screen.findByRole("link", { name: "試験美術館の開館・営業時間の出典" })).getAttribute("href")).toBe("https://museum.example.jp/guide");
+    expect(screen.queryByRole("link", { name: "試験美術館の休館・定休日の出典" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "試験美術館の入館・利用料金の出典" })).toBeNull();
+  });
   it("only requests on click, posts the current itinerary and never persists evidence", async () => {
     const fetchMock = vi.fn().mockResolvedValue(response(payload())); vi.stubGlobal("fetch", fetchMock);
     const storage = vi.spyOn(Storage.prototype, "setItem");

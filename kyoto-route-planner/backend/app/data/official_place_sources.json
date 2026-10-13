@@ -2,6 +2,13 @@
   "version": 1,
   "places": [
     {
+      "id": "osm-node-14129059011",
+      "name": "大樋美術館",
+      "latitude": 36.5699055,
+      "longitude": 136.66439,
+      "url": "https://ohimuseum.com/access/"
+    },
+    {
       "id": "osm-node-2143998214",
       "name": "金沢市立安江金箔工芸館",
       "latitude": 36.5737572,

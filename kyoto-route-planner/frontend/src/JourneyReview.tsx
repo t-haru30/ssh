@@ -3,8 +3,9 @@ import type { Place } from "./types";
 import { isRecord } from "./apiValidation";
 import { CitedText, readEvidence, SearchSuggestions } from "./VenueEvidence";
 import "./journeyReview.css";
+import { readOfficialNotices, type OfficialNotice } from "./officialNotices";
 
-type Official = { url: string; status: "verified" | "link_only"; opening_hours: string | null; closed_days: string | null; admission: string | null };
+type Official = { url: string; status: "verified" | "link_only"; opening_hours: string | null; closed_days: string | null; admission: string | null; field_sources: Record<string, string>; notices: OfficialNotice[] };
 type Step = { label: string; status: "ready" | "needs_check" | "unavailable" | "skipped" };
 type Result = { place: Place; official: Official | null; evidence: ReturnType<typeof readEvidence> | null; steps: Step[]; missing: string[]; evidenceInvalid: boolean };
 type Review = { checkedAt: string; results: Result[]; remaining: number; note: string };
@@ -40,7 +41,12 @@ function readReview(value: unknown, places: Place[], date: string): Review {
       if (url && ["verified", "link_only"].includes(String(item.official.status))) {
         const source = item.official;
         const text = (key: string) => source.status === "verified" && typeof source[key] === "string" && source[key].trim() ? source[key].trim() : null;
-        official = { url, status: source.status as Official["status"], opening_hours: text("opening_hours"), closed_days: text("closed_days"), admission: text("admission") };
+        const field_sources: Record<string, string> = {};
+        if (isRecord(source.field_sources)) for (const key of Object.keys(fields)) {
+          const link = publicUrl(source.field_sources[key]);
+          if (text(key) && link) field_sources[key] = link;
+        }
+        official = { url, status: source.status as Official["status"], opening_hours: text("opening_hours"), closed_days: text("closed_days"), admission: text("admission"), field_sources, notices: readOfficialNotices(source.notices, publicUrl) };
       }
     }
     let evidence = null, evidenceInvalid = false;
@@ -104,7 +110,11 @@ function JourneyReviewSession({ places, departureDate }: { places: Place[]; depa
       <p className="journey-review-notice">出発日は表示上の参考です。当日の営業は自動確認していません。訪問前に最新の公式案内をご確認ください。</p>
       <ol className="journey-review-results">{review.results.map(result => <li key={result.place.id}>
         <div className="journey-review-result-title"><h5>{result.place.name}</h5><span className={result.missing.length ? "needs-check" : "is-ready"}>{result.missing.length ? "確認したい項目あり" : "公式案内を取得"}</span></div>
-        <dl>{Object.entries(fields).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{result.official?.[key as keyof typeof fields] ?? "未確認"}</dd></div>)}</dl>
+        <dl>{Object.entries(fields).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{result.official?.[key as keyof typeof fields] ?? "未確認"}{result.official?.field_sources[key] && <> <a className="journey-review-source" href={result.official.field_sources[key]} target="_blank" rel="noopener noreferrer" aria-label={`${result.place.name}の${label}の出典`}>出典 ↗</a></>}</dd></div>)}</dl>
+        {result.official?.notices.map(notice => <aside className="journey-review-official-notice" aria-label={`${result.place.name}の臨時休館のお知らせ`} key={notice.url}>
+          <h5>臨時休館のお知らせ</h5><p>{notice.starts_on}〜{notice.ends_on}</p><p>{notice.text}</p>
+          <a href={notice.url} target="_blank" rel="noopener noreferrer">臨時休館の公式出典</a>
+        </aside>)}
         {result.official && <a href={result.official.url} target="_blank" rel="noopener noreferrer">{result.place.name}の公式案内を開く ↗</a>}
         {!!result.missing.length && <p className="journey-review-notice">要確認：{result.missing.map(key => fields[key as keyof typeof fields]).join("・")}</p>}
         <details className="journey-review-steps"><summary>実行した確認手順（{result.steps.length}件）</summary><ol>{result.steps.map((step, i) => <li key={i}><span>{step.label}</span><strong>{stepLabels[step.status]}</strong></li>)}</ol></details>

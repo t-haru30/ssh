@@ -40,6 +40,7 @@ from app.route_illustrations import (
     request_illustration, get_illustration, illustration_path,
 )
 from app.venue_evidence import EvidenceRequest, VenueEvidence, evidence_status, fetch_venue_evidence
+from app.official_place_info import known_official_url
 from app.station_search import StationCandidate, search_stations
 from app.models import (
     ItineraryRequest,
@@ -563,7 +564,7 @@ async def place_description(request: Request, payload: Place) -> PlaceDescriptio
 async def official_place_evidence(request: Request, payload: Place) -> VenueEvidence:
     # Live grounded results belong to this detail view: never feed them to the
     # official-page crawler or its shared cache.
-    return await fetch_venue_evidence(payload, official=True)
+    return await fetch_venue_evidence(payload, official=True, official_url=known_official_url(payload))
 
 
 @app.post("/api/discover")
