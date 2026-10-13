@@ -14,6 +14,10 @@ export type RouteIdea = {
   origin?: Origin;
   dwell_minutes?: Record<string, number>;
   image_url: string | null;
+  image_place_id?: string | null;
+  image_verified?: boolean;
+  journey_file?: string;
+  overnight_snapshot?: import("./overnightFavorite").OvernightSnapshot;
   author_name: string | null;
   source_url: string | null;
   license_name: string | null;
@@ -70,7 +74,7 @@ export function SwipeCard({
         name: place.name,
         category: place.category,
       }))}
-      imageUrl={idea.image_url}
+      imageUrl={idea.image_verified === true && idea.image_place_id === idea.places[0]?.id ? idea.image_url : null}
       authorName={idea.author_name}
       sourceUrl={idea.source_url}
       licenseName={idea.license_name}

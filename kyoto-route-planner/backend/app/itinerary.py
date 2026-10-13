@@ -85,7 +85,7 @@ def _distance_km(first: CatalogPlace | Origin, second: CatalogPlace | Origin) ->
         * cos(radians(second.latitude))
         * sin(longitude_delta / 2) ** 2
     )
-    return 6371.0 * 2 * asin(sqrt(value))
+    return 6371.0 * 2 * asin(sqrt(min(1.0, value)))
 
 
 def _lunch_score(
@@ -188,6 +188,7 @@ def _build_day_schedule(
     hotel_start: bool = False,
     lunch: LunchPlan | None = None,
     hotel_destination: bool = False,
+    hotel_checkout: bool = True,
 ) -> list[ItineraryScheduleItem]:
     schedule: list[ItineraryScheduleItem] = []
     current = start_at
@@ -195,8 +196,8 @@ def _build_day_schedule(
         schedule.append(ItineraryScheduleItem(
             start_time=_clock(current),
             end_time=_clock(current),
-            title="ホテルをチェックアウトして出発",
-            detail="10:00にホテルをチェックアウトして出発します。",
+            title="ホテルをチェックアウトして出発" if hotel_checkout else "ホテルから出発",
+            detail="10:00にホテルをチェックアウトして出発します。" if hotel_checkout else "10:00にホテルから出発します。",
             kind="hotel",
         ))
 
@@ -247,7 +248,12 @@ def _build_day_schedule(
                 detail=lunch.reason,
                 kind="lunch",
             ))
-            current = datetime.combine(current.date(), time(13, 0))
+            lunch_start = max(current, datetime.combine(current.date(), time(12, 0)))
+            lunch_end = lunch_start + timedelta(minutes=LUNCH_STAY_MINUTES)
+            schedule[-2].start_time = schedule[-2].end_time = _clock(lunch_start)
+            schedule[-1].start_time, schedule[-1].end_time = _clock(lunch_start), _clock(lunch_end)
+            lunch.start_time, lunch.end_time = _clock(lunch_start), _clock(lunch_end)
+            current = lunch_end
 
     segment_minutes = (
         base_minutes + (1 if len(places) < remainder else 0)
@@ -266,9 +272,9 @@ def _build_day_schedule(
         kind="travel",
     ))
     hotel_check_in = (
-        max(current, datetime.combine(current.date(), time(15, 0)))
+        max(arrival or current, datetime.combine(current.date(), time(15, 0)))
         if hotel_destination
-        else current
+        else arrival or current
     )
     destination_time = (
         _clock(hotel_check_in)
@@ -300,6 +306,16 @@ class ItineraryCandidate:
     feasible: bool | None
 
 
+async def _catalog_with_deadline(query: str, deadline: float, **kwargs) -> PlaceSearchResponse:
+    remaining = deadline - time_module.monotonic()
+    if remaining <= 0:
+        raise HTTPException(status_code=504, detail="施設候補の検索がタイムアウトしました。")
+    try:
+        return await asyncio.wait_for(search_yahoo_catalog(query, **kwargs), timeout=remaining)
+    except asyncio.TimeoutError as error:
+        raise HTTPException(status_code=504, detail="施設候補の検索がタイムアウトしました。") from error
+
+
 async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> OvernightItinerarySuggestion:
     try:
         origin = resolve_origin(
@@ -320,25 +336,25 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
     # 1. ホテルの選定
     # lodgingカテゴリを含めて検索
     hotel_query = request.hotel_query or f"{request.query} ホテル 旅館"
-    hotel_search = await search_yahoo_catalog(
-        hotel_query,
+    hotel_search = await _catalog_with_deadline(
+        hotel_query, deadline,
         limit=20,
         center=search_center,
-        radius_m=20_000,
+        radius_m=request.radius_km * 1000,
     )
 
-    hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place)]
+    hotels = [hit.place for hit in hotel_search.results if _is_lodging(hit.place) and _distance_km(origin, hit.place) <= request.radius_km]
 
     if not hotels:
         # 出発地名やテーマ語を含む検索語は、Yahoo!側で宿泊施設が0件になることがあるため、
         # 座標と半径だけで絞る汎用語に切り替える
-        fallback_search = await search_yahoo_catalog(
-            GENERIC_HOTEL_QUERY,
+        fallback_search = await _catalog_with_deadline(
+            GENERIC_HOTEL_QUERY, deadline,
             limit=20,
             center=search_center,
-            radius_m=20_000,
+            radius_m=request.radius_km * 1000,
         )
-        hotels = [hit.place for hit in fallback_search.results if _is_lodging(hit.place)]
+        hotels = [hit.place for hit in fallback_search.results if _is_lodging(hit.place) and _distance_km(origin, hit.place) <= request.radius_km]
 
     if not hotels:
         raise HTTPException(
@@ -347,15 +363,17 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         )
 
     # 2. 観光スポットの選定（宿泊施設を除外）
-    spot_search = await search_yahoo_catalog(
-        request.query,
-        limit=40,
+    spot_search = await _catalog_with_deadline(
+        request.query, deadline,
+        limit=100,
         center=search_center,
-        radius_m=20_000,
+        radius_m=request.radius_km * 1000,
     )
     all_spots = [
         hit.place for hit in spot_search.results
-        if not _is_lodging(hit.place) and not is_unsuitable_place(hit.place)
+        if not _is_lodging(hit.place)
+        and not is_unsuitable_place(hit.place)
+        and _distance_km(origin, hit.place) <= request.radius_km
     ]
     selected_hotel = min(
         hotels,
@@ -373,136 +391,50 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         ),
     )
     
-    required_spots = request.stops_per_day * 2
-    if len(all_spots) < required_spots:
-        if len(all_spots) < 2:
-            raise HTTPException(
-                status_code=404,
-                detail=(
-                    f"{spot_search.note} 2日分の観光スポットが不足しています"
-                    f"（{len(all_spots)}件のみ）。条件を広げてください。"
-                ),
-            )
-        actual_stops_per_day = len(all_spots) // 2
-    else:
-        actual_stops_per_day = request.stops_per_day
-
-    day1_spots = all_spots[:actual_stops_per_day]
-    day2_spots = all_spots[actual_stops_per_day : actual_stops_per_day * 2]
-
-    # Day 1: 出発駅 -> 観光地 -> ホテル
-    best_day1 = await _find_best_route(
-        origin_lat=origin.latitude,
-        origin_lon=origin.longitude,
-        dest_lat=selected_hotel.latitude,
-        dest_lon=selected_hotel.longitude,
-        spots=day1_spots,
-        dep_date=request.departure_date,
-        dep_time=request.departure_time,
-        stay_min=90,
-        deadline=deadline,
-        origin_station=origin.name,
-    )
-
-    # Day 2: ホテル -> 観光地 -> 出発駅
-    checkout_time = time(10, 0)
-    day2_date = request.departure_date + timedelta(days=1)
-    best_day2 = await _find_best_route(
-        origin_lat=selected_hotel.latitude,
-        origin_lon=selected_hotel.longitude,
-        dest_lat=origin.latitude,
-        dest_lon=origin.longitude,
-        spots=day2_spots,
-        dep_date=day2_date,
-        dep_time=checkout_time,
-        stay_min=90,
-        deadline=deadline,
-        destination_station=origin.name,
-    )
-
-    day1_split = max(1, len(best_day1["places"]) // 2)
-    day2_split = max(1, len(best_day2["places"]) // 2)
-    day1_lunch = await _select_lunch(
-        request.query,
-        best_day1["places"][day1_split - 1],
-        best_day1["places"][day1_split] if day1_split < len(best_day1["places"]) else selected_hotel,
-        deadline,
-    )
-    day2_lunch = await _select_lunch(
-        request.query,
-        best_day2["places"][day2_split - 1],
-        best_day2["places"][day2_split] if day2_split < len(best_day2["places"]) else origin,
-        deadline,
-    )
-    best_day1 = await _add_lunch_to_route(
-        best_day1, list(best_day1["places"]), day1_lunch,
-        origin.latitude, origin.longitude,
-        selected_hotel.latitude, selected_hotel.longitude,
-        request.departure_date, request.departure_time, deadline,
-        origin_station=origin.name,
-    )
-    best_day2 = await _add_lunch_to_route(
-        best_day2, list(best_day2["places"]), day2_lunch,
-        selected_hotel.latitude, selected_hotel.longitude,
-        origin.latitude, origin.longitude,
-        day2_date, checkout_time, deadline,
-        destination_station=origin.name,
-    )
-
-    days = [
-        DailyItinerary(
-            day=1,
-            date=request.departure_date,
-            places=list(best_day1["places"]),
-            legs=best_day1["legs"],
-            schedule=_build_day_schedule(
-                places=list(best_day1["places"]),
-                start_at=datetime.combine(request.departure_date, request.departure_time),
-                destination=selected_hotel.name,
-                transit_minutes=best_day1["transit_minutes"],
-                stay_minutes=90,
-                lunch=day1_lunch,
-                hotel_destination=True,
-            ),
-            lunch=day1_lunch,
-            transit_minutes=best_day1["transit_minutes"],
-            stay_minutes=len(best_day1["places"]) * 90 + LUNCH_STAY_MINUTES,
-            estimated_arrival_at=best_day1["arrival_at"],
-            coordinates=[
-                [origin.latitude, origin.longitude],
-                *[[place.latitude, place.longitude] for place in best_day1["places"][:day1_split]],
-                *([[day1_lunch.place.latitude, day1_lunch.place.longitude]] if day1_lunch.place else []),
-                *[[place.latitude, place.longitude] for place in best_day1["places"][day1_split:]],
-                [selected_hotel.latitude, selected_hotel.longitude],
-            ],
-        ),
-        DailyItinerary(
-            day=2,
-            date=day2_date,
-            places=list(best_day2["places"]),
-            legs=best_day2["legs"],
-            schedule=_build_day_schedule(
-                places=list(best_day2["places"]),
-                start_at=datetime.combine(day2_date, checkout_time),
-                destination=origin.name,
-                transit_minutes=best_day2["transit_minutes"],
-                stay_minutes=90,
-                hotel_start=True,
-                lunch=day2_lunch,
-            ),
-            lunch=day2_lunch,
-            transit_minutes=best_day2["transit_minutes"],
-            stay_minutes=len(best_day2["places"]) * 90 + LUNCH_STAY_MINUTES,
-            estimated_arrival_at=best_day2["arrival_at"],
-            coordinates=[
-                [selected_hotel.latitude, selected_hotel.longitude],
-                *[[place.latitude, place.longitude] for place in best_day2["places"][:day2_split]],
-                *([[day2_lunch.place.latitude, day2_lunch.place.longitude]] if day2_lunch.place else []),
-                *[[place.latitude, place.longitude] for place in best_day2["places"][day2_split:]],
-                [origin.latitude, origin.longitude],
-            ],
+    # The pool is fetched once for the entire trip; partition it without revisits.
+    day_count = request.nights + 1
+    unique_spots = list({place.id: place for place in all_spots if place.id != selected_hotel.id}.values())
+    if not unique_spots:
+        raise HTTPException(status_code=404, detail=f"{spot_search.note} 観光スポットが見つかりませんでした。移動範囲や条件を変えてください。")
+    actual_stops_per_day = max(1, min(request.stops_per_day, len(unique_spots) // day_count))
+    days: list[DailyItinerary] = []
+    route_search_calls = 0
+    for index in range(day_count):
+        first, last = index == 0, index == day_count - 1
+        start = origin if first else selected_hotel
+        destination = origin if last else selected_hotel
+        dep_time = request.departure_time if first else time(10, 0)
+        day_date = request.departure_date + timedelta(days=index)
+        day_spots = unique_spots[index * actual_stops_per_day:(index + 1) * actual_stops_per_day]
+        best = await _find_best_route(
+            start.latitude, start.longitude, destination.latitude, destination.longitude,
+            day_spots, day_date, dep_time, 90, deadline,
+            origin_station=origin.name if first else None,
+            destination_station=origin.name if last else None,
         )
-    ]
+        ordered = list(best["places"])
+        split = max(1, len(ordered) // 2)
+        lunch = await _select_lunch(request.query, ordered[split - 1] if ordered else start,
+            ordered[split] if split < len(ordered) else destination, deadline)
+        if lunch.place and _distance_km(origin, lunch.place) > request.radius_km:
+            lunch = LunchPlan(reason="検索半径内の昼食候補が見つからないため、昼食は要検討です。")
+        best = await _add_lunch_to_route(best, ordered, lunch,
+            start.latitude, start.longitude, destination.latitude, destination.longitude,
+            day_date, dep_time, deadline, origin_station=origin.name if first else None,
+            destination_station=origin.name if last else None)
+        route_search_calls += best["calls"]
+        days.append(DailyItinerary(day=index + 1, date=day_date, places=ordered, legs=best["legs"],
+            schedule=_build_day_schedule(places=ordered, start_at=datetime.combine(day_date, dep_time),
+                destination=destination.name, transit_minutes=best["transit_minutes"], stay_minutes=90,
+                lunch=lunch, hotel_start=not first, hotel_destination=not last, hotel_checkout=last),
+            lunch=lunch, transit_minutes=best["transit_minutes"], stay_minutes=len(ordered) * 90 + LUNCH_STAY_MINUTES,
+            estimated_arrival_at=(datetime.combine(day_date, dep_time) + timedelta(minutes=best["transit_minutes"] + len(ordered) * 90 + LUNCH_STAY_MINUTES)).isoformat() if best["transit_minutes"] is not None else None, coordinates=[
+                [start.latitude, start.longitude],
+                *[[p.latitude, p.longitude] for p in ordered[:split]],
+                *([[lunch.place.latitude, lunch.place.longitude]] if lunch.place else []),
+                *[[p.latitude, p.longitude] for p in ordered[split:]],
+                [destination.latitude, destination.longitude],
+            ]))
 
     for day in days:
         remaining = deadline - time_module.monotonic()
@@ -519,7 +451,7 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
             ]
             if day.day == 1:
                 via_points[0] = origin.name.removesuffix("駅")
-            else:
+            if day.day == day_count:
                 via_points[-1] = origin.name.removesuffix("駅")
             day.fare_yen = await asyncio.wait_for(
                 estimate_route_fare(via_points),
@@ -546,12 +478,14 @@ async def plan_overnight_itinerary(request: OvernightItineraryRequest) -> Overni
         hotel=selected_hotel,
         days=days,
         fare_yen=total_fare_yen,
-        feasible=best_day1["transit_minutes"] is not None and best_day2["transit_minutes"] is not None,
-        route_search_calls=best_day1["calls"] + best_day2["calls"],
+        feasible=all(day.transit_minutes is not None and day.transit_minutes + day.stay_minutes <= (19 * 60 - (request.departure_time.hour * 60 + request.departure_time.minute if day.day == 1 else 600)) for day in days),
+        route_search_calls=route_search_calls,
         note=(
-            f"宿泊先に「{selected_hotel.name}」を選定した1泊2日プランです。"
-            f"1日目{len(best_day1['places'])}箇所、2日目{len(best_day2['places'])}箇所のスポットを巡ります。"
-            "2日目は10:00にホテルを出発する計算です。移動区間は総所要時間を均等配分した目安で、営業時間・運休・宿泊料金は確認していません。"
+            f"宿泊先に「{selected_hotel.name}」を選定した{request.nights}泊{day_count}日プランです。"
+            f"観光地は重複なしで計{sum(len(day.places) for day in days)}か所です。候補不足の日は自由時間を設けています。"
+            "2日目以降は10:00に同じ宿から出発します。訪問順は距離から先に計算し、交通経路検索は1日最大2回、運賃検索は1日最大1回です。"
+            "全体の処理時間は最大55秒です。時間内に交通情報を取得できなかった日は未確認として表示します。"
+            "移動区間は総所要時間を均等配分した目安で、営業時間・運休・宿泊料金は確認していません。"
             f"候補地検索: {spot_search.note}"
         )
     )
@@ -569,9 +503,16 @@ async def _find_best_route(
     best = None
     calls = 0
     
-    # タイムアウトを考慮し、順列は最大6通り（3スポット分）に制限
-    # 既に permutations(spots) は spots が3件以下なら最大6通り。
-    for p in permutations(spots):
+    # Calculate the order locally; paid requests must not grow factorially.
+    remaining_spots = list(spots)
+    ordered = []
+    cursor = Origin(name="start", latitude=origin_lat, longitude=origin_lon)
+    while remaining_spots:
+        nearest = min(remaining_spots, key=lambda place: _distance_km(cursor, place))
+        ordered.append(nearest)
+        remaining_spots.remove(nearest)
+        cursor = nearest
+    for p in [tuple(ordered)]:
         now = time_module.monotonic()
         if now > deadline - 2.0: # 余裕を持って2秒前に打ち切り
             break
@@ -649,6 +590,7 @@ async def _add_lunch_to_route(
     remaining = deadline - time_module.monotonic()
     if remaining <= 0:
         return route
+    route["calls"] = route.get("calls", 0) + 1
     try:
         legs, transit_min, _departure, arrival_dt = await asyncio.wait_for(
             search_route(
@@ -666,7 +608,7 @@ async def _add_lunch_to_route(
             "transit_minutes": transit_min,
             "total_minutes": (transit_min or 0) + len(places) * 90 + LUNCH_STAY_MINUTES,
             "arrival_at": arrival_dt.isoformat() if arrival_dt else None,
-            "calls": route.get("calls", 0) + 1,
+            "calls": route["calls"],
         })
     return route
 

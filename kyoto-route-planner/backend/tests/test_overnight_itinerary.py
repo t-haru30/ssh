@@ -81,9 +81,9 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         ))
         request = OvernightItineraryRequest(
             query="温泉でのんびり、静かな場所で美味しいものを食べたい",
-            departure_station="高尾駅",
-            origin_latitude=35.6575,
-            origin_longitude=139.2828,
+            departure_station="京都駅",
+            origin_latitude=35.0,
+            origin_longitude=135.7,
             departure_date=date(2026, 10, 9),
             departure_time=time(9, 0),
             stops_per_day=1,
@@ -108,9 +108,9 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
                 for latitude, longitude in day.coordinates
             ]
             if day.day == 1:
-                expected_via_points[0] = "高尾"
+                expected_via_points[0] = "京都"
             else:
-                expected_via_points[-1] = "高尾"
+                expected_via_points[-1] = "京都"
             self.assertEqual(
                 self.fare_estimate.await_args_list[index].args[0],
                 expected_via_points,
@@ -127,9 +127,9 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         for search_call in search.await_args_list[:2]:
             self.assertEqual(
                 search_call.kwargs["center"],
-                (35.6575, 139.2828),
+                (35.0, 135.7),
             )
-            self.assertEqual(search_call.kwargs["radius_m"], 20_000)
+            self.assertEqual(search_call.kwargs["radius_m"], 30_000)
 
     async def test_each_day_includes_a_lunch_plan_between_sightseeing(self):
         hotel = catalog_place("hotel-1", "京都温泉旅館", "旅館")
@@ -213,6 +213,11 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         hotel = catalog_place("hotel-1", "浜松ホテル", "ホテル")
         day_one = catalog_place("place-1", "静かな庭園", "庭園")
         day_two = catalog_place("place-2", "歴史資料館", "博物館")
+        hotel, day_one, day_two = (
+            place.model_copy(update={"region": "静岡県", "address": "浜松市",
+                                     "latitude": 34.720549, "longitude": 137.721449})
+            for place in (hotel, day_one, day_two)
+        )
         search = AsyncMock(side_effect=[
             search_response(),
             search_response(hotel),
@@ -228,6 +233,7 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
             departure_date=date(2026, 10, 9),
             hotel_query="追分小学校／遠鉄バス ホテル 旅館",
             stops_per_day=1,
+            radius_km=5,
         )
 
         with (
@@ -241,6 +247,8 @@ class OvernightItineraryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.hotel.name, "浜松ホテル")
         self.assertEqual(search.await_args_list[1].args[0], "ホテル 旅館")
         self.assertEqual(search.await_args_list[1].kwargs["center"], (34.720549, 137.721449))
+        self.assertEqual(search.await_args_list[1].kwargs["radius_m"], 5000)
+        self.assertEqual(search.await_args_list[1].kwargs["limit"], 20)
 
 
 if __name__ == "__main__":

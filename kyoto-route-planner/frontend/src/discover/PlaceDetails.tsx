@@ -1,0 +1,156 @@
+import { useEffect, useState } from "react";
+import type { Place } from "../types";
+import { TripDialog } from "../DayTripEditor";
+import { isRecord } from "../apiValidation";
+import { googleMapsUrl } from "../mapLinks";
+import { OfficialPlaceSearch } from "./OfficialPlaceSearch";
+import "./placeDetails.css";
+
+type Introduction = {
+  description: string;
+  source_url: string;
+  source_title: string;
+  license_url: string;
+  license_name: string;
+};
+
+type OfficialInfo = {
+  url: string;
+  description: string | null;
+  description_source_url: string;
+  highlights: string[];
+  opening_hours: string | null;
+  closed_days: string | null;
+  admission: string | null;
+  checked_at: string | null;
+  status: "verified" | "link_only";
+};
+
+function publicWebUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    if (!["https:", "http:"].includes(url.protocol) || url.username || url.password
+      || !url.hostname.includes(".") || /(?:^|\.)(?:localhost|local|internal)$/.test(url.hostname)
+      || /^\d[\d.]+$/.test(url.hostname) || url.hostname.includes(":")) return null;
+    return url.href;
+  } catch { return null; }
+}
+
+function readOfficial(value: unknown): OfficialInfo | null {
+  if (!isRecord(value)) return null;
+  const url = publicWebUrl(value.url);
+  if (!url || (value.status !== "verified" && value.status !== "link_only")) return null;
+  const text = (key: string) => typeof value[key] === "string" && value[key].trim() ? (value[key] as string).trim() : null;
+  const verified = value.status === "verified";
+  return { url, status: value.status, description: text("description"),
+    description_source_url: publicWebUrl(value.description_source_url) ?? url,
+    highlights: Array.isArray(value.highlights) ? value.highlights.filter((item): item is string => typeof item === "string" && Boolean(item.trim())).slice(0, 3) : [],
+    opening_hours: verified ? text("opening_hours") : null, closed_days: verified ? text("closed_days") : null,
+    admission: verified ? text("admission") : null, checked_at: verified ? text("checked_at") : null };
+}
+
+function readIntroduction(value: unknown): Introduction | null {
+  if (!isRecord(value)) return null;
+  const keys = ["description", "source_url", "source_title", "license_url", "license_name"] as const;
+  if (!keys.every(key => typeof value[key] === "string" && value[key].trim())) return null;
+  try {
+    const source = new URL(value.source_url as string);
+    const license = new URL(value.license_url as string);
+    if (source.protocol !== "https:" || source.hostname !== "ja.wikipedia.org"
+      || license.protocol !== "https:" || license.hostname !== "creativecommons.org") return null;
+  } catch { return null; }
+  return Object.fromEntries(keys.map(key => [key, value[key]])) as Introduction;
+}
+
+function visitHint(category: string) {
+  if (/寺|神社|神宮|大社/.test(category)) return "境内を歩く時間も含めて、ゆとりのある滞在を。拝観できる場所や時間は、出発前に施設の案内で確認しましょう。";
+  if (/博物館|美術館|資料館|歴史|文化/.test(category)) return "展示や建物をゆっくり楽しむ立ち寄り先です。企画展・休館日・入館時間を確認しておくと、当日の予定を立てやすくなります。";
+  if (/公園|庭園|自然|景|山|湖|海|滝/.test(category)) return "景色を眺めたり、周辺を散策したりする時間に。天候や歩く距離に合わせて、滞在時間を調整しましょう。";
+  if (/食|グルメ|カフェ|喫茶|料理|レストラン|市場/.test(category)) return "食事や休憩を楽しむ立ち寄り先です。営業時間や混み合う時間、予約の要否を確認しておきましょう。";
+  return "この旅で立ち寄る候補のひとつです。周辺を歩く時間も見込み、営業時間や利用条件を確認してから出かけましょう。";
+}
+
+/** Mounted only after a person opens a destination; browsing cards makes no API calls. */
+export function PlaceIntroduction({ place, stayMinutes, recommendations = [], enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; enableOfficialSearch?: boolean }) {
+  const [introduction, setIntroduction] = useState<Introduction | null>(null);
+  const [official, setOfficial] = useState<OfficialInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const identity = JSON.stringify([place.id, place.name, place.latitude, place.longitude, place.address ?? ""]);
+  const [loadedIdentity, setLoadedIdentity] = useState<string | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
+    const timer = window.setTimeout(() => controller.abort(), 17_000);
+    setIntroduction(null);
+    setOfficial(null);
+    setLoading(true);
+    setLoadedIdentity(null);
+    async function load() {
+      try {
+        const response = await fetch("/api/places/description", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(place), signal: controller.signal,
+        });
+        const data: unknown = response.ok ? await response.json() : null;
+        if (active && !controller.signal.aborted) {
+          setIntroduction(readIntroduction(data));
+          setOfficial(isRecord(data) ? readOfficial(data.official) : null);
+        }
+      } catch { /* The visit hint and map remain available when no verified article exists. */ }
+      finally { window.clearTimeout(timer); if (active) { setLoading(false); setLoadedIdentity(identity); } }
+    }
+    void load();
+    return () => { active = false; window.clearTimeout(timer); controller.abort(); };
+  }, [place]);
+
+  const mapUrl = `https://www.openstreetmap.org/?mlat=${place.latitude}&mlon=${place.longitude}#map=17/${place.latitude}/${place.longitude}`;
+  const routeNote = place.description.trim();
+  const hasRouteNote = routeNote && !/^.{1,4}[都道府県]$/.test(routeNote);
+  const needsOfficialSearch = enableOfficialSearch && (!official || !official.opening_hours || !official.closed_days || !official.admission);
+  const detailsLoading = loading || loadedIdentity !== identity;
+  return <div className="place-introduction">
+    <div className="place-details-facts"><span>{place.category}</span>{stayMinutes !== undefined && <span>滞在の目安 {stayMinutes}分</span>}</div>
+    {place.address && <p className="place-details-address">{place.address}</p>}
+    {hasRouteNote && <div className="place-route-reason"><h4>旅のポイント</h4><p>{routeNote}</p></div>}
+    {recommendations.length > 0 && <section className="place-recommendation" aria-label="この旅でのおすすめポイント"><h4>この旅でのおすすめポイント</h4>
+      <ul>{recommendations.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+    </section>}
+    {Boolean(official?.highlights.length) && <section className="place-official-highlights" aria-label="施設の見どころ"><h4>施設の見どころ</h4>
+      <ul>{official!.highlights.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+      <p className="place-details-source">見どころの参考：<a href={official!.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a></p>
+    </section>}
+    {detailsLoading ? <p role="status" className="place-details-status">この場所の説明を確認しています…</p>
+      : official?.description ? <div className="place-details-description"><h4>この場所について</h4><p>{official.description}</p><p className="place-details-source">出典：<a href={official.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a>をもとに作成</p></div>
+      : introduction ? <div className="place-details-description"><h4>この場所について</h4><p>{introduction.description}</p>
+        <p className="place-details-source">出典：<a href={introduction.source_url} target="_blank" rel="noopener noreferrer">{introduction.source_title} — Wikipediaの寄稿者</a>（冒頭の抜粋・<a href={introduction.license_url} target="_blank" rel="noopener noreferrer">{introduction.license_name}</a>）</p>
+      </div> : <p role="status" className="place-details-status">この場所に一致する詳しい説明は、現在確認できません。施設の案内や地図をご確認ください。</p>}
+    {!detailsLoading && <section className="place-official-guide" aria-label="訪問前の確認"><h4>訪問前の確認</h4>
+      {(official || !enableOfficialSearch) && <dl><div><dt>開館・営業時間</dt><dd>{official?.opening_hours ?? "未確認"}</dd></div>
+        <div><dt>休館・定休日</dt><dd>{official?.closed_days ?? "未確認"}</dd></div>
+        <div><dt>入館・利用料金</dt><dd>{official?.admission ?? "未確認"}</dd></div></dl>}
+      {official ? <><a className="place-details-official-link" href={official.url} target="_blank" rel="noopener noreferrer">公式サイトで最新の案内を見る <span aria-hidden="true">↗</span></a>
+        <p className="place-details-source">{official.status === "verified" ? `公式ページを確認${official.checked_at && !Number.isNaN(Date.parse(official.checked_at)) ? `：${new Date(official.checked_at).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}` : ""}。` : "公式ページの内容は取得できませんでした。"}未確認の項目や臨時休館・展示替えは、リンク先でご確認ください。</p></>
+        : !enableOfficialSearch && <><p className="place-details-status">公式サイトを確認できませんでした。開館時間・最終入館・休館日を、施設へお問い合わせいただくか検索してご確認ください。</p>
+          <a className="place-details-official-link" href={`https://www.google.com/search?q=${encodeURIComponent(`${place.name} ${place.address ?? ""} 公式 開館時間 休館日`)}`} target="_blank" rel="noopener noreferrer">施設名で公式案内を探す <span aria-hidden="true">↗</span></a></>}
+      {needsOfficialSearch && <OfficialPlaceSearch key={place.id} place={place} />}
+    </section>}
+    <div className="place-visit-hint"><h4>立ち寄りのヒント</h4><p>{visitHint(place.category)}</p></div>
+    <div className="place-details-map-links">
+      <a className="place-details-map-link" href={mapUrl} target="_blank" rel="noopener noreferrer">地図で場所を確認する <span aria-hidden="true">↗</span></a>
+      <a className="place-details-map-link" href={googleMapsUrl(place)} target="_blank" rel="noopener noreferrer">Google Mapsで開く <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>;
+}
+
+export function PlaceDetailsDialog({ place, stayMinutes, recommendations, onClose, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; onClose: () => void; enableOfficialSearch?: boolean }) {
+  return <TripDialog title={place.name} onClose={onClose}><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
+}
+
+export function PlaceDescriptionToggle({ place, stayMinutes, recommendations, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; enableOfficialSearch?: boolean }) {
+  const [open, setOpen] = useState(false);
+  return <details className="place-description-toggle" onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary>{place.name}の説明を見る</summary>
+    {open && <PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} enableOfficialSearch={enableOfficialSearch} />}
+  </details>;
+}

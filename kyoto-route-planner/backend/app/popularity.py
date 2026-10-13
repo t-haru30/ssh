@@ -15,7 +15,7 @@ from app.models import Place, Theme
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 WIKIMEDIA_PAGEVIEWS_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
-POPULARITY_SCORE_VERSION = "v5"
+POPULARITY_SCORE_VERSION = "v6"
 WIKIDATA_TTL = timedelta(days=7)
 logger = logging.getLogger(__name__)
 POPULARITY_USER_AGENT = (

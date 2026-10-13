@@ -29,6 +29,8 @@ function makeIdea(imageUrl: string | null): RouteIdea {
       themes: ["nature"],
     }],
     image_url: imageUrl,
+    image_verified: true,
+    image_place_id: "garden",
     author_name: imageUrl ? "Photo author" : null,
     source_url: imageUrl ? "https://commons.wikimedia.org/wiki/File:Garden.jpg" : null,
     license_name: imageUrl ? "CC BY-SA 4.0" : null,
@@ -55,8 +57,19 @@ describe("SwipeCard image attribution", () => {
       .toBe("https://commons.wikimedia.org/wiki/File:Garden.jpg");
     expect(screen.getByRole("link", { name: "CC BY-SA 4.0" }).getAttribute("href"))
       .toBe("https://creativecommons.org/licenses/by-sa/4.0/");
-    expect(screen.getByText("イメージ画像")).toBeTruthy();
+    expect(screen.queryByText("イメージ画像")).toBeNull();
     expect(screen.getByTestId("cover-spot-name").textContent).toBe("庭園");
+  });
+
+  it("rejects unverified photos and photos belonging to another facility", () => {
+    const idea = makeIdea("https://upload.wikimedia.org/garden.jpg");
+    const view = render(<SwipeCard idea={{ ...idea, image_verified: false }} depth={0} isProcessing={false} onSwipe={vi.fn()} />);
+    expect(view.container.querySelector(".swipe-cover-placeholder")).toBeTruthy();
+    view.rerender(<SwipeCard idea={{ ...idea, image_place_id: "different" }} depth={0} isProcessing={false} onSwipe={vi.fn()} />);
+    expect(view.container.querySelector(".swipe-cover-placeholder")).toBeTruthy();
+    expect(screen.queryByRole("link")).toBeNull();
+    view.rerender(<SwipeCard idea={{ ...idea, image_verified: "true" as unknown as boolean }} depth={0} isProcessing={false} onSwipe={vi.fn()} />);
+    expect(view.container.querySelector(".swipe-cover-placeholder")).toBeTruthy();
   });
 
   it("keeps the themed placeholder when image_url is null", () => {

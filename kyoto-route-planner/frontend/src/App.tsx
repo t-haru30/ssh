@@ -35,14 +35,15 @@ function App() {
     markOnboardingSeen();
     setShowOnboarding(false);
   }
-  function planInSearch(route: Parameters<typeof routeSelection>[0]) {
+  function planInSearch(route: Parameters<typeof routeSelection>[0], searchTransport = false) {
     const selection = routeSelection(route);
+    selection.autoSearch = searchTransport;
     const current = readJourneyDraft();
-    const samePlaces = current && current.plan.stops.length === selection.places.length
+    const samePlaces = !selection.tripPlan && !selection.overnightSnapshot && current && current.plan.stops.length === selection.places.length
       && current.plan.stops.every((stop, index) => stop.place.id === selection.places[index].id
         && stop.place.latitude === selection.places[index].latitude && stop.place.longitude === selection.places[index].longitude);
     if (current && !samePlaces) { setPendingPreset({ selection, currentTitle: current.title }); return; }
-    openPlanner(samePlaces ? null : selection);
+    openPlanner(samePlaces && !searchTransport ? null : selection);
   }
   function openPlanner(selection: SearchPreset | null) {
     if (selection) setSearchPreset(selection);
@@ -55,7 +56,7 @@ function App() {
     <main className="app-shell">
       <header className="topbar">
         <button type="button" className="brand" onClick={() => setActiveTab("discover")} aria-label="ConcierGO ホーム">
-          <span className="brand-mark">寄</span>
+          <span className="brand-mark">C<span>↗</span></span>
           <span>ConcierGO<span className="brand-light"> 小さな旅のしおり</span></span>
         </button>
         <div className="topbar-tools">
@@ -112,12 +113,13 @@ function App() {
       </TripDialog>}
 
       <footer className="footer">
-        <p className="footer-signature">よりみち <span>まだ知らない一日へ。</span></p>
+        <p className="footer-signature">ConcierGO <span>まだ知らない一日へ。</span></p>
         <div className="mobile-preferences"><ThemeSwitcher /></div>
         <p>旅程と費用は目安です。お出かけ前に、営業時間・料金・運行情報をご確認ください。</p>
+        <p>旅の候補：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a> · <a href="/data-sources.html">データの出典・ダウンロード</a></p>
         <details><summary>地図と情報について</summary>
-          <p>スポット検索：Yahoo! JAPAN API · 経路検索：駅すぱあと · 地図：MapLibre / OpenFreeMap · © OpenStreetMap contributors</p>
-          <p>「見つける」のルートは事前に用意した旅のアイデアです。地図の線はスポット間の目安で、実際の道順とは異なります。</p>
+          <p>経路検索：駅すぱあと · 地図：MapLibre / OpenFreeMap。追加の施設検索の取得元は検索結果に表示します。</p>
+          <p>「見つける」は施設候補から条件に合わせてルートを作成します。地図の線はスポット間の目安で、実際の道順とは異なります。</p>
           <p>編集中の旅程と保存済みルートは、このブラウザに保存されます。</p>
         </details>
       </footer>

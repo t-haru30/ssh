@@ -40,7 +40,7 @@ def _response_text(payload: object) -> str:
     return "".join(
         part.get("text", "")
         for part in parts
-        if isinstance(part, dict) and isinstance(part.get("text"), str)
+        if isinstance(part, dict) and not part.get("thought") and isinstance(part.get("text"), str)
     )
 
 
@@ -104,6 +104,13 @@ async def generate_route_copywriting(
             "temperature": 0.8,
         },
     }
+    # Short copy does not need the model's default extended reasoning. Keep
+    # enough output budget for both reasoning and the final JSON response.
+    if model.startswith("gemini-3."):
+        body["generationConfig"].update({
+            "thinkingConfig": {"thinkingLevel": "LOW"},
+            "maxOutputTokens": 2048,
+        })
     try:
         async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
             response = await request_with_retry(
@@ -112,6 +119,7 @@ async def generate_route_copywriting(
                 url,
                 headers={"x-goog-api-key": api_key},
                 json=body,
+                attempts=1,
             )
     except httpx.TimeoutException as error:
         raise HTTPException(

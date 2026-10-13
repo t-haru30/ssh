@@ -4,8 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/build-public-data.mjs",
     "dev": "vite --host 127.0.0.1",
+    "prebuild": "node scripts/build-public-data.mjs",
     "build": "tsc -b && vite build",
+    "test:public-data": "node --test scripts/build-public-data.node-test.mjs",
     "test": "vitest run --environment jsdom",
     "preview": "vite preview --host 127.0.0.1"
   },

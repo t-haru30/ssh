@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "places": [
+    {
+      "id": "osm-node-2143998214",
+      "name": "金沢市立安江金箔工芸館",
+      "latitude": 36.5737572,
+      "longitude": 136.6659874,
+      "url": "https://kanazawa-museum.jp/kinpaku/guide/index.htm",
+      "reviewed_at": "2026-10-12",
+      "description": "金箔にまつわる美術品や道具を紹介する博物館です。金箔職人・安江孝明の収集品を出発点に、金沢で受け継がれてきた金箔の技と文化を伝えています。",
+      "description_source_url": "https://kanazawa-museum.jp/kinpaku/outline/index.htm",
+      "highlights": ["金箔を使った美術品や道具を通して、街歩きだけでは見えにくい金沢の工芸文化に触れられます。"]
+    },
+    {
+      "id": "osm-node-2143998216",
+      "name": "徳田秋聲記念館",
+      "latitude": 36.570902,
+      "longitude": 136.6671625,
+      "url": "https://www.kanazawa-museum.jp/shusei/access/index.html",
+      "reviewed_at": "2026-10-12",
+      "description": "金沢出身の小説家・徳田秋聲の生涯と文学を紹介する記念館です。ゆかりの品々や作品の展示を通して、作家の仕事と金沢との関わりをたどれます。",
+      "description_source_url": "https://www.kanazawa-museum.jp/shusei/about/index.html",
+      "highlights": ["作品やゆかりの品々を通して、金沢出身の作家の生涯と文学に親しめます。街の歴史を文学から知りたい人におすすめです。"]
+    }
+  ]
+}

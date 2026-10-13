@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import random
 
@@ -38,19 +39,31 @@ async def generate_idea_from_places(
     theme_label: str,
     candidate_note: str,
 ) -> RouteIdeaResponse:
-    image = await search_commercial_image(places[0].name)
-
     copywriting_source = "fallback"
     copywriting_note = "GEMINI_API_KEY未設定のため、簡易タイトルとストーリーを使用しています。"
+    # Optional photography must never consume the title generation deadline.
+    # Limit its wait independently and cancel it when the request is cancelled.
+    image_task = asyncio.create_task(search_commercial_image(
+        places[0].name, places[0].latitude, places[0].longitude))
+    image = None
     try:
-        copywriting = await generate_route_copywriting(places, theme)
-    except HTTPException as error:
-        logger.warning(
-            "Gemini idea copywriting failed; using fallback copy: status=%s",
-            error.status_code,
-        )
-        copywriting = None
-        copywriting_note = "Geminiを利用できなかったため、簡易タイトルとストーリーを使用しています。"
+        try:
+            copywriting = await generate_route_copywriting(places, theme)
+        except HTTPException as error:
+            logger.warning(
+                "Gemini idea copywriting failed; using fallback copy: status=%s",
+                error.status_code,
+            )
+            copywriting = None
+            copywriting_note = "Geminiを利用できなかったため、簡易タイトルとストーリーを使用しています。"
+        try:
+            image = await asyncio.wait_for(image_task, timeout=0.25)
+        except (asyncio.TimeoutError, HTTPException):
+            pass
+    finally:
+        if not image_task.done():
+            image_task.cancel()
+        await asyncio.gather(image_task, return_exceptions=True)
 
     if copywriting is None:
         place_names = "と".join(place.name for place in places)
@@ -68,6 +81,8 @@ async def generate_idea_from_places(
         story=story,
         places=places,
         image_url=image.image_url if image else None,
+        image_place_id=places[0].id if image else None,
+        image_verified=image is not None,
         author_name=image.author_name if image else None,
         source_url=image.source_url if image else None,
         license_name=image.license_name if image else None,

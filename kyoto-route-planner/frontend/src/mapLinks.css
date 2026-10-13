@@ -1,0 +1,4 @@
+.map-place-popup { color: var(--ink); font: 13px/1.7 "Yu Gothic", sans-serif; max-width: 250px; }
+.map-place-popup p { margin: 0 0 8px; white-space: pre-line; overflow-wrap: anywhere; }
+.map-google-link { display: flex; align-items: center; min-height: 44px; color: var(--forest); text-underline-offset: 3px; }
+.map-google-link:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }

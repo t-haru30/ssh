@@ -1,6 +1,6 @@
 # 口コミ・公開情報のAI要約
 
-旅程の各施設と「見つける」のルート詳細から「口コミ・公開情報を調べる」を押すと、Gemini APIのGoogle検索連携で情報を取得する。画面表示だけでは検索しない。
+旅程の各施設と「見つける」のルート詳細から「口コミ・公開情報を調べる」を押すと、Gemini APIのGoogle検索連携で情報を取得する。口コミ検索はボタンを押した施設だけで実行する。別途、開いた施設詳細の公式URL・開館時間・休館日・料金が不足する場合は、[公式案内の検索](official-place-info.md#live-google-search-fallback)が自動で補完する。カードの閲覧だけではどちらも検索しない。
 
 ## サーバー設定
 
@@ -8,11 +8,12 @@ AI要約は既定で無効。次の環境変数を設定すると有効になる
 
 | 環境変数 | 用途 |
 | --- | --- |
-| `VENUE_EVIDENCE_ENABLED` | `1`で有効化する。 |
-| `RECOMMENDATION_GEMINI_API_KEY` | AI要約専用のAPIキー。Secret Manager等で管理し、ソースコードやブラウザへ渡さない。 |
-| `RECOMMENDATION_GEMINI_MODEL` | Google検索対応モデル。既定値は `gemini-3.8-flash`。 |
+| `VENUE_EVIDENCE_ENABLED` | `1`で口コミと公式案内のGoogle検索を有効化する。 |
+| `GEMINI_API_KEY` | 画像生成と共通のサーバー用Geminiキー。Secret Manager等で管理し、ソースコードやブラウザへ渡さない。 |
+| `GEMINI_MODEL` | 文章用のGoogle検索対応モデル。既定値は `gemini-3.8-flash`。 |
+| `RECOMMENDATION_GEMINI_MODEL` | 施設要約だけモデルを変更したい場合の任意設定。 |
 
-通常の `GEMINI_API_KEY` とは別の設定で、専用キーがない場合に代用しない。`GET /api/recommendations/status` は設定の有無を返し、キーの値は返さない。
+キー名は `GEMINI_API_KEY` に統一した。旧名 `RECOMMENDATION_GEMINI_API_KEY` も移行用として読み込む。同じ設定元に両方ある場合は新名を優先する。環境変数 → プロジェクトの `.local/personal-api.env` → `backend/.env` の順に読み、環境変数の明示的な空値はファイルや旧名へ切り替えず無効として扱う。`PYTHON_DOTENV_DISABLED=1` ではファイルを読まない。起動時に解決済みのAI設定をサーバー環境へ取り込み、従来のクライアントが後から `backend/.env` を読み込んでも非公開設定が上書きされないようにする。キーだけでは施設検索は有効にならず、`VENUE_EVIDENCE_ENABLED=1` が必要。`GET /api/recommendations/status` は設定の有無を返し、キーの値は返さない。
 
 ## 取得と表示
 

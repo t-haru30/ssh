@@ -10,34 +10,34 @@
       "area": "kyoto",
       "pattern": "half_day",
       "course": "half_day",
-      "title": "京都府の自然スポットをめぐる半日ルート",
-      "estimated_minutes": 182,
+      "title": "京都府の歴史スポットをめぐる半日ルート",
+      "estimated_minutes": 188,
       "legs": [
         {
           "from": "京都駅",
-          "to": "伏見稲荷大社",
-          "distance_km": 1.91,
+          "to": "伏見稲荷大社 千本鳥居",
+          "distance_km": 2.55,
+          "mode": "public_transport",
+          "minutes": 12
+        },
+        {
+          "from": "伏見稲荷大社 千本鳥居",
+          "to": "京都市学校歴史博物館",
+          "distance_km": 3.84,
+          "mode": "public_transport",
+          "minutes": 18
+        },
+        {
+          "from": "京都市学校歴史博物館",
+          "to": "南東から見た二条城東南隅櫓の眺め",
+          "distance_km": 1.82,
           "mode": "public_transport",
           "minutes": 9
         },
         {
-          "from": "伏見稲荷大社",
-          "to": "南東から見た二条城東南隅櫓の眺め",
-          "distance_km": 4.9,
-          "mode": "public_transport",
-          "minutes": 23
-        },
-        {
           "from": "南東から見た二条城東南隅櫓の眺め",
-          "to": "西から見た二条城東南隅櫓の眺め",
-          "distance_km": 0.04,
-          "mode": "walk",
-          "minutes": 1
-        },
-        {
-          "from": "西から見た二条城東南隅櫓の眺め",
           "to": "京都駅",
-          "distance_km": 3.03,
+          "distance_km": 2.99,
           "mode": "public_transport",
           "minutes": 14
         }
@@ -46,23 +46,34 @@
         "name": "京都駅",
         "lat": 34.9858,
         "lng": 135.7588,
-        "to_first_km": 1.9,
+        "to_first_km": 2.5,
         "from_last_km": 3.0
       },
-      "total_score": 75.0,
+      "total_score": 66.7,
       "center": [
-        34.99772,
-        135.755039
+        34.993219,
+        135.763897
       ],
       "spots": [
         {
-          "place_id": "osm-node-11174591021",
-          "name": "伏見稲荷大社",
-          "category": "史跡",
-          "lat": 34.968937,
-          "lng": 135.7630093,
+          "place_id": "osm-node-6865347485",
+          "name": "伏見稲荷大社 千本鳥居",
+          "category": "神社",
+          "lat": 34.966983,
+          "lng": 135.7747604,
           "stay_minutes": 45,
           "score": 75.0,
+          "role": "stop",
+          "reason": "参道外の同名案内碑を除外し、OSMで千本鳥居と確認できる地点を採用しています。"
+        },
+        {
+          "place_id": "osm-node-1422961100",
+          "name": "京都市学校歴史博物館",
+          "category": "博物館",
+          "lat": 35.0007007,
+          "lng": 135.7657254,
+          "stay_minutes": 45,
+          "score": 50.0,
           "role": "stop"
         },
         {
@@ -74,33 +85,23 @@
           "stay_minutes": 45,
           "score": 75.0,
           "role": "stop"
-        },
-        {
-          "place_id": "osm-node-13006284569",
-          "name": "西から見た二条城東南隅櫓の眺め",
-          "category": "展望地",
-          "lat": 35.0122506,
-          "lng": 135.7509042,
-          "stay_minutes": 45,
-          "score": 75.0,
-          "role": "stop"
         }
       ],
       "coordinates": [
         [
-          34.968937,
-          135.7630093
+          34.966983,
+          135.7747604
+        ],
+        [
+          35.0007007,
+          135.7657254
         ],
         [
           35.011972,
           135.7512038
-        ],
-        [
-          35.0122506,
-          135.7509042
         ]
       ],
-      "theme": "nature"
+      "theme": "history"
     },
     {
       "id": "osm-kyoto-02",

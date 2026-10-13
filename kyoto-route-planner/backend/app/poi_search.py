@@ -447,6 +447,9 @@ async def _search_yahoo(
 
 
 def get_yahoo_search_status() -> dict[str, Any]:
+    if os.getenv("PLACE_SEARCH_PROVIDER") == "public_catalog":
+        from app.public_catalog import public_catalog_status
+        return public_catalog_status()
     return dict(_last_search_status)
 
 
@@ -471,6 +474,9 @@ async def search_yahoo_catalog(
         intent.center_latitude, intent.center_longitude = center
     if radius_m is not None:
         intent.max_distance_m = radius_m
+    if os.getenv("PLACE_SEARCH_PROVIDER") == "public_catalog":
+        from app.public_catalog import search_public_catalog
+        return search_public_catalog(intent, query_text, limit, genre_codes)
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     warning: str | None = None
     app_id = os.getenv("YAHOO_APP_ID", "").strip()

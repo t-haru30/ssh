@@ -1,6 +1,7 @@
 import { clockMinutes, distanceKm, newTripStop, scheduleTrip } from "./dayTrip";
 import type { TripInput, TripPlan } from "./dayTrip";
 import { preferenceMatches, preferenceReason } from "./tripPreferences";
+import { distinctVenues } from "./venueIdentity";
 import type { Origin, Place, RouteSuggestion } from "./types";
 
 export type InitialTripOptions = {
@@ -10,6 +11,7 @@ export type InitialTripOptions = {
   date: string;
   candidates: Place[];
   maxStops: number;
+  radiusKm?: number;
   foodEstimate: number | null;
   coffeeEstimate: number | null;
   transportEstimate: number | null;
@@ -40,8 +42,8 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
   const proximity = (place: Place) => distanceKm(origin, place) + distanceKm(place, returnTo);
   const byId = (a: Place, b: Place) => a.id.localeCompare(b.id, "en");
   const candidates = [...new Map(options.candidates.filter(place => Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
-    && distanceKm(origin, place) <= 50).map(place => [place.id, place])).values()];
-  const ranked = [...candidates].sort((a, b) => relevance(b) - relevance(a) || proximity(a) - proximity(b) || byId(a, b));
+    && distanceKm(origin, place) <= (options.radiusKm ?? 50)).map(place => [place.id, place])).values()];
+  const ranked = distinctVenues([...candidates].sort((a, b) => relevance(b) - relevance(a) || proximity(a) - proximity(b) || byId(a, b)));
   // Preserve affordable and nearby alternatives even if many higher-ranked
   // candidates have the same theme. At most 14 places enter the exhaustive search.
   const shortlist: Place[] = [];
@@ -51,12 +53,12 @@ export function createInitialTrip(options: InitialTripOptions): TripPlan {
     add(matching[0]);
     add([...matching].sort((a, b) => (spending(a) ?? 0) - (spending(b) ?? 0) || proximity(a) - proximity(b) || byId(a, b))[0]);
   }
-  for (const place of [...candidates].sort((a, b) => proximity(a) - proximity(b) || byId(a, b)).slice(0, 3)) add(place);
+  for (const place of [...ranked].sort((a, b) => proximity(a) - proximity(b) || byId(a, b)).slice(0, 3)) add(place);
   for (const place of ranked) add(place);
   const makePlan = (places: Place[]) => {
     const source: RouteSuggestion = { origin, return_to: returnTo, places, legs: [], fare_yen: null,
       total_minutes: null, departure_time: input.departureTime, arrival_time: null,
-      title: places.length ? `${places.map(place => place.name).join("と")}のよりみち` : "条件に合う候補を選びましょう",
+      title: places.length ? `${places.map(place => place.name).join("と")}を巡る旅` : "条件に合う候補を選びましょう",
       story: null, reasons: Object.fromEntries(places.map(place => [place.id, preferenceReason(place, preferences)])),
       note: "端末内の候補から作成した初期案です。移動は徒歩換算の概算で、営業時間・入場料・運行時刻は未確認です。",
       coordinates: [[origin.latitude, origin.longitude], ...places.map(place => [place.latitude, place.longitude] as [number, number]), [returnTo.latitude, returnTo.longitude]],

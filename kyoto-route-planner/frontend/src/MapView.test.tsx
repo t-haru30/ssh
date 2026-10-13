@@ -6,6 +6,7 @@ import type { Origin, Place } from "./types";
 const mapTestState = vi.hoisted(() => ({
   loadHandler: null as (() => void) | null,
   markerPositions: [] as number[][],
+  popupContents: [] as HTMLElement[],
   routeData: null as unknown,
   fitBoundsCalls: 0,
   boundsPositions: [] as number[][],
@@ -74,6 +75,7 @@ vi.mock("maplibre-gl", () => {
 
   class MockPopup {
     constructor() {}
+    setDOMContent(element: HTMLElement) { mapTestState.popupContents.push(element); return this; }
     setText() {
       return this;
     }
@@ -122,6 +124,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
   mapTestState.loadHandler = null;
   mapTestState.markerPositions = [];
+  mapTestState.popupContents = [];
   mapTestState.routeData = null;
   mapTestState.fitBoundsCalls = 0;
   mapTestState.boundsPositions = [];
@@ -141,6 +144,24 @@ beforeEach(() => {
 });
 
 describe("MapView", () => {
+  it("opens exact Google Maps coordinates for departure, each facility and return without interpreting names as HTML", () => {
+    const name = '<img src=x onerror="alert(1)">同名施設';
+    render(<MapView places={[{ ...makePlace(name, 35.123456, 135.654321), address: "<script>unsafe</script>" }]}
+      origin={makeOrigin("出発駅", 35, 135)} returnTo={makeOrigin("帰着駅", 34.7, 135.5)} />);
+    act(() => mapTestState.loadHandler?.());
+    expect(mapTestState.popupContents).toHaveLength(3);
+    const queries = mapTestState.popupContents.map(content => {
+      const link = content.querySelector("a")!;
+      expect(link.textContent).toBe("Google Mapsで開く ↗");
+      expect(link.target).toBe("_blank");
+      expect(link.rel).toBe("noopener noreferrer");
+      expect(new URL(link.href).origin).toBe("https://www.google.com");
+      return new URL(link.href).searchParams.get("query");
+    });
+    expect(queries).toEqual(["35,135", "35.123456,135.654321", "34.7,135.5"]);
+    expect(mapTestState.popupContents[1].textContent).toContain(name);
+    expect(mapTestState.popupContents[1].querySelector("img,script")).toBeNull();
+  });
   it("adds an accessible distinct return destination and includes it in map bounds", () => {
     render(<MapView places={[makePlace("庭園", 35, 135.02)]} origin={makeOrigin("京都駅", 35, 135)} returnTo={makeOrigin("大阪駅", 34.7, 135.5)} />);
     act(() => mapTestState.loadHandler?.());

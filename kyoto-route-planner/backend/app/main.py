@@ -9,7 +9,8 @@ import random
 import time
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, Path as ApiPath
+from fastapi.responses import FileResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
@@ -18,6 +19,8 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
+from app.ai_settings import configure_ai_environment
+from app.discovery import DiscoverRequest, discover_routes
 from app.copywriting import generate_route_copywriting
 from app.ekispert import (
     estimate_route_fare,
@@ -28,7 +31,14 @@ from app.ekispert import (
 from app.fallback_ideas import FALLBACK_DATASET_PATH, load_fallback_ideas, select_fallback_ideas
 from app.idea_service import generate_idea_from_places
 from app.itinerary import plan_itinerary, plan_overnight_itinerary
+from app.journey_review import JourneyReviewRequest, JourneyReviewResponse, review_journey
 from app.poi_search import get_yahoo_search_status, search_yahoo_catalog
+from app.place_description import PlaceDescription, fetch_place_description
+from app.place_photos import PhotoRequest, PhotoResponse, fetch_route_photo
+from app.route_illustrations import (
+    RouteIllustrationRequest, RouteIllustrationResponse,
+    request_illustration, get_illustration, illustration_path,
+)
 from app.venue_evidence import EvidenceRequest, VenueEvidence, evidence_status, fetch_venue_evidence
 from app.station_search import StationCandidate, search_stations
 from app.models import (
@@ -327,6 +337,7 @@ async def _correct_route_timeline(
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    configure_ai_environment()
     initialize_database()
     _app.state.fallback_ideas = load_fallback_ideas()
     yield
@@ -441,6 +452,7 @@ def _route_place_from_search_hit(hit: PlaceSearchHit) -> Place:
 async def _route_candidates(
     theme: Theme,
     origin: Origin | None = None,
+    radius_km: int = 30,
 ) -> tuple[list[Place], str]:
     query = ROUTE_SEARCH_QUERIES[theme] if origin else "京都"
     search = await search_yahoo_catalog(
@@ -448,10 +460,24 @@ async def _route_candidates(
         limit=100,
         genre_codes=ROUTE_GENRE_CODES[theme],
         **(
-            {"center": (origin.latitude, origin.longitude), "radius_m": 20_000}
+            {"center": (origin.latitude, origin.longitude), "radius_m": min(20, radius_km) * 1000}
             if origin else {}
         ),
     )
+    if len(search.results) < 3 and origin is not None:
+        # Multi-keyword queries can exclude valid museums, temples or viewpoints.
+        broader = await search_yahoo_catalog("グルメ" if theme == "food" else "観光", limit=100,
+            genre_codes=ROUTE_GENRE_CODES[theme], center=(origin.latitude, origin.longitude), radius_m=min(20, radius_km) * 1000)
+        merged = {hit.place.id: hit for hit in (*search.results, *broader.results)}
+        if len(merged) < 3:
+            from app.public_catalog import search_public_catalog
+            from app.models import ParsedPlaceQuery
+            fallback = search_public_catalog(ParsedPlaceQuery(center_latitude=origin.latitude,
+                center_longitude=origin.longitude, max_distance_m=radius_km * 1000), "観光", 100, ROUTE_GENRE_CODES[theme])
+            merged.update({hit.place.id: hit for hit in fallback.results})
+            if fallback.results:
+                search.note += f" 候補不足のため半径{radius_km}km以内のOpenStreetMap候補を補いました。"
+        search = search.model_copy(update={"results": list(merged.values())})
     additional_hits: list[PlaceSearchHit] = []
     near_kyoto = origin is None or _distance_km(
         (origin.latitude, origin.longitude),
@@ -480,13 +506,18 @@ async def _route_candidates(
             hit.place.genre_code,
         )
     ]
+    candidates = list({place.id: place for place in candidates if origin is None or _distance_km(
+        (origin.latitude, origin.longitude), (place.latitude, place.longitude)) <= radius_km}.values())
     logger.info("Route candidate provider selected: Yahoo Local Search (%d results)", len(candidates))
     if not candidates:
         raise HTTPException(
             status_code=404,
             detail=search.note or "Yahoo!ローカルサーチで条件に合う候補が見つかりませんでした。",
         )
-    candidates = await enrich_places_with_fame(candidates)
+    # The bundled provider must remain usable without new external lookups.
+    # Live Yahoo searches can add fame signals with the provider's own deadline.
+    if os.getenv("PLACE_SEARCH_PROVIDER") != "public_catalog" and os.getenv("YAHOO_APP_ID", "").strip():
+        candidates = await enrich_places_with_fame(candidates)
     candidates = [place for place in candidates if not is_unsuitable_place(place)]
     if not candidates:
         raise HTTPException(
@@ -519,6 +550,52 @@ async def places(request: Request, keyword: str = "京都 観光", category: str
 @app.get("/api/origins")
 def origins():
     return list_origins()
+
+
+@app.post("/api/places/description", response_model=PlaceDescription)
+@limiter.limit("30/minute")
+async def place_description(request: Request, payload: Place) -> PlaceDescription:
+    return await fetch_place_description(payload)
+
+
+@app.post("/api/places/official-evidence", response_model=VenueEvidence)
+@limiter.limit("6/minute")
+async def official_place_evidence(request: Request, payload: Place) -> VenueEvidence:
+    # Live grounded results belong to this detail view: never feed them to the
+    # official-page crawler or its shared cache.
+    return await fetch_venue_evidence(payload, official=True)
+
+
+@app.post("/api/discover")
+@limiter.limit("30/minute")
+async def discover(request: Request, payload: DiscoverRequest):
+    return await discover_routes(payload)
+
+
+@app.post("/api/routes/photo", response_model=PhotoResponse)
+@limiter.limit("30/minute")
+async def route_photo(request: Request, payload: PhotoRequest) -> PhotoResponse:
+    return await fetch_route_photo(payload)
+
+
+@app.post("/api/route-illustrations", response_model=RouteIllustrationResponse)
+@limiter.limit("8/minute")
+async def route_illustration(request: Request, payload: RouteIllustrationRequest) -> RouteIllustrationResponse:
+    return await request_illustration(payload)
+
+
+@app.get("/api/route-illustrations/{key}", response_model=RouteIllustrationResponse)
+@limiter.limit("60/minute")
+async def route_illustration_status(request: Request, key: Annotated[str, ApiPath(pattern=r"^[0-9a-f]{64}$")]) -> RouteIllustrationResponse:
+    return get_illustration(key)
+
+
+@app.get("/api/route-illustrations/{key}/image")
+async def route_illustration_image(key: Annotated[str, ApiPath(pattern=r"^[0-9a-f]{64}$")]):
+    path = illustration_path(key)
+    if path is None:
+        raise HTTPException(status_code=404, detail="このルートの画像はまだありません。")
+    return FileResponse(path, media_type="image/webp", headers={"Cache-Control": "public, max-age=31536000, immutable", "X-Content-Type-Options": "nosniff"})
 
 
 @app.get("/api/origins/nearest", response_model=Origin)
@@ -605,6 +682,13 @@ async def recommend_overnight_itinerary(
 ) -> OvernightItinerarySuggestion:
     return await plan_overnight_itinerary(payload)
 
+
+
+@app.post("/api/journey/review", response_model=JourneyReviewResponse)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("2/minute")
+async def review_departure_information(request: Request, payload: JourneyReviewRequest) -> JourneyReviewResponse:
+    return await review_journey(payload)
 
 
 @app.post("/api/routes", response_model=RouteSuggestions)
@@ -906,7 +990,7 @@ async def _recommend_routes(
             candidate_note = "利用者が選んだスポットと順序を保持しています。"
         else:
             candidates, candidate_note = await asyncio.wait_for(
-                _route_candidates(request.theme, origin),
+                _route_candidates(request.theme, origin, request.radius_km),
                 timeout=remaining_seconds,
             )
             effective_stop_count = min(request.stop_count, len(candidates))

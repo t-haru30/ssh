@@ -112,20 +112,27 @@ class EvidenceApiTests(unittest.TestCase):
         evidence._used = 0
         evidence._active = False
         self.client = TestClient(app)
-        self.enabled = {"VENUE_EVIDENCE_ENABLED": "1", "RECOMMENDATION_GEMINI_API_KEY": "personal-test-key", "RECOMMENDATION_GEMINI_MODEL": evidence.DEFAULT_MODEL}
+        self.enabled = {"VENUE_EVIDENCE_ENABLED": "1", "GEMINI_API_KEY": "personal-test-key", "RECOMMENDATION_GEMINI_MODEL": evidence.DEFAULT_MODEL}
         self.mock_client = AsyncMock()
         self.factory = patch("app.venue_evidence.httpx.AsyncClient")
         self.factory_mock = self.factory.start()
         self.factory_mock.return_value.__aenter__.return_value = self.mock_client
         self.addCleanup(self.factory.stop)
 
-    def test_project_key_alone_does_not_enable_any_network(self):
+    def test_shared_key_without_opt_in_does_not_enable_any_network(self):
         with patch.dict(os.environ, {"GEMINI_API_KEY": "shared-key", "RECOMMENDATION_GEMINI_API_KEY": "", "VENUE_EVIDENCE_ENABLED": "0"}):
             response = self.client.post("/api/recommendations/evidence", json={"place": PLACE.model_dump()})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["status"], "unconfigured")
             self.assertFalse(self.client.get("/api/recommendations/status").json()["configured"])
         self.mock_client.post.assert_not_awaited()
+
+    def test_legacy_key_still_works_when_shared_name_is_absent(self):
+        self.mock_client.post.return_value = httpx.Response(200, json=payload())
+        with patch.dict(os.environ, {"VENUE_EVIDENCE_ENABLED": "1", "RECOMMENDATION_GEMINI_API_KEY": "legacy-test-key", "PYTHON_DOTENV_DISABLED": "1"}, clear=True):
+            response = self.client.post("/api/recommendations/evidence", json={"place": PLACE.model_dump()})
+        self.assertEqual(response.json()["status"], "ready")
+        self.assertEqual(self.mock_client.post.await_args.kwargs["headers"]["x-goog-api-key"], "legacy-test-key")
 
     def test_one_explicit_request_uses_personal_key_and_search_tool_only(self):
         self.mock_client.post.return_value = httpx.Response(200, json=payload())

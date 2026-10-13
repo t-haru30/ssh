@@ -99,6 +99,7 @@ export type RouteSuggestionRequest = {
   departure_date: string;
   departure_time: string;
   variation?: number;
+  radius_km?: number;
   selected_places?: Place[];
 };
 
@@ -110,6 +111,8 @@ export type OvernightItineraryRequest = {
   departure_date: string;
   departure_time: string;
   stops_per_day: number;
+  nights?: number;
+  radius_km?: number;
   hotel_query?: string;
 };
 

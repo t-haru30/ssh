@@ -100,13 +100,13 @@ def _fame_score(place: Place) -> tuple[float, bool]:
     """Return (0-100 fame, whether it came from measured signals)."""
     parts: list[float] = []
     sitelinks = _sitelinks(place)
-    if sitelinks is not None:
+    if sitelinks is not None and sitelinks >= 0:
         parts.append(min(100.0, log10(sitelinks + 1) / log10(101) * 100))
     try:
         pageviews = int(place.tags["pageviews_30d"])
     except (KeyError, ValueError):
         pageviews = None
-    if pageviews is not None:
+    if pageviews is not None and pageviews >= 0:
         parts.append(min(100.0, log10(pageviews + 1) / 6 * 100))
     if parts:
         return sum(parts) / len(parts), True

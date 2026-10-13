@@ -19,6 +19,11 @@ export type SharedSwipeCardProps = {
   summary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
+  photoPlaceName?: string | null;
+  illustrationLabel?: string;
+  illustrationKind?: "route" | "theme";
+  imageStatus?: string;
+  onSpotSelect?: (id: string) => void;
   authorName?: string | null;
   sourceUrl?: string | null;
   licenseName?: string | null;
@@ -50,6 +55,11 @@ export function SharedSwipeCard({
   summary,
   spots,
   imageUrl,
+  photoPlaceName,
+  illustrationLabel,
+  illustrationKind = "theme",
+  imageStatus,
+  onSpotSelect,
   authorName,
   sourceUrl,
   licenseName,
@@ -62,14 +72,16 @@ export function SharedSwipeCard({
   exitDirection,
   onSwipe,
 }: SharedSwipeCardProps) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageFailed, setImageFailed] = useState(false);
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const swipedRef = useRef(false);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-240, 240], [-13, 13]);
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
-  const hasCoverImage = Boolean(imageUrl) && !imageFailed;
+  const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
+  const imageLoaded = loadedUrl === imageUrl;
+  const titleBoundary = title.indexOf("から、");
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (!isTop || isProcessing || swipedRef.current) return;
@@ -99,6 +111,7 @@ export function SharedSwipeCard({
       transition={{ type: "spring", stiffness: 280, damping: 25 }}
       aria-label={title}
       aria-busy={isProcessing}
+      inert={!isTop}
     >
       <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>SKIP</motion.div>
       <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>
@@ -111,8 +124,8 @@ export function SharedSwipeCard({
               src={imageUrl ?? undefined}
               alt=""
               aria-hidden="true"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageFailed(true)}
+              onLoad={() => setLoadedUrl(imageUrl ?? null)}
+              onError={() => setFailedUrl(imageUrl ?? null)}
             />
           </>
         ) : (
@@ -123,14 +136,15 @@ export function SharedSwipeCard({
         )}
         {hasCoverImage && (
           <>
-            {spots[0] && (
+            {spots[0] && !illustrationLabel && (
               <div className="swipe-cover-spot" data-testid="cover-spot-name">
                 <PinIcon />
-                <strong>{spots[0].name}</strong>
+                <strong>{photoPlaceName ?? spots[0].name}</strong>
               </div>
             )}
-            <span className="swipe-cover-image-label">イメージ画像</span>
-            {authorName && sourceUrl && licenseName && licenseUrl && (
+            <span className="swipe-cover-image-label">{illustrationLabel ? illustrationKind === "route" ? "AIルートイラスト" : "AIテーマイラスト" : `${photoPlaceName ?? spots[0]?.name}の写真`}</span>
+            {illustrationLabel && <strong className="swipe-cover-theme-label">{illustrationLabel}</strong>}
+            {!photoPlaceName && !illustrationLabel && authorName && sourceUrl && licenseName && licenseUrl && (
               <div className="swipe-cover-credit" onPointerDown={(event) => event.stopPropagation()}>
                 <a href={sourceUrl} target="_blank" rel="noopener noreferrer">{authorName}</a>
                 <a
@@ -148,12 +162,28 @@ export function SharedSwipeCard({
         <span className="swipe-cover-badge">{coverBadge}</span>
       </div>
       <div className="swipe-card-copy">
-        <h3 title={title}>{title}</h3>
+        {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
+        <h3 title={title}>{titleBoundary > 0 ? <>
+          <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
+          <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
+        </> : title}</h3>
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
-          {spots.slice(0, MAX_VISIBLE_SPOTS).map((spot) => (
+          {(onSpotSelect ? spots : spots.slice(0, MAX_VISIBLE_SPOTS)).map((spot) => (
             <li key={spot.id}>
+              {onSpotSelect ? <button
+                type="button"
+                className="swipe-spot-open"
+                onPointerDown={event => event.stopPropagation()}
+                onClick={() => onSpotSelect(spot.id)}
+                aria-label={`${spot.name}の説明を見る`}
+                aria-haspopup="dialog"
+              >
+                <span className="swipe-spot-icon" aria-hidden="true">{spot.icon ?? <PinIcon />}</span>
+                <span className="swipe-spot-copy"><strong>{spot.name}</strong>{spot.category && <small>{spot.category}</small>}</span>
+                <span className="swipe-spot-detail-label">説明 <span aria-hidden="true">›</span></span>
+              </button> : <>
               <span className="swipe-spot-icon" aria-hidden="true">
                 {spot.icon ?? <PinIcon />}
               </span>
@@ -161,12 +191,19 @@ export function SharedSwipeCard({
                 <strong>{spot.name}</strong>
               </span>
               {spot.category && <small className="swipe-spot-category">{spot.category}</small>}
+              </>}
             </li>
           ))}
-          {spots.length > MAX_VISIBLE_SPOTS && (
+          {!onSpotSelect && spots.length > MAX_VISIBLE_SPOTS && (
             <li className="swipe-spot-more">ほか{spots.length - MAX_VISIBLE_SPOTS}か所（詳細で確認）</li>
           )}
         </ul>
+        {hasCoverImage && photoPlaceName && <div className="route-photo-credit" aria-label="写真のクレジット" onPointerDown={event => event.stopPropagation()}>
+          <span>写真: <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">{authorName}</a></span>
+          <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">写真の出典</a>
+          <a href={licenseUrl ?? undefined} target="_blank" rel="noopener noreferrer">{licenseName}</a>
+          <span className="route-photo-crop">一部トリミング</span>
+        </div>}
       </div>
     </motion.article>
   );

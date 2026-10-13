@@ -3,3 +3,6 @@
 .gitignore
 # Apply the project's exclusions to source uploads, including .local and .env.
 #!include:.gitignore
+# Runtime data is generated from the OSM route sources during the build.
+backend/data
+frontend/public/data

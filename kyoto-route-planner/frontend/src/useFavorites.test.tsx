@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { PrefectureProvider } from "./PrefectureContext";
 import type { RouteIdea } from "./SwipeCard";
+import { newTripStop, scheduleTrip } from "./dayTrip";
+import { serializeJourneyFile } from "./journeyFile";
 import { FavoritesProvider, MAX_FAVORITES, useFavorites } from "./useFavorites";
 
 const STORAGE_KEY = "kyoto-route-planner:favorites:v1";
@@ -62,7 +64,47 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+function snapshotIdea(dwellMinutes = 45): RouteIdea {
+  const idea = makeIdea();
+  const origin = { name: "京都駅", latitude: 34.9858, longitude: 135.7588 };
+  const route = { origin, places: idea.places, legs: [], total_minutes: null, departure_time: null, arrival_time: null, title: null, story: null, note: "" };
+  const plan = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 3000 }, origin, "2099-10-12", idea.places.map(p => newTripStop(p, dwellMinutes)), { route, date: "", time: "" });
+  return { ...idea, journey_file: serializeJourneyFile(plan, idea.title) };
+}
+
 describe("useFavorites", () => {
+  it.each(["{invalid", JSON.stringify({ version: 2 }), 42, null, ""])("rejects an invalid journey snapshot without replacing saved data: %j", (snapshot) => {
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+    act(() => { expect(result.current.saveFavorite(makeIdea(1))).toBe(true); });
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const invalid = { ...makeIdea(), journey_file: snapshot } as RouteIdea;
+    act(() => { expect(result.current.saveFavorite(invalid)).toBe(false); });
+    expect(result.current.isFavorite(invalid)).toBe(false);
+    expect(result.current.favorites).toHaveLength(1);
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(stored);
+  });
+
+  it("deduplicates equivalent snapshots with different save timestamps and JSON formatting", () => {
+    const original = snapshotIdea();
+    const data = JSON.parse(original.journey_file!);
+    const duplicate = { ...original, journey_file: JSON.stringify({ ...data, savedAt: "2099-10-13T00:00:00.000Z" }) };
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+    act(() => { expect(result.current.saveFavorite(original)).toBe(true); });
+    act(() => { expect(result.current.saveFavorite(duplicate)).toBe(false); });
+    expect(result.current.isFavorite(duplicate)).toBe(true);
+    expect(result.current.favorites).toHaveLength(1);
+  });
+
+  it("saves a separate itinerary when its stay duration changes", () => {
+    const original = snapshotIdea(45), changed = snapshotIdea(60);
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+    act(() => { expect(result.current.saveFavorite(original)).toBe(true); });
+    expect(result.current.isFavorite(changed)).toBe(false);
+    act(() => { expect(result.current.saveFavorite(changed)).toBe(true); });
+    expect(result.current.favorites).toHaveLength(2);
+    expect(new Set(result.current.favorites.map(f => f.id)).size).toBe(2);
+  });
+
   it("restores Discover routes with five stops without changing their saved data", () => {
     const idea = makeIdea();
     idea.places = Array.from({ length: 5 }, (_, index) => ({ ...idea.places[index % 2], id: `long-${index}` }));
