@@ -331,7 +331,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("untrusted DATA", agent.SYSTEM_INSTRUCTION)
 
     async def test_public_discovery_uses_same_finite_pool_for_ai_and_fallback(self):
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)):
             result = await discover_routes(self.request)
         self.assertEqual(result["agent"]["status"], "ready")
         self.assertEqual(result["source"], "OpenStreetMap")
