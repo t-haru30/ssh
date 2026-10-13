@@ -147,4 +147,3 @@ class LicensedPhotoTests(unittest.IsolatedAsyncioTestCase):
     def test_invalid_coordinates_are_never_accepted(self):
         for value in (True, None, float("nan"), float("inf"), 91):
             self.assertFalse(photos._near(value, 138, 36, 138, .5))
-

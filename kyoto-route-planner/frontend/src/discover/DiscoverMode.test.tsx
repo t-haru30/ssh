@@ -12,6 +12,18 @@ afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); window.l
 function renderDiscoverMode(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function count() { return Number(screen.getByText(/^[0-9]+件の候補$/).textContent?.replace("件の候補", "")); }
 describe("DiscoverMode dynamic facilities", () => {
+  it("restarts an interrupted AI selection when conditions rapidly return to the previous choice", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn((url: string, _init?: RequestInit) => url === "/api/discover" ? new Promise(() => {}) : Promise.resolve(illustrationResponse));
+    vi.stubGlobal("fetch", fetchMock); renderDiscoverMode();
+    await act(async () => vi.advanceTimersByTime(650));
+    const first = fetchMock.mock.calls.find(([url]) => url === "/api/discover")!;
+    fireEvent.click(screen.getByRole("button", { name: "グルメ" }));
+    fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
+    expect(first[1]?.signal?.aborted).toBe(true);
+    await act(async () => vi.advanceTimersByTime(650));
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(2);
+  });
   it("automatically asks the agent once after conditions settle, and keeps hidden tabs idle", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn(async (url: string) => url === "/api/discover"

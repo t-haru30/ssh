@@ -66,7 +66,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
     advanceRef.current?.abort(); advanceRef.current = null; setPreparingNext(false);
     return () => { advanceRef.current?.abort(); advanceRef.current = null; };
   }, [collectionKey, active, generating]);
-  useEffect(() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); setSelected(null); setNotice(null); }, [conditionsKey]);
+  useEffect(() => { requestRef.current?.abort(); requestRef.current = null; attemptedRef.current = null; setGenerating(false); setSelected(null); setNotice(null); }, [conditionsKey]);
   useEffect(() => () => requestRef.current?.abort(), []);
   // Debounce condition changes; cached server selections make repeat visits inexpensive.
   useEffect(() => {
