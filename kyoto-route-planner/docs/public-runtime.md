@@ -1,5 +1,7 @@
 # 公開用ランタイム
 
+Windowsでのインストールとローカル起動は、[Windows向けDocker導入・起動手順](docker-windows.md)を参照してください。
+
 Docker版は、リポジトリ内の47都道府県のOSM由来ルートから施設・提案データを生成して同梱します。`backend/data`、`.local`、`.env`、既存のSQLite、P12の原本はビルド・ソースアップロード対象から除外します。実行時のSQLiteは `/tmp/conciergo/travel.sqlite3` に作成され、コンテナの終了で失われます。旅程の下書きはブラウザ保存、端末間の移動はJSONで行います。
 
 ## データの生成と帰属表示
