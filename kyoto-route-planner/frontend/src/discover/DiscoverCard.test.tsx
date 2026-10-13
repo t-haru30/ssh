@@ -1,15 +1,18 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DatasetRoute } from "./datasetTypes";
 
+const gesture = vi.hoisted(() => ({ end: null as null | ((event: unknown, info: { offset: { x: number } }) => void) }));
+
 vi.mock("framer-motion", () => ({
   motion: {
-    article: ({ children, className, inert }: { children: ReactNode; className?: string; inert?: boolean }) => (
-      <article className={className} inert={inert}>{children}</article>
-    ),
+    article: ({ children, className, inert, onDragEnd }: { children: ReactNode; className?: string; inert?: boolean; onDragEnd: typeof gesture.end }) => {
+      if (!inert) gesture.end = onDragEnd;
+      return <article className={className} inert={inert}>{children}</article>;
+    },
     div: ({ children, className }: { children: ReactNode; className?: string }) => (
       <div className={className}>{children}</div>
     ),
@@ -47,6 +50,27 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
+  it.each([[-150, "pass"], [150, "like"]] as const)("supports a %s swipe and locks while waiting for the next card", (offset, direction) => {
+    const onSwipe = vi.fn();
+    const view = render(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledWith(direction);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(1);
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} preparingNext />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(1);
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(2);
+  });
+  it("does not swipe an inactive card", () => {
+    const onSwipe = vi.fn();
+    render(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} active={false} />);
+    act(() => gesture.end?.({}, { offset: { x: 150 } }));
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+
   it("connects official sources to the card and to a rule-selected destination without duplicate reasons", () => {
     const source = { title: "清水寺の公式紹介", url: "https://www.kiyomizudera.or.jp/about/" };
     const reason = "舞台から京都の街並みを見渡せます。";
@@ -86,7 +110,8 @@ describe("DiscoverCard", () => {
     expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
     expect(screen.getByText("清水寺", { selector: "strong" })).toBeTruthy();
     expect(screen.getByText("寺院")).toBeTruthy();
-    expect(screen.getByText("しおりを開く", { selector: ".swipe-stamp.accept" })).toBeTruthy();
+    expect(screen.getAllByText("次の候補")).toHaveLength(2);
+    expect(screen.getByRole("region", { name: "おすすめ理由" })).toBeTruthy();
   });
 
   it("opens a destination without saving or swiping the route, and restores focus on Escape", async () => {

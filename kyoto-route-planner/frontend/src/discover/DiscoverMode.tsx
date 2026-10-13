@@ -12,6 +12,9 @@ import type { DatasetRoute, RouteDatasetIndex } from "./datasetTypes";
 import { localOrigins } from "../localPlaces";
 import prefectureIndex from "../data/routes/index.json";
 import "./discover.css";
+import "./discoverPersonalized.css";
+import { TravelerPreferences } from "../TravelerPreferences";
+import { readTravelerProfile, saveTravelerProfile, travelerProfileSummary, PACE_OPTIONS, normalizeTravelPace } from "../travelerProfile";
 import { TravelRangeControl } from "../TravelRangeControl";
 import { composeLocalRoutes, isDiscoverResponse } from "./dynamicRoutes";
 import type { DiscoveryAgent } from "./dynamicRoutes";
@@ -24,19 +27,19 @@ const themes = [
   { id: "temple", label: "寺社めぐり", icon: "⛩" }, { id: "nature", label: "自然・景色", icon: "❋" }, { id: "food", label: "グルメ", icon: "♨" },
 ] as const;
 type ThemeFilter = (typeof themes)[number]["id"];
-type BrowseState = { index: number; history: Array<{ savedId: string | null; liked: boolean }> };
+type Conditions = { area: string; theme: ThemeFilter; pattern: "all" | "half_day" | "full_day"; radius: number; crossPrefecture: boolean; variation: number; traveler: ReturnType<typeof readTravelerProfile> };
+const conditionsId = (c: Conditions) => JSON.stringify(c);
+type BrowseState = { index: number; history: number[] };
 const EMPTY_BROWSE: BrowseState = { index: 0, history: [] };
 const DISCOVER_STEPS = ["条件に合う施設を調べています", "行き先と巡る順番を選んでいます", "おすすめ理由をまとめています"];
-const destinations = [
-  { area: "kyoto", caption: "古都の風景に出会う", mark: "京" }, { area: "hokkaido", caption: "北の街を歩く", mark: "北" },
-  { area: "nagano", caption: "山のある街へ", mark: "山" }, { area: "okinawa", caption: "南の島で過ごす休日", mark: "島" },
-];
 type DiscoverModeProps = { active: boolean; onPlanInSearch?: (route: DatasetRoute | RouteIdea, searchTransport?: boolean) => void };
 
 export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const { prefecture, setPrefectureCode } = usePrefecture();
   const { saveFavorite, removeFavorite, isFavorite } = useFavorites();
   const [area, setArea] = useState(() => indexEntries.find(entry => entry.prefecture_code === prefecture.code)?.id ?? "kyoto");
+  const [traveler, setTraveler] = useState(readTravelerProfile);
+  useEffect(() => { saveTravelerProfile(traveler); }, [traveler]);
   const [theme, setTheme] = useState<ThemeFilter>("all");
   const [pattern, setPattern] = useState<"all" | "half_day" | "full_day">("all");
   // Each collection keeps its position across filter changes and tab navigation.
@@ -50,77 +53,86 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const [generating, setGenerating] = useState(false);
   const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
-  const attemptedRef = useRef<string | null>(null);
+  const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, pattern, radius, crossPrefecture, variation, traveler }));
+  const [filtersOpen, setFiltersOpen] = useState(true);
+  const draft = { area, theme, pattern, radius, crossPrefecture, variation, traveler };
+  const dirty = conditionsId(draft) !== conditionsId(applied);
   const advanceRef = useRef<AbortController | null>(null);
   const [preparingNext, setPreparingNext] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
-  const entry = indexEntries.find(item => item.id === area)!;
-  const origin = useMemo(() => localOrigins[area] ?? ({ name: `${entry.name}・エリア中心`, latitude: entry.center[0], longitude: entry.center[1] }), [entry, area]);
-  const conditionsKey = `${area}:${theme}:${pattern}:${radius}:${crossPrefecture}:${variation}`;
-  const localRoutes = useMemo(() => composeLocalRoutes({ entry, origin, theme, course: pattern, radius, crossPrefecture, variation }), [entry, origin, theme, pattern, radius, crossPrefecture, variation]);
+  const draftEntry = indexEntries.find(item => item.id === area)!;
+  const entry = indexEntries.find(item => item.id === applied.area)!;
+  const origin = useMemo(() => localOrigins[entry.id] ?? ({ name: `${entry.name}・エリア中心`, latitude: entry.center[0], longitude: entry.center[1] }), [entry]);
+  const conditionsKey = conditionsId(applied);
+  const localRoutes = useMemo(() => composeLocalRoutes({ entry, origin, theme: applied.theme, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler }), [entry, origin, applied]);
   const routes = remote?.key === conditionsKey ? remote.routes : localRoutes;
   const collectionKey = `${conditionsKey}:${remote?.key === conditionsKey ? "api" : "local"}`;
   useEffect(() => {
     advanceRef.current?.abort(); advanceRef.current = null; setPreparingNext(false);
     return () => { advanceRef.current?.abort(); advanceRef.current = null; };
   }, [collectionKey, active, generating]);
-  useEffect(() => { requestRef.current?.abort(); requestRef.current = null; attemptedRef.current = null; setGenerating(false); setSelected(null); setNotice(null); }, [conditionsKey]);
   useEffect(() => () => requestRef.current?.abort(), []);
-  // Debounce condition changes; cached server selections make repeat visits inexpensive.
   useEffect(() => {
-    if (!active) {
-      if (requestRef.current) { requestRef.current.abort(); requestRef.current = null; attemptedRef.current = null; setGenerating(false); }
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      if (attemptedRef.current !== conditionsKey && remote?.key !== conditionsKey) void generate();
-    }, 650);
-    return () => window.clearTimeout(timer);
-  }, [conditionsKey, active]);
+    if (!active) { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); }
+  }, [active]);
+  function focusResults() {
+    resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    resultsHeadingRef.current?.focus({ preventScroll: true });
+  }
+  function editConditions() {
+    setFiltersOpen(true);
+    window.requestAnimationFrame(() => { filtersRef.current?.scrollIntoView?.({ block: "start" }); filtersRef.current?.focus({ preventScroll: true }); });
+  }
   function useLocalCandidates(message: string) {
     setRemote({ key: conditionsKey, routes: localRoutes, note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message } });
+    setCollections(current => ({ ...current, [`${conditionsKey}:api`]: EMPTY_BROWSE }));
   }
   function cancelGeneration() {
     requestRef.current?.abort(); requestRef.current = null; setGenerating(false);
     useLocalCandidates("AIの提案を中止しました。条件に合う通常の候補を表示しています。");
   }
-  async function generate() {
+  async function generate(next: Conditions = draft) {
+    if (!active) return;
+    const nextEntry = indexEntries.find(item => item.id === next.area)!;
+    const nextOrigin = localOrigins[next.area] ?? { name: `${nextEntry.name}・エリア中心`, latitude: nextEntry.center[0], longitude: nextEntry.center[1] };
+    const nextKey = conditionsId(next);
+    const fallback = composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler });
+    cancelAdvance(); setApplied(next); setSelected(null);
+    setPrefectureCode(nextEntry.prefecture_code as PrefectureCode);
+    if (window.matchMedia?.("(max-width: 800px)").matches) setFiltersOpen(false);
+    window.requestAnimationFrame(focusResults);
     requestRef.current?.abort();
     const controller = new AbortController(); requestRef.current = controller;
-    attemptedRef.current = conditionsKey;
     const timer = window.setTimeout(() => controller.abort(), 55_000);
     setGenerating(true); setNotice(null);
     try {
       const response = await fetch("/api/discover", { method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-        body: JSON.stringify({ area, prefecture_name: entry.name, origin, theme, course: pattern, radius_km: radius, cross_prefecture: crossPrefecture, variation, count: 12 }) });
+        body: JSON.stringify({ area: next.area, prefecture_name: nextEntry.name, origin: nextOrigin, theme: next.theme, course: next.pattern, radius_km: next.radius, cross_prefecture: next.crossPrefecture, variation: next.variation, count: 12, traveler: next.traveler }) });
       if (!response.ok) throw new Error("候補を取得できませんでした。");
       const data: unknown = await response.json();
       if (!isDiscoverResponse(data)) throw new Error("候補データの形式が正しくありません。");
       if (!controller.signal.aborted && requestRef.current === controller) {
-        setRemote({ key: conditionsKey, ...data });
-        setCollections(current => ({ ...current, [`${conditionsKey}:api`]: EMPTY_BROWSE }));
+        setRemote({ key: nextKey, ...data });
+        setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
       }
     } catch {
-      if (requestRef.current === controller) useLocalCandidates("AIの提案を取得できませんでした。条件に合う通常の候補を表示しています。「経路を見つける」で再試行できます。");
+      if (requestRef.current === controller) {
+        setRemote({ key: nextKey, routes: fallback, note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message: "AIの提案を取得できませんでした。通常の候補を表示しています。「この条件で探す」で再試行できます。" } });
+        setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
+      }
     } finally { window.clearTimeout(timer); if (requestRef.current === controller) { requestRef.current = null; setGenerating(false); } }
   }
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);
-  const areaName = indexEntries.find(entry => entry.id === area)?.name ?? area;
+  const areaName = entry.name;
 
-  function chooseArea(nextArea: string) {
-    setArea(nextArea); setSelected(null); setNotice(null);
-    const entry = indexEntries.find(candidate => candidate.id === nextArea);
-    if (entry) setPrefectureCode(entry.prefecture_code as PrefectureCode);
-  }
+  function chooseArea(nextArea: string) { setArea(nextArea); }
   function updateCollection(next: BrowseState) { setCollections(current => ({ ...current, [collectionKey]: next })); }
   function undo() {
     cancelAdvance();
     if (!history.length) return;
-    const savedId = history[history.length - 1].savedId;
-    if (savedId && !removeFavorite(savedId)) { setNotice("保存の取り消しができませんでした。もう一度お試しください。"); return; }
     updateCollection({ index: Math.max(0, index - 1), history: history.slice(0, -1) });
     setExitDirection("pass"); setSelected(null); setNotice(null);
   }
@@ -144,11 +156,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
       if (advanceRef.current === controller) { advanceRef.current = null; setPreparingNext(false); }
     }
   }
-  function commitSwipe(direction: DiscoverDirection) {
-    const current = routes[index];
-    if (!current) return;
-    let savedId: string | null = null;
-    if (direction === "like") {
+  function toIdea(current: DatasetRoute): RouteIdea {
       const entry = indexEntries.find(candidate => candidate.id === current.area);
       const selection = routeSelection(current);
       const idea: RouteIdea = {
@@ -158,58 +166,68 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
         image_url: null, author_name: null, source_url: null, license_name: null, license_url: null,
         copywriting_source: current.recommendation_source === "gemini" ? "gemini" : "fallback", note: current.recommendation_source === "gemini" ? "AIが条件に合わせて選んだ旅の候補" : "地図データに基づく旅の候補",
       };
-      const alreadySaved = isFavorite(idea);
-      if (!alreadySaved && !saveFavorite(idea)) { setNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。"); return; }
-      if (!alreadySaved) savedId = favoriteId(idea, idea.prefecture_code ?? prefecture.code);
-      setNotice(alreadySaved ? "♥ すでに保存済みです" : "♥ 保存しました。保存済みからいつでも見返せます。");
-      setSelected(current);
-    } else setNotice("スキップしました");
-    setExitDirection(direction);
-    updateCollection({ index: index + 1, history: [...history, { savedId, liked: direction === "like" }] });
+      return idea;
   }
+  function toggleSave() {
+    const current = routes[index];
+    if (!current || generating || preparingNext) return;
+    const idea = toIdea(current);
+    const saved = isFavorite(idea);
+    const ok = saved ? removeFavorite(favoriteId(idea, idea.prefecture_code ?? prefecture.code)) : saveFavorite(idea);
+    setNotice(ok ? (saved ? "保存を解除しました" : "保存しました。保存済みから見返せます。") : "保存内容を変更できませんでした。もう一度お試しください。");
+  }
+  function commitSwipe(direction: DiscoverDirection) {
+    if (!routes[index]) return;
+    setNotice(null); setExitDirection(direction);
+    updateCollection({ index: index + 1, history: [...history, index] });
+  }
+  const currentSaved = Boolean(stack[0] && isFavorite(toIdea(stack[0])));
 
-  return <div className="tab-panel discover-mode" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
-    <section className="discover-hero" aria-labelledby="discover-title">
-      <div className="discover-hero-copy"><p className="eyebrow">A LITTLE DETOUR, A NEW DISCOVERY</p><h1 id="discover-title">次の休日、<br />心が向くほうへ。</h1><p>街と気分を選ぶと、AIが行き先を提案。<br />おすすめの理由から、次の休日を見つけよう。</p><button type="button" className="discover-hero-action" onClick={() => { resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); resultsHeadingRef.current?.focus({ preventScroll: true }); }}>旅の候補を見る <span aria-hidden="true">↓</span></button><span className="discover-hero-note">47都道府県に対応 · 同じ施設と照合できた実写真を表示</span></div>
-      <div className="discover-hero-art" aria-hidden="true"><img src="/images/yorimichi-journey.webp" alt="" /><span className="discover-art-image-caption">いつもの日常から、少し遠くへ。</span></div>
-    </section>
-    <section className="discover-destinations" aria-label="おすすめの行き先">
-      <div className="discover-destination-heading"><span className="eyebrow">WHERE TO NEXT?</span><h2>気になる街から</h2></div>
-      <div className="discover-destination-list">{destinations.map(destination => {
-        const entry = indexEntries.find(item => item.id === destination.area);
-        return <button key={destination.area} type="button" className={`discover-destination destination-${destination.area}`} aria-pressed={area === destination.area} onClick={() => chooseArea(destination.area)}><span className="discover-destination-mark" aria-hidden="true">{destination.mark}</span><span><strong>{entry?.name}</strong><small>{destination.caption}</small></span><span aria-hidden="true">↗</span></button>;
-      })}</div>
-    </section>
-    <ol className="journey-flow" aria-label="旅づくりの流れ"><li><span>01</span><div><strong>気になる旅を見つける</strong><small>街と気分から、行き先の候補を。</small></div></li><li><span>02</span><div><strong>自分の予定に整える</strong><small>時間・予算に合わせて、自由に編集。</small></div></li><li><span>03</span><div><strong>確認して、出かける</strong><small>交通・公式情報を確認し、しおりを保存。</small></div></li></ol>
+  return <div className="tab-panel discover-mode discover-personalized" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
+    <header className="discover-intro">
+      <div><h1 id="discover-title">あなたに合う旅を見つける</h1><p>行き先と、一緒に行く人を選びましょう。「この条件で探す」で、おすすめを更新します。</p></div>
+      <button type="button" onClick={focusResults}>旅の候補を見る ↓</button>
+    </header>
     <section className="discover-workspace" aria-label="旅の候補を探す">
-      <aside className="discover-filters" ref={filtersRef} tabIndex={-1}><p className="eyebrow">MAKE IT YOURS</p><h2>どんな旅にしよう？</h2>
+      <aside className="discover-filters" ref={filtersRef} tabIndex={-1}><button type="button" className="discover-filter-toggle" aria-expanded={filtersOpen} aria-controls="discover-filter-fields" onClick={() => setFiltersOpen(open => !open)}>旅の条件 <span>{filtersOpen ? "閉じる" : "変更する"}</span></button><div id="discover-filter-fields" hidden={!filtersOpen}>
         <label className="prefecture-picker">都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(entry => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</select></label>
+        <TravelerPreferences value={traveler} onChange={setTraveler} />
         <fieldset className="discover-filter-group"><legend>いまの気分</legend><div className="discover-theme-options">{themes.map(item => <button type="button" key={item.id} aria-pressed={theme === item.id} onClick={() => { setTheme(item.id); setNotice(null); }}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</div></fieldset>
         <fieldset className="discover-filter-group"><legend>使える時間</legend><div className="discover-duration-options">{([{ id: "all", label: "指定なし" }, { id: "half_day", label: "半日" }, { id: "full_day", label: "1日" }] as const).map(item => <button key={item.id} type="button" aria-pressed={pattern === item.id} onClick={() => { setPattern(item.id); setNotice(null); }}>{item.label}</button>)}</div></fieldset>
+        <details className="discover-more-conditions"><summary>移動範囲を変更 <span>半径{radius}km</span></summary>
         <fieldset className="discover-filter-group discover-range"><legend>移動範囲</legend>
           <TravelRangeControl value={radius} onChange={setRadius} />
           <label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label>
-          <small>{origin.name}を中心に、指定した範囲内で探します。</small>
+          <small>{localOrigins[area]?.name ?? `${draftEntry.name}・エリア中心`}を中心に、指定した範囲内で探します。</small>
         </fieldset>
-        <button type="button" className="idea-primary-button discover-generate" onClick={() => void generate()} disabled={generating}>経路を見つける <span aria-hidden="true">↗</span></button>
-        <button type="button" className="discover-refresh" onClick={() => setVariation(v => v + 1)} disabled={generating}>別の組み合わせを見る ↻</button>
-        <div className="discover-howto"><span aria-hidden="true">♡</span><strong>ひらめきを、旅のしおりに。</strong><p>気になるルートを保存したら、出発地や滞在時間を調整して、自分だけの旅に。</p></div>
+        </details>
+        <button type="button" className="idea-primary-button discover-generate" onClick={() => void generate()} disabled={generating && !dirty}>この条件で探す <span aria-hidden="true">↗</span></button>
+        {dirty && <p className="discover-draft-notice" role="status">条件はまだ反映されていません。「この条件で探す」を押してください。</p>}
+      </div>
+
       </aside>
-      <div className="discover-results" ref={resultsRef}><header className="discover-results-heading"><div><p className="eyebrow">YOUR DISCOVERIES</p><h2 ref={resultsHeadingRef} tabIndex={-1}>{areaName}{crossPrefecture ? "周辺" : "内"}の旅のプラン</h2></div><span className="discover-result-count">{routes.length}件の候補</span></header>
-        <p className="discover-fallback-status" role="status">{theme === "all" ? "すべての気分" : themes.find(item => item.id === theme)?.label} · {pattern === "all" ? "時間の指定なし" : pattern === "half_day" ? "半日コース" : "1日コース"}</p>
-        <div className="discover-conditions-summary"><span>{origin.name}発 · 半径{radius}km</span><button type="button" onClick={() => { filtersRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); filtersRef.current?.focus({ preventScroll: true }); }}>条件を変更 <span aria-hidden="true">↑</span></button></div>
-        <p className="discover-agent-status" role="status" data-ready={remote?.key === conditionsKey && remote.agent?.status === "ready"}>{generating ? "AIが条件に合わせて行き先を選んでいます。" : remote?.key === conditionsKey ? remote.agent?.message ?? "施設データから条件に合う候補を表示しています。" : "条件に合う施設を表示しています。AIのおすすめをまもなく準備します。"}</p>
+      <div className="discover-results" ref={resultsRef}><header className="discover-results-heading"><div><h2 ref={resultsHeadingRef} tabIndex={-1}>{areaName}{applied.crossPrefecture ? "周辺" : "内"}の旅のプラン</h2></div><span className="discover-result-count">{routes.length}件の候補</span></header>
+        <p className="discover-fallback-status" role="status">{applied.theme === "all" ? "すべての気分" : themes.find(item => item.id === applied.theme)?.label} · {applied.pattern === "all" ? "時間の指定なし" : applied.pattern === "half_day" ? "半日コース" : "1日コース"}</p>
+        <div className="discover-conditions-summary"><span>{origin.name}発 · 半径{applied.radius}km · {travelerProfileSummary(applied.traveler)} · {PACE_OPTIONS.find(option => option.value === normalizeTravelPace(applied.traveler.pace))!.label}</span><button type="button" onClick={editConditions}>条件を変更 <span aria-hidden="true">↑</span></button></div>
+        <p className="discover-agent-status" role="status" data-ready={remote?.key === conditionsKey && remote.agent?.status === "ready"}>{generating ? "AIが条件に合わせて行き先を選んでいます。" : remote?.key === conditionsKey ? remote.agent?.message ?? "施設データから条件に合う候補を表示しています。" : "まずは通常の候補を表示しています。条件を選んで「この条件で探す」を押してください。"}</p>
         {generating && <ProgressStatus title="AIが旅の候補を選んでいます" steps={DISCOVER_STEPS} onCancel={cancelGeneration} />}
-        <div className="discover-stack" aria-busy={generating || preparingNext}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
-          {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件の候補は、まだありません</strong><p>気分や時間を変えると、新しいConcierGOが見つかるかも。</p><button type="button" className="idea-primary-button" onClick={() => { setTheme("all"); setPattern("all"); }}>すべての候補を見る</button></div>}
+        <div className="discover-stack" aria-busy={generating || preparingNext}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating && !selected} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
+          {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件の候補は、まだありません</strong><p>気分・時間・移動範囲を変えて探してみてください。</p><button type="button" className="idea-primary-button" onClick={() => { setTheme("all"); setPattern("all"); void generate({ ...draft, theme: "all", pattern: "all" }); }}>すべての候補を見る</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>お気に入りの旅は「保存済み」から見返せます。</p><button type="button" className="idea-primary-button" onClick={() => { updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}
         </div>
-        <div className="discover-actions"><button type="button" className="discover-action undo" onClick={undo} disabled={!history.length || preparingNext || generating} aria-label="1つ前に戻す">↶</button><button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length || preparingNext || generating} aria-label="スキップ"><span aria-hidden="true">↗</span>次の候補</button><button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={!stack.length || preparingNext || generating} aria-label="しおりを開く"><span aria-hidden="true">♡</span>保存して詳細を見る</button></div>
+        <p className="discover-swipe-hint">カードは左右にスワイプしても次へ進めます。保存は「保存」から。</p>
+        <div className="discover-actions">
+          <button type="button" className="discover-action detail" onClick={() => setSelected(stack[0])} disabled={!stack.length || generating || preparingNext}>詳細を見る</button>
+          <button type="button" className="discover-action save" onClick={toggleSave} aria-pressed={currentSaved} disabled={!stack.length || generating || preparingNext}>{currentSaved ? "保存済み" : "保存"}</button>
+          <button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length || preparingNext || generating}>次へ →</button>
+        </div>
+
         {preparingNext && <div className="discover-photo-pending" role="status"><span>次のカードの写真を準備しています…</span><button type="button" onClick={cancelAdvance}>待機をやめる</button></div>}
-        <div className="discover-deck-meta"><span className="discover-progress">{Math.min(index + 1, routes.length)} / {routes.length}</span>{stack[0] && <button type="button" onClick={() => setSelected(stack[0])}>保存せずに詳細を見る →</button>}</div>
-        {notice && <div className="discover-toast" role="status"><span>{notice}</span>{history.length > 0 && <button type="button" onClick={undo}>元に戻す</button>}</div>}
-        <details className="discover-data-note"><summary>移動時間・提案の範囲について</summary><p>{remote?.key === conditionsKey ? remote.note : `施設候補から条件に合わせて作成しました。半径${radius}km以内で検索範囲を自動調整します。候補が少ない場合はスポット数を減らします。移動時間は推定です。`}</p></details>
-        {onPlanInSearch && <button type="button" className="idea-primary-button discover-plan-button" disabled={generating || !routes.length} onClick={() => { const likedIndex = history.map(item => item.liked).lastIndexOf(true); const route = selected ?? (likedIndex >= 0 ? routes[likedIndex] : stack[0]) ?? routes[0]; if (route) { setSelected(null); onPlanInSearch(route, true); } }}>この条件で乗換つきの経路を作る <span aria-hidden="true">→</span></button>}
+        <div className="discover-deck-meta"><button type="button" onClick={undo} disabled={!history.length || preparingNext || generating}>← 前の候補</button><span className="discover-progress">{Math.min(index + 1, routes.length)} / {routes.length}</span><button type="button" disabled={generating || dirty} onClick={() => { const nextVariation = variation + 1; setVariation(nextVariation); void generate({ ...applied, variation: nextVariation }); }}>別の組み合わせ</button></div>
+        {notice && <div className="discover-toast" role="status">{notice}</div>}
+
+        <details className="discover-data-note"><summary>移動時間・提案の範囲について</summary><p>{remote?.key === conditionsKey ? remote.note : `施設候補から条件に合わせて作成しました。半径${applied.radius}km以内で検索範囲を自動調整します。候補が少ない場合はスポット数を減らします。移動時間は推定です。`}</p></details>
+        {onPlanInSearch && <button type="button" className="idea-primary-button discover-plan-button" disabled={generating || !stack.length} onClick={() => { const route = selected ?? stack[0]; if (route) { setSelected(null); onPlanInSearch(route, true); } }}>この条件で乗換つきの経路を作る <span aria-hidden="true">→</span></button>}
       </div>
     </section>
     {active && selected && <RouteDetailModal route={selected} onClose={() => setSelected(null)} onPlanInSearch={onPlanInSearch && (route => { setSelected(null); onPlanInSearch(route); })} />}

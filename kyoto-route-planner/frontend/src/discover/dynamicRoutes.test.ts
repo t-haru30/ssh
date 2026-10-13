@@ -59,3 +59,42 @@ describe("local facility composition", () => {
     expect(routes[0].estimated_minutes).toBeLessThanOrEqual(300); expect(routes[0].spots.map(p => p.place_id)).toEqual(["park"]);
   });
 });
+
+it("uses explicit pace independently of age, gender and companion", () => {
+ const pool = [place("one", 35.001), place("two", 35.002), place("three", 35.003), place("four", 35.004)];
+ const empty = { age_group: "unspecified" as const, gender: "unspecified" as const, companion: "unspecified" as const };
+ expect(composeLocalRoutes({ ...conditions, traveler: empty }, pool)).toEqual(composeLocalRoutes(conditions, pool));
+ for (const [pace, count, stay, fullStay] of [["relaxed", 2, 75, 120], ["standard", 3, 60, 105], ["packed", 4, 45, 75]] as const) {
+   for (const age_group of ["under_18", "30_49", "65_plus"] as const) {
+     const traveler = { ...empty, age_group, companion: "family" as const, pace };
+     const route = composeLocalRoutes({ ...conditions, course: "half_day", traveler }, pool)[0];
+     expect(route.spots).toHaveLength(count);
+     expect(route.spots.every(spot => spot.stay_minutes === stay)).toBe(true);
+     expect(route.estimated_minutes).toBeLessThanOrEqual(300);
+     const full = composeLocalRoutes({ ...conditions, course: "full_day", traveler }, pool)[0];
+     expect(full.spots).toHaveLength(count);
+     expect(full.spots[0].stay_minutes).toBe(fullStay);
+     expect(full.estimated_minutes).toBeLessThanOrEqual(600);
+     expect(route.recommendation_reason).toContain(`${count}か所`);
+   }
+ }
+});
+it("keeps geographic and time constraints for every pace", () => {
+ for (const pace of ["relaxed", "standard", "packed"] as const) {
+   const traveler = { age_group: "65_plus" as const, gender: "unspecified" as const, companion: "family" as const, pace };
+   const routes = composeLocalRoutes({ ...conditions, radius: 100, course: "half_day", traveler }, [place("near", 35.001), place("far", 35.8), place("outside", 36.2), place("neighbor", 35.002, "shiga")]);
+   for (const route of routes) {
+     expect(route.estimated_minutes).toBeLessThanOrEqual(300);
+     expect(route.spots.map(spot => spot.place_id)).not.toContain("outside");
+     expect(route.spots.map(spot => spot.place_id)).not.toContain("neighbor");
+   }
+ }
+});
+
+it("uses companion context to rank categories within the chosen theme and radius", () => {
+ const pool = [place("近い公園", 35.001), place("美術館", 35.002, "kyoto", "美術館")];
+ const traveler = { age_group: "unspecified" as const, gender: "unspecified" as const, companion: "solo" as const };
+ expect(composeLocalRoutes(conditions, pool)[0].spots[0].name).toBe("近い公園");
+ expect(composeLocalRoutes({ ...conditions, traveler }, pool)[0].spots[0].name).toBe("美術館");
+ expect(composeLocalRoutes({ ...conditions, theme: "nature", traveler }, pool)[0].spots.map(p => p.name)).toEqual(["近い公園"]);
+});

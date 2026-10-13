@@ -59,6 +59,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       theme={route.theme}
       title={route.title}
       description={isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`}
+      descriptionLabel="おすすめ理由"
       recommendationSources={!isIdea && <ReasonSources sources={route.reason_sources} />}
       recommendationLabel={aiRecommended ? "AIが選んだおすすめ" : undefined}
       summary={isIdea
@@ -91,8 +92,10 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
         : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
-      isProcessing={preparingNext}
-      acceptLabel="しおりを開く"
+      isProcessing={!active || preparingNext || Boolean(selectedPlaceId)}
+      swipeEnabled={active && !selectedPlaceId}
+      acceptLabel="次の候補"
+      skipLabel="次の候補"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
     />

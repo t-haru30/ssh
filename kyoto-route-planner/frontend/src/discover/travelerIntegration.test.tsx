@@ -1,0 +1,36 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+import { PrefectureProvider } from "../PrefectureContext";
+import { FavoritesProvider } from "../useFavorites";
+import { DiscoverMode } from "./DiscoverMode";
+import { TRAVELER_PROFILE_KEY } from "../travelerProfile";
+
+vi.mock("./DiscoverCard", () => ({ DiscoverCard: () => null, formatMinutes: String }));
+vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
+it("sends changed traveler conditions, cancels stale recommendations and restores the selection", async () => {
+  const requests: RequestInit[] = [];
+  vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => { requests.push(init); return new Promise(() => {}); }));
+  const mount = () => render(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
+  const view = mount();
+  fireEvent.click(screen.getByRole("button", { name: "家族と" }));
+  fireEvent.click(screen.getByText("年代・性別を追加する（任意）"));
+  fireEvent.change(screen.getByLabelText("年代"), { target: { value: "65_plus" } });
+  fireEvent.change(screen.getByLabelText("性別"), { target: { value: "female" } });
+  fireEvent.click(screen.getByRole("button", { name: "たくさん巡る" }));
+  fireEvent.click(screen.getByRole("button", { name: /この条件で探す/ }));
+  const expected = { age_group: "65_plus", gender: "female", companion: "family", pace: "packed" };
+  expect(JSON.parse(String(requests[0].body)).traveler).toEqual(expected);
+  expect(JSON.parse(localStorage.getItem(TRAVELER_PROFILE_KEY)!)).toEqual(expected);
+  fireEvent.click(screen.getByRole("button", { name: "友人と" }));
+  expect(requests[0].signal?.aborted).toBe(false);
+  expect(requests).toHaveLength(1);
+  fireEvent.click(screen.getByRole("button", { name: /この条件で探す/ }));
+  expect(requests[0].signal?.aborted).toBe(true);
+  await waitFor(() => expect(requests.length).toBe(2));
+  expect(JSON.parse(String(requests[1].body)).traveler.companion).toBe("friends");
+  await act(async () => view.unmount());
+  mount();
+  expect(screen.getByRole("button", { name: "友人と" }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("button", { name: "たくさん巡る" }).getAttribute("aria-pressed")).toBe("true");
+});

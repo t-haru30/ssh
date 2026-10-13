@@ -6,6 +6,7 @@ import asyncio
 import os
 import re
 import unicodedata
+from typing import Literal
 from fastapi import HTTPException
 from hashlib import sha256
 from math import asin, cos, radians, sin, sqrt, ceil
@@ -15,6 +16,17 @@ from pydantic import BaseModel, Field
 from app.models import CatalogPlace, Origin, Theme
 from app.places import is_unsuitable_place
 from app.public_catalog import load_public_places
+
+
+PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
+PACE_LABELS = {"relaxed": "ゆったり", "standard": "標準", "packed": "たくさん巡る"}
+
+
+class Traveler(BaseModel):
+    pace: Literal["relaxed", "standard", "packed"] = "standard"
+    age_group: Literal["unspecified", "under_18", "18_29", "30_49", "50_64", "65_plus"] = "unspecified"
+    gender: Literal["unspecified", "female", "male", "other"] = "unspecified"
+    companion: Literal["unspecified", "family", "friends", "couple", "solo"] = "unspecified"
 
 
 class DiscoverRequest(BaseModel):
@@ -27,6 +39,42 @@ class DiscoverRequest(BaseModel):
     cross_prefecture: bool = True
     variation: int = Field(default=0, ge=0, le=10000)
     count: int = Field(default=12, ge=1, le=20)
+    traveler: Traveler | None = None
+
+
+def traveler_pace(request: DiscoverRequest) -> str:
+    return request.traveler.pace if request.traveler else "standard"
+
+
+def stay_minutes(request: DiscoverRequest) -> int:
+    settings = PACE_SETTINGS[traveler_pace(request)]
+    return settings[2] if request.course == "full_day" else settings[1]
+
+
+def max_stops(request: DiscoverRequest) -> int:
+    return PACE_SETTINGS[traveler_pace(request)][0]
+
+
+def recommendation_reason(request: DiscoverRequest, ordered: list[CatalogPlace]) -> str:
+    categories = "・".join(dict.fromkeys(p.category for p in ordered))
+    reason = f"{PACE_LABELS[traveler_pace(request)]}ペースで{len(ordered)}か所、各{stay_minutes(request)}分滞在（目安）。{categories}を巡ります。"
+    if request.traveler and any(traveler_priority(request, p) for p in ordered):
+        label = {"family": "家族", "friends": "友人", "couple": "カップル", "solo": "ひとり旅"}[request.traveler.companion]
+        matched = "・".join(dict.fromkeys(p.category for p in ordered if traveler_priority(request, p)))
+        reason += f"{label}で巡る候補として、{matched}を選びました。"
+    return reason
+
+
+def traveler_priority(request: DiscoverRequest, place: CatalogPlace) -> int:
+    """Soft category preferences only; never infer accessibility or gender tastes."""
+    companion = request.traveler.companion if request.traveler else "unspecified"
+    words = {
+        "family": ("公園", "動物", "水族", "科学", "博物館", "植物"),
+        "friends": ("市場", "商店街", "飲食", "グルメ", "公園", "博物館"),
+        "couple": ("庭園", "展望", "美術館", "カフェ", "植物"),
+        "solo": ("博物館", "美術館", "寺", "神社", "記念"),
+    }.get(companion, ())
+    return int(any(word in place.name + " " + place.category for word in words))
 
 
 def distance_km(a, b) -> float:
@@ -84,9 +132,9 @@ def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ..
 def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
                    reasons: dict[str, str] | None = None, *, source: str = "rules") -> dict | None:
     """Compute a round trip independently; reject AI selections over the time cap."""
-    if not ordered or len(ordered) > 3:
+    if not ordered or len(ordered) > max_stops(request):
         return None
-    stay = 105 if request.course == "full_day" else 60
+    stay = stay_minutes(request)
     points = [request.origin, *ordered, request.origin]
     legs = [{"from": a.name, "to": b.name, "distance_km": round(distance_km(a, b), 2),
              "mode": "public_transport", "minutes": ceil(distance_km(a, b) / 25 * 60) + 10}
@@ -104,7 +152,7 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
                       "to_first_km": legs[0]["distance_km"], "from_last_km": legs[-1]["distance_km"]},
             "total_score": len(ordered), "center": [request.origin.latitude, request.origin.longitude],
             "recommendation_source": source,
-            "recommendation_reason": "・".join(dict.fromkeys(p.category for p in ordered)) + f"を巡る候補です。出発地から直線約{max(distance_km(request.origin, p) for p in ordered):.1f}km以内の{len(ordered)}か所を組み合わせました。",
+            "recommendation_reason": recommendation_reason(request, ordered),
             "spots": [{"place_id": p.id, "name": p.name, "category": p.category, "lat": p.latitude, "lng": p.longitude,
                        "stay_minutes": stay, "score": 1, "role": "stop", "reason": reasons[p.id]} for p in ordered],
             "coordinates": [[p.latitude, p.longitude] for p in points]}
@@ -124,12 +172,13 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         if len(nearby) >= 6:
             candidates, effective_radius = nearby, radius
             break
+    candidates.sort(key=lambda p: (-traveler_priority(request, p), distance_km(request.origin, p), p.id))
     routes, seen = [], set()
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
         ordered, remaining, cursor = [seed], [p for p in candidates if p.id != seed.id], seed
-        while remaining and len(ordered) < 3:
-            nearest = min(remaining, key=lambda p: (distance_km(cursor, p), p.id))
+        while remaining and len(ordered) < max_stops(request):
+            nearest = min(remaining, key=lambda p: (distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -147,6 +196,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         note += "候補が少ないため検索範囲を広げました。"
     if len(candidates) < 3:
         note += "候補が少ないため、見つかったスポット数で提案しています。"
+    note += f"{PACE_LABELS[traveler_pace(request)]}ペースで最大{max_stops(request)}か所、各{stay_minutes(request)}分の滞在です。"
     return {"routes": routes, "note": note + "移動時間は推定です。", "source": "OpenStreetMap"}
 
 

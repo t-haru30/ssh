@@ -22,7 +22,7 @@ import httpx
 
 from app.ai_settings import gemini_api_key, setting
 from app.cache import TTLCache
-from app.discovery import DiscoverRequest, assemble_route, distance_km, eligible_candidates, place_themes, venue_name
+from app.discovery import DiscoverRequest, assemble_route, distance_km, eligible_candidates, place_themes, venue_name, stay_minutes, max_stops
 from app.models import CatalogPlace
 from app.official_attractions import enrich_official_attractions
 
@@ -55,12 +55,19 @@ If evidence is sparse, return fewer strong routes rather than filling the reques
 count with unsupported destinations or repeated variations of the same anchor.
 No invented attractions,
 reviews, popularity, opening hours, prices, travel facts, HTML or free-form prose.
-Inspect at most 60 candidate IDs. Choose at most requested_count routes, each 1-3 unique places. Do not repeat the
+Inspect at most 60 candidate IDs. Choose at most requested_count routes, each 1-max_stops unique places. Do not repeat the
 same set of places across routes. Fewer routes are acceptable for sparse catalogs.
 The application computes round-trip time: each leg ceil(straight_km / 25 * 60)+10,
-plus stay_minutes per stop. Total must be <= max_minutes. If three stops do not
-fit, select two or one. Facts marked official are excerpts from official sources;
+plus stay_minutes per stop. Total must be <= max_minutes. If max_stops do not
+fit, select fewer stops. Facts marked official are excerpts from official sources;
 opening status is unknown. Never treat a facility name as another branch.
+Traveler fields are optional context. Use companion context for suitable shared
+activities supported by category or inspected facts. Pace is the explicit traveler.pace
+choice, independent of age, gender and companion; use supplied stay_minutes and max_stops.
+Respect max_stops. Do not infer interests, physical ability,
+accessibility or restrictions from age or gender. Gender must never produce
+stereotypical preferences or exclusion; use it only when explicit facility evidence
+is relevant. Unspecified fields imply no preference. Hard constraints always win.
 """
 
 
@@ -163,7 +170,7 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
     for choice in choices:
         _strict_object(choice, {"places"})
         stops = choice["places"]
-        if not isinstance(stops, list) or not 1 <= len(stops) <= 3:
+        if not isinstance(stops, list) or not 1 <= len(stops) <= max_stops(request):
             raise ValueError("Invalid stop count")
         ordered, reasons, official_reasons, reason_sources = [], {}, [], {}
         summary_sources = {}
@@ -214,6 +221,7 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
         route = assemble_route(request, ordered, reasons, source="gemini")
         if route is None:
             raise ValueError("Route exceeds time limit")
+        pace_reason = route["recommendation_reason"]
         route["recommendation_reason"] = _short_text(" ".join(official_reasons[:2]), 580) if official_reasons else (
             "・".join(p.name for p in ordered) + "を訪ねるプランです。各施設の詳しい見どころは、公式情報を確認できていません。")
         route["reason_sources"] = []
@@ -222,6 +230,7 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
             for source in summary_sources.get(spot["place_id"], []) if spot["place_id"] in list(summary_sources)[:2] else []:
                 if source not in route["reason_sources"]:
                     route["reason_sources"].append(source)
+        route["recommendation_reason"] += " " + pace_reason
         routes.append(route)
     return routes
 
@@ -268,7 +277,7 @@ def _response(call: dict, value: dict) -> dict:
 async def _run(request: DiscoverRequest, candidates: list[CatalogPlace], key: str, model: str) -> dict:
     constraints = {"request": request.model_dump(mode="json"), "requested_count": request.count,
                    "max_minutes": 300 if request.course == "half_day" else 600,
-                   "stay_minutes": 105 if request.course == "full_day" else 60,
+                   "stay_minutes": stay_minutes(request), "max_stops": max_stops(request),
                    "candidate_count": len(candidates), "opening_status": "unknown"}
     contents = [{"role": "user", "parts": [{"text": json.dumps(constraints, ensure_ascii=False)
         + "\nSearch the catalog now; an empty query is usually appropriate."}]}]
@@ -378,6 +387,7 @@ async def recommend_routes(request: DiscoverRequest, candidates: list[CatalogPla
     result = deepcopy(result)
     result["source"] = fallback["source"]
     result["note"] = (f"{fallback['source']}の有限の施設候補（距離順で最大{MAX_CANDIDATES}件）からAIが選定しました。"
+                      "地域の施設を網羅するものではありません。"
                       f"検索半径の上限{request.radius_km}km、テーマ・県境・所要時間の条件を照合しています。"
                       "移動時間は直線距離からの推定で、営業時間・休業・料金は未確認です。")
     return result

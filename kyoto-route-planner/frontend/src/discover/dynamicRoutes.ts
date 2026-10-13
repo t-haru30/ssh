@@ -3,16 +3,17 @@ import { distanceKm } from "../dayTrip";
 import { localPlaces } from "../localPlaces";
 import { distinctVenues } from "../venueIdentity";
 import { facilityThemes, isUnsuitablePlace } from "../placeThemes";
+import { normalizeTravelPace, PACE_OPTIONS, PACE_SETTINGS, type TravelerProfile } from "../travelerProfile";
 import type { Origin, Theme } from "../types";
 import type { DatasetRoute, RouteDatasetIndexEntry } from "./datasetTypes";
 
-export type DiscoverConditions = { entry: RouteDatasetIndexEntry; origin: Origin; theme: Theme; course: "all" | "half_day" | "full_day"; radius: number; crossPrefecture: boolean; variation: number };
+export type DiscoverConditions = { entry: RouteDatasetIndexEntry; origin: Origin; theme: Theme; course: "all" | "half_day" | "full_day"; radius: number; crossPrefecture: boolean; variation: number; traveler?: TravelerProfile };
 
 export { facilityThemes } from "../placeThemes";
 const themeTitles: Record<Theme, string> = { all: "街歩き", history: "歴史と文化", temple: "寺社めぐり", nature: "自然と景色", food: "食のひととき" };
 
 /** Offline composition from deduplicated facilities, with a hard geographic cap. */
-export function composeLocalRoutes({ entry, origin, theme, course, radius, crossPrefecture, variation }: DiscoverConditions, pool = localPlaces): DatasetRoute[] {
+export function composeLocalRoutes({ entry, origin, theme, course, radius, crossPrefecture, variation, traveler }: DiscoverConditions, pool = localPlaces): DatasetRoute[] {
   let candidates = distinctVenues(pool.filter(p => !isUnsuitablePlace(p) && (crossPrefecture || p.tags?.area === entry.id)
     && (theme === "all" || facilityThemes(p).includes(theme)) && !/ホテル|旅館|宿泊/.test(p.category)
     && distanceKm(origin, p) <= radius).sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id)));
@@ -20,12 +21,22 @@ export function composeLocalRoutes({ entry, origin, theme, course, radius, cross
     const nearby = candidates.filter(p => distanceKm(origin, p) <= r);
     if (nearby.length >= 6) { candidates = nearby; break; }
   }
+  const companionWords: Record<TravelerProfile["companion"], string[]> = {
+    unspecified: [], family: ["公園", "動物", "水族", "科学", "博物館", "植物"],
+    friends: ["市場", "商店街", "飲食", "グルメ", "公園", "博物館"],
+    couple: ["庭園", "展望", "美術館", "カフェ", "植物"], solo: ["博物館", "美術館", "寺", "神社", "記念"],
+  };
+  const priority = (p: (typeof candidates)[number]) => Number(companionWords[traveler?.companion ?? "unspecified"].some(word => `${p.name} ${p.category}`.includes(word)));
+  candidates.sort((a, b) => priority(b) - priority(a) || distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
   const routes: DatasetRoute[] = [], seen = new Set<string>();
-  const stay = course === "full_day" ? 105 : 60;
+  const pace = normalizeTravelPace(traveler?.pace);
+  const settings = PACE_SETTINGS[pace];
+  const stay = course === "full_day" ? settings.fullDayStay : settings.stay;
+  const maxStops = settings.maxStops;
   for (let i = 0; i < Math.min(candidates.length, 80); i++) {
     const seed = candidates[(i + variation) % candidates.length];
     const ordered = [seed], remaining = candidates.filter(p => p.id !== seed.id);
-    while (ordered.length < 3 && remaining.length) {
+    while (ordered.length < maxStops && remaining.length) {
       remaining.sort((a, b) => distanceKm(ordered[ordered.length - 1], a) - distanceKm(ordered[ordered.length - 1], b) || a.id.localeCompare(b.id));
       ordered.push(remaining.shift()!);
     }
@@ -43,6 +54,7 @@ export function composeLocalRoutes({ entry, origin, theme, course, radius, cross
     const minutes = legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.length * stay;
     const pattern = course === "full_day" || minutes > 300 ? "full_day" : "half_day";
     routes.push({ id: `local-${entry.id}-${stay}-${ordered.map(p => p.id).join("-")}`, area: entry.id, theme, course: pattern, pattern,
+      recommendation_source: "rules", recommendation_reason: `${PACE_OPTIONS.find(option => option.value === pace)!.label}のペースで${ordered.length}か所、各${stay}分滞在（目安）。${[...new Set(ordered.map(p => p.category))].join("・")}を巡ります。`,
       title: `${ordered[0].name}から、${themeTitles[theme]}を楽しむ旅`, estimated_minutes: minutes, legs, total_score: ordered.length,
       start: { name: origin.name, lat: origin.latitude, lng: origin.longitude, to_first_km: legs[0].distance_km, from_last_km: legs[legs.length - 1].distance_km },
       center: [origin.latitude, origin.longitude], coordinates: [origin, ...ordered, origin].map(p => [p.latitude, p.longitude]),
