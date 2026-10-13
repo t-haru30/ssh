@@ -3,7 +3,8 @@
 The model chooses destinations, combinations, order and supporting fact IDs. It
 never supplies display facts, URLs, coordinates or duration estimates. Reasons
 are rendered from its chosen evidence so unsupported prose cannot reach users.
-No web searches, routing, images, retries or model-controlled network calls occur.
+Official attraction pages are fetched by a bounded application-owned lookup;
+the model cannot choose network URLs. No routing, images or retries occur here.
 """
 from __future__ import annotations
 
@@ -23,9 +24,10 @@ from app.ai_settings import gemini_api_key, setting
 from app.cache import TTLCache
 from app.discovery import DiscoverRequest, assemble_route, distance_km, eligible_candidates, place_themes, venue_name
 from app.models import CatalogPlace
+from app.official_attractions import enrich_official_attractions
 
 DEFAULT_MODEL = "gemini-3.8-flash"
-AGENT_TIMEOUT_SECONDS = 30
+AGENT_TIMEOUT_SECONDS = 48
 MAX_CANDIDATES = 80
 MAX_INSPECTED = 60
 MAX_CONCURRENT = 2
@@ -44,13 +46,20 @@ and coordinates to distinguish branches. Respect every supplied hard constraint.
 Choose different useful combinations and a sensible visit order, not canned
 routes. Prefer evidence-rich facilities and short travel, while varying categories
 when the theme allows. Select fact_ids that explain why each destination suits
-the request, and a supported fit (theme or distance). No invented attractions,
+the request, and a supported fit (theme or distance). Prefer facilities with
+official attraction facts. When these exist, select specific exhibits, buildings,
+landscapes or experiences rather than their category. The first fact should be
+the most compelling distinctive highlight. Every route should have at least one
+facility with official attraction evidence; prefer evidence for every stop.
+If evidence is sparse, return fewer strong routes rather than filling the requested
+count with unsupported destinations or repeated variations of the same anchor.
+No invented attractions,
 reviews, popularity, opening hours, prices, travel facts, HTML or free-form prose.
 Inspect at most 60 candidate IDs. Choose at most requested_count routes, each 1-3 unique places. Do not repeat the
 same set of places across routes. Fewer routes are acceptable for sparse catalogs.
 The application computes round-trip time: each leg ceil(straight_km / 25 * 60)+10,
 plus stay_minutes per stop. Total must be <= max_minutes. If three stops do not
-fit, select two or one. All facts are provisional catalog/curated metadata;
+fit, select two or one. Facts marked official are excerpts from official sources;
 opening status is unknown. Never treat a facility name as another branch.
 """
 
@@ -144,7 +153,7 @@ def _search(args: dict, candidates: list[CatalogPlace], request: DiscoverRequest
 
 
 def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dict[str, str]],
-            request: DiscoverRequest) -> list[dict]:
+            request: DiscoverRequest, sources: dict[str, dict[str, str]] | None = None) -> list[dict]:
     _strict_object(args, {"routes"})
     choices = args["routes"]
     if not isinstance(choices, list) or not 1 <= len(choices) <= request.count:
@@ -156,7 +165,8 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
         stops = choice["places"]
         if not isinstance(stops, list) or not 1 <= len(stops) <= 3:
             raise ValueError("Invalid stop count")
-        ordered, reasons, official_reasons = [], {}, []
+        ordered, reasons, official_reasons, reason_sources = [], {}, [], {}
+        summary_sources = {}
         for stop in stops:
             _strict_object(stop, {"id", "name", "latitude", "longitude", "fact_ids", "fit"})
             identifier = stop["id"]
@@ -173,17 +183,29 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
             if any(key not in facts[identifier] for key in chosen_facts):
                 raise ValueError("Unsupported facility fact")
             fit = stop["fit"]
-            if fit == "theme" and request.theme in theme_label and request.theme in place_themes(place):
-                condition = f"ご希望の「{theme_label[request.theme]}」に合う候補です。"
-            elif fit == "theme" and request.theme == "all":
-                condition = "テーマを絞らない街歩きの候補として選びました。"
-            elif fit == "distance":
-                condition = f"出発地から直線約{distance_km(request.origin, place):.1f}kmで、上限{request.radius_km}km以内です。"
-            else:
+            if not (fit == "distance" or fit == "theme" and
+                    (request.theme == "all" or request.theme in theme_label and request.theme in place_themes(place))):
                 raise ValueError("Unsupported request fit")
-            evidence = " ".join(facts[identifier][key] for key in chosen_facts)
-            reasons[identifier] = _short_text(evidence, 300) + " " + condition
-            official_reasons.extend(facts[identifier][key] for key in chosen_facts if key.startswith("official_"))
+            # Render only verified facility facts, never free-form model claims.
+            # If the model picked category alone, use the available attraction
+            # evidence rather than dropping back to distance/category prose.
+            attraction_keys = [key for key in chosen_facts if key.startswith("official_")]
+            if not attraction_keys:
+                attraction_keys = [key for key in facts[identifier] if key.startswith("official_")][:2]
+            evidence = " ".join(dict.fromkeys(facts[identifier][key] for key in attraction_keys))
+            reasons[identifier] = (_short_text(evidence, 360) if evidence else
+                "この施設ならではの見どころは、公式情報を確認できていません。施設の案内をご確認ください。")
+            reason_sources[identifier] = []
+            for fact_id in attraction_keys:
+                url = (sources or {}).get(identifier, {}).get(fact_id)
+                if url and not any(item["url"] == url for item in reason_sources[identifier]):
+                    reason_sources[identifier].append({"title": place.name + "の公式紹介", "url": url})
+            if evidence:
+                first_fact = attraction_keys[0]
+                official_reasons.append(place.name + "：" + _short_text(facts[identifier][first_fact], 110))
+                first_url = (sources or {}).get(identifier, {}).get(first_fact)
+                summary_sources[identifier] = ([{"title": place.name + "の公式紹介", "url": first_url}]
+                                               if first_url else [])
             ordered.append(place)
         signature = tuple(sorted(p.id for p in ordered))
         if signature in signatures:
@@ -192,11 +214,14 @@ def _select(args: dict, inspected: dict[str, CatalogPlace], facts: dict[str, dic
         route = assemble_route(request, ordered, reasons, source="gemini")
         if route is None:
             raise ValueError("Route exceeds time limit")
-        if official_reasons:
-            route["recommendation_reason"] = _short_text(official_reasons[0], 240) + " " + route["recommendation_reason"]
-        if request.theme in theme_label:
-            route["recommendation_reason"] = f"ご希望の「{theme_label[request.theme]}」に合わせて選びました。" + route["recommendation_reason"]
-        route["recommendation_reason"] = _short_text(route["recommendation_reason"], 580)
+        route["recommendation_reason"] = _short_text(" ".join(official_reasons[:2]), 580) if official_reasons else (
+            "・".join(p.name for p in ordered) + "を訪ねるプランです。各施設の詳しい見どころは、公式情報を確認できていません。")
+        route["reason_sources"] = []
+        for spot in route["spots"]:
+            spot["reason_sources"] = reason_sources[spot["place_id"]]
+            for source in summary_sources.get(spot["place_id"], []) if spot["place_id"] in list(summary_sources)[:2] else []:
+                if source not in route["reason_sources"]:
+                    route["reason_sources"].append(source)
         routes.append(route)
     return routes
 
@@ -263,11 +288,35 @@ async def _run(request: DiscoverRequest, candidates: list[CatalogPlace], key: st
         by_id = {p.id: p for p in candidates}
         inspected = {identifier: by_id[identifier] for identifier in ids}
         facts = {identifier: _facts(p) for identifier, p in inspected.items()}
+        sources = {}
+        from app.official_place_info import _seed_entry
+        for identifier, place in inspected.items():
+            seed = _seed_entry(place)
+            if seed and seed.get("reviewed_at") and seed.get("description_source_url"):
+                sources[identifier] = {fact_id: seed["description_source_url"]
+                    for fact_id in facts[identifier] if fact_id.startswith("official_")}
+        # Application-owned bounds apply regardless of model inspection count.
+        enrichment_pool = sorted(inspected.values(), key=lambda p: _seed_entry(p) is None)
+        enriched = await enrich_official_attractions(enrichment_pool)
+        for identifier, evidence in enriched.items():
+            if identifier not in inspected:
+                continue
+            for index, fact in enumerate(evidence.facts[:3]):
+                fact_id = f"official_attraction_{index + 1}"
+                facts[identifier][fact_id] = fact.text
+                sources.setdefault(identifier, {})[fact_id] = fact.source_url
         details = [{**_identity(p, request), "facts": facts[identifier]} for identifier, p in inspected.items()]
         contents.extend([content, _response(call, {"facilities": details, "next": "Select route combinations and supporting fact IDs."})])
         _, call = await _call(client, key, model, contents, "select_routes")
-        routes = _select(call["args"], inspected, facts, request)
-    return {"routes": routes, "agent": {"status": "ready", "message": "AIが施設候補を検索・確認し、行き先と巡る順番を選びました。"}}
+        routes = _select(call["args"], inspected, facts, request, sources)
+        # Do not fill the deck with category-only suggestions when researched
+        # alternatives exist. Smaller, well-explained selections are useful.
+        explained = [route for route in routes if route.get("reason_sources")]
+        if explained:
+            routes = sorted(explained, key=lambda route: -sum(bool(spot.get("reason_sources")) for spot in route["spots"]) / len(route["spots"]))
+    message = ("AIが公式紹介の見どころを参考に、行き先と巡る順番を選びました。" if explained else
+               "AIが行き先と巡る順番を選びました。施設の詳しい見どころは公式情報を確認できていません。")
+    return {"routes": routes, "agent": {"status": "ready", "message": message}}
 
 
 def _fallback(fallback: dict, message: str) -> dict:

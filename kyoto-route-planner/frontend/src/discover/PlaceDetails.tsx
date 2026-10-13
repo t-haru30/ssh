@@ -1,3 +1,4 @@
+import { ReasonSources, type ReasonSource } from "./reasonSources";
 import { useEffect, useState } from "react";
 import type { Place } from "../types";
 import { TripDialog } from "../DayTripEditor";
@@ -83,7 +84,7 @@ function visitHint(category: string) {
 }
 
 /** Mounted only after a person opens a destination; browsing cards makes no API calls. */
-export function PlaceIntroduction({ place, stayMinutes, recommendations = [], enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; enableOfficialSearch?: boolean }) {
+export function PlaceIntroduction({ place, stayMinutes, recommendations = [], reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {
   const [introduction, setIntroduction] = useState<Introduction | null>(null);
   const [official, setOfficial] = useState<OfficialInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,7 +118,7 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], en
 
   const mapUrl = `https://www.openstreetmap.org/?mlat=${place.latitude}&mlon=${place.longitude}#map=17/${place.latitude}/${place.longitude}`;
   const routeNote = place.description.trim();
-  const hasRouteNote = routeNote && !/^.{1,4}[都道府県]$/.test(routeNote);
+  const hasRouteNote = routeNote && !recommendations.some(reason => reason.trim() === routeNote) && !/^.{1,4}[都道府県]$/.test(routeNote);
   const needsOfficialSearch = enableOfficialSearch && (!official || !official.opening_hours || !official.closed_days || !official.admission);
   const detailsLoading = loading || loadedIdentity !== identity;
   return <div className="place-introduction">
@@ -125,7 +126,8 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], en
     {place.address && <p className="place-details-address">{place.address}</p>}
     {hasRouteNote && <div className="place-route-reason"><h4>旅のポイント</h4><p>{routeNote}</p></div>}
     {recommendations.length > 0 && <section className="place-recommendation" aria-label="この旅でのおすすめポイント"><h4>この旅でのおすすめポイント</h4>
-      <ul>{recommendations.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+      <ul>{[...new Set(recommendations)].map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+      <ReasonSources sources={reasonSources} />
     </section>}
     {Boolean(official?.highlights.length) && <section className="place-official-highlights" aria-label="施設の見どころ"><h4>施設の見どころ</h4>
       <ul>{official!.highlights.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
@@ -160,14 +162,14 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], en
   </div>;
 }
 
-export function PlaceDetailsDialog({ place, stayMinutes, recommendations, onClose, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; onClose: () => void; enableOfficialSearch?: boolean }) {
-  return <TripDialog title={place.name} onClose={onClose}><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
+export function PlaceDetailsDialog({ place, stayMinutes, recommendations, reasonSources, onClose, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; onClose: () => void; enableOfficialSearch?: boolean }) {
+  return <TripDialog title={place.name} onClose={onClose}><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
 }
 
-export function PlaceDescriptionToggle({ place, stayMinutes, recommendations, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; enableOfficialSearch?: boolean }) {
+export function PlaceDescriptionToggle({ place, stayMinutes, recommendations, reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {
   const [open, setOpen] = useState(false);
   return <details className="place-description-toggle" onToggle={event => setOpen(event.currentTarget.open)}>
     <summary>{place.name}の説明を見る</summary>
-    {open && <PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} enableOfficialSearch={enableOfficialSearch} />}
+    {open && <PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} />}
   </details>;
 }

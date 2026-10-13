@@ -1,3 +1,4 @@
+import { isReasonSources } from "./reasonSources";
 import { distanceKm } from "../dayTrip";
 import { localPlaces } from "../localPlaces";
 import { distinctVenues } from "../venueIdentity";
@@ -70,11 +71,12 @@ export function isDiscoverResponse(value: unknown): value is DiscoverResponse {
     return typeof r.id === "string" && typeof r.title === "string" && typeof r.area === "string"
       && (r.recommendation_source === undefined || ["gemini", "rules"].includes(r.recommendation_source))
       && (r.recommendation_reason === undefined || text(r.recommendation_reason))
+      && isReasonSources(r.reason_sources)
       && ["all", "history", "temple", "nature", "food"].includes(r.theme)
       && ["half_day", "full_day"].includes(r.course) && Number.isFinite(r.estimated_minutes)
       && r.start && typeof r.start.name === "string" && coordinate(r.start.lat, 90) && coordinate(r.start.lng, 180)
       && Array.isArray(r.center) && r.center.length === 2 && coordinate(r.center[0], 90) && coordinate(r.center[1], 180)
       && Array.isArray(r.legs) && r.legs.every(l => typeof l.from === "string" && typeof l.to === "string" && Number.isFinite(l.minutes) && Number.isFinite(l.distance_km) && ["walk", "car", "public_transport"].includes(l.mode))
-      && Array.isArray(r.spots) && r.spots.length > 0 && r.spots.length <= 8 && r.spots.every(p => p && typeof p.place_id === "string" && typeof p.name === "string" && typeof p.category === "string" && coordinate(p.lat, 90) && coordinate(p.lng, 180) && Number.isFinite(p.stay_minutes) && (p.reason === undefined || text(p.reason)));
+      && Array.isArray(r.spots) && r.spots.length > 0 && r.spots.length <= 8 && r.spots.every(p => p && typeof p.place_id === "string" && typeof p.name === "string" && typeof p.category === "string" && coordinate(p.lat, 90) && coordinate(p.lng, 180) && Number.isFinite(p.stay_minutes) && (p.reason === undefined || text(p.reason)) && isReasonSources(p.reason_sources));
   });
 }

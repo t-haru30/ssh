@@ -1,3 +1,5 @@
+import type { ReasonSource } from "./reasonSources";
+
 export type DatasetPattern = "half_day" | "full_day";
 
 export type DatasetSpot = {
@@ -10,6 +12,7 @@ export type DatasetSpot = {
   score: number;
   role: "stop" | "lunch";
   reason?: string;
+  reason_sources?: ReasonSource[];
 };
 
 export type DatasetStart = {
@@ -38,6 +41,7 @@ export type DatasetRoute = {
   title: string;
   recommendation_source?: "gemini" | "rules";
   recommendation_reason?: string;
+  reason_sources?: ReasonSource[];
   estimated_minutes: number;
   legs: DatasetLeg[];
   start: DatasetStart;

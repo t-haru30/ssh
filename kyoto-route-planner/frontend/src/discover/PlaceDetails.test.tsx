@@ -22,6 +22,18 @@ function toggle(details: HTMLDetailsElement, open: boolean) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("destination introductions", () => {
+  it("shows a route recommendation once with its official source while keeping distinct legacy notes", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    const reason = "池を中心に巡る庭園で、水面に映る景色を楽しめます。";
+    const source = { title: "庭園の公式紹介", url: "https://garden.example.jp/about" };
+    const view = render(<PlaceIntroduction enableOfficialSearch={false} place={{ ...place, description: reason }} recommendations={[reason]} reasonSources={[source]} />);
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+    expect(screen.queryByText("旅のポイント")).toBeNull();
+    expect(screen.getByRole("link", { name: source.title }).getAttribute("href")).toBe(source.url);
+    view.rerender(<PlaceIntroduction enableOfficialSearch={false} place={place} recommendations={[reason]} />);
+    expect(screen.getByText(place.description)).toBeTruthy();
+    expect(screen.getByText("旅のポイント")).toBeTruthy();
+  });
   const notice = { text: "展示替えのため全館臨時休館", url: "https://museum.example.jp/news/closure", starts_on: "2026-10-20", ends_on: "2026-10-22" };
   it.each(["verified", "link_only"])("shows sourced closure separately from normal information for %s", async status => {
     const notices = [notice, { ...notice, text: "表示しない二件目" }];

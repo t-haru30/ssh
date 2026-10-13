@@ -47,6 +47,19 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
+  it("connects official sources to the card and to a rule-selected destination without duplicate reasons", () => {
+    const source = { title: "清水寺の公式紹介", url: "https://www.kiyomizudera.or.jp/about/" };
+    const reason = "舞台から京都の街並みを見渡せます。";
+    const onSwipe = vi.fn();
+    render(<DiscoverCard route={{ ...route, recommendation_source: "rules", recommendation_reason: reason, reason_sources: [source], spots: [{ ...route.spots[0], reason, reason_sources: [source] }] }} depth={0} exitDirection="like" onSwipe={onSwipe} />);
+    fireEvent.pointerDown(screen.getByRole("link", { name: source.title }));
+    expect(screen.getByRole("link", { name: source.title }).getAttribute("href")).toBe(source.url);
+    fireEvent.click(screen.getByRole("button", { name: "清水寺の説明を見る" }));
+    expect(screen.getAllByRole("link", { name: source.title })).toHaveLength(2);
+    expect(screen.getAllByText(reason)).toHaveLength(2);
+    expect(screen.queryByText("旅のポイント")).toBeNull();
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
   it("displays the actual AI recommendation and keeps rule candidates unlabeled", () => {
     const view = render(<DiscoverCard route={{ ...route, recommendation_source: "gemini", recommendation_reason: "寺社めぐりの気分に合う、近くの寺院を選びました。" }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
     expect(screen.getByText(/AIが選んだおすすめ/)).toBeTruthy();

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import type { PanInfo } from "framer-motion";
@@ -17,6 +18,7 @@ export type SharedSwipeCardProps = {
   title: string;
   description?: string;
   recommendationLabel?: string;
+  recommendationSources?: ReactNode;
   summary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
@@ -55,6 +57,7 @@ export function SharedSwipeCard({
   title,
   description,
   recommendationLabel,
+  recommendationSources,
   summary,
   spots,
   imageUrl,
@@ -176,6 +179,7 @@ export function SharedSwipeCard({
         </> : title}</h3>
         {recommendationLabel && <span className="discover-recommendation-label">✦ {recommendationLabel}</span>}
         {description && <p className="swipe-story">{description}</p>}
+        {recommendationSources}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
           {(onSpotSelect ? spots : spots.slice(0, MAX_VISIBLE_SPOTS)).map((spot) => (

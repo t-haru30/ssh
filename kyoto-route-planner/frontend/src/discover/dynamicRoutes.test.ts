@@ -11,6 +11,11 @@ describe("local facility composition", () => {
     const route = { ...composeLocalRoutes(conditions, [place("博物館", 35.001)])[0], recommendation_source: "gemini", recommendation_reason: "歴史を巡る候補です。" };
     const response = { routes: [route], note: "推定時間", agent: { status: "ready", message: "AIが行き先を選びました。" } };
     expect(isDiscoverResponse(response)).toBe(true);
+    const sources = [{ title: "公式の紹介", url: "https://museum.example.jp/about" }];
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, reason_sources: sources, spots: [{ ...route.spots[0], reason_sources: sources }] }] })).toBe(true);
+    const unsafe = [{ title: "公式", url: "javascript:alert(1)" }];
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, reason_sources: unsafe }] })).toBe(false);
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, spots: [{ ...route.spots[0], reason_sources: unsafe }] }] })).toBe(false);
     expect(isDiscoverResponse({ ...response, agent: { status: "invented", message: "" } })).toBe(false);
     expect(isDiscoverResponse({ ...response, routes: [{ ...route, recommendation_source: "unknown" }] })).toBe(false);
     expect(isDiscoverResponse({ ...response, routes: [{ ...route, recommendation_reason: {} }] })).toBe(false);

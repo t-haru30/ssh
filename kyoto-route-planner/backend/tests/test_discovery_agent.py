@@ -10,6 +10,7 @@ import httpx
 from app import discovery_agent as agent
 from app.discovery import DiscoverRequest, build_discover_routes, discover_routes
 from app.models import CatalogPlace, Origin
+from app.official_attractions import AttractionFact, OfficialAttractions
 
 
 def place(identifier, name=None, latitude=35.001, category="博物館", region="京都府"):
@@ -55,6 +56,9 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.call = AsyncMock(side_effect=turns(self.pool))
         self.call_patch = patch.object(agent, "_call", new=self.call)
         self.call_patch.start()
+        self.evidence = AsyncMock(return_value={})
+        self.evidence_patch = patch.object(agent, "enrich_official_attractions", new=self.evidence)
+        self.evidence_patch.start()
 
     async def asyncTearDown(self):
         for task in list(agent._flights.values()):
@@ -64,6 +68,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.call_patch.stop()
         self.setting_patch.stop()
         self.key_patch.stop()
+        self.evidence_patch.stop()
 
     async def recommend(self, **kwargs):
         return await agent.recommend_routes(kwargs.get("request", self.request), kwargs.get("pool", self.pool), self.fallback)
@@ -74,8 +79,8 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         route = result["routes"][0]
         self.assertEqual([p["place_id"] for p in route["spots"]], ["three", "two", "one"])
         self.assertEqual(route["recommendation_source"], "gemini")
-        self.assertIn("博物館", route["recommendation_reason"])
-        self.assertIn("上限30km以内", route["spots"][0]["reason"])
+        self.assertIn("見どころ", route["recommendation_reason"])
+        self.assertIn("公式情報を確認できていません", route["spots"][0]["reason"])
         self.assertEqual(route["estimated_minutes"], sum(leg["minutes"] for leg in route["legs"]) + sum(p["stay_minutes"] for p in route["spots"]))
         self.assertLessEqual(route["estimated_minutes"], 600)
         self.assertEqual([call.args[-1] for call in self.call.await_args_list], ["search_candidates", "inspect_candidates", "select_routes"])
@@ -92,6 +97,37 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         result = await self.recommend(pool=[])
         self.assertEqual(result["agent"]["status"], "unavailable")
         self.call.assert_not_awaited()
+
+    async def test_official_highlights_are_supplied_to_agent_and_cited_in_actual_reasons(self):
+        highlight = "明治時代の木造校舎を保存し、当時の教室と手書きの教科書を展示しています。"
+        source = "https://museum.example.jp/about/"
+        self.evidence.return_value = {self.pool[0].id: OfficialAttractions(place_id=self.pool[0].id,
+            facts=[AttractionFact(text=highlight, source_url=source)])}
+        result = await self.recommend()
+        route = result["routes"][0]
+        spot = next(p for p in route["spots"] if p["place_id"] == self.pool[0].id)
+        self.assertEqual(spot["reason"], highlight)
+        self.assertIn(highlight, route["recommendation_reason"])
+        self.assertEqual(spot["reason_sources"][0]["url"], source)
+        self.assertEqual(route["reason_sources"], spot["reason_sources"])
+        self.assertNotIn("上限30km", route["recommendation_reason"])
+        inspected = self.call.await_args_list[-1].args[3][4]["parts"][0]["functionResponse"]["response"]["facilities"]
+        self.assertEqual(inspected[0]["facts"]["official_attraction_1"], highlight)
+
+    async def test_model_selects_supported_highlight_and_only_its_source_is_attached(self):
+        self.evidence.return_value = {p.id: OfficialAttractions(place_id=p.id, facts=[
+            AttractionFact(text="江戸時代に築かれた石垣と堀を、当時の姿に復元しています。", source_url="https://castle.example.jp/history/"),
+            AttractionFact(text="本丸の展望台からは、山並みと城下町を一望できます。", source_url="https://castle.example.jp/view/")]) for p in self.pool}
+        choices = selection(self.pool)
+        for stop in choices["routes"][0]["places"]:
+            stop["fact_ids"] = ["official_attraction_2"]
+        self.call.side_effect = turns(self.pool, choices)
+        result = await self.recommend()
+        for spot in result["routes"][0]["spots"]:
+            self.assertIn("城下町", spot["reason"])
+            self.assertNotIn("石垣", spot["reason"])
+            self.assertEqual([s["url"] for s in spot["reason_sources"]], ["https://castle.example.jp/view/"])
+        self.assertEqual(len(result["routes"][0]["reason_sources"]), 2)
 
     async def test_success_cache_deduplicates_calls_and_defends_against_response_mutation(self):
         result = await self.recommend()
@@ -247,7 +283,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         route = result["routes"][0]
         self.assertEqual(route["course"], "full_day")
         self.assertTrue(all(p["stay_minutes"] == 105 for p in route["spots"]))
-        self.assertIn("ご希望の「歴史と文化」", route["recommendation_reason"])
+        self.assertNotIn("ご希望の「歴史と文化」", route["recommendation_reason"])
 
     async def test_all_theme_fit_is_grounded_and_long_official_facts_remain_readable(self):
         choices = selection(self.pool, "theme")
@@ -262,7 +298,8 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         route = result["routes"][0]
         self.assertLessEqual(len(route["recommendation_reason"]), 600)
         self.assertTrue(all(len(spot["reason"]) <= 400 for spot in route["spots"]))
-        self.assertIn("テーマを絞らない", route["spots"][0]["reason"])
+        self.assertIn("展示を紹介", route["spots"][0]["reason"])
+        self.assertNotIn("テーマを絞らない", route["spots"][0]["reason"])
         self.assertLessEqual(route["recommendation_reason"].count("最遠"), 1)
 
     async def test_model_errors_do_not_leak_provider_body_or_cache_failures(self):

@@ -1,3 +1,4 @@
+import { ReasonSources } from "./reasonSources";
 import { useMemo, useState } from "react";
 import { SharedSwipeCard } from "../SharedSwipeCard";
 import type { SharedSwipeDirection } from "../SharedSwipeCard";
@@ -58,6 +59,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       theme={route.theme}
       title={route.title}
       description={isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`}
+      recommendationSources={!isIdea && <ReasonSources sources={route.reason_sources} />}
       recommendationLabel={aiRecommended ? "AIが選んだおすすめ" : undefined}
       summary={isIdea
         ? `${route.places.length}か所を巡る旅のプラン`
@@ -98,7 +100,8 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       key={selectedPlace.id}
       place={selectedPlace}
       stayMinutes={selection.dwellMinutes[selectedPlace.id]}
-      recommendations={aiRecommended && route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason
+      reasonSources={!isIdea ? route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason_sources : undefined}
+      recommendations={!isIdea && route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason
         ? [route.spots.find(spot => spot.place_id === selectedPlace.id)!.reason!]
         : placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
       onClose={() => setSelectedPlaceId(null)}
