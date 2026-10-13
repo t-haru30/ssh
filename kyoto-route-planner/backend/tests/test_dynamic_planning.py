@@ -103,7 +103,7 @@ class LiveDiscoveryTests(unittest.IsolatedAsyncioTestCase):
     async def test_public_mode_never_calls_external_provider(self):
         request = DiscoverRequest(area="kyoto", prefecture_name="京都府", origin=Origin(name="駅", latitude=35, longitude=135.7))
         provider = AsyncMock()
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "YAHOO_APP_ID": "fixture"}), patch("app.poi_search.search_yahoo_catalog", new=provider), patch("app.discovery.load_public_places", return_value=(place("museum", category="博物館"),)):
+        with patch.dict("os.environ", {"OPENPOI_ENABLED": "0", "PLACE_SEARCH_PROVIDER": "public_catalog", "YAHOO_APP_ID": "fixture"}), patch("app.poi_search.search_yahoo_catalog", new=provider), patch("app.discovery.load_public_places", return_value=(place("museum", category="博物館"),)):
             result = await discover_routes(request)
         provider.assert_not_awaited()
         self.assertIn("網羅", result["note"])
