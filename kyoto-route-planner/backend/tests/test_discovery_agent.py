@@ -89,6 +89,15 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(contents[2]["parts"][0]["functionResponse"]["id"], "call-0")
         self.assertIn("facts", contents[4]["parts"][0]["functionResponse"]["response"]["facilities"][0])
 
+    async def test_model_output_budget_caps_large_decks_without_expanding_user_count(self):
+        await self.recommend(request=request(count=20))
+        constraints = json.loads(self.call.await_args_list[0].args[3][0]["parts"][0]["text"].split("\n")[0])
+        self.assertEqual(constraints["requested_count"], 8)
+        self.call.side_effect = turns(self.pool)
+        await self.recommend(request=request(count=1))
+        constraints = json.loads(self.call.await_args_list[3].args[3][0]["parts"][0]["text"].split("\n")[0])
+        self.assertEqual(constraints["requested_count"], 1)
+
     async def test_no_key_and_empty_pool_use_honest_rules_fallback_without_model(self):
         with patch.object(agent, "gemini_api_key", return_value=""):
             result = await self.recommend()

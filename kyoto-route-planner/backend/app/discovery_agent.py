@@ -13,6 +13,7 @@ from collections import deque
 from copy import deepcopy
 from hashlib import sha256
 import json
+import logging
 from math import isfinite
 import re
 import ssl
@@ -30,6 +31,7 @@ DEFAULT_MODEL = "gemini-3.8-flash"
 AGENT_TIMEOUT_SECONDS = 48
 MAX_CANDIDATES = 80
 MAX_INSPECTED = 60
+MAX_GENERATED_ROUTES = 8
 MAX_CONCURRENT = 2
 CALLS_PER_MINUTE = 30
 CALLS_PER_HOUR = 300
@@ -37,6 +39,7 @@ _cache: TTLCache[str, dict] = TTLCache(15 * 60, 128)
 _lock = asyncio.Lock()
 _flights: dict[str, asyncio.Task] = {}
 _calls: deque[float] = deque()
+logger = logging.getLogger(__name__)
 
 SYSTEM_INSTRUCTION = """You select real sightseeing destinations for ConcierGO.
 Use exactly the tool required on each turn: search_candidates, inspect_candidates,
@@ -275,13 +278,13 @@ def _response(call: dict, value: dict) -> dict:
 
 
 async def _run(request: DiscoverRequest, candidates: list[CatalogPlace], key: str, model: str) -> dict:
-    constraints = {"request": request.model_dump(mode="json"), "requested_count": request.count,
+    constraints = {"request": request.model_dump(mode="json"), "requested_count": min(request.count, MAX_GENERATED_ROUTES),
                    "max_minutes": 300 if request.course == "half_day" else 600,
                    "stay_minutes": stay_minutes(request), "max_stops": max_stops(request),
                    "candidate_count": len(candidates), "opening_status": "unknown"}
     contents = [{"role": "user", "parts": [{"text": json.dumps(constraints, ensure_ascii=False)
         + "\nSearch the catalog now; an empty query is usually appropriate."}]}]
-    async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=3), follow_redirects=False,
+    async with httpx.AsyncClient(timeout=httpx.Timeout(30, connect=3), follow_redirects=False,
                                  trust_env=False, verify=ssl.create_default_context()) as client:
         content, call = await _call(client, key, model, contents, "search_candidates")
         searched = _search(call["args"], candidates, request)
@@ -340,8 +343,9 @@ async def _work(cache_key: str, request: DiscoverRequest, candidates: list[Catal
         result = await asyncio.wait_for(_run(request, candidates, key, model), AGENT_TIMEOUT_SECONDS)
         _cache.set(cache_key, result)
         return result
-    except (asyncio.TimeoutError, httpx.HTTPError, ValueError, KeyError, TypeError, OverflowError, RecursionError):
+    except (asyncio.TimeoutError, httpx.HTTPError, ValueError, KeyError, TypeError, OverflowError, RecursionError) as error:
         # Deliberately never expose/log provider bodies, user input or credentials.
+        logger.warning("Discovery selection unavailable (%s)", type(error).__name__)
         return None
     finally:
         async with _lock:
