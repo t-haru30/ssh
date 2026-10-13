@@ -175,14 +175,14 @@ async def _verified(client, place, municipalities, semaphore):
         return None
 
 
-async def _search(request) -> tuple[CatalogPlace, ...]:
+async def _search(request, query: str = "") -> tuple[CatalogPlace, ...]:
     from app.discovery import eligible_candidates
     async with httpx.AsyncClient(timeout=httpx.Timeout(3, connect=2), follow_redirects=False,
                                  trust_env=False, verify=ssl.create_default_context()) as client:
         # The API can return exact-name hits outside the radius; parse_candidate checks it again.
         params = {"center": f"{request.origin.longitude},{request.origin.latitude}",
                   "radius": request.radius_km * 1000, "limit": 200}
-        queries = ["", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
+        queries = [query] if query else ["", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
         responses = await asyncio.gather(*(_json(client, SEARCH_URL, {**params, "q": q}) for q in queries), return_exceptions=True)
         pools = []
         for data in responses:
@@ -215,12 +215,12 @@ async def _search(request) -> tuple[CatalogPlace, ...]:
             await asyncio.gather(*tasks, return_exceptions=True)
 
 
-async def enrich_candidates(request, osm: tuple[CatalogPlace, ...]) -> tuple[tuple[CatalogPlace, ...], str]:
+async def enrich_candidates(request, osm: tuple[CatalogPlace, ...], query: str = "") -> tuple[tuple[CatalogPlace, ...], str]:
     # Enable for the production public-catalog mode; explicit flag permits local integration tests.
     if os.getenv("OPENPOI_ENABLED", "1" if os.getenv("PLACE_SEARCH_PROVIDER") == "public_catalog" else "0") != "1":
         return osm, "disabled"
     key = (request.origin.latitude, request.origin.longitude, request.radius_km,
-           request.prefecture_name, request.cross_prefecture, request.theme)
+           request.prefecture_name, request.cross_prefecture, request.theme, normalized(query))
     cached = _cache.get(key)
     if cached and cached[0] > time.monotonic():
         return merge_candidates(osm, cached[1]), cached[2]
@@ -228,7 +228,7 @@ async def enrich_candidates(request, osm: tuple[CatalogPlace, ...]) -> tuple[tup
         return osm, "unavailable"
     try:
         async with _slots:
-            extra = await asyncio.wait_for(_search(request), timeout=10)
+            extra = await asyncio.wait_for(_search(request, query) if query else _search(request), timeout=10)
         status = "ready" if extra else "no_verified_candidates"
         _cache[key] = (time.monotonic() + (1800 if extra else 60), extra, status)
         if len(_cache) > 128:

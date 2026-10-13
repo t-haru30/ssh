@@ -1,3 +1,6 @@
+import { usePrefecture } from "./PrefectureContext";
+import { distanceKm } from "./dayTrip";
+import { currentLocation } from "./currentLocation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
@@ -15,7 +18,7 @@ import { PREFERENCE_OPTIONS } from "./tripPreferences";
 import type { SearchPreset } from "./routeSelection";
 import { clearJourneyDraft, readJourneyDraft, saveJourneyDraft } from "./journeyDraft";
 import { localPlaces } from "./localPlaces";
-import { useFavorites } from "./useFavorites";
+import { favoriteId, useFavorites } from "./useFavorites";
 import { savedJourney } from "./savedJourney";
 import { parseOvernightSnapshot, savedOvernight, type OvernightSnapshot } from "./overnightFavorite";
 import { fetchWithTimeout, readApiError as readError } from "./apiClient";
@@ -44,20 +47,6 @@ function localDateInputValue() {
 const REQUEST_TIMEOUT_MS = 60_000;
 const INITIAL_DATA_TIMEOUT_MS = 15_000;
 
-function nearestKnownOrigin(origins: Origin[], latitude: number, longitude: number) {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  let best: { origin: Origin; km: number } | null = null;
-  for (const origin of origins) {
-    const dLat = toRad(origin.latitude - latitude);
-    const dLng = toRad(origin.longitude - longitude);
-    const a = Math.sin(dLat / 2) ** 2
-      + Math.cos(toRad(latitude)) * Math.cos(toRad(origin.latitude)) * Math.sin(dLng / 2) ** 2;
-    const km = 6371 * 2 * Math.asin(Math.sqrt(a));
-    if (!best || km < best.km) best = { origin, km };
-  }
-  return best;
-}
-
 export type { SearchPreset } from "./routeSelection";
 
 type SearchModeProps = {
@@ -68,13 +57,18 @@ type SearchModeProps = {
 };
 
 export function SearchMode({ active, preset, editingOnly = false, onDiscover }: SearchModeProps) {
-  const { saveFavorite, isFavorite } = useFavorites();
+  const { prefecture } = usePrefecture();
+  const { saveFavorite, replaceFavorite, isFavorite } = useFavorites();
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [restoredDraft] = useState(readJourneyDraft);
+  const [sourceFavoriteId, setSourceFavoriteId] = useState(restoredDraft?.sourceFavoriteId);
   const [savedForm] = useState(readSearchForm);
   const [legacyPlan] = useState(readLegacySavedPlan);
+  const [planTitle, setPlanTitle] = useState(restoredDraft?.title ?? preset?.title ?? legacyPlan?.suggestions[0]?.title ?? "私のConcierGO");
   useEffect(() => {
     if (!preset) return;
+    setSourceFavoriteId(preset.sourceFavoriteId);
+    setPlanTitle(preset.title);
     setTheme(preset.theme);
     setStopCount(Math.min(3, Math.max(1, preset.stopCount)));
     requestIdRef.current += 1;
@@ -174,8 +168,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   useEffect(() => { saveLegacyPlan(suggestions, overnightSuggestion, overnightResult); }, [suggestions, overnightSuggestion, overnightResult]);
 
   useEffect(() => {
-    if (dayTripPlan) setDraftSaved(saveJourneyDraft(dayTripPlan, suggestions[0]?.title ?? "私のConcierGO"));
-  }, [dayTripPlan, suggestions]);
+    if (dayTripPlan) setDraftSaved(saveJourneyDraft(dayTripPlan, planTitle.trim() || "私のConcierGO", sourceFavoriteId));
+  }, [dayTripPlan, planTitle, sourceFavoriteId]);
   useEffect(() => {
     if (!dayTripPlan) return;
     setInitialMinutes(String(dayTripPlan.input.availableMinutes));
@@ -284,89 +278,38 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     formRef.current?.requestSubmit();
   }, [active, preset, loading, suggestions]);
 
-  function handleUseCurrentLocation() {
-    setLocationError(null);
-    if (!navigator.geolocation) {
-      const error = new Error("Geolocation is not supported by this browser.");
-      console.error("[current-location] Geolocation API is unavailable.", error);
-      const message = "このブラウザでは位置情報を取得できません。出発駅を手動で入力してください。";
-      setLocationError(message);
-      window.alert(message);
-      return;
-    }
-
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        console.log("[current-location] Coordinates received.", { latitude, longitude });
-        try {
-          const response = await fetchWithTimeout(
-            `/api/nearby-stations?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`,
-            {},
-            INITIAL_DATA_TIMEOUT_MS,
-          );
-          if (!response.ok) {
-            throw new Error(await readError(response));
-          }
-          const payload: unknown = await response.json();
-          if (!Array.isArray(payload) || !payload.every(isOrigin)) {
-            throw new Error("現在地周辺の駅・停留所データ形式が不正です。");
-          }
-          if (payload.length === 0) {
-            throw new Error("現在地周辺に駅・停留所が見つかりませんでした。");
-          }
-          const stations = payload as Origin[];
-          setNearbyStations(stations);
-          setCustomOrigin(stations[0]);
-          setOriginName(stations[0].name);
-          setLocationError(null);
-          console.log("[current-location] Nearby departures loaded.", {
-            count: stations.length,
-            departure: stations[0].name,
-            latitude,
-            longitude,
-          });
-        } catch (cause) {
-          console.error("[current-location] Nearby station lookup failed.", cause);
-          const fallback = nearestKnownOrigin(origins, latitude, longitude);
-          if (fallback) {
-            setCustomOrigin(fallback.origin);
-            setOriginName(fallback.origin.name);
-            setLocationError(
-              `最寄り駅の自動検索に失敗したため、現在地に近い候補の「${fallback.origin.name}」（約${fallback.km.toFixed(1)}km）を選択しました。違う場合は手動で変更してください。`,
-            );
-          } else {
-            const message = "現在地周辺の駅・停留所を特定できませんでした。出発駅を手動で入力してください。";
-            setLocationError(message);
-            window.alert(message);
-          }
-        } finally {
-          setLocating(false);
-        }
-      },
-      (error) => {
-        console.error("[current-location] Geolocation failed.", {
-          code: error.code,
-          message: error.message,
-          error,
-        });
-        const message = error.code === GeolocationPositionError.PERMISSION_DENIED
-          ? "位置情報が許可されていません。ブラウザの設定を確認してください。"
-          : error.code === GeolocationPositionError.POSITION_UNAVAILABLE
-            ? "位置情報を取得できません。端末の位置情報設定や通信状況を確認してください。"
-            : error.code === GeolocationPositionError.TIMEOUT
-              ? "位置情報の取得がタイムアウトしました。もう一度お試しください。"
-              : "現在地を取得できませんでした。出発駅を手動で入力してください。";
-        setLocating(false);
-        setLocationError(message);
-        window.alert(message);
-      },
-      { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
-    );
+  const locationGeneration = useRef(0);
+  useEffect(() => { setLocating(false); return () => { locationGeneration.current++; }; }, [active, preset?.nonce]);
+  async function handleUseCurrentLocation() {
+    const generation = ++locationGeneration.current;
+    setLocating(true); setLocationError(null);
+    try {
+      const coordinates = await currentLocation();
+      if (generation !== locationGeneration.current) return;
+      const position = { name: "現在地", ...coordinates };
+      // Keep the actual position even when the station provider is unavailable.
+      setCustomOrigin(position); setOriginName(position.name);
+      try {
+        const response = await fetchWithTimeout(`/api/nearby-stations?latitude=${coordinates.latitude}&longitude=${coordinates.longitude}`, {}, INITIAL_DATA_TIMEOUT_MS);
+        if (!response.ok) throw new Error("station lookup failed");
+        const payload: unknown = await response.json();
+        if (!Array.isArray(payload) || !payload.every(isOrigin)) throw new Error("invalid stations");
+        if (generation !== locationGeneration.current) return;
+        const stations = payload.filter(station => distanceKm(position, station) <= 20);
+        setNearbyStations(stations);
+        if (stations[0]) { setCustomOrigin(stations[0]); setOriginName(stations[0].name); }
+        else setLocationError("現在地を出発地に設定しました。周辺駅は駅名から選べます。");
+      } catch {
+        if (generation === locationGeneration.current) setLocationError("現在地を出発地に設定しました。周辺駅の検索はできなかったため、必要なら駅名から選んでください。");
+      }
+    } catch (cause) {
+      if (generation === locationGeneration.current) setLocationError(cause instanceof Error ? cause.message : "現在地を取得できませんでした。");
+    } finally { if (generation === locationGeneration.current) setLocating(false); }
   }
 
   function importJourney(draft: JourneyDraft) {
+    setPlanTitle(draft.title);
+    setSourceFavoriteId(undefined);
     requestIdRef.current += 1; activeRequestRef.current?.abort(); setSearching(false);
     const plan = draft.plan;
     setCustomOrigin(plan.origin); setOriginName(plan.origin.name);
@@ -393,7 +336,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         foodEstimate: optionalAmount(foodEstimate, "食事の計画用見積もり"), coffeeEstimate: optionalAmount(coffeeEstimate, "カフェの計画用見積もり"), transportEstimate: optionalAmount(initialTransportEstimate, "交通費の計画用見積もり"),
       });
       if (!plan.stops.length) throw new Error(plan.violations.join(" ") || "この条件に合う候補がありません。時間や行き先を見直してください。");
-      setSuggestions([plan.transport.route]); setDayTripPlan(plan); setOvernightSuggestion(null);
+      setPlanTitle(plan.transport.route.title ?? "私のConcierGO"); setSuggestions([plan.transport.route]); setDayTripPlan(plan); setOvernightSuggestion(null);
       setTransportStamp({ date: "", time: "" }); setTripSession(Date.now()); setDraftRestored(false); setError(null);
     } catch (cause) { setError(toFriendlyMessage(cause)); }
   }
@@ -498,7 +441,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
         if (requestId === requestIdRef.current) {
           if (payload.routes.length === 0) throw new Error("スポットが見つかりませんでした。条件を変えて再試行してください。");
-          setSuggestions(payload.routes);
+          setSuggestions(payload.routes.map((route, index) => ({ ...route, title: suggestions[index]?.title ?? route.title })));
           setOvernightSuggestion(null);
           setTransportStamp({ date: departureDate, time: departureTime });
         }
@@ -600,13 +543,12 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
       </section>
 
-      <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={suggestions[0]?.title ?? "私のConcierGO"} busy={searching} onImport={importJourney} />
+      <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={planTitle.trim() || "私のConcierGO"} busy={searching} onImport={importJourney} />
 
       {!isOvernight && suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
           <p className="eyebrow">YOUR JOURNEY</p>
-          <h2>{dayTripPlan && (dayTripPlan.stops.length !== suggestions[0].places.length || dayTripPlan.stops.some((stop, index) => stop.place.id !== suggestions[0].places[index]?.id))
-            ? `${dayTripPlan.stops.map(stop => stop.place.name).join("と") || "寄り道を追加しましょう"}の旅程` : suggestions[0].title}</h2>
+          <h2>{planTitle.trim() || "私のConcierGO"}</h2>
           <p>行き先をつなぎ、大切な予定を残して、あなたのペースに。</p>
         </section>
       )}
@@ -722,14 +664,14 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
             <div className="form-fields">
               <div className="trip-station-fields">
-                <StationSearch label="出発駅" value={origin} options={endpointOptions} onChange={station => { setCustomOrigin(station); setOriginName(station.name); }} disabled={loading || searching || locating || hasCompleted} />
+                <StationSearch label="出発駅" value={origin} options={endpointOptions} onChange={station => { locationGeneration.current++; setLocating(false); setCustomOrigin(station); setOriginName(station.name); }} disabled={loading || searching || locating || hasCompleted} />
                 <button className="location-button" type="button" onClick={handleUseCurrentLocation} disabled={loading || searching || locating || hasCompleted}>{locating ? "取得中…" : "現在地から探す"}</button>
                 <small>{hasCompleted ? "出発情報は訪問済みの記録に合わせて保持しています。変更する場合は、訪問済みを解除してください。" : "登録済みの駅を選ぶか、駅名を入力して候補から選べます。"}</small>
                 {locationError && <small className="location-error" role="alert">{locationError}</small>}
               </div>
               {!isOvernight && <div className="trip-return-fields">
                 <label className="trip-same-return"><input type="checkbox" checked={returnSame} onChange={event => setReturnSame(event.target.checked)} disabled={searching} />出発駅に戻る</label>
-                {!returnSame && <><StationSearch label="帰着駅" value={returnTo} options={endpointOptions} onChange={station => { setCustomReturn(station); setReturnName(station.name); }} disabled={loading || searching} /><small>最後の寄り道から、この駅までの移動を含めます。</small></>}
+                {<><StationSearch label="帰着駅" value={returnSame ? origin : returnTo} options={endpointOptions} onChange={station => { setCustomReturn(station); setReturnName(station.name); }} disabled={returnSame || loading || searching} /><small>{returnSame ? "出発駅と同じ駅に戻ります。" : "最後の寄り道から、この駅までの移動を含めます。"}</small></>}
               </div>}
               {!isOvernight && !hasResult && <div className="trip-initial-constraints">
                 <div className="trip-initial-grid"><label><span>使える時間（分）</span><input type="number" min="30" max="720" step="1" value={initialMinutes} onChange={event => setInitialMinutes(event.target.value)} required /><small>出発から帰着まで · 30〜720分</small></label>
@@ -790,13 +732,21 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。「条件を変更する」から日付を確認し、交通経路を再検索してください。</p>}
           <section className="results-section" aria-live="polite">
             <div className="section-heading results-heading">
-              <div><p className="eyebrow">MY DAY TRIP</p><h2>私の旅のしおり</h2></div>
+              <div><p className="eyebrow">MY DAY TRIP</p><h2>私の旅のしおり</h2>{!isOvernight && <label className="plan-title-input">プラン名<input maxLength={500} value={planTitle} placeholder="旅の名前を入力" onChange={event => setPlanTitle(event.target.value)} /></label>}</div>
               <button type="button" className="journey-save-button" disabled={searching || (isOvernight ? !overnightResult : !dayTripPlan?.stops.length)} onClick={() => {
                 try {
                   const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
-                    : dayTripPlan ? savedJourney(dayTripPlan, theme) : null;
+                    : dayTripPlan ? savedJourney(dayTripPlan, theme, planTitle) : null;
                   if (!idea) return;
-                  setSaveNotice(isFavorite(idea) ? "この旅程はすでに保存済みです。" : saveFavorite(idea) ? "保存しました。「保存済み」からいつでも開けます。" : "保存できませんでした。画面上部の保存機能の案内をご確認ください。");
+                  if (sourceFavoriteId) {
+                    setSaveNotice(replaceFavorite(sourceFavoriteId, idea) ? "元のプランを更新しました。「編集済み」として保存しています。" : "元のプランを更新できませんでした。元の保存内容は保持しています。");
+                    return;
+                  }
+                  if (isFavorite(idea)) { setSaveNotice("この旅程はすでに保存済みです。"); return; }
+                  if (saveFavorite(idea)) {
+                    setSourceFavoriteId(favoriteId(idea, idea.prefecture_code ?? prefecture.code));
+                    setSaveNotice("保存しました。「保存済み」からいつでも開けます。");
+                  } else setSaveNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。");
                 } catch (cause) { setSaveNotice(toFriendlyMessage(cause)); }
               }}>♡ この旅程を保存</button>
               <span className="result-date">{isOvernight ? overnightResult?.snapshot.departureDate ?? overnightSuggestion?.days[0]?.date ?? departureDate : editorDate}</span>
@@ -871,7 +821,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         <div className="trip-dialog-actions"><button type="button" className="trip-primary" onClick={() => {
           const cleared = clearJourneyDraft(); setDraftRestored(false); setDraftSaved(false);
           if (!cleared) setError("ブラウザ内の前回の下書きを削除できませんでした。再読み込みすると前回の旅程が復元される場合があります。");
-          setSuggestions([]); setDayTripPlan(null); setTripSession(Date.now()); setFormCollapsed(false); setConfirmStartOver(false);
+          setPlanTitle("私のConcierGO"); setSourceFavoriteId(undefined); setSuggestions([]); setDayTripPlan(null); setTripSession(Date.now()); setFormCollapsed(false); setConfirmStartOver(false);
         }}>下書きを閉じて新しく作る</button><button type="button" onClick={() => setConfirmStartOver(false)}>今の旅程を残す</button></div>
       </TripDialog>}
     </div>

@@ -97,7 +97,7 @@ export function SharedSwipeCard({
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
   const imageLoaded = imageReady || loadedUrl === imageUrl;
   const titleBoundary = title.indexOf("から、");
-  useEffect(() => { if (!isProcessing) swipedRef.current = false; }, [isProcessing]);
+  useEffect(() => { if (!isProcessing) swipedRef.current = false; }, [isProcessing, isTop, title]);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (!swipeEnabled || !isTop || isProcessing || swipedRef.current) return;
@@ -119,11 +119,10 @@ export function SharedSwipeCard({
       variants={cardVariants}
       style={{ x, rotate, zIndex: 10 - depth, pointerEvents: isTop ? "auto" : "none" }}
       drag={swipeEnabled && isTop && !isProcessing ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.82}
       dragMomentum={false}
       whileTap={swipeEnabled && isTop && !isProcessing ? { cursor: "grabbing" } : undefined}
       onDragEnd={handleDragEnd}
+      onPointerCancel={() => { if (!swipedRef.current) animate(x, 0, { duration: 0.2 }); }}
       initial={{ scale: 0.94, y: 22, opacity: 0 }}
       animate={{ scale: 1 - depth * 0.035, y: depth * 12, opacity: 1 }}
       exit="exit"

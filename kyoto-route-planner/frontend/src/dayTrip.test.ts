@@ -48,11 +48,11 @@ describe("day trip constraints", () => {
     expect(() => plan([{ ...completed.stops[0], completedEnd: 1 }])).toThrow("開始・終了時刻");
   });
   it("shortens flexible stays before removing any stop, while preserving fixed dwell", () => {
-    const before = plan(stops.map((stop, index) => ({ ...stop, locked: index === 0 })), 150);
+    const before = plan(stops.map((stop, index) => ({ ...stop, locked: index === 0 })), 180);
     const after = fitTrip(before);
     expect(after.stops.map(stop => stop.place.id)).toEqual(["A", "B", "C"]);
-    expect(after.stops.map(stop => stop.dwellMinutes)).toEqual([90, 15, 15]);
-    expect(after.returnMinute).toBe(690);
+    expect(after.stops.map(stop => stop.dwellMinutes)).toEqual([90, 30, 30]);
+    expect(after.returnMinute).toBe(720);
     expect(before.stops[1].dwellMinutes).toBe(90);
   });
   it("removes the fewest flexible places and never changes fixed order", () => {
@@ -126,4 +126,23 @@ describe("day trip constraints", () => {
     expect(after.returnTravel).toBeGreaterThanOrEqual(0);
     expect(after.travelMinutes).toBe(1);
   });
+});
+
+it("uses verified per-segment transport times instead of distributing a total by distance", () => {
+  const source = { ...transport, route: { ...transport.route, timeline: [7, 23, 12, 8].map((duration, i) => ({
+    type: "transit" as const, from_name: "A", to_name: "B", mode: "public_transport" as const,
+    start_time: null, end_time: null, is_estimate: false, duration_minutes: duration, transit_line: `路線${i}`,
+  })) } };
+  const result = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 5000 }, origin, source.date, stops, source);
+  expect(result.stops.map(stop => stop.travel)).toEqual([7, 23, 12]);
+  expect(result.returnTravel).toBe(8);
+  expect(result.travelMinutes).toBe(50);
+});
+it("keeps sightseeing at least thirty minutes while allowing station transfers", () => {
+  expect(newTripStop(place("A"), 15).dwellMinutes).toBe(30);
+  expect(newTripStop(place("trip-arrival"), 15).dwellMinutes).toBe(15);
+  const before = plan(stops, 30);
+  const result = fitTrip(before);
+  expect(result.stops.every(stop => stop.dwellMinutes >= 30)).toBe(true);
+  expect(before.stops.map(stop => stop.dwellMinutes)).toEqual([90, 90, 90]);
 });

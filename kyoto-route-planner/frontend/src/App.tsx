@@ -39,6 +39,9 @@ function App() {
   function planInSearch(route: Parameters<typeof routeSelection>[0], searchTransport = false) {
     const selection = routeSelection(route, true);
     selection.autoSearch = searchTransport;
+    const routeIds = "spots" in route ? route.spots.map(spot => spot.place_id) : route.places.map(place => place.id);
+    selection.sourceFavoriteId = favorites.find(item => ("id" in route && item.id === route.id)
+      || (item.title === route.title && item.places.length === routeIds.length && item.places.every(place => routeIds.includes(place.id))))?.id;
     const current = readJourneyDraft();
     const samePlaces = !selection.tripPlan && !selection.overnightSnapshot && current
       && current.plan.origin.latitude === selection.origin.latitude && current.plan.origin.longitude === selection.origin.longitude
@@ -59,7 +62,7 @@ function App() {
     <main className="app-shell">
       <header className="topbar">
         <button type="button" className="brand" onClick={() => { setActiveTab("discover"); setShowFavorites(false); setHomeRequest(value => value + 1); window.scrollTo?.({ top: 0 }); }} aria-label="ConcierGO ホーム">
-          <span className="brand-mark">C<span>↗</span></span>
+          <span className="brand-mark" aria-hidden="true">C<span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 19 19 5M5 5h14v14" /></svg></span></span>
           <span>ConcierGO<span className="brand-light"> 小さな旅のしおり</span></span>
         </button>
         <div className="topbar-tools">

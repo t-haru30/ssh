@@ -5,7 +5,7 @@ import { isPreference } from "./tripPreferences";
 import type { Preference, RouteSuggestion } from "./types";
 
 export const JOURNEY_DRAFT_KEY = "yorimichi:journey-draft:v1";
-export type JourneyDraft = { plan: TripPlan; title: string; savedAt: string };
+export type JourneyDraft = { plan: TripPlan; title: string; savedAt: string; sourceFavoriteId?: string };
 const isInteger = (value: unknown, min: number, max: number): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= min && value <= max;
 const isTime = (value: unknown): value is string => typeof value === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
@@ -82,13 +82,13 @@ export function parseJourneyDraftData(data: unknown): JourneyDraft | null {
     if (isRecord(data.planningEstimates)) plan.planningEstimates = {
       food: data.planningEstimates.food as number | null, coffee: data.planningEstimates.coffee as number | null,
     };
-    return { title: data.title, savedAt: data.savedAt, plan };
+    return { title: data.title, savedAt: data.savedAt, plan, ...(typeof data.sourceFavoriteId === "string" && data.sourceFavoriteId.length <= 2000 ? { sourceFavoriteId: data.sourceFavoriteId } : {}) };
   } catch { return null; }
 }
 
-export function saveJourneyDraft(plan: TripPlan, title: string): boolean {
+export function saveJourneyDraft(plan: TripPlan, title: string, sourceFavoriteId?: string): boolean {
   try {
-    const serialized = JSON.stringify({ version: 1, title: title.slice(0, 500),
+    const serialized = JSON.stringify({ version: 1, title: title.slice(0, 500), sourceFavoriteId,
       savedAt: new Date().toISOString(), input: plan.input, origin: plan.origin, returnTo: plan.returnTo, date: plan.date,
       ...(plan.planningEstimates ? { planningEstimates: plan.planningEstimates } : {}),
       stops: plan.stops.map(({ place, dwellMinutes, locked, anchorTime, spending, completed, completedStart, completedEnd, completedTravel }) => ({ place, dwellMinutes, locked, anchorTime, spending, completed, completedStart, completedEnd, completedTravel })),

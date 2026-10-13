@@ -106,7 +106,7 @@ function JourneyReviewSession({ places, departureDate }: { places: Place[]; depa
     {!review && <><p className="journey-review-intro">公式ページを確認し、足りない情報はAIが出典付きで探します。調べた結果と、まだ確認が必要な項目を一覧にします。</p><div className="journey-review-actions"><button type="button" className="trip-primary" onClick={investigate} disabled={busy || !places.length || places.length > 8}>{busy ? "行き先の情報を確認しています…" : "出発前の情報をまとめて調べる"}</button>{busy && <button type="button" onClick={cancel}>確認を中止</button>}</div></>}
     {busy && <p role="status">公式案内と行き先を照合しています。確認が終わると、実行した手順と出典を表示します。</p>}
     {message && <p role="status" className="journey-review-notice">{message}</p>}
-    {review && <><p className="journey-review-summary" role="status">{review.results.length}か所の確認結果 · {new Date(review.checkedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })} JST取得</p>
+    {review && <details open className="journey-review-fold"><summary>確認結果を開く・閉じる</summary><p className="journey-review-summary" role="status">{review.results.length}か所の確認結果 · {new Date(review.checkedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })} JST取得</p>
       <p className="journey-review-notice">出発日は表示上の参考です。当日の営業は自動確認していません。訪問前に最新の公式案内をご確認ください。</p>
       <ol className="journey-review-results">{review.results.map(result => <li key={result.place.id}>
         <div className="journey-review-result-title"><h5>{result.place.name}</h5><span className={result.missing.length ? "needs-check" : "is-ready"}>{result.missing.length ? "確認したい項目あり" : "公式案内を取得"}</span></div>
@@ -124,6 +124,6 @@ function JourneyReviewSession({ places, departureDate }: { places: Place[]; depa
       </li>)}</ol>
       {review.remaining > 0 && <p className="journey-review-notice">残り{review.remaining}か所は今回の一括確認の対象外です。各行き先の詳細からご確認ください。</p>}
       {review.note && <details><summary>確認の範囲</summary><p className="journey-review-notice">{review.note}</p></details>}
-    </>}
+    </details>}
   </section>;
 }

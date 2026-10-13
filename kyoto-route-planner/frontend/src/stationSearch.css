@@ -12,3 +12,7 @@
 .station-search-results small { display: block; margin-top: 3px; }
 .station-search button:focus-visible, .station-search input:focus-visible { outline: 3px solid #168777; outline-offset: 2px; }
 .station-search-results button[aria-pressed="true"] { background: #e9f5f0; border-color: #168777; }
+
+.station-search-default { flex-wrap: wrap; }
+.station-search-default select { flex: 1 1 180px; width: 100%; max-width: 100%; }
+@media (max-width: 640px) { .form-fields { grid-template-columns: minmax(0, 1fr); } .station-search-default { display: grid; grid-template-columns: minmax(0, 1fr); } .station-search-default select { min-height: 48px; } .trip-station-fields, .trip-return-fields { min-width: 0; } }

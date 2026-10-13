@@ -119,7 +119,7 @@ export function SavedRoutesList({ onClose, onPlanInSearch, onGoHome }: SavedRout
                     )}
                     <div className="favorite-route-content">
                       <div className="favorite-route-heading">
-                        <h3>{favorite.pinned ? "📌 " : ""}{favorite.title}</h3>
+                        <h3>{favorite.pinned ? "📌 " : ""}{favorite.title}</h3>{favorite.edited && <span className="favorite-edited">編集済み</span>}
                         <span className="favorite-prefecture-tag">
                           {favorite.prefecture_name} ({favorite.prefecture_code})
                         </span>

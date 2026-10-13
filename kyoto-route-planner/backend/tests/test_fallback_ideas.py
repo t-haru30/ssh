@@ -139,6 +139,7 @@ class FallbackIdeaTests(unittest.TestCase):
                 new=AsyncMock(return_value=(candidates, "live candidates")),
             ),
             patch("app.main.generate_idea_from_places", new=AsyncMock(side_effect=generate)),
+            patch("app.main.random.sample", side_effect=[candidates[:2], candidates[1:], load_fallback_ideas()[:3]]),
         ):
             response = client.get("/api/ideas?theme=all&count=5&spot_count=2")
 
