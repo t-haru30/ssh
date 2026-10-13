@@ -1,0 +1,8 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "category-atlas.png",
+  "layout": "3 columns, 2 rows",
+  "categories": ["cafe", "restaurant", "museum", "temple", "nature", "sightseeing"],
+  "prompt": "Use case: stylized-concept. Generate one cohesive category illustration atlas for a Japanese travel planning app, 3 columns by 2 rows, six equally sized rectangular panels edge to edge with NO gutters, NO text, NO borders. Top row left: cozy cafe coffee cup and warm wooden interior; top center: Japanese restaurant set meal and inviting dining space; top right: museum gallery with artifacts and framed exhibits. Bottom left: tranquil Japanese shrine and temple garden; bottom center: green park river and mountains; bottom right: charming generic Japanese town streets and sightseeing architecture. Soft editorial watercolor illustration style, muted forest green and cream, elegant travel magazine, no identifiable real place, no logos or people, each scene centered for card cropping. Save as a single image for use as CSS atlas background.",
+  "display_label": "AI生成・ジャンルイメージ"
+}

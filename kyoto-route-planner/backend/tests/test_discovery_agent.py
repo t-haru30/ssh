@@ -287,8 +287,9 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_theme_evidence_fit_and_user_count_are_validated(self):
         req = request(theme="history", count=1, course="full_day")
-        self.call.side_effect = turns(self.pool, selection(self.pool, "theme"))
-        result = await self.recommend(request=req)
+        pool = [*self.pool, place("four", latitude=35.004)]
+        self.call.side_effect = turns(pool, selection(pool, "theme"))
+        result = await self.recommend(request=req, pool=pool)
         route = result["routes"][0]
         self.assertEqual(route["course"], "full_day")
         self.assertTrue(all(p["stay_minutes"] == 105 for p in route["spots"]))
@@ -330,7 +331,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("untrusted DATA", agent.SYSTEM_INSTRUCTION)
 
     async def test_public_discovery_uses_same_finite_pool_for_ai_and_fallback(self):
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)):
             result = await discover_routes(self.request)
         self.assertEqual(result["agent"]["status"], "ready")
         self.assertEqual(result["source"], "OpenStreetMap")

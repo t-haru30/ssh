@@ -79,26 +79,26 @@ describe("day trip constraints", () => {
     expect(after.stops[1]).toMatchObject({ start: 600, late: 0, dwellMinutes: 90, locked: true });
     expect(after.stops[0].dwellMinutes).toBeLessThan(90);
   });
-  it("does not interpret unknown charges as free or claim to fit the budget", () => {
-    const after = plan(stops.map(stop => ({ ...stop, spending: null })), 360, 0);
-    expect(after.totalCost).toBeNull();
-    expect(after.unknownCosts).toBe(3);
-    expect(after.violations.join(" ")).toContain("予算内かは未判定");
+  it("uses category allowances for missing charges and preserves explicitly entered zero", () => {
+    const after = plan(stops.map(stop => ({ ...stop, place: { ...stop.place, category: "博物館" }, spending: null })), 360, 0);
+    expect(after.totalCost).toBe(3000);
+    expect(after.provisionalCosts).toBe(true);
+    expect(after.violations.join(" ")).toContain("超過");
     expect(plan(stops, 360, 0).totalCost).toBe(0);
   });
   it("invalidates old transport costs and durations after topology, date or origin changes", () => {
     expect(plan(stops.slice(0, 2)).estimatedTravel).toBe(true);
-    expect(plan(stops.slice(0, 2)).totalCost).toBeNull();
+    expect(plan(stops.slice(0, 2)).provisionalCosts).toBe(true);
     const changed = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 5000 }, { ...origin, latitude: 36 }, "2026-10-13", stops, transport);
     expect(changed.estimatedTravel).toBe(true);
-    expect(changed.totalCost).toBeNull();
+    expect(changed.provisionalCosts).toBe(true);
   });
   it("invalidates a loop transport estimate when only the return destination changes", () => {
     const returnTo = { ...origin, name: "帰着駅", latitude: 35.01 };
     const changed = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 5000 }, origin, transport.date, stops, transport, null, returnTo);
     expect(changed.returnTo).toEqual(returnTo);
     expect(changed.estimatedTravel).toBe(true);
-    expect(changed.travelCost).toBeNull();
+    expect(changed.provisionalCosts).toBe(true);
     expect(changed.returnTravel).toBeGreaterThan(0);
     const matching = scheduleTrip(changed.input, origin, transport.date, stops,
       { ...transport, route: { ...transport.route, return_to: returnTo } }, null, returnTo);

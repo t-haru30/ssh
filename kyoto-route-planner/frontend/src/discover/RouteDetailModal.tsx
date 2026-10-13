@@ -1,3 +1,4 @@
+import { FacilityPhoto } from "../FacilityPhoto";
 import { lockBodyScroll } from "../bodyScrollLock";
 import { ReasonSources } from "./reasonSources";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -208,7 +209,8 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} coordinates={[[origin.latitude, origin.longitude], ...coordinates, ...(isStaticRoute ? [[origin.latitude, origin.longitude] as [number, number]] : [])]} legs={[]} /></Suspense></div>
       {"spots" in route && route.recommendation_source === "gemini" && route.recommendation_reason && <div className="discover-modal-recommendation"><span className="discover-recommendation-label">✦ AIが選んだおすすめ</span><p>{route.recommendation_reason}</p><ReasonSources sources={route.reason_sources} /></div>}
       <div className="discover-modal-section-heading"><h3>この旅で訪れる場所</h3><span>{places.length} SPOTS</span></div>
-      <p className="discover-modal-origin">{isStaticRoute ? "09:00 出発：" : "出発の目安："}{origin.name}<small>出発地・時刻は計画画面で変更できます</small></p>
+      {route.travel_origin && <p>出発地：{route.travel_origin.name} → 観光の起点：{start.name}。到着時刻・帰着時刻は交通検索後に確定します。</p>}
+      <p className="discover-modal-origin">{isStaticRoute ? "現地09:00開始のモデルコース：" : "観光の起点："}{origin.name}<small>現地での仮の時刻です。出発地からの移動は旅程編集で確認できます</small></p>
       {!selection.overnightSnapshot && <div className="discover-origin-control"><button type="button" onClick={() => void useCurrentLocation()} disabled={locationLoading}>{locationLoading ? "現在地を確認中…" : "現在地から出発"}</button>{currentOrigin && <button type="button" onClick={() => setCurrentOrigin(null)}>元の出発地に戻す</button>}</div>}
       {locationError && <p className="result-note" role="alert">{locationError}</p>}
       {selection.overnightSnapshot ? <p className="result-note">{selection.overnightSnapshot.nights}泊{selection.overnightSnapshot.nights + 1}日 · 宿泊先：{selection.overnightSnapshot.itinerary.hotel.name}。各日の旅程は「このルートで旅を計画する」から開けます。</p> : <button type="button" className="discover-preview-button" disabled={routeLoading} onClick={() => setPreviewRequest(v => v + 1)}>{routeLoading ? "運行時刻を確認中…" : "運行時刻を確認する"}</button>}
@@ -223,6 +225,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           <strong>{visit?.type === "spot" && <span className="discover-modal-time">{visit.time} </span>}{place.name}</strong>
           <span>{visit?.type === "spot" && visit.label && `${visit.label} · `}{categoryIcon(place.category)} {place.category}{dwellMinutes[place.id] !== undefined && ` · 滞在の目安 ${formatMinutes(dwellMinutes[place.id])}`}</span>
           {visit?.type === "spot" && visit.detail && <span>{visit.detail}</span>}
+          <FacilityPhoto place={place} />
           <PlaceDescriptionToggle reasonSources={"spots" in route ? route.spots[index]?.reason_sources : undefined} place={place} stayMinutes={dwellMinutes[place.id]} recommendations={"spots" in route && route.spots[index]?.reason ? [route.spots[index].reason!] : placeRecommendation(place, { places, origin, theme: route.theme, stayMinutes: dwellMinutes[place.id] })} />
         </div><VenueEvidence place={place} /></li>;
       })}</ol>

@@ -3,6 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useState } from "react";
 import { PlaceDescriptionToggle, PlaceDetailsDialog, PlaceIntroduction } from "./PlaceDetails";
 import type { Place } from "../types";
+// Photo requests are covered separately; these tests isolate description requests.
+vi.mock("../FacilityPhoto", () => ({ FacilityPhoto: () => <div data-testid="facility-photo" /> }));
+
+it("shows a photo in the facility dialog without duplicating it in inline descriptions", () => {
+  const sample: Place = { id: "photo-layout", name: "資料館", category: "博物館", latitude:35, longitude:135, themes:[], description:"", access_point:"" };
+  const view = render(<PlaceDetailsDialog place={sample} onClose={() => {}} enableOfficialSearch={false} />);
+  expect(screen.getAllByTestId("facility-photo")).toHaveLength(1);
+  view.rerender(<PlaceIntroduction place={sample} enableOfficialSearch={false} />);
+  expect(screen.queryByTestId("facility-photo")).toBeNull();
+});
 
 const place: Place = { id: "garden", name: "散策庭園", category: "庭園", latitude: 35, longitude: 135,
   themes: ["nature"], description: "静かな庭園を歩くルートです。", access_point: "", address: "京都市" };

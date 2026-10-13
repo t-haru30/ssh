@@ -38,3 +38,9 @@
 .route-photo-tile-credit { display:flex; flex-wrap:wrap; gap:2px 6px; font-size:9px; }
 .route-photo-tile-credit a { color:white; text-decoration:underline; }
 .route-photo-tile-credit a:focus-visible { outline:2px solid white; }
+
+.route-category-image { position:absolute; inset:0; background-image:url("/images/category-atlas.png"); background-size:300% 200%; }
+.route-category-image > span, .route-category-image > small { position:absolute; left:6px; top:6px; padding:3px 5px; color:#fff; background:#183a2be6; border-radius:4px; font-size:9px; }
+.route-category-image > small { top:28px; }
+.google-place-photo .google-maps-attribution { display:inline-block; color:#fff; font:400 12px/1.5 Arial,sans-serif; white-space:nowrap; margin:4px 6px 4px 0; }
+.google-place-photo .google-photo-source { display:block; color:#fff; font-size:10px; }

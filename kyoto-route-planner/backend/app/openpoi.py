@@ -182,7 +182,8 @@ async def _search(request, query: str = "") -> tuple[CatalogPlace, ...]:
         # The API can return exact-name hits outside the radius; parse_candidate checks it again.
         params = {"center": f"{request.origin.longitude},{request.origin.latitude}",
                   "radius": request.radius_km * 1000, "limit": 200}
-        queries = [query] if query else ["", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
+        from app.regional_food import specialties
+        queries = [query] if query else [*((specialties(request.origin)[:1] or (f"{request.prefecture_name} 郷土料理",)) if request.theme == "food" else ()), "", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
         responses = await asyncio.gather(*(_json(client, SEARCH_URL, {**params, "q": q}) for q in queries), return_exceptions=True)
         pools = []
         for data in responses:

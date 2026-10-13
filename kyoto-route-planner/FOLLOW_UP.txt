@@ -1,0 +1,17 @@
+後日対応事項（2026-10-13、ユーザー決定）
+
+Google Places APIキーの本番IPアドレス制限
+状態：保留。ユーザーは現時点で追加費用を希望していない。
+対象：Google Cloudプロジェクト conciergo-510405 / Cloud Runサービス conciergo / asia-northeast1。
+
+当面の方針：アプリケーションの制限は「なし」、APIの制限は Places API（New）のみ。
+キーはサーバー側だけで扱う。本番ではSecret Managerを使用する方針。
+これは設定方針の記録であり、APIキーの保存・制限設定の完了を示さない。
+
+将来の対応：費用を許容できる段階で、固定送信元IP、Cloud NAT、Direct VPC egressを構成し、実際の送信元IPを確認したうえでAPIキーをそのIPに制限する。
+費用と本番通信経路の変更内容を再確認し、実施前にユーザーの承認を得る。
+現時点では固定IPやCloud NATの作成は行わない。期日の指定はなく、リマインダーは設定しない。
+固定IP等を追加しなくても、Places API自体の無料枠超過による課金は別途発生する。
+
+参考：https://docs.cloud.google.com/run/docs/configuring/static-outbound-ip
+参考：https://developers.google.com/maps/api-security-best-practices

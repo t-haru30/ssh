@@ -53,15 +53,15 @@ class TravelerTests(unittest.TestCase):
         self.assertIsNone(assemble_route(req, list(pool[:3])))
 
     def test_pace_controls_counts_and_stays_independently_of_demographics(self):
-        pool = tuple(place(str(i), "公園", 35.001 + i * .001) for i in range(5))
+        pool = tuple(place(str(i), "公園", 35.001 + i * .001) for i in range(6))
         for pace, count, half_stay, full_stay in (("relaxed", 2, 75, 120), ("standard", 3, 60, 105), ("packed", 4, 45, 75)):
             for course, stay in (("all", half_stay), ("half_day", half_stay), ("full_day", full_stay)):
                 req = request(course=course, traveler={"pace": pace, "age_group": "65_plus", "companion": "family"})
-                self.assertEqual(max_stops(req), count)
+                self.assertEqual(max_stops(req), count + (2 if course == "full_day" else 0))
                 self.assertEqual(stay_minutes(req), stay)
                 route = build_discover_routes(req, pool)["routes"][0]
-                self.assertEqual(len(route["spots"]), count)
-                self.assertIn(f"{count}か所、各{stay}分", route["recommendation_reason"])
+                self.assertEqual(len(route["spots"]), count + (2 if course == "full_day" else 0))
+                self.assertIn(f"観光は各{stay}分", route["recommendation_reason"])
                 self.assertIn("公園", route["recommendation_reason"])
                 self.assertIn("家族", route["recommendation_reason"])
         self.assertEqual(max_stops(request(traveler={"age_group": "under_18", "companion": "family"})), 3)

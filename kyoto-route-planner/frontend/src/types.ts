@@ -61,6 +61,8 @@ export type RouteTimelineTransit = {
   end_time: string | null;
   duration_minutes: number | null;
   is_estimate: boolean;
+  fare_yen?: number | null;
+  legs?: RouteLeg[];
 };
 
 export type RouteTimelineItem = RouteTimelineSpot | RouteTimelineTransit;

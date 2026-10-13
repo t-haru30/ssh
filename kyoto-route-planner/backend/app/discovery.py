@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from app.models import CatalogPlace, Origin, Theme
 from app.places import is_unsuitable_place
 from app.public_catalog import load_public_places
+from app.regional_food import regional_score
 
 
 PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
@@ -53,12 +54,12 @@ def stay_minutes(request: DiscoverRequest) -> int:
 
 
 def max_stops(request: DiscoverRequest) -> int:
-    return PACE_SETTINGS[traveler_pace(request)][0]
+    return PACE_SETTINGS[traveler_pace(request)][0] + (2 if request.course == "full_day" else 0)
 
 
 def recommendation_reason(request: DiscoverRequest, ordered: list[CatalogPlace]) -> str:
     categories = "・".join(dict.fromkeys(p.category for p in ordered))
-    reason = f"{PACE_LABELS[traveler_pace(request)]}ペースで{len(ordered)}か所、各{stay_minutes(request)}分滞在（目安）。{categories}を巡ります。"
+    reason = f"{PACE_LABELS[traveler_pace(request)]}ペースで{len(ordered)}か所、観光は各{stay_minutes(request)}分、食事は最大75分（目安）。{categories}を巡ります。"
     if request.traveler and any(traveler_priority(request, p) for p in ordered):
         label = {"family": "家族", "friends": "友人", "couple": "カップル", "solo": "ひとり旅"}[request.traveler.companion]
         matched = "・".join(dict.fromkeys(p.category for p in ordered if traveler_priority(request, p)))
@@ -93,7 +94,7 @@ def place_themes(place: CatalogPlace) -> list[Theme]:
         themes.add("history")
     if any(word in text for word in ("自然", "公園", "庭園", "山", "海", "湖", "滝", "展望", "植物", "動物", "水族")):
         themes.add("nature")
-    if any(word in text for word in ("グルメ", "飲食", "レストラン", "カフェ", "食堂", "料理", "喫茶", "市場", "商店街")):
+    if any(word in text for word in ("グルメ", "飲食", "レストラン", "カフェ", "食堂", "料理", "喫茶", "市場", "商店街", "冷麺", "そば", "じゃじゃ麺", "寿司", "焼肉")):
         themes.add("food")
     for prefix, inferred in (("0424001", ("temple", "history")), ("0424002", ("temple", "history")), ("0305002", ("history",)), ("0305003", ("history",)), ("0305007", ("nature",)), ("030300", ("nature",)), ("01", ("food",))):
         if place.genre_code.startswith(prefix):
@@ -121,12 +122,15 @@ def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ..
     """Apply all hard constraints before exposing any facility to the agent."""
     candidates = sorted((place for place in places
         if (request.cross_prefecture or place.region == request.prefecture_name)
-        and (request.theme == "all" or request.theme in place_themes(place))
+        and (request.theme in ("all", "food") or request.theme in place_themes(place))
         and not any(word in place.category for word in ("ホテル", "旅館", "宿泊"))
         and not is_unsuitable_place(place)
         and distance_km(request.origin, place) <= request.radius_km),
-        key=lambda place: (distance_km(request.origin, place), place.id))
+        key=lambda place: (place.region != request.prefecture_name, -regional_score(request.origin, place) if request.theme == "food" else 0, distance_km(request.origin, place), place.id))
     candidates = distinct_venues(candidates)
+    local = [p for p in candidates if p.region == request.prefecture_name]
+    if len(local) >= max_stops(request) and (request.theme != "food" or any("food" in place_themes(p) for p in local)):
+        candidates = local
     return candidates
 
 
@@ -135,13 +139,19 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
     """Compute a round trip independently; reject AI selections over the time cap."""
     if not ordered or len(ordered) > max_stops(request):
         return None
+    food = [p for p in ordered if "food" in place_themes(p)]
+    if request.theme == "food" and (not food or len(food) > 2):
+        return None
+    if request.course == "full_day" and (len(ordered) < 4 or len(food) > 2):
+        return None
     stay = stay_minutes(request)
+    stays = [min(stay, 75) if "food" in place_themes(p) else stay for p in ordered]
     points = [request.origin, *ordered, request.origin]
     legs = [{"from": a.name, "to": b.name, "distance_km": round(distance_km(a, b), 2),
              "mode": "public_transport", "minutes": ceil(distance_km(a, b) / 25 * 60) + 10}
             for a, b in zip(points, points[1:])]
-    minutes = sum(leg["minutes"] for leg in legs) + stay * len(ordered)
-    if minutes > (300 if request.course == "half_day" else 600):
+    minutes = sum(leg["minutes"] for leg in legs) + sum(stays)
+    if minutes > (300 if request.course == "half_day" else 600) or (request.course == "full_day" and minutes < 360):
         return None
     course = "full_day" if request.course == "full_day" or minutes > 300 else "half_day"
     reasons = reasons or {p.id: f"{p.category}の候補で、出発地から直線約{distance_km(request.origin, p):.1f}kmです。" for p in ordered}
@@ -156,7 +166,7 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
             "recommendation_reason": recommendation_reason(request, ordered),
             "spots": [{"place_id": p.id, "name": p.name, "category": p.category, "lat": p.latitude, "lng": p.longitude,
                        "address": p.address, "tags": p.tags,
-                       "stay_minutes": stay, "score": 1, "role": "stop", "reason": reasons[p.id]} for p in ordered],
+                       "stay_minutes": stays[index], "score": 1, "role": "stop", "reason": reasons[p.id]} for index, p in enumerate(ordered)],
             "coordinates": [[p.latitude, p.longitude] for p in points]}
 
 
@@ -171,16 +181,25 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
     effective_radius = radii[-1]
     for radius in radii:
         nearby = [place for place in candidates if distance_km(request.origin, place) <= radius]
-        if len(nearby) >= 6:
+        if len(nearby) >= max(6, max_stops(request)) and (request.theme != "food" or any("food" in place_themes(p) for p in nearby)) and not any(regional_score(request.origin, p) and p not in nearby for p in candidates):
             candidates, effective_radius = nearby, radius
             break
-    candidates.sort(key=lambda p: (-traveler_priority(request, p), distance_km(request.origin, p), p.id))
+    candidates.sort(key=lambda p: (-regional_score(request.origin, p) if request.theme == "food" else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
     routes, seen = [], set()
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
         ordered, remaining, cursor = [seed], [p for p in candidates if p.id != seed.id], seed
+        if request.theme == "food":
+            preferred = next((p for p in candidates if "food" in place_themes(p)), None)
+            if preferred and preferred.id != seed.id:
+                ordered.append(preferred)
+                remaining.remove(preferred)
+                cursor = preferred
         while remaining and len(ordered) < max_stops(request):
-            nearest = min(remaining, key=lambda p: (distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            options = [p for p in remaining if "food" not in place_themes(p) or (sum("food" in place_themes(q) for q in ordered) < 2 and "food" not in place_themes(cursor))]
+            if not options:
+                break
+            nearest = min(options, key=lambda p: (distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -198,7 +217,9 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         note += "候補が少ないため検索範囲を広げました。"
     if len(candidates) < 3:
         note += "候補が少ないため、見つかったスポット数で提案しています。"
-    note += f"{PACE_LABELS[traveler_pace(request)]}ペースで最大{max_stops(request)}か所、各{stay_minutes(request)}分の滞在です。"
+    if not routes and request.course == "full_day":
+        note += "1日コース（4か所以上・6〜10時間）を組める候補が不足しています。半日を選ぶか観光範囲を広げてください。"
+    note += f"{PACE_LABELS[traveler_pace(request)]}ペースで最大{max_stops(request)}か所、観光は各{stay_minutes(request)}分、食事は最大75分の滞在です。"
     return {"routes": routes, "note": note + "移動時間は推定です。", "source": "OpenStreetMap"}
 
 
@@ -222,7 +243,7 @@ async def _base_discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[
     }
     try:
         search = await asyncio.wait_for(search_yahoo_catalog("グルメ" if request.theme == "food" else "観光",
-            limit=100, genre_codes=genres[request.theme],
+            limit=100, genre_codes=genres["all" if request.theme == "food" else request.theme],
             center=(request.origin.latitude, request.origin.longitude), radius_m=min(20, request.radius_km) * 1000), timeout=12)
     except (asyncio.TimeoutError, HTTPException):
         try:
@@ -271,4 +292,6 @@ async def discover_routes(request: DiscoverRequest) -> dict:
     fallback, pool = await _discover_catalog(request)
     result = await recommend_routes(request, eligible_candidates(request, pool), fallback)
     result["catalog"] = fallback["catalog"]
+    from app.discovery_review import review_journeys
+    result["review"] = await review_journeys(request, result, pool)
     return result

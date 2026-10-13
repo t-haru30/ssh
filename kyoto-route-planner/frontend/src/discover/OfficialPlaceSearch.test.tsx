@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Place } from "../types";
 import { OfficialPlaceSearch } from "./OfficialPlaceSearch";
 import { PlaceDescriptionToggle, PlaceDetailsDialog, PlaceIntroduction } from "./PlaceDetails";
+// Photo networking has separate coverage from official-information lookup.
+vi.mock("../FacilityPhoto", () => ({ FacilityPhoto: () => null }));
 
 const place: Place = { id: "museum", name: "試験美術館", category: "美術館", description: "旅の説明", access_point: "",
   themes: ["history"], latitude: 35, longitude: 135, address: "京都市" };

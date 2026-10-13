@@ -17,6 +17,8 @@ vi.mock("framer-motion", () => ({
       <div className={className}>{children}</div>
     ),
   },
+  usePresence: () => [true, undefined],
+  usePresenceData: () => undefined,
   useMotionValue: () => 0,
   useTransform: () => 0,
 }));
@@ -124,7 +126,7 @@ describe("DiscoverCard", () => {
     expect(screen.queryByText("清水寺の写真")).toBeNull();
     expect(screen.getByText("半日コース")).toBeTruthy();
     expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
-    expect(screen.getByText("清水寺", { selector: "strong" })).toBeTruthy();
+    expect(screen.getAllByText("清水寺", { selector: "strong" })[0]).toBeTruthy();
     expect(screen.getByText("寺院")).toBeTruthy();
     expect(screen.getByText("いいね")).toBeTruthy();
     expect(screen.getByText("今回は見送る")).toBeTruthy();

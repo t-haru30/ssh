@@ -29,7 +29,6 @@ export function clearRoutePhotoCache() {
   for (const job of pending.values()) job.controller.abort();
   pending.clear(); cache.clear();
 }
-export function isRoutePhotoPrepared(input: Place[]) { return cachedPhoto(photoKey(input.slice(0, 3))) !== null; }
 function safeUrl(value: unknown, check: (url: URL) => boolean) {
   if (typeof value !== "string") return false;
   try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password && !url.port && check(url); } catch { return false; }

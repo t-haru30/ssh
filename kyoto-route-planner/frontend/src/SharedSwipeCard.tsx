@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform, usePresence, usePresenceData } from "framer-motion";
 import type { PanInfo } from "framer-motion";
 import type { Theme } from "./types";
 
@@ -47,14 +47,6 @@ export type SharedSwipeCardProps = {
 
 const SWIPE_THRESHOLD = 110;
 const MAX_VISIBLE_SPOTS = 3;
-const cardVariants = {
-  exit: (direction: SharedSwipeDirection) => ({
-    x: direction === "accept" ? 520 : -520,
-    opacity: 0,
-    rotate: direction === "accept" ? 16 : -16,
-    transition: { duration: 0.25 },
-  }),
-};
 
 export function SharedSwipeCard({
   theme,
@@ -91,6 +83,25 @@ export function SharedSwipeCard({
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const swipedRef = useRef(false);
   const x = useMotionValue(0);
+  const opacity = useMotionValue(1);
+  const [isPresent, safeToRemove] = usePresence();
+  const presenceDirection = usePresenceData() as SharedSwipeDirection | undefined;
+  const departureDirection = presenceDirection ?? exitDirection;
+
+  useEffect(() => {
+    if (isPresent) return;
+    // Own the drag value during departure; do not compete with a variant animation.
+    x.stop();
+    const target = departureDirection === "accept" ? Math.max(520, x.get() + 320) : Math.min(-520, x.get() - 320);
+    const movement = animate(x, target, { duration: 0.25, ease: "easeOut" });
+    const fade = animate(opacity, 0, { duration: 0.25 });
+    let removed = false;
+    const remove = () => { if (!removed) { removed = true; safeToRemove?.(); } };
+    void Promise.all([movement, fade]).then(remove);
+    // WebKit may suspend animation completion when a touch is cancelled.
+    const timeout = window.setTimeout(remove, 400);
+    return () => { removed = true; window.clearTimeout(timeout); movement.stop(); fade.stop(); };
+  }, [isPresent, departureDirection, safeToRemove, x, opacity]);
   const rotate = useTransform(x, [-240, 240], [-13, 13]);
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
@@ -100,7 +111,7 @@ export function SharedSwipeCard({
   useEffect(() => { if (!isProcessing) swipedRef.current = false; }, [isProcessing, isTop, title]);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-    if (!swipeEnabled || !isTop || isProcessing || swipedRef.current) return;
+    if (!isPresent || !swipeEnabled || !isTop || isProcessing || swipedRef.current) return;
     if (info.offset.x > SWIPE_THRESHOLD) {
       swipedRef.current = true;
       if (onSwipe("accept") === false) { swipedRef.current = false; animate(x, 0, { duration: 0.2 }); }
@@ -115,21 +126,19 @@ export function SharedSwipeCard({
   return (
     <motion.article
       className={`swipe-card${isProcessing ? " is-processing" : ""}`}
-      custom={exitDirection}
-      variants={cardVariants}
-      style={{ x, rotate, zIndex: 10 - depth, pointerEvents: isTop ? "auto" : "none" }}
-      drag={swipeEnabled && isTop && !isProcessing ? "x" : false}
+      style={{ x, rotate, opacity, zIndex: 10 - depth, pointerEvents: isTop && isPresent ? "auto" : "none" }}
+      drag={isPresent && swipeEnabled && isTop && !isProcessing ? "x" : false}
       dragMomentum={false}
       whileTap={swipeEnabled && isTop && !isProcessing ? { cursor: "grabbing" } : undefined}
+      onDragStart={() => x.stop()}
       onDragEnd={handleDragEnd}
-      onPointerCancel={() => { if (!swipedRef.current) animate(x, 0, { duration: 0.2 }); }}
-      initial={{ scale: 0.94, y: 22, opacity: 0 }}
-      animate={{ scale: 1 - depth * 0.035, y: depth * 12, opacity: 1 }}
-      exit="exit"
+      onPointerCancel={() => { if (isPresent && !swipedRef.current) animate(x, 0, { duration: 0.2 }); }}
+      initial={{ scale: 0.94, y: 22 }}
+      animate={{ scale: 1 - depth * 0.035, y: depth * 12 }}
       transition={{ type: "spring", stiffness: 280, damping: 25 }}
       aria-label={title}
       aria-busy={isProcessing}
-      inert={!isTop}
+      inert={!isTop || !isPresent}
     >
       {swipeEnabled && <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>{skipLabel}</motion.div>}
       {swipeEnabled && <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>}
@@ -180,8 +189,8 @@ export function SharedSwipeCard({
             )}
           </>
         )}
-        <span className="swipe-cover-badge">{coverBadge}</span>
         </>}
+        <span className="swipe-cover-badge">{coverBadge}</span>
       </div>
       <div className="swipe-card-copy">
         {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}

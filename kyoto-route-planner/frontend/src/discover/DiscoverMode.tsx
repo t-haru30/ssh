@@ -1,3 +1,4 @@
+import { JourneyReview, isJourneyReview, type JourneyReviewData } from "./JourneyReview";
 import { currentLocation } from "../currentLocation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -46,7 +47,7 @@ const conditionsId = (c: Conditions) => JSON.stringify(c);
 const preferenceId = (c: Conditions) => conditionsId({ ...c, variation: 0 });
 type BrowseState = { index: number; history: number[] };
 const EMPTY_BROWSE: BrowseState = { index: 0, history: [] };
-const DISCOVER_STEPS = ["条件に合う施設を調べています", "行き先と巡る順番を選んでいます", "おすすめ理由をまとめています"];
+const DISCOVER_STEPS = ["条件に合う施設を調べています", "行き先と巡る順番を選んでいます", "旅程を点検し、必要な変更案をまとめています"];
 type DiscoverModeProps = { active: boolean; homeRequest?: number; onPlanInSearch?: (route: DatasetRoute | RouteIdea, searchTransport?: boolean) => void };
 
 export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: DiscoverModeProps) {
@@ -139,7 +140,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const [crossPrefecture, setCrossPrefecture] = useState(true);
   const [variation, setVariation] = useState(0);
   const [generating, setGenerating] = useState(false);
-  const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent } | null>(null);
+  const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: JourneyReviewData; originalRoutes?: DatasetRoute[] } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const seenRoutes = useRef<Record<string, DatasetRoute[]>>({});
   const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` }));
@@ -205,7 +206,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
       const data: unknown = await response.json();
       if (!isDiscoverResponse(data)) throw new Error("候補データの形式が正しくありません。");
       if (!controller.signal.aborted && requestRef.current === controller) {
-        setRemote({ key: nextKey, ...data, routes: diverseRoutes(data.routes, excluded) });
+        setRemote({ key: nextKey, ...data, review: isJourneyReview(data.review) ? data.review : undefined, originalRoutes: data.routes, routes: diverseRoutes(data.routes, excluded) });
         setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
       }
     } catch {
@@ -290,8 +291,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           <button type="button" disabled={locating} onClick={useCurrentLocation}>{locating ? "現在地を取得中…" : "現在地を使う"}</button>
           <p role="status" aria-live="polite">{locationMessage || (departure.name === "現在地" ? "現在地を出発地点に設定しました。" : "位置情報を許可すると、今いる場所から出発できます。")}</p>
         </div>
-        <StationSearch label="行き先の駅・観光の起点" value={destination} options={[localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }, ...indexEntries.filter(item => item.id !== area).flatMap(item => localOrigins[item.id] ? [localOrigins[item.id]] : [])]} onChange={station => { setDestination(station); const stationArea = indexEntries.find(item => localOrigins[item.id]?.name === station.name && localOrigins[item.id]?.latitude === station.latitude && localOrigins[item.id]?.longitude === station.longitude); if (stationArea) setArea(stationArea.id); }} />
-        <p className="preference-tags-note">全国の主要駅から選べます。ほかの駅は「駅名で探す」で検索してください。</p>
+        <StationSearch key={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} label="行き先の駅・観光の起点" value={destination} options={[localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }]} onChange={(station, prefecture) => { setDestination(station); const stationArea = indexEntries.find(item => item.name === prefecture) ?? indexEntries.find(item => localOrigins[item.id]?.latitude === station.latitude && localOrigins[item.id]?.longitude === station.longitude); if (stationArea) { setArea(stationArea.id); setCrossPrefecture(false); } }} />
+        <p className="preference-tags-note">{draftEntry.name}の駅を選べます。ほかの駅は「駅名で探す」で県内を検索してください。</p>
         <p className="discovery-question-lead">{departure.name} → {destination.name} → 周辺の観光 → {departure.name}へ。観光範囲は{destination.name}が中心です。往復の移動時間は旅程編集で確認できます。</p>
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}
@@ -303,6 +304,9 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         <div className="discover-conditions-summary"><span>{applied.departure.name}発 → {origin.name}で観光 · 観光範囲 {applied.radius === 20000 ? "制限なし" : `半径${applied.radius}km`} · {travelerProfileSummary(applied.traveler)} · {PACE_OPTIONS.find(option => option.value === normalizeTravelPace(applied.traveler.pace))!.label}</span><button type="button" onClick={editDestination}>行き先を選び直す</button><button type="button" onClick={editConditions}>条件を変更 <span aria-hidden="true">↑</span></button></div>
         <p className="discover-agent-status" role="status" data-ready={remote?.key === conditionsKey && remote.agent?.status === "ready"}>{generating ? "AIが条件に合わせて行き先を選んでいます。" : remote?.key === conditionsKey ? remote.agent?.message ?? "施設データから条件に合う候補を表示しています。" : "まずは通常の候補を表示しています。条件を選んで「この条件で探す」を押してください。"}</p>
         {generating && <ProgressStatus title="AIが旅の候補を選んでいます" steps={DISCOVER_STEPS} onCancel={cancelGeneration} />}
+        {!generating && remote?.key === conditionsKey && remote.review && <JourneyReview key={remote.review.id} report={remote.review}
+          onAdopt={route => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: [route]} : current); updateCollection(EMPTY_BROWSE); }}
+          onRestore={() => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: diverseRoutes(current.originalRoutes ?? [], [])} : current); updateCollection(EMPTY_BROWSE); }} />}
         {!generating && <><div className="discover-stack" aria-busy={preparingNext}><AnimatePresence custom={exitDirection === "like" ? "accept" : "skip"}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={`${deckEpoch}:${route.id}`} route={route} depth={depth} active={active && !generating && !selected} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件で新しく提案できる旅程はありません</strong><p>似た旅程や、すでに見た候補を除いています。気分・行き先・移動範囲を変えてみてください。</p><button type="button" className="idea-primary-button" onClick={editConditions}>条件を変えて探す</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>いいねした旅程を下から選んで、編集しましょう。</p><button type="button" className="idea-primary-button" onClick={() => { setDeckEpoch(value => value + 1); updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}

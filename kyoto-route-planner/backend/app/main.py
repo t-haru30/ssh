@@ -10,7 +10,7 @@ import time
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, Request, Path as ApiPath
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
@@ -45,6 +45,7 @@ from app.venue_evidence import EvidenceRequest, VenueEvidence, evidence_status, 
 from app.official_place_info import known_official_url
 from app.station_search import StationCandidate, search_stations
 from app.models import (
+    TransitSegmentRequest,
     ItineraryRequest,
     ItinerarySuggestion,
     Origin,
@@ -301,6 +302,8 @@ async def _correct_route_timeline(
             continue
         corrected.append(item.model_copy(update={
             "transit_line": " / ".join(line_names) or "公共交通機関",
+            "fare_yen": getattr(result, "fare_yen", None),
+            "legs": legs,
             "start_time": actual_departure,
             "end_time": actual_arrival,
             "duration_minutes": (
@@ -589,6 +592,44 @@ async def discover(request: Request, payload: DiscoverRequest):
     return await discover_routes(payload)
 
 
+@app.post("/api/discover/reviews/{review_id}/decision")
+@limiter.limit("30/minute")
+async def review_decision(request: Request, review_id: Annotated[str, ApiPath(pattern=r"^[a-f0-9]{32}$")], decision: Annotated[str, Query(pattern=r"^(keep|adopt:dynamic-[a-f0-9]{16})$")]):
+    from app.discovery_review import record_decision
+    if not record_decision(review_id, decision):
+        raise HTTPException(404, "点検履歴を記録できませんでした。")
+    return {"status": "recorded"}
+
+
+@app.post("/api/transit/segment", response_model=RouteTimelineTransit)
+@limiter.limit("30/minute")
+async def transit_segment(request: Request, payload: TransitSegmentRequest):
+    origin, destination = payload.origin, payload.destination
+    if (origin.latitude, origin.longitude) == (destination.latitude, destination.longitude):
+        return RouteTimelineTransit(from_name=origin.name, to_name=destination.name,
+                                    duration_minutes=0, fare_yen=0, is_estimate=False, transit_line="同じ地点")
+    result = await search_route(
+        via_points=[f"{origin.latitude},{origin.longitude}", f"{destination.latitude},{destination.longitude}"],
+        departure_date=payload.departure_date.isoformat(), departure_time=payload.departure_time.strftime("%H:%M"))
+    legs, minutes, departure, arrival = result
+    legs = [leg.model_copy(update={
+        **({"from_name": origin.name} if i == 0 else {}),
+        **({"to_name": destination.name} if i == len(legs) - 1 else {}),
+    }) for i, leg in enumerate(legs)]
+    return RouteTimelineTransit(from_name=origin.name, to_name=destination.name,
+        transit_line=" / ".join(dict.fromkeys(leg.line_name for leg in legs)) or "公共交通機関",
+        duration_minutes=minutes, start_time=departure or None, end_time=arrival or None,
+        is_estimate=minutes is None, fare_yen=getattr(result, "fare_yen", None), legs=legs)
+
+
+@app.post("/api/places/google-photo")
+@limiter.limit("12/minute")
+async def google_place_photo(request: Request, payload: Place):
+    from app.google_place_photos import fetch_google_photo
+    result = await fetch_google_photo(payload)
+    return JSONResponse(result.model_dump(), headers={"Cache-Control":"no-store, private"})
+
+
 @app.post("/api/routes/photo", response_model=PhotoResponse)
 @limiter.limit("30/minute")
 async def route_photo(request: Request, payload: PhotoRequest) -> PhotoResponse:
@@ -649,9 +690,9 @@ def recommendations_status():
 
 @app.get("/api/stations/search", response_model=list[StationCandidate])
 @limiter.limit("6/minute")
-async def stations_search(request: Request, q: Annotated[str, Query(min_length=1, max_length=80)]):
+async def stations_search(request: Request, q: Annotated[str, Query(min_length=1, max_length=80)], prefecture_code: Annotated[str | None, Query(pattern=r"^(0[1-9]|[1-3][0-9]|4[0-7])$")] = None):
     try:
-        return await asyncio.wait_for(search_stations(q), timeout=20)
+        return await asyncio.wait_for(search_stations(q, prefecture_code=prefecture_code) if prefecture_code else search_stations(q), timeout=20)
     except asyncio.TimeoutError:
         raise HTTPException(504, "駅検索がタイムアウトしました。駅名を詳しくして再度お試しください。") from None
 

@@ -77,7 +77,7 @@ export function isRouteLeg(value: unknown): value is RouteLeg {
         && value.duration_minutes >= 0));
 }
 
-function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
+export function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
   if (!isRecord(value)) return false;
   if (value.type === "spot") {
     return (value.role === "start" || value.role === "stop" || value.role === "finish")
@@ -96,7 +96,9 @@ function isRouteTimelineItem(value: unknown): value is RouteTimelineItem {
     && (typeof value.start_time === "string" || value.start_time === null)
     && (typeof value.end_time === "string" || value.end_time === null)
     && (typeof value.duration_minutes === "number" || value.duration_minutes === null)
-    && typeof value.is_estimate === "boolean";
+    && typeof value.is_estimate === "boolean"
+    && (value.fare_yen == null || (typeof value.fare_yen === "number" && Number.isInteger(value.fare_yen) && value.fare_yen >= 0))
+    && (value.legs === undefined || (Array.isArray(value.legs) && value.legs.every(isRouteLeg)));
 }
 
 // /api/itineraries は CatalogPlace を返し、access_point と themes を持たないため既定値を補う

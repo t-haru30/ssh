@@ -27,6 +27,12 @@ class Origin(BaseModel):
     latitude: Latitude
     longitude: Longitude
 
+class TransitSegmentRequest(BaseModel):
+    origin: Origin
+    destination: Origin
+    departure_date: date
+    departure_time: time
+
 class RouteSuggestionRequest(BaseModel):
     origin: str = Field(min_length=1, max_length=80)
     origin_latitude: Latitude | None = None
@@ -109,6 +115,8 @@ class RouteTimelineTransit(BaseModel):
     end_time: str | None = None
     duration_minutes: int | None = None
     is_estimate: bool = True
+    fare_yen: int | None = Field(default=None, ge=0)
+    legs: list[RouteLeg] = Field(default_factory=list)
 
 RouteTimelineItem = Annotated[
     Union[RouteTimelineSpot, RouteTimelineTransit],

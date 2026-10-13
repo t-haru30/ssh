@@ -30,6 +30,7 @@ export type TripPlan = {
   travelCost: number | null;
   totalCost: number | null;
   unknownCosts: number;
+  provisionalCosts?: boolean;
   estimatedTravel: boolean;
   unknownTravelSegments?: number[];
   violations: string[];
@@ -57,6 +58,27 @@ export function distanceKm(a: Origin | Place, b: Origin | Place) {
   const x = Math.sin((b.latitude - a.latitude) * rad / 2) ** 2
     + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin((b.longitude - a.longitude) * rad / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, x)));
+}
+/** Planning allowances, not verified admission prices or fares. User values take precedence. */
+export function facilityAllowance(place: Place): number {
+  if (["trip-arrival", "trip-return"].includes(place.id)) return 0;
+  const category = `${place.category} ${place.name}`;
+  if (/カフェ|喫茶|coffee|cafe/i.test(category)) return 800;
+  if (/飲食|グルメ|レストラン|食堂|料理|restaurant/i.test(category)) return 1500;
+  if (/博物館|美術館|資料館|記念館|museum/i.test(category)) return 1000;
+  if (/寺|庭園|城/.test(category)) return 600;
+  if (/公園|神社|神宮|海|山|川/.test(category)) return 0;
+  return 500;
+}
+export function transportAllowance(km: number): number {
+  return km < 0.8 ? 0 : km <= 5 ? 250 : km <= 20 ? 500 : km <= 50 ? 1000 : Math.ceil(km * 25 / 100) * 100;
+}
+export function transportMatches(plan: TripPlan): boolean {
+  const route = plan.transport.route;
+  return plan.date === plan.transport.date && plan.input.departureTime === plan.transport.time
+    && sameLocation(plan.origin, route.origin) && sameLocation(plan.returnTo, route.return_to ?? route.origin)
+    && plan.stops.length === route.places.length
+    && plan.stops.every((stop, i) => stop.place.id === route.places[i].id && sameLocation(stop.place, route.places[i]));
 }
 export const minimumDwell = (place: Place) => ["trip-arrival", "trip-return"].includes(place.id) ? 15 : 30;
 export function newTripStop(place: Place, dwellMinutes = 90): TripStop {
@@ -113,9 +135,9 @@ export function scheduleTrip(
   const hasSegments = transits.length === distances.length && transits.every(item => !item.is_estimate && item.duration_minutes !== null && Number.isFinite(item.duration_minutes) && item.duration_minutes >= 0);
   const durations = hasSegments ? transits.map(item => item.duration_minutes!) : hasDuration
     ? distances.map(distance => Math.floor((route.total_minutes ?? 0) * (sumDistance ? distance / sumDistance : 1 / distances.length)))
-    : distances.map(distance => Math.ceil(distance * 1000 * 1.3 / 80));
+    : distances.map((distance, i) => transits[i] && !transits[i].is_estimate && transits[i].duration_minutes != null ? transits[i].duration_minutes! : Math.ceil(distance * 1000 * 1.3 / 80));
   if (hasDuration && !hasSegments) durations[durations.length - 1] += (route.total_minutes ?? 0) - durations.reduce((sum, duration) => sum + duration, 0);
-  const unknownTravelSegments = !hasDuration && !hasSegments ? distances.flatMap((distance, i) => distance > 5 ? [i] : []) : [];
+  const unknownTravelSegments = !hasDuration && !hasSegments ? distances.flatMap((distance, i) => distance > 5 && (!transits[i] || transits[i].is_estimate || transits[i].duration_minutes == null) ? [i] : []) : [];
   let current = departure;
   const scheduled = stops.map((stop, index): ScheduledStop => {
     if (stop.completed) {
@@ -140,18 +162,20 @@ export function scheduleTrip(
   const returnTravel = durations[durations.length - 1];
   const returnMinute = current + returnTravel;
   const fare = stops.length === 0 && sameLocation(origin, returnTo) ? 0 : transportEstimate ?? (baselineValid ? route.fare_yen ?? null : null);
-  const costs = [fare, ...stops.map(stop => stop.spending)];
+  const provisionalCosts = fare === null || stops.some(stop => stop.spending === null);
+  const displayedFare = fare ?? distances.reduce((sum, km, i) => sum + (transits[i]?.fare_yen ?? transportAllowance(km)), 0);
+  const costs = [displayedFare, ...stops.map(stop => stop.spending ?? facilityAllowance(stop.place))];
   const unknownCosts = costs.filter(cost => cost === null).length;
   const knownCost = costs.reduce<number>((sum, cost) => sum + (cost ?? 0), 0);
   const violations: string[] = [...historyViolations];
   if (unknownTravelSegments.length) violations.push("長距離区間の交通情報が未確認です。交通経路を検索してから時間枠に合わせて調整してください。");
   const overMinutes = returnMinute - departure - input.availableMinutes;
   if (overMinutes > 0 && !unknownTravelSegments.length) violations.push(`帰着目標を${overMinutes}分超過します。`);
-  if (knownCost > input.budget) violations.push(`判明している費用だけで予算を${(knownCost - input.budget).toLocaleString("ja-JP")}円超過します。`);
+  if (knownCost > input.budget) violations.push(`概算費用が予算を${(knownCost - input.budget).toLocaleString("ja-JP")}円超過します。`);
   for (const stop of scheduled) if (stop.late > 0) violations.push(`${stop.place.name}の固定開始に${stop.late}分間に合いません。`);
   if (unknownCosts) violations.push(`費用が${unknownCosts}項目未入力・未確認のため、予算内かは未判定です。`);
   if (!stops.length) violations.push("立ち寄り先がありません。候補を追加してください。");
-  return { input, origin, returnTo, date, stops: scheduled, transport, transportEstimate, travelMinutes: scheduled.reduce((sum, stop) => sum + stop.travel, returnTravel), returnMinute, returnTravel, knownCost, travelCost: fare, totalCost: unknownCosts ? null : knownCost, unknownCosts, estimatedTravel: !hasDuration && !hasSegments, unknownTravelSegments, violations };
+  return { input, origin, returnTo, date, stops: scheduled, transport, transportEstimate, travelMinutes: scheduled.reduce((sum, stop) => sum + stop.travel, returnTravel), returnMinute, returnTravel, knownCost, travelCost: displayedFare, provisionalCosts, totalCost: unknownCosts ? null : knownCost, unknownCosts, estimatedTravel: !hasDuration && !hasSegments, unknownTravelSegments, violations };
 }
 
 function fits(plan: TripPlan) {

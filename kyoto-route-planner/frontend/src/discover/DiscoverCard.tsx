@@ -8,7 +8,6 @@ import type { DatasetRoute } from "./datasetTypes";
 import { routeSelection } from "../routeSelection";
 import { PlaceDetailsDialog } from "./PlaceDetails";
 import { placeRecommendation } from "./placeRecommendation";
-import { useRoutePhoto } from "./useRoutePhoto";
 import "./routePhoto.css";
 import { RoutePhotoGrid } from "./RoutePhotoGrid";
 
@@ -55,13 +54,6 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
   const selection = useMemo(() => routeSelection(route), [route]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
-  const multiplePhotos = selection.places.length > 1;
-  const photoState = useRoutePhoto(selection.places, !multiplePhotos && depth < 3 && active);
-  const photo = photoState.photo?.status === "ready" ? photoState.photo : null;
-  const imageStatus = photoState.status === "loading" || photoState.status === "idle" ? "施設の写真を確認しています…"
-    : photo ? "実際の施設写真 · 施設名・位置を照合"
-    : photoState.failureReason === "lookup_failed" || photoState.photo?.failure_reason === "lookup_failed" ? "写真の取得が完了しませんでした。行き先の説明は開けます。"
-    : "行き先と照合できる実写真がないため、写真を表示していません。";
 
   return (
     <><SharedSwipeCard
@@ -94,15 +86,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
           category: spot.category,
           icon: categoryIcon(spot.category),
         }))}
-      imageUrl={photo?.image_url}
-      coverContent={multiplePhotos ? <RoutePhotoGrid places={selection.places} enabled={depth === 0 && active} /> : undefined}
-      imageReady={photoState.status === "ready"}
-      photoPlaceName={photo?.place_name}
-      authorName={photo?.author_name}
-      sourceUrl={photo?.source_url}
-      licenseName={photo?.license_name}
-      licenseUrl={photo?.license_url}
-      imageStatus={multiplePhotos ? undefined : imageStatus}
+      coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} /> : undefined}
       onSpotSelect={setSelectedPlaceId}
       coverBadge={isIdea
         ? `${route.places.length}か所`
