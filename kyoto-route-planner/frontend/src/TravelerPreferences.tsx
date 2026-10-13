@@ -4,9 +4,9 @@ import "./travelerPreferences.css";
 
 export function TravelerPreferences({ value, onChange, section = "all", answered = true }: { answered?: boolean; value: TravelerProfile; onChange: (value: TravelerProfile) => void; section?: "all" | "companion" | "pace" }) {
   const id = useId();
-  return <>{section !== "pace" && <fieldset className="traveler-preferences" aria-describedby={`${id}-hint`}>
+  return <>{section !== "pace" && <fieldset className="traveler-preferences" aria-describedby={section === "companion" ? undefined : `${id}-hint`}>
     <legend>誰と出かけますか？</legend>
-    <p id={`${id}-hint`}>{section === "companion" ? "当てはまるタグを選んでください。「指定しない」でも進めます。" : "未選択でも探せます。"}</p>
+    {section !== "companion" && <p id={`${id}-hint`}>未選択でも探せます。</p>}
     <div className="traveler-companions">{COMPANION_OPTIONS.map(option => <button key={option.value} type="button" aria-pressed={answered && value.companion === option.value} onClick={() => onChange({ ...value, companion: option.value })}>{option.label}</button>)}</div>
     <details><summary>年代・性別を追加する（任意）</summary><p>同行者は行き先の候補選びに使います。年代・性別によって旅のペースは変わりません。</p>
       <div className="traveler-optional"><label htmlFor={`${id}-age`}>年代<select id={`${id}-age`} value={value.age_group} onChange={event => onChange({ ...value, age_group: event.target.value as TravelerProfile["age_group"] })}>{AGE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
