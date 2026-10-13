@@ -1,3 +1,5 @@
+import { ReasonSources } from "./reasonSources";
+import { conciseReason } from "./conciseReason";
 import { useMemo, useState } from "react";
 import { SharedSwipeCard } from "../SharedSwipeCard";
 import type { SharedSwipeDirection } from "../SharedSwipeCard";
@@ -8,6 +10,7 @@ import { PlaceDetailsDialog } from "./PlaceDetails";
 import { placeRecommendation } from "./placeRecommendation";
 import { useRoutePhoto } from "./useRoutePhoto";
 import "./routePhoto.css";
+import { RoutePhotoGrid } from "./RoutePhotoGrid";
 
 export type DiscoverDirection = "like" | "pass";
 
@@ -34,30 +37,50 @@ type DiscoverCardProps = {
   route: DatasetRoute | RouteIdea;
   depth: number;
   exitDirection: DiscoverDirection;
-  onSwipe: (direction: DiscoverDirection) => void;
+  onSwipe: (direction: DiscoverDirection) => boolean | void;
   active?: boolean;
+  preparingNext?: boolean;
 };
 
-export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true }: DiscoverCardProps) {
+export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true, preparingNext = false }: DiscoverCardProps) {
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
+  const aiRecommended = !isIdea && route.recommendation_source === "gemini";
+  const fullReason = isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`;
+  const shortReason = conciseReason(fullReason);
+  const summaryPlace = !isIdea && route.spots.find(spot => shortReason.startsWith(`${spot.name}：`));
+  const summarySources = !isIdea ? (summaryPlace
+    ? route.reason_sources?.filter(source => summaryPlace.reason_sources?.some(item => item.url === source.url))
+    : shortReason === fullReason ? route.reason_sources : undefined) : undefined;
   const selection = useMemo(() => routeSelection(route), [route]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
-  const photoState = useRoutePhoto(selection.places, depth === 0 && active);
+  const multiplePhotos = selection.places.length > 1;
+  const photoState = useRoutePhoto(selection.places, !multiplePhotos && depth < 3 && active);
   const photo = photoState.photo?.status === "ready" ? photoState.photo : null;
-  const imageStatus = photoState.status === "loading" ? "施設の写真を確認しています…"
+  const imageStatus = photoState.status === "loading" || photoState.status === "idle" ? "施設の写真を確認しています…"
     : photo ? "実際の施設写真 · 施設名・位置を照合"
-    : "この旅で出会う場所を、行き先の説明から見てみましょう。";
+    : photoState.failureReason === "lookup_failed" || photoState.photo?.failure_reason === "lookup_failed" ? "写真の取得が完了しませんでした。行き先の説明は開けます。"
+    : "行き先と照合できる実写真がないため、写真を表示していません。";
 
   return (
     <><SharedSwipeCard
       theme={route.theme}
       title={route.title}
-      description={isIdea ? route.story : `${route.spots.length}か所をつないで、この街を少し深く。`}
+      description={shortReason}
+      descriptionLabel="おすすめ理由"
+      recommendationSources={<>
+        <ReasonSources sources={summarySources} />
+        {shortReason !== fullReason && <details className="place-description-toggle" onPointerDown={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+          <summary>おすすめ理由の全文・出典</summary>
+          <p>{fullReason}</p>
+          {!isIdea && <ReasonSources sources={route.reason_sources} />}
+        </details>}
+      </>}
+      recommendationLabel={aiRecommended ? "AIが選んだおすすめ" : undefined}
       summary={isIdea
         ? `${route.places.length}か所を巡る旅のプラン`
-        : `⏱ 総所要時間 約${formatMinutes(route.estimated_minutes)}`}
+        : `⏱ ${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
       spots={isIdea
         ? route.places.map((place) => ({
           id: place.id,
@@ -72,19 +95,24 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
           icon: categoryIcon(spot.category),
         }))}
       imageUrl={photo?.image_url}
+      coverContent={multiplePhotos ? <RoutePhotoGrid places={selection.places} enabled={depth === 0 && active} /> : undefined}
+      imageReady={photoState.status === "ready"}
       photoPlaceName={photo?.place_name}
       authorName={photo?.author_name}
       sourceUrl={photo?.source_url}
       licenseName={photo?.license_name}
       licenseUrl={photo?.license_url}
-      imageStatus={imageStatus}
+      imageStatus={multiplePhotos ? undefined : imageStatus}
       onSpotSelect={setSelectedPlaceId}
       coverBadge={isIdea
         ? `${route.places.length}か所`
         : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
-      acceptLabel="しおりを開く"
+      isProcessing={!active || preparingNext || Boolean(selectedPlaceId)}
+      swipeEnabled={active && !selectedPlaceId}
+      acceptLabel="いいね"
+      skipLabel="今回は見送る"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
     />
@@ -92,7 +120,10 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       key={selectedPlace.id}
       place={selectedPlace}
       stayMinutes={selection.dwellMinutes[selectedPlace.id]}
-      recommendations={placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
+      reasonSources={!isIdea ? route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason_sources : undefined}
+      recommendations={!isIdea && route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason
+        ? [route.spots.find(spot => spot.place_id === selectedPlace.id)!.reason!]
+        : placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
       onClose={() => setSelectedPlaceId(null)}
     />}</>
   );

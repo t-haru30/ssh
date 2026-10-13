@@ -63,9 +63,11 @@ export type { SearchPreset } from "./routeSelection";
 type SearchModeProps = {
   active: boolean;
   preset?: SearchPreset | null;
+  editingOnly?: boolean;
+  onDiscover?: () => void;
 };
 
-export function SearchMode({ active, preset }: SearchModeProps) {
+export function SearchMode({ active, preset, editingOnly = false, onDiscover }: SearchModeProps) {
   const { saveFavorite, isFavorite } = useFavorites();
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [restoredDraft] = useState(readJourneyDraft);
@@ -399,7 +401,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
     event.preventDefault();
-    if (searching) return;
+    if (searching || (editingOnly && !hasResult)) return;
     if (!validDeparture) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
     if (!isOvernight && !hasResult) { proposeLocally(); return; }
     if (!isOvernight && !returnTo) { setError("帰着駅を選んでください。"); return; }
@@ -590,10 +592,9 @@ export function SearchMode({ active, preset }: SearchModeProps) {
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">MAKE IT YOUR DAY</p>
-          <h1>行きたいをつないで、<br /><em>私らしい一日</em>に。</h1>
+          <h1>{editingOnly ? <>選んだ旅を、<br /><em>自分らしく</em>整える。</> : <>行きたいをつないで、<br /><em>私らしい一日</em>に。</>}</h1>
           <p className="hero-description">
-            発着地、使える時間と予算、好きな過ごし方から。<br className="desktop-break" />
-            あなたに合う寄り道を提案し、大切な予定を残して調整できます。
+            {editingOnly ? "立ち寄り先や順番、滞在時間を調整しましょう。" : "発着地、時間と予算から、あなたに合う寄り道を提案します。"}
           </p>
         </div>
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
@@ -631,7 +632,8 @@ export function SearchMode({ active, preset }: SearchModeProps) {
         </div>
       )}
 
-      <div className={`search-stage${hasResult ? " has-result" : ""}`}>
+      {editingOnly && !hasResult && <section className="discovery-question"><h2>まずは、気になる旅を選びましょう</h2><p>「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
+      {(!editingOnly || hasResult) && <div className={`search-stage${hasResult ? " has-result" : ""}`}>
         {hasResult && (
           <button
             className="form-toggle-button"
@@ -652,12 +654,12 @@ export function SearchMode({ active, preset }: SearchModeProps) {
                     <div className="section-heading">
             <div>
               <p className="eyebrow">YOUR JOURNEY</p>
-              <h2 id="planner-title">旅のプランを立てる</h2>
+              <h2 id="planner-title">{editingOnly ? "旅程の条件を編集" : "旅のプランを立てる"}</h2>
             </div>
             <span className="step-number">01 <i>/ 02</i></span>
           </div>
 
-          <div className="plan-type-toggle">
+          {!editingOnly && <div className="plan-type-toggle">
             <button 
               type="button" 
               className={!isOvernight ? "active" : ""} 
@@ -671,6 +673,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
             >宿泊あり</button>
           </div>
 
+          }
           <form ref={formRef} onSubmit={handleSubmit}>
             <div className="journey-form-intro"><span>01</span><div><strong>旅の条件を決めましょう</strong><p>行きたい場所と、過ごせる時間から。</p></div></div>
             <div className="journey-range-fields">
@@ -775,6 +778,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
 
       </div>
 
+      }
       {searching && <div className="journey-loading-overlay"><ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} onCancel={() => { requestIdRef.current += 1; activeRequestRef.current?.abort(); setSearching(false); }} /></div>}
       {hasResult && (
         <div className="timeline-area" ref={timelineAreaRef} id="journey-timeline">
@@ -855,7 +859,7 @@ export function SearchMode({ active, preset }: SearchModeProps) {
               <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading || !validDeparture || dayTripPlan?.stops.length === 0}>
                 {searching ? <><span className="button-spinner" /> 交通経路を検索しています</> : <>交通経路を再検索 <span>↻</span></>}
               </button>
-              <button className="trip-start-over" type="button" disabled={searching} onClick={() => setConfirmStartOver(true)}>新しい旅程を作る</button>
+              <button className="trip-start-over" type="button" disabled={searching} onClick={() => editingOnly ? onDiscover?.() : setConfirmStartOver(true)}>{editingOnly ? "別の旅を見つける" : "新しい旅程を作る"}</button>
             </div>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { lockBodyScroll } from "./bodyScrollLock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import type { Origin, Place, Preference, RouteSuggestion } from "./types";
@@ -52,8 +53,8 @@ export function TripDialog({ title, onClose, children }: { title: string; onClos
   closeRef.current = onClose;
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlockScroll = lockBodyScroll();
+
     ref.current?.focus();
     function keydown(event: KeyboardEvent) {
       if (event.key === "Escape") { event.preventDefault(); closeRef.current(); }
@@ -65,7 +66,7 @@ export function TripDialog({ title, onClose, children }: { title: string; onClos
       else if (!event.shiftKey && (document.activeElement === last || document.activeElement === ref.current)) { event.preventDefault(); first.focus(); }
     }
     document.addEventListener("keydown", keydown);
-    return () => { document.body.style.overflow = overflow; document.removeEventListener("keydown", keydown); previous?.focus(); };
+    return () => { unlockScroll(); document.removeEventListener("keydown", keydown); previous?.focus(); };
   }, []);
   return <div className="trip-dialog-backdrop" onClick={onClose}>
     <section className="trip-dialog" role="dialog" aria-modal="true" aria-label={title} ref={ref} tabIndex={-1} onClick={event => event.stopPropagation()}>
@@ -154,11 +155,12 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   }, [originKey, destinationKey, date, departureTime, preferenceKey]);
   useEffect(() => { onPlanChange(plan); }, [plan, onPlanChange]);
   useEffect(() => () => candidateRequest.current?.abort(), []);
+  const candidateCenter = plan.stops.find(stop => stop.place.id === "trip-arrival")?.place ?? plan.stops[0]?.place ?? plan.origin;
   const options = useMemo(() => {
     const unique = new Map([...candidates, ...source.places, ...searchedPlaces].map(place => [place.id, place]));
-    return [...unique.values()].filter(place => !plan.stops.some(stop => stop.place.id === place.id) && distanceKm(plan.origin, place) <= 50)
-      .sort((first, second) => distanceKm(plan.origin, first) - distanceKm(plan.origin, second));
-  }, [candidates, source.places, searchedPlaces, plan.stops, plan.origin]);
+    return [...unique.values()].filter(place => !plan.stops.some(stop => stop.place.id === place.id))
+      .sort((first, second) => distanceKm(candidateCenter, first) - distanceKm(candidateCenter, second));
+  }, [candidates, source.places, searchedPlaces, plan.stops, candidateCenter]);
   const visibleOptions = useMemo(() => {
     const query = search.trim().normalize("NFKC").toLocaleLowerCase("ja-JP");
     if (!query) return options;
@@ -213,7 +215,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     setSearching(true); setCandidateNote("");
     try {
       const response = await fetch("/api/search/places", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: search.trim(), center_latitude: plan.origin.latitude, center_longitude: plan.origin.longitude }), signal: controller.signal });
+        body: JSON.stringify({ query: search.trim(), center_latitude: candidateCenter.latitude, center_longitude: candidateCenter.longitude }), signal: controller.signal });
       const data: unknown = await response.json();
       if (!response.ok) throw new Error(isRecord(data) && typeof data.detail === "string" ? data.detail : "候補を取得できませんでした。");
       if (!isRecord(data) || !Array.isArray(data.results)) throw new Error("候補の形式を確認できませんでした。");
@@ -288,7 +290,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <ol className="trip-stops">
       {plan.stops.map((stop, index) => <li key={stop.place.id} data-spot-id={stop.place.id} className={`trip-stop${stop.completed ? " is-completed" : stop.locked ? " is-locked" : ""}`}>
         <p className="trip-leg">前の地点から約{stop.travel}分{stop.wait ? ` · 開始まで${stop.wait}分待ち` : ""}</p>
-        <article><div className="trip-stop-header"><span className="trip-stop-number">{stop.completed ? "✓" : index + 1}</span><div><time>{tripClock(stop.start)} — {tripClock(stop.end)}{stop.completed ? "（記録）" : ""}</time><h4>{stop.place.name}</h4></div>{stop.completed ? <span className="trip-completed-badge">訪問済み</span> : stop.locked && <span className="trip-fixed-badge">固定中</span>}</div>
+        <article><details className="trip-stop-fold"><summary><div className="trip-stop-header"><span className="trip-stop-number">{stop.completed ? "✓" : index + 1}</span><div><time>{tripClock(stop.start)} — {tripClock(stop.end)}{stop.completed ? "（記録）" : ""}</time><h4>{stop.place.name}</h4></div>{stop.completed ? <span className="trip-completed-badge">訪問済み</span> : stop.locked && <span className="trip-fixed-badge">固定中</span>}</div></summary>
           <div className="trip-recommendation"><strong>この場所をおすすめする理由</strong><p>{preferenceReason(stop.place, plan.input.preferences)}</p></div>
           <VenueEvidence place={stop.place} />
           <p className="trip-stop-meta">滞在 {stop.dwellMinutes}分 · {stop.spending === null ? "施設・飲食費は未入力" : `利用者見積 ${yen(stop.spending)}`}{stop.anchorTime ? ` · ${stop.anchorTime}開始を指定` : ""}</p>
@@ -307,7 +309,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
             <label className="trip-checkbox"><input name="locked" type="checkbox" defaultChecked={stop.locked} />行き先と滞在時間を固定する</label><small>開始時刻を指定すると、この予定を固定します。費用は1人分の見積もりです。</small>
             <div className="trip-stop-actions"><button type="submit" className="trip-primary">変更を確認</button><button type="button" onClick={() => { setEditId(null); setError(null); }}>編集を閉じる</button></div>
           </form>}
-        </article>
+        </details></article>
       </li>)}
     </ol>
     <p className="trip-return"><span>帰りは約{plan.returnTravel}分</span><strong><time>{tripClock(plan.returnMinute)}</time> {plan.returnTo.name}に帰着</strong><small>帰着時刻は目安です</small></p>
@@ -331,14 +333,15 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       <div className="trip-dialog-actions"><button type="button" className="trip-primary" onClick={() => adopt(preview)}>この変更を反映</button><button type="button" onClick={() => setPreview(null)}>現在の旅程を残す</button></div>
     </TripDialog>}
     {chooser && <TripDialog title={chooser.swapId ? "寄り道を入れ替える" : "寄り道を追加する"} onClose={closeChooser}>
-      <p>出発地点から50km以内の候補です。名前やジャンルを入力すると、候補を絞り込めます。</p>
+      <p>旅程に追加できる候補です。名前やジャンルを入力すると、候補を絞り込めます。</p>
       <form className="trip-candidate-search" onSubmit={findCandidates}><label>候補を検索<input value={search} onChange={event => setSearch(event.target.value)} placeholder="例：カフェ、美術館、公園" maxLength={500} required /></label><button type="submit" aria-label="候補を検索" disabled={searching}>{searching ? "検索中…" : "ほかの候補も検索"}</button>{search && <button type="button" onClick={() => setSearch("")}>クリア</button>}</form>
       <p className="trip-travel-note">表示中の候補は、そのまま選べます。「ほかの候補も検索」を押すと、周辺の施設を追加で検索します。</p><p role="status">{candidateNote || `${visibleOptions.length}件の候補`}</p>
       <div className="trip-candidates">{visibleOptions.map(place => <button type="button" key={place.id} onClick={() => {
         const next = newTripStop(place);
-        const stops = chooser.swapId ? plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop) : [...plan.stops, next];
-        closeChooser(); setPreview(fitTrip(compute(stops, null)));
-      }}><strong>{place.name}</strong><small>{place.address || place.category || "施設・料金は未確認"} · 出発地から直線約{distanceKm(plan.origin, place).toFixed(1)}km</small><span>この候補を選ぶ →</span></button>)}</div>
+        const stops = chooser.swapId ? plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop) : [...plan.stops];
+        if (!chooser.swapId) { const returnIndex = stops.findIndex(stop => stop.place.id === "trip-return"); stops.splice(returnIndex < 0 ? stops.length : returnIndex, 0, next); }
+        closeChooser(); setPreview(compute(stops, null));
+      }}><strong>{place.name}</strong><small>{place.address || place.category || "施設・料金は未確認"} · 観光の起点から直線約{distanceKm(candidateCenter, place).toFixed(1)}km</small><span>この候補を選ぶ →</span></button>)}</div>
       {!visibleOptions.length && <p>一致する候補がありません。検索語を変えるか、「ほかの候補も検索」で周辺の施設を探せます。</p>}
     </TripDialog>}
   </fieldset></section>;

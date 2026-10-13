@@ -12,6 +12,7 @@ export type RouteIdea = {
   story: string;
   places: Place[];
   origin?: Origin;
+  travel_origin?: Origin;
   dwell_minutes?: Record<string, number>;
   image_url: string | null;
   image_place_id?: string | null;

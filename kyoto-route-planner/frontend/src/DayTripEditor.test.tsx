@@ -1,15 +1,46 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { cleanup, fireEvent, render as renderBase, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DayTripEditor } from "./DayTripEditor";
 import { newTripStop, scheduleTrip } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import type { RouteSuggestion } from "./types";
 
+function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold").forEach(item => { item.open = true; }); return view; }
 const origin = { name: "京都駅", latitude: 35, longitude: 135 };
 const places = ["公園", "美術館"].map((name, index) => ({ ...origin, id: String(index), name, category: "観光", description: "", access_point: "", themes: [] }));
 const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, fare_yen: 200, departure_time: "09:00", arrival_time: null, title: "選んだ旅", story: null, note: "" };
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+it("keeps a manually added distant stop even if it exceeds the time budget", () => {
+  const changed = vi.fn();
+  const distant = { ...places[0], id:"distant", name:"遠方の庭園", latitude:36 };
+  render(<DayTripEditor {...props} candidates={[distant]} onPlanChange={changed} />);
+  fireEvent.click(screen.getByRole("button", { name:"＋ 寄り道を追加" }));
+  fireEvent.click(screen.getByRole("button", { name:/遠方の庭園.*この候補を選ぶ/ }));
+  fireEvent.click(screen.getByRole("button", { name:"この変更を反映" }));
+  expect(changed.mock.calls.at(-1)?.[0].stops.map((s: {place:{id:string}}) => s.place.id)).toEqual(["0","1","distant"]);
+});
+
+it("starts with a compact timeline whose spot details can be opened", () => {
+  const view = renderBase(<DayTripEditor {...props} />);
+  const folds = [...view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold")];
+  expect(folds).toHaveLength(2);
+  expect(folds.every(item => !item.open)).toBe(true);
+  fireEvent.click(folds[0].querySelector("summary")!);
+  expect(folds[0].open).toBe(true);
+});
+
+it("retains the replacement and other stops despite a long travel time", () => {
+  const changed = vi.fn();
+  const distant = { ...places[0], id:"distant", name:"遠方の庭園", latitude:36 };
+  render(<DayTripEditor {...props} candidates={[distant]} onPlanChange={changed} />);
+  fireEvent.click(screen.getByRole("button", { name:"美術館を入れ替える" }));
+  fireEvent.click(screen.getByRole("button", { name:/遠方の庭園.*この候補を選ぶ/ }));
+  fireEvent.click(screen.getByRole("button", { name:"この変更を反映" }));
+  expect(changed.mock.calls.at(-1)?.[0].stops.map((s: {place:{id:string}}) => s.place.id)).toEqual(["0","distant"]);
+});
 
 describe("DayTripEditor", () => {
   it("keeps ordinary undo within the current visit record", () => {

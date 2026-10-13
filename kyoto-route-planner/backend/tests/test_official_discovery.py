@@ -67,6 +67,23 @@ class SourceIdentityTests(unittest.TestCase):
         data = wikipedia(); data["query"]["pages"][0]["coordinates"][0]["lat"] = 36
         self.assertIsNone(wikipedia_website(data, PLACE))
 
+    def test_exact_named_explicit_official_external_link_requires_matched_article_identity(self):
+        data = wikipedia()
+        page = data["query"]["pages"][0]
+        content = page["revisions"][0]["slots"]["main"]
+        content["content"] = f"== 外部リンク ==\n* [{URL} {PLACE.name}]（公式サイト）\n"
+        self.assertEqual(wikipedia_website(data, PLACE), URL)
+        for unsafe in (f"* [{URL} {PLACE.name}]（公式サイト）",  # Outside external links.
+                       f"== 参考文献 ==\n* [{URL} {PLACE.name}]（公式サイト）",
+                       f"== 外部リンク ==\n* [{URL} 別の博物館]（公式サイト）",
+                       f"== 外部リンク ==\n* [{URL} {PLACE.name}]",  # Unmarked external link.
+                       f"== 外部リンク ==\n* [{URL} {PLACE.name}]（紹介サイト）"):
+            content["content"] = unsafe
+            self.assertIsNone(wikipedia_website(data, PLACE))
+        content["content"] = f"== 外部リンク ==\n* [{URL} {PLACE.name}]（公式サイト）\n"
+        page["coordinates"][0]["lat"] = 36
+        self.assertIsNone(wikipedia_website(data, PLACE))
+
     def test_full_way_geometry_supplies_a_verifiable_center(self):
         place = PLACE.model_copy(update={"id": "osm-way-321"})
         way = {"type": "way", "id": 321, "nodes": [1, 2], "tags": {"name": PLACE.name, "website": URL}}
@@ -86,6 +103,16 @@ class OfficialDiscoveryTests(unittest.IsolatedAsyncioTestCase):
         info._cache.clear()
         seed = patch.object(info, "_seed_entry", return_value=None)
         seed.start(); self.addCleanup(seed.stop)
+
+    async def test_direct_hours_link_precedes_container_and_fee_links_with_same_guide_budget(self):
+        home = ('<title>旅の美術館</title><a href="/guide">ご利用案内</a>'
+                '<a href="/fees">入場料金</a><a href="/hours">休園日、開園・開場時間</a>')
+        fetch = AsyncMock(side_effect=[response(osm({"website": URL})), html(home), html(GUIDE)])
+        with patch.object(info, "_fetch_url", new=fetch):
+            result = await info.fetch_official_place_info(PLACE)
+        self.assertEqual(fetch.await_count, 3)
+        self.assertEqual(fetch.await_args.args[0], URL + "hours")
+        self.assertEqual(result.field_sources, {field: URL + "hours" for field in info.FIELDS})
 
     async def test_missing_osm_website_uses_identity_checked_wikidata_url(self):
         fetch = AsyncMock(side_effect=[response(osm({"wikidata": "Q123"})), response(wikidata()), html(GUIDE)])

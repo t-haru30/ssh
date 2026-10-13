@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import type { PanInfo } from "framer-motion";
 import type { Theme } from "./types";
 
@@ -16,9 +17,14 @@ export type SharedSwipeCardProps = {
   theme: Theme;
   title: string;
   description?: string;
+  descriptionLabel?: string;
+  recommendationLabel?: string;
+  recommendationSources?: ReactNode;
   summary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
+  coverContent?: ReactNode;
+  imageReady?: boolean;
   photoPlaceName?: string | null;
   illustrationLabel?: string;
   illustrationKind?: "route" | "theme";
@@ -32,9 +38,11 @@ export type SharedSwipeCardProps = {
   depth: number;
   isTop: boolean;
   isProcessing?: boolean;
+  swipeEnabled?: boolean;
   acceptLabel?: string;
+  skipLabel?: string;
   exitDirection: SharedSwipeDirection;
-  onSwipe: (direction: SharedSwipeDirection) => void;
+  onSwipe: (direction: SharedSwipeDirection) => boolean | void;
 };
 
 const SWIPE_THRESHOLD = 110;
@@ -52,9 +60,14 @@ export function SharedSwipeCard({
   theme,
   title,
   description,
+  descriptionLabel,
+  recommendationLabel,
+  recommendationSources,
   summary,
   spots,
   imageUrl,
+  coverContent,
+  imageReady = false,
   photoPlaceName,
   illustrationLabel,
   illustrationKind = "theme",
@@ -68,7 +81,9 @@ export function SharedSwipeCard({
   depth,
   isTop,
   isProcessing = false,
+  swipeEnabled = true,
   acceptLabel = "行きたい",
+  skipLabel = "SKIP",
   exitDirection,
   onSwipe,
 }: SharedSwipeCardProps) {
@@ -80,17 +95,20 @@ export function SharedSwipeCard({
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
-  const imageLoaded = loadedUrl === imageUrl;
+  const imageLoaded = imageReady || loadedUrl === imageUrl;
   const titleBoundary = title.indexOf("から、");
+  useEffect(() => { if (!isProcessing) swipedRef.current = false; }, [isProcessing]);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-    if (!isTop || isProcessing || swipedRef.current) return;
+    if (!swipeEnabled || !isTop || isProcessing || swipedRef.current) return;
     if (info.offset.x > SWIPE_THRESHOLD) {
       swipedRef.current = true;
-      onSwipe("accept");
+      if (onSwipe("accept") === false) { swipedRef.current = false; animate(x, 0, { duration: 0.2 }); }
     } else if (info.offset.x < -SWIPE_THRESHOLD) {
       swipedRef.current = true;
-      onSwipe("skip");
+      if (onSwipe("skip") === false) { swipedRef.current = false; animate(x, 0, { duration: 0.2 }); }
+    } else {
+      animate(x, 0, { duration: 0.2 });
     }
   }
 
@@ -100,10 +118,11 @@ export function SharedSwipeCard({
       custom={exitDirection}
       variants={cardVariants}
       style={{ x, rotate, zIndex: 10 - depth, pointerEvents: isTop ? "auto" : "none" }}
-      drag={isTop && !isProcessing ? "x" : false}
+      drag={swipeEnabled && isTop && !isProcessing ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.82}
-      whileTap={isTop && !isProcessing ? { cursor: "grabbing" } : undefined}
+      dragMomentum={false}
+      whileTap={swipeEnabled && isTop && !isProcessing ? { cursor: "grabbing" } : undefined}
       onDragEnd={handleDragEnd}
       initial={{ scale: 0.94, y: 22, opacity: 0 }}
       animate={{ scale: 1 - depth * 0.035, y: depth * 12, opacity: 1 }}
@@ -113,9 +132,10 @@ export function SharedSwipeCard({
       aria-busy={isProcessing}
       inert={!isTop}
     >
-      <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>SKIP</motion.div>
-      <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>
-      <div className={`swipe-cover theme-${theme}${hasCoverImage ? " has-image" : ""}`}>
+      {swipeEnabled && <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>{skipLabel}</motion.div>}
+      {swipeEnabled && <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>}
+      <div className={`swipe-cover theme-${theme}${hasCoverImage || coverContent ? " has-image" : ""}`}>
+        {coverContent ?? <>
         {hasCoverImage ? (
           <>
             {!imageLoaded && <div className="swipe-cover-skeleton" aria-hidden="true" />}
@@ -124,6 +144,8 @@ export function SharedSwipeCard({
               src={imageUrl ?? undefined}
               alt=""
               aria-hidden="true"
+              loading="eager"
+              decoding="async"
               onLoad={() => setLoadedUrl(imageUrl ?? null)}
               onError={() => setFailedUrl(imageUrl ?? null)}
             />
@@ -160,6 +182,7 @@ export function SharedSwipeCard({
           </>
         )}
         <span className="swipe-cover-badge">{coverBadge}</span>
+        </>}
       </div>
       <div className="swipe-card-copy">
         {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
@@ -167,7 +190,9 @@ export function SharedSwipeCard({
           <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
           <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
         </> : title}</h3>
-        {description && <p className="swipe-story">{description}</p>}
+        {recommendationLabel && <span className="discover-recommendation-label">✦ {recommendationLabel}</span>}
+        {description && (descriptionLabel ? <section className="swipe-reason" aria-label={descriptionLabel}><strong>{descriptionLabel}</strong><p className="swipe-story">{description}</p></section> : <p className="swipe-story">{description}</p>)}
+        {recommendationSources}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
           {(onSpotSelect ? spots : spots.slice(0, MAX_VISIBLE_SPOTS)).map((spot) => (

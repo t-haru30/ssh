@@ -159,6 +159,7 @@ export function isSwipeItinerary(value: unknown): value is SwipeItinerary {
 
 function isRouteIdeaWithin(value: unknown, minimumPlaces: number, maximumPlaces: number): value is RouteIdea {
   return isRecord(value)
+    && (value.travel_origin === undefined || isOrigin(value.travel_origin))
     && isTheme(value.theme)
     && (value.prefecture_code === undefined
       || value.prefecture_code === null

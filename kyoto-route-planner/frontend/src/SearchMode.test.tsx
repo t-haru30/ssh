@@ -471,3 +471,18 @@ describe("SearchMode selected route", () => {
     expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
   });
 });
+
+
+describe("editing-only entry", () => {
+  it("shows discovery instead of the initial proposal form when no itinerary is selected", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [savedRoute.origin] })));
+    const onDiscover = vi.fn();
+    render(<SearchMode active editingOnly onDiscover={onDiscover} />);
+    expect(screen.getByRole("heading", { name: "まずは、気になる旅を選びましょう" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /この条件で旅程を提案する/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: "宿泊あり" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "旅を見つける →" }));
+    expect(onDiscover).toHaveBeenCalledOnce();
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+  });
+});

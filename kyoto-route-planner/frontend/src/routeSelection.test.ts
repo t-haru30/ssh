@@ -10,5 +10,13 @@ describe("Discover route handoff", () => {
     expect(result.places.map(place => place.name)).toEqual(["上野公園", "庭園"]);
     expect(result.origin).toEqual({ name: "上野駅", latitude: 35.7138, longitude: 139.7773 });
     expect(result.dwellMinutes).toEqual({ "tokyo-0": 45, "tokyo-1": 60 });
+    const departure = { name: "現在地", latitude: 35.17, longitude: 136.88 };
+    const withDeparture = { ...route, travel_origin: departure };
+    expect(routeSelection(withDeparture).places).toEqual(result.places);
+    const fullTrip = routeSelection(withDeparture, true);
+    expect(fullTrip.origin).toEqual(departure);
+    expect(fullTrip.returnTo).toEqual(departure);
+    expect(fullTrip.places.map(place => place.name)).toEqual(["上野駅", "上野公園", "庭園", "上野駅"]);
+    expect(new Set(fullTrip.places.map(place => place.id)).size).toBe(4);
   });
 });
