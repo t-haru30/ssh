@@ -25,4 +25,11 @@ HTMLの見出し・表・定義リスト・画像のaltから項目を抽出し�
 
 公開DNSの結果を検証して接続先IPを固定し、転送先も改めて検証します。証明書・ホスト名の検証を有効にしたまま、OpenSSLと互換性のないサイトにはcurl-cffiのTLS実装で1回だけ接続を補います。OSの信頼済みCAを使い、プロキシ・自動リダイレクトを無効にしています。
 
+京都市教育委員会の `www.edu.city.kyoto.jp` はサーバー側の証明書チェーンに中間証明書がないため、このホストに限りGlobalSign公式配布の `GlobalSign RSA OV SSL CA 2018` を補います。中間証明書を独立した信頼の起点にせず、OSのルートまで検証します。期限・ホスト名の検証は維持し、実行時の拇印照合に失敗した場合は接続しません。
+
+- 配布元：[GlobalSignの中間証明書一覧](https://jp.globalsign.com/support/rootcertificates/ssl.html)、[証明書](https://jp.globalsign.com/repository/common/cer/gsrsaovsslca2018.cer)
+- 同梱先：`backend/app/data/globalsign-rsa-ov-2018.pem`
+- SHA-256（DER）：`b676ffa3179e8812093a1b5eafee876ae7a6aaf231078dad1bfb21cd2893764a`
+- 有効期限：2028年11月21日。公式サイト側のチェーン修正・証明書更新時に、この補完の要否を再確認します。
+
 1施設の処理は12秒、論理取得は最大8回、転送は最大3回、本文は1MiBまでです。curl-cffiはbackend/requirements.txtに含まれ、新しいAPIキーの設定は不要です。

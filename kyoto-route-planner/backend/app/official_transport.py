@@ -1,4 +1,5 @@
 """TLS-compatible public-page GETs using the same verified DNS and CA roots."""
+import hashlib
 from pathlib import Path
 import ssl
 import tempfile
@@ -7,6 +8,24 @@ from urllib.parse import urlsplit
 from curl_cffi import AsyncSession, CurlOpt
 from curl_cffi.requests.exceptions import RequestException
 import httpx
+
+
+def verified_context(hostname: str) -> ssl.SSLContext:
+    """Supply a reviewed missing intermediate, while requiring the OS root.
+
+    Kyoto's education server sends only its leaf certificate. The public CA
+    intermediate helps build the chain; it must never become a trust anchor.
+    Scope this repair to the observed host and keep full-chain/hostname checks.
+    """
+    context = ssl.create_default_context()
+    if hostname.casefold().rstrip(".") == "www.edu.city.kyoto.jp":
+        certificate = (Path(__file__).with_name("data") / "globalsign-rsa-ov-2018.pem").read_text(encoding="ascii")
+        der = ssl.PEM_cert_to_DER_cert(certificate)
+        if hashlib.sha256(der).hexdigest() != "b676ffa3179e8812093a1b5eafee876ae7a6aaf231078dad1bfb21cd2893764a":
+            raise ValueError("Unexpected official-site intermediate certificate")
+        context.load_verify_locations(cadata=certificate)
+        context.verify_flags &= ~ssl.VERIFY_X509_PARTIAL_CHAIN
+    return context
 
 
 async def compatible_fetch(url: str, address: str, headers: dict[str, str], *,

@@ -1,9 +1,36 @@
 from pathlib import Path
+import ssl
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
 
 from curl_cffi import CurlOpt
-from app.official_transport import compatible_fetch
+from app.official_transport import compatible_fetch, verified_context
+
+
+class OfficialCertificateTests(unittest.TestCase):
+    def test_incomplete_server_chain_still_requires_a_trusted_root_and_hostname(self):
+        context = verified_context("www.edu.city.kyoto.jp")
+        self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+        self.assertTrue(context.check_hostname)
+        self.assertFalse(context.verify_flags & ssl.VERIFY_X509_PARTIAL_CHAIN)
+        names = [cert['subject'] for cert in context.get_ca_certs()]
+        self.assertTrue(any((('commonName', 'GlobalSign RSA OV SSL CA 2018'),) in name for name in names))
+
+    def test_intermediate_is_not_added_for_unrelated_or_suffix_lookalike_hosts(self):
+        system_certificates = set(ssl.create_default_context().get_ca_certs(binary_form=True))
+        for hostname in ("museum.example", "www.edu.city.kyoto.jp.evil.example"):
+            with self.subTest(hostname=hostname):
+                with patch("app.official_transport.Path.read_text") as read_certificate:
+                    context = verified_context(hostname)
+                    read_certificate.assert_not_called()
+                self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+                self.assertTrue(context.check_hostname)
+                self.assertEqual(set(context.get_ca_certs(binary_form=True)), system_certificates)
+
+    def test_modified_intermediate_fails_closed(self):
+        with patch("app.official_transport.Path.read_text", return_value=ssl.DER_cert_to_PEM_cert(b"unexpected")):
+            with self.assertRaisesRegex(ValueError, "Unexpected"):
+                verified_context("www.edu.city.kyoto.jp")
 
 
 class OfficialTransportTests(unittest.IsolatedAsyncioTestCase):

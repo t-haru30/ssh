@@ -7,7 +7,6 @@ import json
 from pathlib import Path
 import re
 import socket
-import ssl
 from typing import Literal
 from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit
 
@@ -18,7 +17,7 @@ from app.cache import TTLCache
 from app.models import Place
 from app.official_html import parse_document
 from app.official_sources import normalize as _normalize, nearby as _nearby, osm_element, wikidata_website, wikipedia_website
-from app.official_transport import compatible_fetch
+from app.official_transport import compatible_fetch, verified_context
 from app.official_notices import closure_notice
 
 MAX_BODY_BYTES = 1024 * 1024
@@ -109,7 +108,7 @@ async def _fetch_url(url: str) -> tuple[int, dict[str, str], bytes]:
 
 
 async def _fetch_httpx(pinned: httpx.URL, headers: dict, hostname: str) -> tuple[int, dict[str, str], bytes]:
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS, follow_redirects=False, trust_env=False, verify=ssl.create_default_context()) as client:
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS, follow_redirects=False, trust_env=False, verify=verified_context(hostname)) as client:
         async with client.stream("GET", pinned, headers=headers, extensions={"sni_hostname": hostname}) as response:
             try:
                 length = int(response.headers.get("content-length", "0"))
