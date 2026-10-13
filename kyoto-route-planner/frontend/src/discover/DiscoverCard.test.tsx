@@ -1,15 +1,18 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
 import { DiscoverCard } from "./DiscoverCard";
 import type { DatasetRoute } from "./datasetTypes";
 
+const gesture = vi.hoisted(() => ({ end: null as null | ((event: unknown, info: { offset: { x: number } }) => void) }));
+
 vi.mock("framer-motion", () => ({
   motion: {
-    article: ({ children, className, inert }: { children: ReactNode; className?: string; inert?: boolean }) => (
-      <article className={className} inert={inert}>{children}</article>
-    ),
+    article: ({ children, className, inert, onDragEnd }: { children: ReactNode; className?: string; inert?: boolean; onDragEnd: typeof gesture.end }) => {
+      if (!inert) gesture.end = onDragEnd;
+      return <article className={className} inert={inert}>{children}</article>;
+    },
     div: ({ children, className }: { children: ReactNode; className?: string }) => (
       <div className={className}>{children}</div>
     ),
@@ -47,6 +50,63 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
+  it("shows one concrete sentence and preserves the full explanation and its sources on demand", () => {
+    const source = { title: "清水寺の公式紹介", url: "https://www.kiyomizudera.or.jp/about/" };
+    const otherSource = { title: "庭園の公式紹介", url: "https://example.com/garden" };
+    const first = "清水寺：舞台から京都の街並みを見渡せます。";
+    const full = `${first} 庭園：季節の花を楽しめます。ゆっくりペースで2か所、各60分滞在（目安）。`;
+    const onSwipe = vi.fn();
+    const { container } = render(<DiscoverCard route={{ ...route, recommendation_reason: full, reason_sources: [source, otherSource], spots: [{ ...route.spots[0], reason: first, reason_sources: [source] }] }} depth={0} exitDirection="like" onSwipe={onSwipe} />);
+    expect(screen.getByRole("region", { name: "おすすめ理由" }).textContent).toBe(`おすすめ理由${first}`);
+    const details = container.querySelector("details")!;
+    expect(details.open).toBe(false);
+    fireEvent.click(screen.getByText("おすすめ理由の全文・出典"));
+    expect(details.textContent).toContain(full);
+    expect(details.querySelectorAll("a")).toHaveLength(2);
+    expect(container.querySelector(".recommendation-sources")?.textContent).not.toContain(otherSource.title);
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+  it.each([[-150, "pass"], [150, "like"]] as const)("supports a %s swipe and locks while waiting for the next card", (offset, direction) => {
+    const onSwipe = vi.fn();
+    const view = render(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledWith(direction);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(1);
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} preparingNext />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(1);
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} />);
+    act(() => gesture.end?.({}, { offset: { x: offset } }));
+    expect(onSwipe).toHaveBeenCalledTimes(2);
+  });
+  it("does not swipe an inactive card", () => {
+    const onSwipe = vi.fn();
+    render(<DiscoverCard route={route} depth={0} exitDirection="pass" onSwipe={onSwipe} active={false} />);
+    act(() => gesture.end?.({}, { offset: { x: 150 } }));
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+
+  it("connects official sources to the card and to a rule-selected destination without duplicate reasons", () => {
+    const source = { title: "清水寺の公式紹介", url: "https://www.kiyomizudera.or.jp/about/" };
+    const reason = "舞台から京都の街並みを見渡せます。";
+    const onSwipe = vi.fn();
+    render(<DiscoverCard route={{ ...route, recommendation_source: "rules", recommendation_reason: reason, reason_sources: [source], spots: [{ ...route.spots[0], reason, reason_sources: [source] }] }} depth={0} exitDirection="like" onSwipe={onSwipe} />);
+    fireEvent.pointerDown(screen.getByRole("link", { name: source.title }));
+    expect(screen.getByRole("link", { name: source.title }).getAttribute("href")).toBe(source.url);
+    fireEvent.click(screen.getByRole("button", { name: "清水寺の説明を見る" }));
+    expect(screen.getAllByRole("link", { name: source.title })).toHaveLength(2);
+    expect(screen.getAllByText(reason)).toHaveLength(2);
+    expect(screen.queryByText("旅のポイント")).toBeNull();
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+  it("displays the actual AI recommendation and keeps rule candidates unlabeled", () => {
+    const view = render(<DiscoverCard route={{ ...route, recommendation_source: "gemini", recommendation_reason: "寺社めぐりの気分に合う、近くの寺院を選びました。" }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
+    expect(screen.getByText(/AIが選んだおすすめ/)).toBeTruthy();
+    expect(screen.getByText("寺社めぐりの気分に合う、近くの寺院を選びました。")).toBeTruthy();
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
+    expect(screen.queryByText(/AIが選んだおすすめ/)).toBeNull();
+  });
   it("renders Discover data through the shared card layout", () => {
     const { container } = render(
       <DiscoverCard
@@ -66,7 +126,9 @@ describe("DiscoverCard", () => {
     expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
     expect(screen.getByText("清水寺", { selector: "strong" })).toBeTruthy();
     expect(screen.getByText("寺院")).toBeTruthy();
-    expect(screen.getByText("しおりを開く", { selector: ".swipe-stamp.accept" })).toBeTruthy();
+    expect(screen.getByText("いいね")).toBeTruthy();
+    expect(screen.getByText("今回は見送る")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "おすすめ理由" })).toBeTruthy();
   });
 
   it("opens a destination without saving or swiping the route, and restores focus on Escape", async () => {
@@ -97,24 +159,31 @@ describe("DiscoverCard", () => {
     expect(view.container.querySelector("article")?.hasAttribute("inert")).toBe(true);
   });
 
-  it("starts photo lookup only for the active top card", async () => {
+  it("prepares the next two cards while keeping inactive and further cards idle", async () => {
     const fetchMock = vi.mocked(fetch);
-    const view = render(<DiscoverCard route={route} depth={1} active exitDirection="like" onSwipe={vi.fn()} />);
+    const view = render(<DiscoverCard route={route} depth={3} active exitDirection="like" onSwipe={vi.fn()} />);
     expect(fetchMock).not.toHaveBeenCalled();
     view.rerender(<DiscoverCard route={route} depth={0} active={false} exitDirection="like" onSwipe={vi.fn()} />);
     expect(fetchMock).not.toHaveBeenCalled();
-    view.rerender(<DiscoverCard route={route} depth={0} active exitDirection="like" onSwipe={vi.fn()} />);
+    view.rerender(<DiscoverCard route={route} depth={2} active exitDirection="like" onSwipe={vi.fn()} />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
     expect(fetchMock.mock.calls[0][0]).toBe("/api/routes/photo");
   });
 
   it("labels a verified second destination photo with its actual subject and attribution", async () => {
+    vi.stubGlobal("Image", class {
+      onload: (() => void) | null = null; onerror: (() => void) | null = null;
+      complete = false; naturalWidth = 0; decoding = "";
+      set src(_url: string) { queueMicrotask(() => this.onload?.()); }
+      decode() { return Promise.resolve(); } removeAttribute() {}
+    });
     const image = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "ready", place_id: "second", place_name: "庭園", image_url: image, author_name: "Photographer", source_url: "https://commons.wikimedia.org/wiki/File:Test.jpg", license_name: "CC BY-SA 4.0", license_url: "https://creativecommons.org/licenses/by-sa/4.0/", image_verified: true, ai_checked: true, note: "" }) }));
     const { container } = render(<DiscoverCard route={{ ...route, spots: [...route.spots, { ...route.spots[0], place_id: "second", name: "庭園" }] }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
     await waitFor(() => expect(container.querySelector("img")?.getAttribute("src")).toBe(image));
-    expect(screen.getByTestId("cover-spot-name").textContent).toBe("庭園");
-    expect(screen.getByText("庭園の写真")).toBeTruthy();
+    expect(screen.getByRole("img", { name: "庭園" })).toBeTruthy();
+    expect(container.querySelectorAll(".route-photo-tile")).toHaveLength(2);
+    expect(screen.getByRole("figure", { name: "庭園の写真" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Photographer" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "CC BY-SA 4.0" })).toBeTruthy();
     fireEvent.error(container.querySelector("img")!);

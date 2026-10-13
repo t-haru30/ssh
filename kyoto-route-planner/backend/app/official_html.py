@@ -20,17 +20,35 @@ class Document:
 
 
 LABELS = (
-    r"開館時間|営業時間|開園時間|拝観時間|参拝時間|開館時刻|開館日時",
+    r"開館時間|営業時間|開園・開場時間|開園時間|開場時間|拝観時間|参拝時間|ギャラリー観覧時間|観覧時間|開館時刻|開館日時|開館(?![^:：】\]\s])",
     r"休館日|休業日|定休日|休園日|休館について",
     r"観覧料金|観覧料|入館料|入場料|拝観料|利用料金|入園料|料金",
 )
 LABEL = re.compile("(" + "|".join(LABELS) + ")")
-STOP = re.compile(r"^(?:アクセス|所在地|交通案内|地図|お問い合わせ|共通券|ボランティア|ガイド[・／/]|添乗員|駐車|関連リンク|イベント|催し|講座|ワークショップ)")
+STOP = re.compile(r"^(?:アクセス|所在地|交通案内|地図|お問い合わせ|共通券|ボランティア|ガイド[・／/]|添乗員|駐車|関連リンク|イベント|催し|講座|ワークショップ|利用時間|開館日|開館期間|電話|TEL|FAX|住所|ミュージアムショップ|カフェ)", re.I)
 NEWS_DATE = re.compile(r"^\[?\s*\d{4}[./-]\d{1,2}[./-]\d{1,2}\s*\]?(?:\s|$)")
+TIME_RANGE = re.compile(r"\d{1,2}\s*(?::\s*\d{2}|時)(?:\s*\d{1,2}分)?\s*(?:から|～|〜|~|－|−|—|-|–)\s*(?:午[前後]\s*)?\d{1,2}\s*(?::\s*\d{2}|時)")
+CLOSED_VALUE = re.compile(r"[月火水木金土日]曜|年末|年始|祝日|無休|不定休|不定期|臨時休館|展示替|展示換|\d+月\d+日|ありません|なし")
+CALENDAR_VALUE = re.compile(r"^(?:休館日[：:】\s]*)?(?:開館|年間|スケジュール)?カレンダー.*(?:確認|参照)")
+AUXILIARY = re.compile(r"ショップ|カフェ|レストラン|売店|駐車場|図書室|図書閲覧室")
+
+
+def _valid_value(value: str, kind: int) -> bool:
+    normal = unicodedata.normalize("NFKC", value)
+    if kind == 0:
+        return bool(TIME_RANGE.search(normal))
+    if kind == 1:
+        return bool(CLOSED_VALUE.search(normal) or CALENDAR_VALUE.search(normal))
+    return bool(re.search(r"\d[\d,]*\s*円|無料", normal))
 
 
 def _clean(text: str) -> str:
     return " ".join(text.split())
+
+
+def _heading(line: str) -> tuple[int | None, str]:
+    match = re.match(r"\ue000([1-6])\ue001", line)
+    return (int(match[1]), line[match.end():]) if match else (None, line)
 
 
 class _Parser(HTMLParser):
@@ -77,7 +95,7 @@ class _Parser(HTMLParser):
             if not chrome and tag in self.BREAK:
                 self.parts.append("\n")
                 if re.fullmatch(r"h[1-6]", tag):
-                    self.parts.append("\ue000")
+                    self.parts.append(f"\ue000{tag[1]}\ue001")
         if tag not in self.VOID:
             self.stack.append(tag)
 
@@ -125,24 +143,34 @@ def _decode(body: bytes, headers: dict) -> str:
 def _extract(lines: list[str], kind: int) -> str | None:
     # Old table layouts add spaces between label characters for alignment.
     for label in ("|".join(LABELS)).split("|"):
+        if "(?" in label:
+            continue
         pattern = r"\s*".join(map(re.escape, label))
         lines = [re.sub(pattern, label, line) for line in lines]
     candidates = []
     event_section = False
     news_section = False
+    auxiliary_level = None
     for index, line in enumerate(lines):
-        heading = line.startswith("\ue000")
-        line = line.lstrip("\ue000")
+        level, line = _heading(line)
+        heading = level is not None
+        if heading and auxiliary_level is not None and level <= auxiliary_level:
+            auxiliary_level = None
+        if heading and AUXILIARY.search(line) and not _valid_value(line, kind):
+            auxiliary_level = level
+        elif re.match(r"^(?:ミュージアムショップ|ショップ|カフェ|レストラン|売店|図書室|図書閲覧室)(?:$|[「（(\s])", line):
+            # Some guides style subfacility headings using spans instead of h*.
+            auxiliary_level = 7
         if heading and not re.fullmatch("(?:" + "|".join(LABELS) + ")", line):
             event_section = bool(re.search(r"イベント|講座|催し|ワークショップ", line))
             news_section = bool(re.search(r"ニュース|お知らせ|新着|トピックス|NEWS", line, re.I))
         if NEWS_DATE.match(unicodedata.normalize("NFKC", line)):
             news_section = True
-        if STOP.search(line):
+        if STOP.search(line.lstrip("【［[●◎■ ")):
             continue
         matches = list(LABEL.finditer(line))
         for number, match in enumerate(matches):
-            if line[:match.start()].strip(" ：:・/（）()\ue000") and number == 0:
+            if line[:match.start()].strip(" ：:・/（）()【】［］[]■●◎\ue000") and number == 0:
                 continue
             if match.group() == "料金" and match.start() and line[match.start() - 1] not in " ：:・/":
                 continue
@@ -151,9 +179,11 @@ def _extract(lines: list[str], kind: int) -> str | None:
             # A grammatical mention (e.g. "入館料）を改定します") is not a
             # label. Do not borrow a price or free-event notice farther down.
             suffix = line[match.end():].lstrip()
+            if match.group() == "開館" and suffix and not re.match(r"[：:】\]]|(?:午[前後]\s*)?\d", suffix):
+                continue
             if re.match(r"[）)をがはのにでと]|について|変更|改定|改正|のお知らせ", suffix):
                 continue
-            if news_section:
+            if news_section or auxiliary_level is not None:
                 continue
             # Bare navigation labels and event schedules are not visitor hours.
             if kind == 0 and event_section:
@@ -162,23 +192,19 @@ def _extract(lines: list[str], kind: int) -> str | None:
             pieces = [line[match.start():end]]
             if number + 1 == len(matches):
                 for following in lines[index + 1:]:
-                    text = following.lstrip("\ue000")
+                    following_level, text = _heading(following)
                     next_label = LABEL.search(text)
                     field_boundary = next_label and (next_label.start() == 0 or not re.fullmatch(LABELS[kind], next_label.group()))
-                    if following.startswith("\ue000") or field_boundary or STOP.search(text) or NEWS_DATE.match(unicodedata.normalize("NFKC", text)):
+                    heading_value = len(pieces) == 1 and _valid_value(text, kind) and not next_label
+                    if (following_level is not None and not heading_value) or field_boundary or STOP.search(text.lstrip("【［[●◎■ ")) or NEWS_DATE.match(unicodedata.normalize("NFKC", text)):
+                        break
+                    if AUXILIARY.search(text):
                         break
                     pieces.append(text)
                     if sum(map(len, pieces)) > 1600:
                         break
             value = _clean(" ".join(pieces)).strip(" :：")
-            normal = unicodedata.normalize("NFKC", value)
-            if kind == 0:
-                valid = re.search(r"\d{1,2}\s*(?::\s*\d{2}|時)(?:\s*\d{1,2}分)?\s*(?:から|～|〜|~|－|−|—|-|–)\s*(?:午[前後]\s*)?\d{1,2}\s*(?::\s*\d{2}|時)", normal)
-            elif kind == 1:
-                valid = re.search(r"[月火水木金土日]曜|年末|年始|祝日|無休|不定休|臨時休館|展示替|展示換|\d+月\d+日|ありません|なし", normal)
-            else:
-                valid = re.search(r"\d[\d,]*\s*円|無料", normal)
-            if valid:
+            if _valid_value(value, kind):
                 candidates.append(value)
     return " / ".join(dict.fromkeys(candidates)) or None
 
@@ -188,11 +214,17 @@ def parse_document(body: bytes, headers: dict) -> Document:
     parser = _Parser()
     parser.feed(_decode(body, headers))
     lines = [_clean(line) for line in "".join(parser.parts).splitlines() if _clean(line)]
+    hours = _extract(lines, 0)
+    closures = _extract(lines, 1)
+    if not closures and hours and "年中無休" in hours:
+        # Some official guides state this explicitly below the hours rather
+        # than repeating a closed-days label. Do not infer it from daily hours.
+        closures = "年中無休"
     return Document(
         title=_clean("".join(parser.title)), meta=_clean(parser.meta),
         identity_text=_clean(" ".join(parser.identity)),
-        lines=[line.lstrip("\ue000") for line in lines], links=parser.links,
-        opening_hours=_extract(lines, 0), closed_days=_extract(lines, 1), admission=_extract(lines, 2),
+        lines=[_heading(line)[1] for line in lines], links=parser.links,
+        opening_hours=hours, closed_days=closures, admission=_extract(lines, 2),
         redirect_url=parser.redirect_url,
     )
 

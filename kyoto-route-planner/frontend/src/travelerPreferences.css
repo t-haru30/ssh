@@ -1,0 +1,11 @@
+.traveler-preferences { border: 0; border-top: 1px solid var(--line); margin: 24px 0 0; padding: 16px 0 0; min-width: 0; }
+.traveler-preferences legend { font-weight: 700; padding: 0 .35rem; }
+.traveler-preferences p { margin: .25rem 0 .85rem; font-size: .85rem; line-height: 1.7; }
+.traveler-companions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.traveler-companions button { min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--control-text); padding: .5rem .8rem; font-size: 13px; }
+.traveler-companions button[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--on-accent); }
+.traveler-preferences summary { cursor: pointer; padding: .85rem 0 .35rem; }
+.traveler-optional { display: flex; flex-wrap: wrap; gap: .75rem; padding-top: .5rem; }
+.traveler-optional label { display: grid; gap: .3rem; flex: 1 1 160px; }
+.traveler-optional select { min-height: 44px; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-input); color: var(--ink); padding: 8px; }
+.traveler-preferences :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }

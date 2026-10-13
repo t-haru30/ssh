@@ -1,15 +1,20 @@
+import type { ReasonSource } from "./reasonSources";
+
 export type DatasetPattern = "half_day" | "full_day";
 
 export type DatasetSpot = {
   place_id: string;
   name: string;
   category: string;
+  address?: string;
+  tags?: Record<string, string>;
   lat: number;
   lng: number;
   stay_minutes: number;
   score: number;
   role: "stop" | "lunch";
   reason?: string;
+  reason_sources?: ReasonSource[];
 };
 
 export type DatasetStart = {
@@ -30,12 +35,16 @@ export type DatasetLeg = {
 
 // backend/scripts の dataset.json と同じ形式
 export type DatasetRoute = {
+  travel_origin?: import("../types").Origin;
   id: string;
   area: string;
   pattern: DatasetPattern;
   course: DatasetPattern;
   theme: "all" | "history" | "temple" | "nature" | "food";
   title: string;
+  recommendation_source?: "gemini" | "rules";
+  recommendation_reason?: string;
+  reason_sources?: ReasonSource[];
   estimated_minutes: number;
   legs: DatasetLeg[];
   start: DatasetStart;

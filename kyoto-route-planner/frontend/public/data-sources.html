@@ -5,12 +5,13 @@
 <body><a href="/">← アプリに戻る</a><h1>データの出典</h1>
 <section><h2>旅の候補と施設情報</h2><p>© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>。
 OpenStreetMapの名称・分類・座標を抽出し、立ち寄り先、出発駅、滞在目安、概算の移動時間を組み合わせて旅の候補を作成しています。
-加工したデータは<a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License 1.0（ODbL）</a>で提供します。</p>
+OpenStreetMapから加工したデータは<a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License 1.0（ODbL）</a>で提供します。</p>
+<p>追加の施設候補には<a href="https://openpoiapi.com/">OpenPOI API</a>の名称・分類・座標も使用し、検索条件に合わせて選別・重複整理しています。提供元ごとの出典・ライセンスは<a href="https://openpoiapi.com/attribution.html">OpenPOI APIの出典・ライセンス一覧</a>をご覧ください。下記のダウンロードはOpenStreetMap由来の事前候補データです。</p>
 <p>候補は全国の施設を網羅していません。登録済みの情報や分類が不正確・古い場合があります。営業時間、休業、料金、実際の交通経路は出発前に確認してください。</p>
 <ul><li><a href="/data/osm-routes.json" download>旅の候補データ（JSON）</a></li>
 <li><a href="/data/osm-places.json" download>施設データ（JSON）</a></li>
 <li><a href="/data/osm-manifest.json" download>加工元・版・ファイル検証情報（JSON）</a></li></ul></section>
-<section><h2>地図と経路</h2><p>地図表示にはMapLibre / OpenFreeMapを使用しています。公共交通経路の検索には駅すぱあとAPIを使用します。
+<section><h2>地図と経路</h2><p>OpenPOI APIから追加する施設の座標と住所の照合には<a href="https://maps.gsi.go.jp/">国土地理院</a>の逆ジオコーディングによる市区町村・町域情報を使用します。</p><p>地図表示にはMapLibre / OpenFreeMapを使用しています。公共交通経路の検索には駅すぱあとAPIを使用します。
 事前候補の移動時間と地図の直線は目安で、交通経路を検索した結果とは異なります。</p></section>
 <section><h2>AIによる説明</h2><p>有効な環境ではGemini APIを使用します。施設の要約はボタンを押したときにGoogle検索で調べ、確認できた根拠へのリンクとともに表示します。
 情報が見つからない場合や施設を特定できない場合は、確認できなかったことをお知らせします。</p></section>

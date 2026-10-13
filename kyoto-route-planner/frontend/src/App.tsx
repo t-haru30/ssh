@@ -5,7 +5,7 @@ import { SearchMode } from "./SearchMode";
 import type { SearchPreset } from "./SearchMode";
 import { routeSelection } from "./routeSelection";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import { Onboarding, hasSeenOnboarding, markOnboardingSeen } from "./Onboarding";
+import { Onboarding, markOnboardingSeen } from "./Onboarding";
 import { useFavorites } from "./useFavorites";
 import { readJourneyDraft } from "./journeyDraft";
 import { TripDialog } from "./DayTripEditor";
@@ -15,7 +15,7 @@ const ACTIVE_TAB_STORAGE_KEY = "kyoto-route-planner:active-tab:v1";
 
 const tabs: { id: AppTab; label: string; caption: string }[] = [
   { id: "discover", label: "見つける", caption: "気分から旅を探す" },
-  { id: "search", label: "旅をつくる", caption: "私のしおりを編集" },
+  { id: "search", label: "旅程を編集", caption: "選んだ旅を自分らしく" },
 ];
 
 function App() {
@@ -23,10 +23,11 @@ function App() {
     try { const saved = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY); if (saved === "search" || saved === "discover") return saved; } catch { /* Storage can be disabled. */ }
     return readJourneyDraft() ? "search" : "discover";
   });
+  const [homeRequest, setHomeRequest] = useState(0);
   const [searchPreset, setSearchPreset] = useState<SearchPreset | null>(null);
   const [pendingPreset, setPendingPreset] = useState<{ selection: SearchPreset; currentTitle: string } | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { favorites, error } = useFavorites();
 
   useEffect(() => { try { localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab); } catch { /* Keep the app usable without storage. */ } }, [activeTab]);
@@ -36,10 +37,12 @@ function App() {
     setShowOnboarding(false);
   }
   function planInSearch(route: Parameters<typeof routeSelection>[0], searchTransport = false) {
-    const selection = routeSelection(route);
+    const selection = routeSelection(route, true);
     selection.autoSearch = searchTransport;
     const current = readJourneyDraft();
-    const samePlaces = !selection.tripPlan && !selection.overnightSnapshot && current && current.plan.stops.length === selection.places.length
+    const samePlaces = !selection.tripPlan && !selection.overnightSnapshot && current
+      && current.plan.origin.latitude === selection.origin.latitude && current.plan.origin.longitude === selection.origin.longitude
+      && current.plan.stops.length === selection.places.length
       && current.plan.stops.every((stop, index) => stop.place.id === selection.places[index].id
         && stop.place.latitude === selection.places[index].latitude && stop.place.longitude === selection.places[index].longitude);
     if (current && !samePlaces) { setPendingPreset({ selection, currentTitle: current.title }); return; }
@@ -55,7 +58,7 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <button type="button" className="brand" onClick={() => setActiveTab("discover")} aria-label="ConcierGO ホーム">
+        <button type="button" className="brand" onClick={() => { setActiveTab("discover"); setShowFavorites(false); setHomeRequest(value => value + 1); window.scrollTo?.({ top: 0 }); }} aria-label="ConcierGO ホーム">
           <span className="brand-mark">C<span>↗</span></span>
           <span>ConcierGO<span className="brand-light"> 小さな旅のしおり</span></span>
         </button>
@@ -100,10 +103,11 @@ function App() {
       </div>
 
       <DiscoverMode
+        homeRequest={homeRequest}
         active={activeTab === "discover"}
         onPlanInSearch={planInSearch}
       />
-      <SearchMode active={activeTab === "search"} preset={searchPreset} />
+      <SearchMode active={activeTab === "search"} preset={searchPreset} editingOnly onDiscover={() => setActiveTab("discover")} />
       {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} onGoHome={() => { setShowFavorites(false); setActiveTab("discover"); }} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
       {pendingPreset && <TripDialog title="編集中のしおりを置き換えますか？" onClose={() => setPendingPreset(null)}>
@@ -116,7 +120,7 @@ function App() {
         <p className="footer-signature">ConcierGO <span>まだ知らない一日へ。</span></p>
         <div className="mobile-preferences"><ThemeSwitcher /></div>
         <p>旅程と費用は目安です。お出かけ前に、営業時間・料金・運行情報をご確認ください。</p>
-        <p>旅の候補：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a> · <a href="/data-sources.html">データの出典・ダウンロード</a></p>
+        <p>旅の候補：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a> · <a href="https://openpoiapi.com/attribution.html" target="_blank" rel="noreferrer">OpenPOI API</a> · <a href="/data-sources.html">データの出典・ダウンロード</a></p>
         <details><summary>地図と情報について</summary>
           <p>経路検索：駅すぱあと · 地図：MapLibre / OpenFreeMap。追加の施設検索の取得元は検索結果に表示します。</p>
           <p>「見つける」は施設候補から条件に合わせてルートを作成します。地図の線はスポット間の目安で、実際の道順とは異なります。</p>

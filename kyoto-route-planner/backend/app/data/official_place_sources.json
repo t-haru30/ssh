@@ -2,6 +2,33 @@
   "version": 1,
   "places": [
     {
+      "id": "osm-node-5889244368",
+      "name": "本願寺長野別院",
+      "latitude": 36.6538416,
+      "longitude": 138.18642,
+      "url": "https://nagano-hongwanji.jp/about",
+      "reviewed_at": "2026-10-13",
+      "description": "前身の正法寺には、1871年に長野県初の近代的な学校「長野県学校」が開設されました。寺院と長野の教育史のつながりが特徴です。",
+      "description_source_url": "https://nagano-hongwanji.jp/about",
+      "highlights": [
+        "現在の本堂は1974年、親鸞聖人の誕生800年などを記念して建立されました。",
+        "1925年に京都の西本願寺の直属寺院となった、正法寺を前身とする別院です。"
+      ]
+    },
+    {
+      "id": "osm-node-5889193685",
+      "name": "西方寺",
+      "latitude": 36.6565207,
+      "longitude": 138.185288,
+      "url": "http://www.saihouji-nagano.com/07kencho.html",
+      "reviewed_at": "2026-10-13",
+      "description": "1871年に県庁が中野から長野へ移った際、仮庁舎として使われた寺院です。長野県の行政の始まりと結びつく場所です。",
+      "description_source_url": "http://www.saihouji-nagano.com/07kencho.html",
+      "highlights": [
+        "当時は本堂に赤いじゅうたんを敷き、県の職員が靴のまま上がって勤務していました。"
+      ]
+    },
+    {
       "id": "osm-node-14129059011",
       "name": "大樋美術館",
       "latitude": 36.5699055,
@@ -17,7 +44,9 @@
       "reviewed_at": "2026-10-12",
       "description": "金箔にまつわる美術品や道具を紹介する博物館です。金箔職人・安江孝明の収集品を出発点に、金沢で受け継がれてきた金箔の技と文化を伝えています。",
       "description_source_url": "https://kanazawa-museum.jp/kinpaku/outline/index.htm",
-      "highlights": ["金箔を使った美術品や道具を通して、街歩きだけでは見えにくい金沢の工芸文化に触れられます。"]
+      "highlights": [
+        "金箔を使った美術品や道具を通して、街歩きだけでは見えにくい金沢の工芸文化に触れられます。"
+      ]
     },
     {
       "id": "osm-node-2143998216",
@@ -28,7 +57,64 @@
       "reviewed_at": "2026-10-12",
       "description": "金沢出身の小説家・徳田秋聲の生涯と文学を紹介する記念館です。ゆかりの品々や作品の展示を通して、作家の仕事と金沢との関わりをたどれます。",
       "description_source_url": "https://www.kanazawa-museum.jp/shusei/about/index.html",
-      "highlights": ["作品やゆかりの品々を通して、金沢出身の作家の生涯と文学に親しめます。街の歴史を文学から知りたい人におすすめです。"]
+      "highlights": [
+        "作品やゆかりの品々を通して、金沢出身の作家の生涯と文学に親しめます。街の歴史を文学から知りたい人におすすめです。"
+      ]
+    },
+    {
+      "id": "osm-node-1422961323",
+      "name": "京都市考古資料館",
+      "latitude": 35.030006,
+      "longitude": 135.749673,
+      "url": "https://www.kyoto-arc.or.jp/museum/access.html",
+      "reviewed_at": "2026-10-13",
+      "description": "京都の発掘調査でわかった昔の暮らしを、出土品からたどる資料館です。土器の移り変わりや時代別の展示、縄文時代の住居跡を紹介しています。",
+      "description_source_url": "https://www.kyoto-arc.or.jp/museum/sisetsu.html",
+      "highlights": [
+        "寺社の建物を見る街歩きに、地中に残された暮らしの道具を読み解く楽しみを加えられます。土器や住居跡を見比べたい人におすすめです。"
+      ]
+    },
+    {
+      "id": "osm-node-1422943892",
+      "name": "滋賀県立美術館",
+      "latitude": 34.970511,
+      "longitude": 135.942119,
+      "url": "https://www.shigamuseum.jp/about-the-collection/collection-policy/",
+      "reviewed_at": "2026-10-13",
+      "description": "小倉遊亀の日本画、志村ふくみの染織、マーク・ロスコなどの現代美術やアール・ブリュットを収集する美術館です。滋賀ゆかりの表現と国内外の美術をつなぐコレクションが特色です。",
+      "description_source_url": "https://www.shigamuseum.jp/about-the-collection/collection-policy/",
+      "highlights": [
+        "日本画からアール・ブリュットまで、表現の違いを知りたい人におすすめです。所蔵作品がすべて展示されるわけではないため、訪問時の展覧会は公式案内で確認してください。"
+      ]
+    },
+    {
+      "id": "osm-node-1422945982",
+      "name": "ミホミュージアム",
+      "latitude": 34.9149,
+      "longitude": 136.0161311,
+      "url": "https://www.miho.jp/architecture/approach/",
+      "reviewed_at": "2026-10-13",
+      "description": "I.M.ペイが設計した、信楽の山中の美術館です。トンネルと吊り橋を通って建物へ向かい、ガラス屋根の光と山並みが広がる空間を楽しめます。",
+      "description_source_url": "https://www.miho.jp/architecture/approach/",
+      "highlights": [
+        "建物の約80％を地中に収めた設計が特徴です。作品鑑賞に加えて、山の景色と建築、入口までの道のりも味わいたい人におすすめです。"
+      ]
+    },
+    {
+      "id": "osm-node-13388509601",
+      "name": "大阪城天守閣",
+      "latitude": 34.6874875,
+      "longitude": 135.5258873,
+      "url": "https://www.osakacastle.net/guide/",
+      "reviewed_at": "2026-10-13"
+    },
+    {
+      "id": "osm-node-1422989271",
+      "name": "ミザック下水道科学館OSAKA",
+      "latitude": 34.693465,
+      "longitude": 135.462465,
+      "url": "https://www.city.osaka.lg.jp/kensetsu/page/0000430776.html",
+      "reviewed_at": "2026-10-13"
     }
   ]
 }

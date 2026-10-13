@@ -94,7 +94,7 @@ describe("App journey replacement confirmation", () => {
       active: true,
       preset: expect.objectContaining({ title: "美術館の旅", origin, places: [museum], dwellMinutes: { museum: 60 } }),
     }));
-    expect(screen.getByRole("tab", { name: /旅をつくる/ }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: /旅程を編集/ }).getAttribute("aria-selected")).toBe("true");
   });
 
   it("reopens the same route without replacing its fixed appointments or conditions", () => {
@@ -104,7 +104,7 @@ describe("App journey replacement confirmation", () => {
     fireEvent.click(screen.getByRole("button", { name: "同じルートを採用" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(searchRender).toHaveBeenLastCalledWith({ active: true, preset: null });
+    expect(searchRender).toHaveBeenLastCalledWith({ active: true, preset: null, editingOnly: true, onDiscover: expect.any(Function) });
     expect(window.localStorage.getItem(JOURNEY_DRAFT_KEY)).toBe(originalStorage);
     expect(readJourneyDraft()?.plan).toMatchObject({
       input: { departureTime: "09:00", availableMinutes: 240, budget: 3000 },

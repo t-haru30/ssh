@@ -20,6 +20,8 @@ from slowapi.util import get_remote_address
 
 from app.database import database_path, initialize_database
 from app.ai_settings import configure_ai_environment
+from app.preference_tags import PreferenceTagsRequest, suggest_tags
+from app.destination_suggestion import DestinationRequest, suggest_destination
 from app.discovery import DiscoverRequest, discover_routes
 from app.copywriting import generate_route_copywriting
 from app.ekispert import (
@@ -565,6 +567,20 @@ async def official_place_evidence(request: Request, payload: Place) -> VenueEvid
     # Live grounded results belong to this detail view: never feed them to the
     # official-page crawler or its shared cache.
     return await fetch_venue_evidence(payload, official=True, official_url=known_official_url(payload))
+
+
+@app.post("/api/preference-tags")
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("6/minute")
+async def preference_tags(request: Request, payload: PreferenceTagsRequest):
+    return await suggest_tags(payload)
+
+
+@app.post("/api/destination-suggestion")
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("6/minute")
+async def destination_suggestion(request: Request, payload: DestinationRequest):
+    return await suggest_destination(payload)
 
 
 @app.post("/api/discover")

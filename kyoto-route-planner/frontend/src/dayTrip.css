@@ -151,3 +151,9 @@
 .journey-file-controls dd { margin: 4px 0 8px; overflow-wrap: anywhere; }
 .trip-station-fields > small { display: block; margin-top: 8px; line-height: 1.8; }
 @media (max-width: 520px) { .trip-recommendation { margin-left: 0; } }
+.trip-stop-fold > summary { cursor:pointer; list-style:none; }
+.trip-stop-fold > summary::after { content:"詳細・編集を開く ▾"; display:block; text-align:right; font-size:11px; color:var(--muted); }
+.trip-stop-fold[open] > summary::after { content:"閉じる ▴"; }
+.trip-stop-fold .trip-stop-header { margin:0; }
+.trip-stop-fold:not([open]) h4 { font-size:16px; }
+.trip-stops .trip-stop > article { padding:14px 16px; }

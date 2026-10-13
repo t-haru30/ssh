@@ -103,7 +103,7 @@ class LiveDiscoveryTests(unittest.IsolatedAsyncioTestCase):
     async def test_public_mode_never_calls_external_provider(self):
         request = DiscoverRequest(area="kyoto", prefecture_name="京都府", origin=Origin(name="駅", latitude=35, longitude=135.7))
         provider = AsyncMock()
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "YAHOO_APP_ID": "fixture"}), patch("app.poi_search.search_yahoo_catalog", new=provider), patch("app.discovery.load_public_places", return_value=(place("museum", category="博物館"),)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0", "YAHOO_APP_ID": "fixture"}), patch("app.poi_search.search_yahoo_catalog", new=provider), patch("app.discovery.load_public_places", return_value=(place("museum", category="博物館"),)):
             result = await discover_routes(request)
         provider.assert_not_awaited()
         self.assertIn("網羅", result["note"])
@@ -139,12 +139,12 @@ class DiscoveryEndpointTests(unittest.TestCase):
         from app.main import app, limiter
         limiter.reset()
         payload = {"area": "kyoto", "prefecture_name": "京都府", "origin": {"name": "駅", "latitude": 35, "longitude": 135.7}, "radius_km": 5}
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog"}), patch("app.discovery.load_public_places", return_value=(place("garden"),)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery.load_public_places", return_value=(place("garden"),)):
             client = TestClient(app)
             result = client.post("/api/discover", json=payload)
-            invalid = client.post("/api/discover", json={**payload, "radius_km": 201})
+            invalid = client.post("/api/discover", json={**payload, "radius_km": 20001})
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(set(result.json()), {"routes", "note", "source"})
+        self.assertEqual(set(result.json()), {"routes", "note", "source", "agent", "catalog"})
         route = result.json()["routes"][0]
         self.assertTrue(route["id"].startswith("dynamic-"))
         self.assertEqual(route["spots"][0]["place_id"], "garden")

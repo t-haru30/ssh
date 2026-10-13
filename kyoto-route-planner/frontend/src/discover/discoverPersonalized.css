@@ -1,0 +1,38 @@
+.discover-personalized .discover-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 12px 0 24px; }
+.discover-personalized .discover-intro h1 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 32px); line-height: 1.5; }
+.discover-personalized .discover-intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.discover-personalized .discover-intro button { flex-shrink: 0; min-height: 44px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 10px; color: var(--forest); background: var(--paper); font-size: 14px; }
+.discover-personalized .discover-workspace { margin-top: 0; padding-top: 0; border-top: 0; grid-template-columns: 320px minmax(0, 1fr); align-items: start; }
+.discover-personalized .discover-filters h2 { margin-top: 0; }
+.discover-personalized .prefecture-picker, .discover-personalized .discover-filter-group legend { font-size: 14px; }
+.discover-personalized .discover-filter-group button { min-height: 44px; font-size: 13px; }
+.discover-personalized .discover-more-conditions { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; }
+.discover-personalized summary { cursor: pointer; min-height: 32px; line-height: 1.7; }
+.discover-personalized summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.discover-personalized .discover-more-conditions summary span { margin-left: 8px; color: var(--muted); }
+.discover-personalized .discover-more-conditions .discover-range { margin-top: 12px; }
+.discover-personalized .discover-generate { min-height: 46px; font-size: 14px; }
+.discover-personalized .discover-conditions-summary { flex-wrap: wrap; line-height: 1.8; }
+.discover-personalized .discover-results-heading h2 { font-family: inherit; font-size: 22px; }
+.discover-personalized .discover-fallback-status, .discover-personalized .discover-agent-status { font-size: 13px; line-height: 1.8; }
+.discover-personalized .discover-action, .discover-personalized .discover-deck-meta button { font-size: 13px; }
+.discover-personalized .discover-filter-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 0 16px; border: 0; background: transparent; color: var(--ink); font-size: 18px; font-weight: 600; text-align: left; }
+.discover-personalized .discover-filter-toggle span { color: var(--muted); font-size: 13px; font-weight: 400; }
+.discover-personalized .discover-draft-notice { margin: 12px 0 0; font-size: 13px; line-height: 1.8; color: var(--forest); }
+.discover-personalized .discover-actions .discover-action { flex: 1; width: auto; min-height: 48px; }
+.discover-personalized .discover-action.detail { flex: 1.3; background: var(--forest); color: var(--on-accent); border-color: var(--forest); }
+.discover-personalized .discover-action.save { background: var(--paper); color: var(--control-text); border: 1px solid var(--line); }
+.discover-personalized .discover-action.save[aria-pressed="true"] { border-color: var(--forest); color: var(--forest); background: var(--surface-muted); }
+.discover-personalized .discover-deck-meta button { min-height: 44px; }
+.discover-personalized .discover-deck-meta button:disabled { opacity: .4; cursor: default; }
+.discover-personalized .swipe-reason { padding: 12px 14px; background: var(--surface-muted); border-left: 3px solid var(--forest); border-radius: 8px; }
+.discover-personalized .swipe-reason > strong { display: block; margin-bottom: 5px; color: var(--forest); font-size: 12px; }
+.discover-personalized .swipe-reason .swipe-story { margin: 0; display: block; overflow: visible; -webkit-line-clamp: unset; }
+.discover-personalized .discover-swipe-hint { margin: 12px auto 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.7; }
+@media (max-width: 800px) {
+  .discover-personalized .discover-workspace { grid-template-columns: 1fr; gap: 24px; }
+  .discover-personalized .discover-intro { display: block; margin-top: 0; }
+  .discover-personalized .discover-intro button { margin-top: 12px; }
+  .discover-personalized .discover-filters { padding: 18px; }
+  .discover-personalized .discover-results { scroll-margin-top: 16px; }
+}
