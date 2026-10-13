@@ -547,9 +547,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
       {!isOvernight && suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
-          <p className="eyebrow">YOUR JOURNEY</p>
           <h2>{planTitle.trim() || "私のConcierGO"}</h2>
-          <p>行き先をつなぎ、大切な予定を残して、あなたのペースに。</p>
         </section>
       )}
 
@@ -595,7 +593,6 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         >
                     <div className="section-heading">
             <div>
-              <p className="eyebrow">YOUR JOURNEY</p>
               <h2 id="planner-title">{editingOnly ? "旅程の条件を編集" : "旅のプランを立てる"}</h2>
             </div>
             <span className="step-number">01 <i>/ 02</i></span>
@@ -724,9 +721,9 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       {searching && <div className="journey-loading-overlay"><ProgressStatus steps={isOvernight ? OVERNIGHT_STEPS : ROUTE_STEPS} onCancel={() => { requestIdRef.current += 1; activeRequestRef.current?.abort(); setSearching(false); }} /></div>}
       {hasResult && (
         <div className="timeline-area" ref={timelineAreaRef} id="journey-timeline">
-          {!isOvernight && <div className="journey-save-status" role="status">
+          {!isOvernight && (draftRestored || !draftSaved) && <div className="journey-save-status" role="status">
             <span aria-hidden="true">{draftSaved ? "✓" : "!"}</span>
-            <span>{draftRestored ? "前回の旅程を復元しました。続きから編集できます。" : draftSaved ? "このブラウザに自動保存しています。次回も続きから。" : "このブラウザには保存できません。しおりをコピーして残してください。"}</span>
+            <span>{draftRestored ? "前回の旅程を復元しました。続きから編集できます。" : "このブラウザには保存できません。しおりをコピーして残してください。"}</span>
             {draftRestored && <button type="button" onClick={() => setDraftRestored(false)} aria-label="復元のお知らせを閉じる">✕</button>}
           </div>}
           {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。「条件を変更する」から日付を確認し、交通経路を再検索してください。</p>}
@@ -805,7 +802,6 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
               origin={origin ?? suggestions[0].origin} returnTo={returnTo ?? origin ?? suggestions[0].origin} preferences={preferences} date={editorDate} departureTime={editorTime} candidates={editingCandidates}
               initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
             <div className="route-swipe-controls">
-              <p className="route-swipe-hint">行き先と固定内容を保って、交通経路を確認できます。</p>
               <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading || !validDeparture || dayTripPlan?.stops.length === 0}>
                 {searching ? <><span className="button-spinner" /> 交通経路を検索しています</> : <>交通経路を再検索 <span>↻</span></>}
               </button>

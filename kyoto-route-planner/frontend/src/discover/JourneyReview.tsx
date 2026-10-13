@@ -48,7 +48,6 @@ export function JourneyReview({ report, onAdopt, onRestore }: { report: JourneyR
     </article>)}
     {report.proposals.length > 0 && <button type="button" onClick={() => { onRestore(); setAdopted(null); void record("keep"); }}>元の旅程を使う</button>}
     {report.unresolved.length > 0 && <p role="status">未解決：{report.unresolved.join(" ")} 条件を変更するか、元の候補を確認してください。</p>}
-    <p className="result-note">{report.limitations}</p>
     {message && <p role="status">{message}</p>}
   </section>;
 }

@@ -38,7 +38,7 @@ export function PreferenceTags({ theme, traveler, selected, onChange }: { theme:
     let disposed = false;
     return () => { disposed = true; window.clearTimeout(debounce); window.clearTimeout(timeout); controller.abort(); };
   }, [context, retry, page]);
-  return <fieldset className="discover-filter-group preference-ai-tags"><legend>✦ 好みから広がる、AIの提案タグ</legend>
+  return <fieldset className="discover-filter-group preference-ai-tags"><legend>✦ AIの提案タグ</legend>
     <p className="preference-tags-note">気になるものを選んで、おすすめに追加できます（4つまで）。</p>
     <div className="discover-theme-options">{[...new Set([...selected, ...tags])].map(tag => <button type="button" key={tag} aria-pressed={selected.includes(tag)} disabled={!selected.includes(tag) && selected.length >= 4} onClick={() => onChange(selected.includes(tag) ? selected.filter(item => item !== tag) : [...selected, tag])}>{selected.includes(tag) ? "✓ " : "＋ "}{tag}</button>)}</div>
     {status === "ready" && !exhausted && tags.length < 60 && <button type="button" className="preference-tags-more" onClick={() => setPage({ context, exclude: [...new Set([...selected, ...tags])] })}>＋ もっと提案を見る</button>}
