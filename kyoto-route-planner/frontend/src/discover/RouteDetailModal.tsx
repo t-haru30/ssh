@@ -204,6 +204,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       <div className="discover-modal-facts"><span><strong>{places.length}</strong> か所を巡る旅のプラン</span>{isStaticRoute && <span>所要時間の目安 <strong>{formatMinutes(route.estimated_minutes)}</strong></span>}</div>
       {!isStaticRoute && route.story && <p className="discover-modal-story">{route.story}</p>}
       <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} coordinates={[[origin.latitude, origin.longitude], ...coordinates, ...(isStaticRoute ? [[origin.latitude, origin.longitude] as [number, number]] : [])]} legs={[]} /></Suspense></div>
+      {"spots" in route && route.recommendation_source === "gemini" && route.recommendation_reason && <div className="discover-modal-recommendation"><span className="discover-recommendation-label">✦ AIが選んだおすすめ</span><p>{route.recommendation_reason}</p></div>}
       <div className="discover-modal-section-heading"><h3>この旅で訪れる場所</h3><span>{places.length} SPOTS</span></div>
       <p className="discover-modal-origin">{isStaticRoute ? "09:00 出発：" : "出発の目安："}{origin.name}<small>出発地・時刻は計画画面で変更できます</small></p>
       {!selection.overnightSnapshot && <div className="discover-origin-control"><button type="button" onClick={() => void useCurrentLocation()} disabled={locationLoading}>{locationLoading ? "現在地を確認中…" : "現在地から出発"}</button>{currentOrigin && <button type="button" onClick={() => setCurrentOrigin(null)}>元の出発地に戻す</button>}</div>}
@@ -220,7 +221,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           <strong>{visit?.type === "spot" && <span className="discover-modal-time">{visit.time} </span>}{place.name}</strong>
           <span>{visit?.type === "spot" && visit.label && `${visit.label} · `}{categoryIcon(place.category)} {place.category}{dwellMinutes[place.id] !== undefined && ` · 滞在の目安 ${formatMinutes(dwellMinutes[place.id])}`}</span>
           {visit?.type === "spot" && visit.detail && <span>{visit.detail}</span>}
-          <PlaceDescriptionToggle place={place} stayMinutes={dwellMinutes[place.id]} recommendations={placeRecommendation(place, { places, origin, theme: route.theme, stayMinutes: dwellMinutes[place.id] })} />
+          <PlaceDescriptionToggle place={place} stayMinutes={dwellMinutes[place.id]} recommendations={"spots" in route && route.recommendation_source === "gemini" && route.spots[index]?.reason ? [route.spots[index].reason!] : placeRecommendation(place, { places, origin, theme: route.theme, stayMinutes: dwellMinutes[place.id] })} />
         </div><VenueEvidence place={place} /></li>;
       })}</ol>
       {returnLeg?.type === "transit" && finish?.type === "spot" && <p className="discover-modal-return"><span>{returnLeg.transit_line ?? ("summary" in returnLeg ? returnLeg.summary : "移動")}</span><strong>帰着の目安 {finish.time} {origin.name}</strong></p>}

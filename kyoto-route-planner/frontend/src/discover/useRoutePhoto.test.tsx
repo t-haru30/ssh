@@ -47,7 +47,7 @@ describe("useRoutePhoto", () => {
     await waitFor(() => expect(view.result.current.status).toBe("ready"));
     expect(fetch).toHaveBeenCalledOnce();
   });
-  it.each(["https://creativecommons.org/licenses/by-sa/3.0", "https://creativecommons.org/licenses/by-sa/3.0/"])("accepts actual thumbnail responses with license %s", async license_url => {
+  it.each(["https://creativecommons.org/licenses/by-sa/3.0", "https://creativecommons.org/licenses/by-sa/3.0/", "https://commons.wikimedia.org/wiki/Template:PD-self"])("accepts verified Commons attribution with license %s", async license_url => {
     const actual = { ...photo, image_url: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Test.jpg/960px-Test.jpg", license_name: "CC BY-SA 3.0", license_url };
     vi.mocked(fetch).mockResolvedValue(response(actual) as Response);
     const view = renderHook(() => useRoutePhoto([place], true));
@@ -70,11 +70,11 @@ describe("useRoutePhoto", () => {
     await act(async () => resolve(response(photo) as Response));
     expect(view.result.current.photo).toBeNull();
   });
-  it("ends at 30 seconds without automatically retrying", async () => {
+  it("ends at 40 seconds without automatically retrying", async () => {
     vi.useFakeTimers(); vi.mocked(fetch).mockImplementation(() => new Promise(() => {}));
     const view = renderHook(() => useRoutePhoto([place], true));
     await act(async () => {});
-    await act(async () => vi.advanceTimersByTime(30_000));
+    await act(async () => vi.advanceTimersByTime(40_000));
     expect(view.result.current.status).toBe("unavailable");
     expect(vi.mocked(fetch).mock.calls[0][1]!.signal!.aborted).toBe(true);
     expect((await prepareRoutePhoto([place], new AbortController().signal)).status).toBe("unavailable");
@@ -108,11 +108,11 @@ describe("useRoutePhoto", () => {
     await waitFor(() => expect(view.result.current.status).toBe("unavailable"));
     expect(view.result.current.photo).toBeNull();
   });
-  it("includes image decoding in the same 30-second deadline", async () => {
+  it("includes image decoding in the same 40-second deadline", async () => {
     vi.useFakeTimers(); mockImages(() => new Promise(() => {}));
     const view = renderHook(() => useRoutePhoto([place], true));
     await act(async () => {});
-    await act(async () => vi.advanceTimersByTime(30_000));
+    await act(async () => vi.advanceTimersByTime(40_000));
     expect(view.result.current.status).toBe("unavailable");
     expect(vi.mocked(fetch).mock.calls[0][1]!.signal!.aborted).toBe(true);
   });

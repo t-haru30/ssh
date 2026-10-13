@@ -47,6 +47,13 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
+  it("displays the actual AI recommendation and keeps rule candidates unlabeled", () => {
+    const view = render(<DiscoverCard route={{ ...route, recommendation_source: "gemini", recommendation_reason: "寺社めぐりの気分に合う、近くの寺院を選びました。" }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
+    expect(screen.getByText(/AIが選んだおすすめ/)).toBeTruthy();
+    expect(screen.getByText("寺社めぐりの気分に合う、近くの寺院を選びました。")).toBeTruthy();
+    view.rerender(<DiscoverCard route={route} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
+    expect(screen.queryByText(/AIが選んだおすすめ/)).toBeNull();
+  });
   it("renders Discover data through the shared card layout", () => {
     const { container } = render(
       <DiscoverCard

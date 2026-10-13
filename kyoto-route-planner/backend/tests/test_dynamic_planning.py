@@ -144,7 +144,7 @@ class DiscoveryEndpointTests(unittest.TestCase):
             result = client.post("/api/discover", json=payload)
             invalid = client.post("/api/discover", json={**payload, "radius_km": 201})
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(set(result.json()), {"routes", "note", "source"})
+        self.assertEqual(set(result.json()), {"routes", "note", "source", "agent"})
         route = result.json()["routes"][0]
         self.assertTrue(route["id"].startswith("dynamic-"))
         self.assertEqual(route["spots"][0]["place_id"], "garden")

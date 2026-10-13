@@ -36,6 +36,8 @@ class CommercialImage:
     description: str = field(default="", compare=False)
     filename: str = field(default="", compare=False)
     mime: str = field(default="", compare=False)
+    provider: str = field(default="wikipedia", compare=False)
+    photo_evidence: bool = field(default=False, compare=False)
 
 
 def _normalize(value: str) -> str:
@@ -117,6 +119,8 @@ def _query_pages(payload: object) -> list[object]:
 def _wikipedia_license(metadata: dict) -> tuple[str, str] | None:
     short_name = _metadata_text(metadata.get("LicenseShortName"))
     license_url = _metadata_text(metadata.get("LicenseUrl"))
+    if short_name == "Public domain" and license_url == "https://commons.wikimedia.org/wiki/Template:PD-self":
+        return short_name, license_url
     try:
         parsed_license = urlparse(license_url)
         if parsed_license.username or parsed_license.password or parsed_license.query or parsed_license.fragment or parsed_license.port not in (None, 80 if parsed_license.scheme == "http" else 443):
@@ -142,7 +146,7 @@ def _wikipedia_license(metadata: dict) -> tuple[str, str] | None:
     return None
 
 
-async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: float | None, longitude: float | None) -> CommercialImage | None:
+async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: float | None, longitude: float | None, *, strict_errors: bool = False) -> CommercialImage | None:
     response = await request_with_retry(
         client,
         "GET",
@@ -163,6 +167,8 @@ async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: flo
         },
     )
     if response.status_code >= 400:
+        if strict_errors:
+            raise ValueError("wikipedia_response")
         logger.warning(
             "Wikipedia image search returned HTTP %d (server=%s); check Wikimedia's "
             "robot policy and whether the outbound network permits this API",
@@ -173,8 +179,12 @@ async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: flo
     try:
         payload = response.json()
     except ValueError:
+        if strict_errors:
+            raise ValueError("wikipedia_json")
         logger.warning("Wikipedia image search returned invalid JSON")
         return None
+    if strict_errors and (not isinstance(payload, dict) or "error" in payload):
+        raise ValueError("wikipedia_payload")
     page_images = [
         page["pageimage"]
         for page in _query_pages(payload)
@@ -203,6 +213,8 @@ async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: flo
         },
     )
     if image_response.status_code >= 400:
+        if strict_errors:
+            raise ValueError("wikipedia_metadata_response")
         logger.warning(
             "Wikipedia image metadata lookup returned HTTP %d (server=%s)",
             image_response.status_code,
@@ -212,8 +224,12 @@ async def _search_wikipedia(client: httpx.AsyncClient, query: str, latitude: flo
     try:
         image_payload = image_response.json()
     except ValueError:
+        if strict_errors:
+            raise ValueError("wikipedia_metadata_json")
         logger.warning("Wikipedia image metadata lookup returned invalid JSON")
         return None
+    if strict_errors and (not isinstance(image_payload, dict) or "error" in image_payload):
+        raise ValueError("wikipedia_metadata_payload")
     for image_page in _query_pages(image_payload):
         if not isinstance(image_page, dict):
             continue

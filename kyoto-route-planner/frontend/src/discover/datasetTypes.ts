@@ -36,6 +36,8 @@ export type DatasetRoute = {
   course: DatasetPattern;
   theme: "all" | "history" | "temple" | "nature" | "food";
   title: string;
+  recommendation_source?: "gemini" | "rules";
+  recommendation_reason?: string;
   estimated_minutes: number;
   legs: DatasetLeg[];
   start: DatasetStart;

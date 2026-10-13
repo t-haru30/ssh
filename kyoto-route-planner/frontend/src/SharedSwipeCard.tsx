@@ -16,6 +16,7 @@ export type SharedSwipeCardProps = {
   theme: Theme;
   title: string;
   description?: string;
+  recommendationLabel?: string;
   summary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
@@ -53,6 +54,7 @@ export function SharedSwipeCard({
   theme,
   title,
   description,
+  recommendationLabel,
   summary,
   spots,
   imageUrl,
@@ -172,6 +174,7 @@ export function SharedSwipeCard({
           <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
           <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
         </> : title}</h3>
+        {recommendationLabel && <span className="discover-recommendation-label">✦ {recommendationLabel}</span>}
         {description && <p className="swipe-story">{description}</p>}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">

@@ -7,15 +7,17 @@ export type RoutePhoto = {
   image_url: string | null; author_name: string | null; source_url: string | null;
   license_name: string | null; license_url: string | null;
   image_verified: boolean; ai_checked: boolean; note: string;
+  provider?: "wikipedia" | "wikidata" | "commons";
+  failure_reason?: "no_matching_licensed_photo" | "lookup_failed" | null;
 };
-export type RoutePhotoState = { status: "idle" | "loading" | "ready" | "unavailable"; photo: RoutePhoto | null };
+export type RoutePhotoState = { status: "idle" | "loading" | "ready" | "unavailable"; photo: RoutePhoto | null; failureReason?: "lookup_failed" };
 const IDLE: RoutePhotoState = { status: "idle", photo: null };
 const LOADING: RoutePhotoState = { status: "loading", photo: null };
-const UNAVAILABLE: RoutePhotoState = { status: "unavailable", photo: null };
+const UNAVAILABLE: RoutePhotoState = { status: "unavailable", photo: null, failureReason: "lookup_failed" };
 const cache = new Map<string, { state: RoutePhotoState; expires: number }>();
 type PendingPhoto = { controller: AbortController; users: number; promise: Promise<RoutePhotoState> };
 const pending = new Map<string, PendingPhoto>();
-const PHOTO_TIMEOUT_MS = 30_000;
+const PHOTO_TIMEOUT_MS = 40_000;
 function photoKey(places: Place[]) { return JSON.stringify(places.map(p => [p.id, p.name, p.latitude, p.longitude])); }
 function cachedPhoto(key: string): RoutePhotoState | null {
   const entry = cache.get(key);
@@ -41,7 +43,10 @@ function readPhoto(value: unknown, places: Place[]): RoutePhoto | null {
     || typeof p.author_name !== "string" || !p.author_name.trim() || typeof p.license_name !== "string" || !p.license_name.trim()
     || !safeUrl(p.image_url, url => ["upload.wikimedia.org", "thumb.wikimedia.org"].includes(url.hostname))
     || !safeUrl(p.source_url, url => ["commons.wikimedia.org", "ja.wikipedia.org"].includes(url.hostname) && /^\/wiki\/File:.+/.test(decodeURIComponent(url.pathname)))
-    || !safeUrl(p.license_url, url => ["creativecommons.org", "www.creativecommons.org"].includes(url.hostname) && !url.search && !url.hash && /^\/(?:licenses\/(?:by|by-sa)\/(?:1\.0|2\.0|2\.5|3\.0|4\.0)|publicdomain\/(?:zero|mark)\/1\.0)(?:\/(?:[a-z-]+\/?|deed\.[a-z-]+)?)?$/.test(url.pathname))) return null;
+    || !safeUrl(p.license_url, url => !url.search && !url.hash && (
+      (["creativecommons.org", "www.creativecommons.org"].includes(url.hostname) && /^\/(?:licenses\/(?:by|by-sa)\/(?:1\.0|2\.0|2\.5|3\.0|4\.0)|publicdomain\/(?:zero|mark)\/1\.0)(?:\/(?:[a-z-]+\/?|deed\.[a-z-]+)?)?$/.test(url.pathname))
+      || (url.hostname === "commons.wikimedia.org" && url.pathname === "/wiki/Template:PD-self")
+    ))) return null;
   return p;
 }
 function loadImage(url: string, signal: AbortSignal): Promise<void> {

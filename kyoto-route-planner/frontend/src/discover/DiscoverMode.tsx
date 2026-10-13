@@ -14,7 +14,8 @@ import prefectureIndex from "../data/routes/index.json";
 import "./discover.css";
 import { TravelRangeControl } from "../TravelRangeControl";
 import { composeLocalRoutes, isDiscoverResponse } from "./dynamicRoutes";
-import { ProgressStatus, ROUTE_STEPS } from "../ProgressStatus";
+import type { DiscoveryAgent } from "./dynamicRoutes";
+import { ProgressStatus } from "../ProgressStatus";
 import { isRoutePhotoPrepared, prepareRoutePhoto } from "./useRoutePhoto";
 
 const indexEntries = [...(prefectureIndex as RouteDatasetIndex).prefectures].sort((a, b) => a.prefecture_code.localeCompare(b.prefecture_code));
@@ -25,6 +26,7 @@ const themes = [
 type ThemeFilter = (typeof themes)[number]["id"];
 type BrowseState = { index: number; history: Array<{ savedId: string | null; liked: boolean }> };
 const EMPTY_BROWSE: BrowseState = { index: 0, history: [] };
+const DISCOVER_STEPS = ["条件に合う施設を調べています", "行き先と巡る順番を選んでいます", "おすすめ理由をまとめています"];
 const destinations = [
   { area: "kyoto", caption: "古都の風景に出会う", mark: "京" }, { area: "hokkaido", caption: "北の街を歩く", mark: "北" },
   { area: "nagano", caption: "山のある街へ", mark: "山" }, { area: "okinawa", caption: "南の島で過ごす休日", mark: "島" },
@@ -46,8 +48,9 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const [crossPrefecture, setCrossPrefecture] = useState(true);
   const [variation, setVariation] = useState(0);
   const [generating, setGenerating] = useState(false);
-  const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string } | null>(null);
+  const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const attemptedRef = useRef<string | null>(null);
   const advanceRef = useRef<AbortController | null>(null);
   const [preparingNext, setPreparingNext] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -65,10 +68,29 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   }, [collectionKey, active, generating]);
   useEffect(() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); setSelected(null); setNotice(null); }, [conditionsKey]);
   useEffect(() => () => requestRef.current?.abort(), []);
+  // Debounce condition changes; cached server selections make repeat visits inexpensive.
+  useEffect(() => {
+    if (!active) {
+      if (requestRef.current) { requestRef.current.abort(); requestRef.current = null; attemptedRef.current = null; setGenerating(false); }
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      if (attemptedRef.current !== conditionsKey && remote?.key !== conditionsKey) void generate();
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [conditionsKey, active]);
+  function useLocalCandidates(message: string) {
+    setRemote({ key: conditionsKey, routes: localRoutes, note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message } });
+  }
+  function cancelGeneration() {
+    requestRef.current?.abort(); requestRef.current = null; setGenerating(false);
+    useLocalCandidates("AIの提案を中止しました。条件に合う通常の候補を表示しています。");
+  }
   async function generate() {
     requestRef.current?.abort();
     const controller = new AbortController(); requestRef.current = controller;
-    const timer = window.setTimeout(() => controller.abort(), 15000);
+    attemptedRef.current = conditionsKey;
+    const timer = window.setTimeout(() => controller.abort(), 55_000);
     setGenerating(true); setNotice(null);
     try {
       const response = await fetch("/api/discover", { method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
@@ -76,10 +98,13 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
       if (!response.ok) throw new Error("候補を取得できませんでした。");
       const data: unknown = await response.json();
       if (!isDiscoverResponse(data)) throw new Error("候補データの形式が正しくありません。");
-      if (!controller.signal.aborted && requestRef.current === controller) { setRemote({ key: conditionsKey, ...data }); updateCollection(EMPTY_BROWSE); }
+      if (!controller.signal.aborted && requestRef.current === controller) {
+        setRemote({ key: conditionsKey, ...data });
+        setCollections(current => ({ ...current, [`${conditionsKey}:api`]: EMPTY_BROWSE }));
+      }
     } catch {
-      if (requestRef.current === controller) setNotice("同梱の施設候補から作成したルートを表示しています。サーバーからの取得は再試行できます。");
-    } finally { window.clearTimeout(timer); if (requestRef.current === controller) setGenerating(false); }
+      if (requestRef.current === controller) useLocalCandidates("AIの提案を取得できませんでした。条件に合う通常の候補を表示しています。「経路を見つける」で再試行できます。");
+    } finally { window.clearTimeout(timer); if (requestRef.current === controller) { requestRef.current = null; setGenerating(false); } }
   }
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);
@@ -128,10 +153,10 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
       const selection = routeSelection(current);
       const idea: RouteIdea = {
         theme: current.theme, prefecture_code: entry?.prefecture_code ?? prefecture.code, prefecture_name: entry?.name ?? prefecture.name,
-        title: current.title, story: `${current.spots.length}か所を巡る、約${formatMinutes(current.estimated_minutes)}の旅のプラン。`,
+        title: current.title, story: current.recommendation_reason || `${current.spots.length}か所を巡る、約${formatMinutes(current.estimated_minutes)}の旅のプラン。`,
         places: selection.places, origin: selection.origin, dwell_minutes: selection.dwellMinutes,
         image_url: null, author_name: null, source_url: null, license_name: null, license_url: null,
-        copywriting_source: "fallback", note: "地図データに基づく旅の候補",
+        copywriting_source: current.recommendation_source === "gemini" ? "gemini" : "fallback", note: current.recommendation_source === "gemini" ? "AIが条件に合わせて選んだ旅の候補" : "地図データに基づく旅の候補",
       };
       const alreadySaved = isFavorite(idea);
       if (!alreadySaved && !saveFavorite(idea)) { setNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。"); return; }
@@ -145,7 +170,7 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
 
   return <div className="tab-panel discover-mode" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden={!active}>
     <section className="discover-hero" aria-labelledby="discover-title">
-      <div className="discover-hero-copy"><p className="eyebrow">A LITTLE DETOUR, A NEW DISCOVERY</p><h1 id="discover-title">次の休日、<br />心が向くほうへ。</h1><p>行き先選びから、時間と予算の調整まで。<br />あなただけの旅を、一冊のしおりに。</p><button type="button" className="discover-hero-action" onClick={() => { resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); resultsHeadingRef.current?.focus({ preventScroll: true }); }}>旅の候補を見る <span aria-hidden="true">↓</span></button><span className="discover-hero-note">47都道府県に対応 · 施設の公式情報はAIが検索をお手伝い</span></div>
+      <div className="discover-hero-copy"><p className="eyebrow">A LITTLE DETOUR, A NEW DISCOVERY</p><h1 id="discover-title">次の休日、<br />心が向くほうへ。</h1><p>街と気分を選ぶと、AIが行き先を提案。<br />おすすめの理由から、次の休日を見つけよう。</p><button type="button" className="discover-hero-action" onClick={() => { resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); resultsHeadingRef.current?.focus({ preventScroll: true }); }}>旅の候補を見る <span aria-hidden="true">↓</span></button><span className="discover-hero-note">47都道府県に対応 · 同じ施設と照合できた実写真を表示</span></div>
       <div className="discover-hero-art" aria-hidden="true"><img src="/images/yorimichi-journey.webp" alt="" /><span className="discover-art-image-caption">いつもの日常から、少し遠くへ。</span></div>
     </section>
     <section className="discover-destinations" aria-label="おすすめの行き先">
@@ -173,7 +198,8 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
       <div className="discover-results" ref={resultsRef}><header className="discover-results-heading"><div><p className="eyebrow">YOUR DISCOVERIES</p><h2 ref={resultsHeadingRef} tabIndex={-1}>{areaName}{crossPrefecture ? "周辺" : "内"}の旅のプラン</h2></div><span className="discover-result-count">{routes.length}件の候補</span></header>
         <p className="discover-fallback-status" role="status">{theme === "all" ? "すべての気分" : themes.find(item => item.id === theme)?.label} · {pattern === "all" ? "時間の指定なし" : pattern === "half_day" ? "半日コース" : "1日コース"}</p>
         <div className="discover-conditions-summary"><span>{origin.name}発 · 半径{radius}km</span><button type="button" onClick={() => { filtersRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); filtersRef.current?.focus({ preventScroll: true }); }}>条件を変更 <span aria-hidden="true">↑</span></button></div>
-        {generating && <ProgressStatus title="あなたの旅を組み立てています" steps={ROUTE_STEPS} onCancel={() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); }} />}
+        <p className="discover-agent-status" role="status" data-ready={remote?.key === conditionsKey && remote.agent?.status === "ready"}>{generating ? "AIが条件に合わせて行き先を選んでいます。" : remote?.key === conditionsKey ? remote.agent?.message ?? "施設データから条件に合う候補を表示しています。" : "条件に合う施設を表示しています。AIのおすすめをまもなく準備します。"}</p>
+        {generating && <ProgressStatus title="AIが旅の候補を選んでいます" steps={DISCOVER_STEPS} onCancel={cancelGeneration} />}
         <div className="discover-stack" aria-busy={generating || preparingNext}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件の候補は、まだありません</strong><p>気分や時間を変えると、新しいConcierGOが見つかるかも。</p><button type="button" className="idea-primary-button" onClick={() => { setTheme("all"); setPattern("all"); }}>すべての候補を見る</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>お気に入りの旅は「保存済み」から見返せます。</p><button type="button" className="idea-primary-button" onClick={() => { updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}

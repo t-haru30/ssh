@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { composeLocalRoutes } from "./dynamicRoutes";
+import { composeLocalRoutes, isDiscoverResponse } from "./dynamicRoutes";
 import { facilityThemes, isUnsuitablePlace } from "../placeThemes";
 import type { Place } from "../types";
 const entry = { id: "kyoto", prefecture_code: "26", name: "京都府", center: [35, 135] as [number, number], route_count: 5, file: "kyoto.json" };
@@ -7,6 +7,15 @@ const origin = { name: "駅", latitude: 35, longitude: 135 };
 const conditions = { entry, origin, theme: "all" as const, course: "all" as const, radius: 3, crossPrefecture: false, variation: 0 };
 function place(id: string, lat: number, area = "kyoto", category = "公園"): Place { return { id, name: id, latitude: lat, longitude: 135, category, themes: ["nature"], description: "", access_point: "", tags: { area } }; }
 describe("local facility composition", () => {
+  it("accepts grounded AI reasons and rejects malformed source or agent metadata", () => {
+    const route = { ...composeLocalRoutes(conditions, [place("博物館", 35.001)])[0], recommendation_source: "gemini", recommendation_reason: "歴史を巡る候補です。" };
+    const response = { routes: [route], note: "推定時間", agent: { status: "ready", message: "AIが行き先を選びました。" } };
+    expect(isDiscoverResponse(response)).toBe(true);
+    expect(isDiscoverResponse({ ...response, agent: { status: "invented", message: "" } })).toBe(false);
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, recommendation_source: "unknown" }] })).toBe(false);
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, recommendation_reason: {} }] })).toBe(false);
+    expect(isDiscoverResponse({ ...response, routes: [{ ...route, spots: [{ ...route.spots[0], reason: {} }] }] })).toBe(false);
+  });
   it("keeps the radius a hard bound and returns a single stop for sparse areas", () => {
     const routes = composeLocalRoutes(conditions, [place("near", 35.01), place("outside", 35.1)]);
     expect(routes).toHaveLength(1); expect(routes[0].spots.map(p => p.place_id)).toEqual(["near"]); expect(routes[0].legs).toHaveLength(2);

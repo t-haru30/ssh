@@ -119,6 +119,28 @@ class PlacePhotoTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.status, "ready")
             self.assertEqual(result.ai_checked, checked)
 
+    async def test_verified_provider_camera_metadata_works_without_ai(self):
+        from dataclasses import replace
+        candidate = replace(image("Myogyo Temple"), provider="wikidata", photo_evidence=True)
+        with patch.object(photos, "search_commercial_image", AsyncMock(return_value=candidate)):
+            result = await photos.fetch_route_photo(photos.PhotoRequest(places=[place()]))
+        self.assertEqual(result.status, "ready")
+        self.assertEqual(result.provider, "wikidata")
+        self.assertIsNone(result.failure_reason)
+        self.assertFalse(result.ai_checked)
+
+    async def test_lookup_failure_and_no_matching_licensed_photo_are_distinct_and_cached(self):
+        for value, reason in ((None, "no_matching_licensed_photo"), (photos.PhotoLookupError("provider_failed"), "lookup_failed")):
+            photos._negative_cache.clear()
+            lookup = AsyncMock(side_effect=value) if isinstance(value, Exception) else AsyncMock(return_value=value)
+            with patch.object(photos, "search_commercial_image", lookup):
+                for _ in range(2):
+                    result = await photos.fetch_route_photo(photos.PhotoRequest(places=[place()]))
+                    self.assertEqual(result.status, "unavailable")
+                    self.assertEqual(result.failure_reason, reason)
+                    self.assertIsNone(result.image_url)
+            self.assertEqual(lookup.await_count, 1)
+
     async def test_unsafe_urls_licenses_mime_and_artwork_never_reach_ai(self):
         from dataclasses import replace
         cases = [replace(image(), image_url="https://upload.wikimedia.org.evil.test/p.jpg"),

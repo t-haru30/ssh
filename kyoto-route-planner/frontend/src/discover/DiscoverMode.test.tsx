@@ -8,10 +8,32 @@ vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 } }, localPlaces: Array.from({ length: 8 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
 const illustrationResponse = { ok: true, json: async () => ({ status: "unavailable", key: "a".repeat(64), image_url: null, note: "fixture" }) };
 beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn().mockResolvedValue(illustrationResponse)); });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.localStorage.clear(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); window.localStorage.clear(); });
 function renderDiscoverMode(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function count() { return Number(screen.getByText(/^[0-9]+件の候補$/).textContent?.replace("件の候補", "")); }
 describe("DiscoverMode dynamic facilities", () => {
+  it("automatically asks the agent once after conditions settle, and keeps hidden tabs idle", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async (url: string) => url === "/api/discover"
+      ? { ok: true, json: async () => ({ routes: [], note: "AI result", agent: { status: "ready", message: "AIが行き先を選びました。" } }) } : illustrationResponse);
+    vi.stubGlobal("fetch", fetchMock);
+    const view = render(<PrefectureProvider><FavoritesProvider><DiscoverMode active={false} /></FavoritesProvider></PrefectureProvider>);
+    await act(async () => vi.advanceTimersByTime(1000)); expect(fetchMock).not.toHaveBeenCalled();
+    view.rerender(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
+    await act(async () => vi.advanceTimersByTime(650));
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(1);
+    expect(screen.getByText("AIが行き先を選びました。")).toBeTruthy();
+    await act(async () => vi.advanceTimersByTime(10_000));
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(1);
+  });
+  it("labels a failed agent request as ordinary candidates and allows retry", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? { ok: false } : illustrationResponse));
+    renderDiscoverMode(); fireEvent.click(screen.getByRole("button", { name: /経路を見つける/ }));
+    await waitFor(() => expect(screen.getByText(/AIの提案を取得できませんでした/)).toBeTruthy());
+    expect(screen.queryByText(/AIが選んだおすすめ/)).toBeNull();
+    expect((screen.getByRole("button", { name: /経路を見つける/ }) as HTMLButtonElement).disabled).toBe(false);
+  });
   it("moves from the introduction to candidates and back to conditions without generating another route", () => {
     const fetchMock = vi.fn().mockResolvedValue(illustrationResponse); vi.stubGlobal("fetch", fetchMock);
     renderDiscoverMode();

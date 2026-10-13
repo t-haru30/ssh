@@ -42,20 +42,23 @@ type DiscoverCardProps = {
 export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true, preparingNext = false }: DiscoverCardProps) {
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
+  const aiRecommended = !isIdea && route.recommendation_source === "gemini";
   const selection = useMemo(() => routeSelection(route), [route]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
   const photoState = useRoutePhoto(selection.places, depth < 3 && active);
   const photo = photoState.photo?.status === "ready" ? photoState.photo : null;
-  const imageStatus = photoState.status === "loading" ? "施設の写真を確認しています…"
+  const imageStatus = photoState.status === "loading" || photoState.status === "idle" ? "施設の写真を確認しています…"
     : photo ? "実際の施設写真 · 施設名・位置を照合"
-    : "この旅で出会う場所を、行き先の説明から見てみましょう。";
+    : photoState.failureReason === "lookup_failed" || photoState.photo?.failure_reason === "lookup_failed" ? "写真の取得が完了しませんでした。行き先の説明は開けます。"
+    : "行き先と照合できる実写真がないため、写真を表示していません。";
 
   return (
     <><SharedSwipeCard
       theme={route.theme}
       title={route.title}
-      description={isIdea ? route.story : `${route.spots.length}か所をつないで、この街を少し深く。`}
+      description={isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`}
+      recommendationLabel={aiRecommended ? "AIが選んだおすすめ" : undefined}
       summary={isIdea
         ? `${route.places.length}か所を巡る旅のプラン`
         : `⏱ 総所要時間 約${formatMinutes(route.estimated_minutes)}`}
@@ -95,7 +98,9 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       key={selectedPlace.id}
       place={selectedPlace}
       stayMinutes={selection.dwellMinutes[selectedPlace.id]}
-      recommendations={placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
+      recommendations={aiRecommended && route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason
+        ? [route.spots.find(spot => spot.place_id === selectedPlace.id)!.reason!]
+        : placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
       onClose={() => setSelectedPlaceId(null)}
     />}</>
   );
