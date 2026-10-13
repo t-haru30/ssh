@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import type { PanInfo } from "framer-motion";
 import type { Theme } from "./types";
@@ -19,6 +19,7 @@ export type SharedSwipeCardProps = {
   summary?: string;
   spots: SharedSwipeCardSpot[];
   imageUrl?: string | null;
+  imageReady?: boolean;
   photoPlaceName?: string | null;
   illustrationLabel?: string;
   illustrationKind?: "route" | "theme";
@@ -55,6 +56,7 @@ export function SharedSwipeCard({
   summary,
   spots,
   imageUrl,
+  imageReady = false,
   photoPlaceName,
   illustrationLabel,
   illustrationKind = "theme",
@@ -80,8 +82,9 @@ export function SharedSwipeCard({
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
-  const imageLoaded = loadedUrl === imageUrl;
+  const imageLoaded = imageReady || loadedUrl === imageUrl;
   const titleBoundary = title.indexOf("から、");
+  useEffect(() => { if (!isProcessing) swipedRef.current = false; }, [isProcessing]);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (!isTop || isProcessing || swipedRef.current) return;
@@ -124,6 +127,8 @@ export function SharedSwipeCard({
               src={imageUrl ?? undefined}
               alt=""
               aria-hidden="true"
+              loading="eager"
+              decoding="async"
               onLoad={() => setLoadedUrl(imageUrl ?? null)}
               onError={() => setFailedUrl(imageUrl ?? null)}
             />

@@ -17,7 +17,9 @@
       "reviewed_at": "2026-10-12",
       "description": "金箔にまつわる美術品や道具を紹介する博物館です。金箔職人・安江孝明の収集品を出発点に、金沢で受け継がれてきた金箔の技と文化を伝えています。",
       "description_source_url": "https://kanazawa-museum.jp/kinpaku/outline/index.htm",
-      "highlights": ["金箔を使った美術品や道具を通して、街歩きだけでは見えにくい金沢の工芸文化に触れられます。"]
+      "highlights": [
+        "金箔を使った美術品や道具を通して、街歩きだけでは見えにくい金沢の工芸文化に触れられます。"
+      ]
     },
     {
       "id": "osm-node-2143998216",
@@ -28,7 +30,33 @@
       "reviewed_at": "2026-10-12",
       "description": "金沢出身の小説家・徳田秋聲の生涯と文学を紹介する記念館です。ゆかりの品々や作品の展示を通して、作家の仕事と金沢との関わりをたどれます。",
       "description_source_url": "https://www.kanazawa-museum.jp/shusei/about/index.html",
-      "highlights": ["作品やゆかりの品々を通して、金沢出身の作家の生涯と文学に親しめます。街の歴史を文学から知りたい人におすすめです。"]
+      "highlights": [
+        "作品やゆかりの品々を通して、金沢出身の作家の生涯と文学に親しめます。街の歴史を文学から知りたい人におすすめです。"
+      ]
+    },
+    {
+      "id": "osm-node-1422961323",
+      "name": "京都市考古資料館",
+      "latitude": 35.030006,
+      "longitude": 135.749673,
+      "url": "https://www.kyoto-arc.or.jp/museum/access.html",
+      "reviewed_at": "2026-10-13"
+    },
+    {
+      "id": "osm-node-13388509601",
+      "name": "大阪城天守閣",
+      "latitude": 34.6874875,
+      "longitude": 135.5258873,
+      "url": "https://www.osakacastle.net/guide/",
+      "reviewed_at": "2026-10-13"
+    },
+    {
+      "id": "osm-node-1422989271",
+      "name": "ミザック下水道科学館OSAKA",
+      "latitude": 34.693465,
+      "longitude": 135.462465,
+      "url": "https://www.city.osaka.lg.jp/kensetsu/page/0000430776.html",
+      "reviewed_at": "2026-10-13"
     }
   ]
 }

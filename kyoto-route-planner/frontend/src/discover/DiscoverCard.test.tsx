@@ -97,22 +97,29 @@ describe("DiscoverCard", () => {
     expect(view.container.querySelector("article")?.hasAttribute("inert")).toBe(true);
   });
 
-  it("starts photo lookup only for the active top card", async () => {
+  it("prepares the next two cards while keeping inactive and further cards idle", async () => {
     const fetchMock = vi.mocked(fetch);
-    const view = render(<DiscoverCard route={route} depth={1} active exitDirection="like" onSwipe={vi.fn()} />);
+    const view = render(<DiscoverCard route={route} depth={3} active exitDirection="like" onSwipe={vi.fn()} />);
     expect(fetchMock).not.toHaveBeenCalled();
     view.rerender(<DiscoverCard route={route} depth={0} active={false} exitDirection="like" onSwipe={vi.fn()} />);
     expect(fetchMock).not.toHaveBeenCalled();
-    view.rerender(<DiscoverCard route={route} depth={0} active exitDirection="like" onSwipe={vi.fn()} />);
+    view.rerender(<DiscoverCard route={route} depth={2} active exitDirection="like" onSwipe={vi.fn()} />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
     expect(fetchMock.mock.calls[0][0]).toBe("/api/routes/photo");
   });
 
   it("labels a verified second destination photo with its actual subject and attribution", async () => {
+    vi.stubGlobal("Image", class {
+      onload: (() => void) | null = null; onerror: (() => void) | null = null;
+      complete = false; naturalWidth = 0; decoding = "";
+      set src(_url: string) { queueMicrotask(() => this.onload?.()); }
+      decode() { return Promise.resolve(); } removeAttribute() {}
+    });
     const image = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "ready", place_id: "second", place_name: "庭園", image_url: image, author_name: "Photographer", source_url: "https://commons.wikimedia.org/wiki/File:Test.jpg", license_name: "CC BY-SA 4.0", license_url: "https://creativecommons.org/licenses/by-sa/4.0/", image_verified: true, ai_checked: true, note: "" }) }));
     const { container } = render(<DiscoverCard route={{ ...route, spots: [...route.spots, { ...route.spots[0], place_id: "second", name: "庭園" }] }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
     await waitFor(() => expect(container.querySelector("img")?.getAttribute("src")).toBe(image));
+    expect(container.querySelector("img")?.classList.contains("loaded")).toBe(true);
     expect(screen.getByTestId("cover-spot-name").textContent).toBe("庭園");
     expect(screen.getByText("庭園の写真")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Photographer" })).toBeTruthy();

@@ -149,8 +149,9 @@ def _guide_priority(label: str) -> int:
     label = _normalize(label)
     if any(term in label for term in ("添乗員", "通訳", "ボランティア", "通信販売")):
         return 99
-    for index, terms in enumerate((("利用案内", "来館案内", "拝観案内"),
-                                   ("開館時間", "営業時間", "開園時間", "参拝時間", "料金"),
+    for index, terms in enumerate((("開館時間", "営業時間", "開園時間", "開園・開場時間", "参拝時間", "休館日", "休園日"),
+                                   ("利用案内", "来館案内", "拝観案内"),
+                                   ("料金",),
                                    ("アクセス", "経路案内", "access", "visitorinformation"))):
         if any(term in label for term in terms):
             return index

@@ -127,4 +127,13 @@ def wikipedia_website(payload: object, place: Place) -> str | None:
         url = re.search(r"https?://[^\s\]|}<]+", field[1])
         if url:
             return url[0]
+    # Some matched articles have no website field in their infobox. Accept
+    # only an explicitly marked official-site link with the exact venue name
+    # in the external-links section, never citations or another institution.
+    section = re.search(r"^==\s*外部リンク\s*==\s*\n(.*?)(?=^==|\Z)", content, re.M | re.S)
+    if section:
+        for line in section[1].splitlines():
+            link = re.fullmatch(r"\*\s*\[(https?://[^\s\]]+)\s+([^\]]+)\]\s*[（(]公式(?:サイト|ホームページ|ウェブサイト)[）)]\s*", line)
+            if link and normalize(link[2]) == normalize(place.name):
+                return link[1]
     return None

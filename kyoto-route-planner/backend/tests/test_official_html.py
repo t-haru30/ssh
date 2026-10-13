@@ -8,6 +8,67 @@ def parse(html):
 
 
 class OfficialHTMLTests(unittest.TestCase):
+    def test_bracketed_bulleted_and_short_visitor_labels(self):
+        doc = parse('<p>【開館時間】9:30～16:30（最終入館16:15）</p>'
+                    '<p>【休館日】月曜日（月曜が祝日の場合は翌平日）</p><p>【TEL】011-000-0000</p>')
+        self.assertIn('9:30～16:30', doc.opening_hours)
+        self.assertIn('翌平日', doc.closed_days)
+        self.assertNotIn('TEL', doc.closed_days)
+        doc = parse('<h2>開館</h2><p>午前10時〜午後5時（入館は4時30分まで）</p>'
+                    '<p>●休館日</p><p>毎週月曜日</p>')
+        self.assertIn('午前10時', doc.opening_hours)
+        self.assertIn('月曜日', doc.closed_days)
+        self.assertIsNone(parse('<p>開館した博物館</p><p>9:00～17:00</p>').opening_hours)
+
+    def test_immediate_value_heading_preserves_seasonal_exceptions(self):
+        doc = parse('<h2>開館時間</h2><h3>【通年】9時00分から17時00分まで</h3>'
+                    '<p>※12月31日は15時閉館</p><h2>休館日</h2><h3>【通年】毎週火曜日</h3>'
+                    '<p>ただしＧＷ期間は開館します。</p><h2>イベント</h2><p>10:00～12:00</p>')
+        self.assertIn('9時00分', doc.opening_hours)
+        self.assertIn('12月31日', doc.opening_hours)
+        self.assertNotIn('イベント', doc.opening_hours)
+        self.assertIn('ＧＷ期間', doc.closed_days)
+        self.assertIsNone(parse('<h2>開館時間</h2><h3>イベント</h3><p>10:00～12:00</p>').opening_hours)
+
+    def test_explicit_irregular_calendar_and_year_round_closures(self):
+        for value in ('不定期（館内保守及び大学の定める休日）', 'スケジュールカレンダーでご確認ください。'):
+            self.assertIn(value, parse(f'<h2>休館日</h2><p>{value}</p>').closed_days)
+        doc = parse('<h2>営業時間</h2><p>10:00～17:00</p><p>年中無休</p>')
+        self.assertEqual(doc.closed_days, '年中無休')
+        self.assertIsNone(parse('<h2>営業時間</h2><p>毎日10:00～17:00</p>').closed_days)
+        self.assertIsNone(parse('<h2>営業時間</h2><p>10:00～17:00</p><h2>ショップ</h2><p>年中無休</p>').closed_days)
+
+    def test_auxiliary_business_hours_never_merge_with_venue_hours(self):
+        doc = parse('<h2>開館時間</h2><p>9:30～17:00</p><h2>休館日</h2><p>月曜日</p>'
+                    '<h2>ミュージアムショップ</h2><h3>営業時間</h3><p>10:00～16:00</p>'
+                    '<h3>定休日</h3><p>火曜日</p><h2>カフェ</h2><p>営業時間：11:00～15:00</p>')
+        self.assertEqual(doc.opening_hours, '開館時間 9:30～17:00')
+        self.assertEqual(doc.closed_days, '休館日 月曜日')
+        self.assertIsNone(parse('<h2>レストラン</h2><h3>営業時間</h3><p>10:00～16:00</p>').opening_hours)
+        doc = parse('<dl><dt>ギャラリー観覧時間</dt><dd>9:30～18:00（金曜は20:00まで）</dd>'
+                    '<dt>利用時間</dt><dd>ミュージアムカフェ 11:00～18:00</dd></dl>')
+        self.assertIn('金曜は20:00', doc.opening_hours)
+        self.assertNotIn('カフェ', doc.opening_hours)
+        doc = parse('<h2>施設のご案内</h2><p>ミュージアムショップ</p><p>営業時間 10:00～16:00</p>'
+                    '<p>カフェ「庭」</p><p>営業時間 11:00～15:00</p><h2>開館時間</h2><p>9:00～17:00</p>')
+        self.assertEqual(doc.opening_hours, '開館時間 9:00～17:00')
+        self.assertIsNone(parse('<h2>ショップ</h2><h3>サービス</h3><h4>営業時間</h4><p>10:00～16:00</p>').opening_hours)
+        doc = parse('<h2>駐車場</h2><h3>開場時間</h3><p>7:00～21:00</p>'
+                    '<h2>休館日</h2><p>スケジュールカレンダーでご確認ください。</p>')
+        self.assertIn('カレンダー', doc.closed_days)
+        self.assertIsNone(doc.opening_hours)
+        self.assertIsNone(parse('<p>休館日</p><p>※日付をタップすると詳細が確認できます。</p>'
+                                '<p>開館カレンダーはPDFでも公開しています。</p><p>詳しくはご確認ください。</p>').closed_days)
+
+    def test_park_hours_exclude_parking_hours(self):
+        doc = parse('<h2>開園・開場時間</h2><table><tr><th>区域</th><th>4月〜11月</th>'
+                    '<th>12月〜3月</th></tr><tr><th>無料区域</th><td>8:00～19:30</td><td>8:00～18:30</td></tr>'
+                    '<tr><th>有料区域</th><td>8:30～19:00</td><td>8:30～18:00</td></tr></table>'
+                    '<h2>駐車場の開場時間</h2><p>7:00～21:00</p>')
+        self.assertIn('無料区域', doc.opening_hours)
+        self.assertIn('8:30～18:00', doc.opening_hours)
+        self.assertNotIn('7:00', doc.opening_hours)
+
     def test_news_mentions_do_not_borrow_old_free_event_or_hours(self):
         doc = parse('<p>入館料）を改定いたします。</p><p>ご理解をお願いします。</p><p>[ 2022.01.22]</p><p>関西文化の日のお知らせ</p><p>当日は観覧料が無料となります。</p><p>営業時間 10:00～12:00</p>')
         self.assertIsNone(doc.admission)
