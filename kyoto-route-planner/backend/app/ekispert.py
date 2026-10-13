@@ -1,6 +1,7 @@
 ﻿import json
 import logging
 import os
+import ssl
 from pathlib import Path
 import re
 from urllib.parse import urlencode
@@ -300,12 +301,14 @@ def _parse_legs(course: dict) -> tuple[list[RouteLeg], int | None]:
                 line_name=_text(line.get("Name")) or "移動",
                 mode=_text(line.get("Type")) or "other",
                 duration_minutes=_integer(line.get("timeOnBoard")),
+                departure_at=_text(line.get("DepartureState", {}).get("Datetime")) if isinstance(line.get("DepartureState"), dict) else None,
+                arrival_at=_text(line.get("ArrivalState", {}).get("Datetime")) if isinstance(line.get("ArrivalState"), dict) else None,
             )
         )
 
     total_minutes = _integer(route.get("timeOnBoard"))
     if total_minutes is not None:
-        total_minutes += _integer(route.get("timeOther")) or 0
+        total_minutes += (_integer(route.get("timeOther")) or 0) + (_integer(route.get("timeWalk")) or 0)
     if total_minutes == 0:
         leg_minutes = [
             leg.duration_minutes
@@ -358,6 +361,14 @@ def _parse_fare_yen(course: dict) -> int | None:
     return fare_yen
 
 
+class RouteSearchResult(tuple):
+    """Keep the four-value route interface while retaining the same course fare."""
+    def __new__(cls, legs, minutes, departure, arrival, fare_yen):
+        result = super().__new__(cls, (legs, minutes, departure, arrival))
+        result.fare_yen = fare_yen
+        return result
+
+
 async def search_route(
     via_points: list[str],
     departure_date: str,
@@ -384,7 +395,7 @@ async def search_route(
     logger.debug("Requesting Ekispert route: %s", _redact_access_key(_make_url(params)))
 
     try:
-        async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
+        async with httpx.AsyncClient(verify=ssl.create_default_context(), timeout=provider_timeout(15.0)) as client:
             response = await request_with_retry(
                 client,
                 "GET",
@@ -427,11 +438,9 @@ async def search_route(
 
     course = courses[0]
     legs, total_minutes = _parse_legs(course)
-    return (
-        legs,
-        total_minutes,
-        _text(course.get("departureState")),
-        _text(course.get("arrivalState")),
+    return RouteSearchResult(
+        legs, total_minutes, _text(course.get("departureState")),
+        _text(course.get("arrivalState")), _parse_fare_yen(course),
     )
 
 
@@ -456,7 +465,7 @@ async def estimate_route_fare(via_points: list[str]) -> int | None:
     logger.debug("Requesting Ekispert fare estimate: %s", _redact_access_key(url))
 
     try:
-        async with httpx.AsyncClient(timeout=provider_timeout(15.0)) as client:
+        async with httpx.AsyncClient(verify=ssl.create_default_context(), timeout=provider_timeout(15.0)) as client:
             response = await request_with_retry(
                 client,
                 "GET",

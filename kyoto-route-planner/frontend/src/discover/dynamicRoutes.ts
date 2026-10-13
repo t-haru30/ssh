@@ -15,11 +15,16 @@ const themeTitles: Record<Theme, string> = { all: "街歩き", history: "歴史�
 /** Offline composition from deduplicated facilities, with a hard geographic cap. */
 export function composeLocalRoutes({ entry, origin, theme, course, radius, crossPrefecture, variation, traveler, preferenceText = "" }: DiscoverConditions, pool = localPlaces): DatasetRoute[] {
   let candidates = distinctVenues(pool.filter(p => !isUnsuitablePlace(p) && (crossPrefecture || p.tags?.area === entry.id)
-    && (theme === "all" || facilityThemes(p).includes(theme)) && !/ホテル|旅館|宿泊/.test(p.category)
+    && ((theme === "all" || theme === "food") || facilityThemes(p).includes(theme)) && !/ホテル|旅館|宿泊/.test(p.category)
     && distanceKm(origin, p) <= radius).sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id)));
+  const regionalWords = Math.abs(origin.latitude - 39.702) < .2 && Math.abs(origin.longitude - 141.136) < .25 ? ["冷麺", "わんこそば", "じゃじゃ麺"] : Math.abs(origin.latitude - 36.578) < .2 && Math.abs(origin.longitude - 136.648) < .25 ? ["加賀料理", "治部煮", "金沢おでん"] : [];
+  const regionalScore = (p: (typeof candidates)[number]) => theme === "food" ? Number([...regionalWords, "郷土料理", "ご当地料理", "地元食材"].some(word => `${p.name} ${p.category} ${p.description} ${Object.values(p.tags ?? {}).join(" ")}`.includes(word))) : 0;
+  const food = (p: (typeof candidates)[number]) => facilityThemes(p).includes("food") || /冷麺|わんこそば|じゃじゃ麺|焼肉|寿司/.test(p.name);
+  const local = candidates.filter(p => p.tags?.area === entry.id);
+  if (local.length >= 6 && (theme !== "food" || local.some(food))) candidates = local;
   for (const r of [...new Set([Math.min(5, radius), Math.min(20, radius), radius])]) {
     const nearby = candidates.filter(p => distanceKm(origin, p) <= r);
-    if (nearby.length >= 6) { candidates = nearby; break; }
+    if (nearby.length >= 6 && (theme !== "food" || nearby.some(food)) && !candidates.some(p => regionalScore(p) && !nearby.includes(p))) { candidates = nearby; break; }
   }
   const companionWords: Record<TravelerProfile["companion"], string[]> = {
     unspecified: [], family: ["公園", "動物", "水族", "科学", "博物館", "植物"],
@@ -29,45 +34,54 @@ export function composeLocalRoutes({ entry, origin, theme, course, radius, cross
   const preferenceWords = [...new Set([...preferenceText.split(/[\s、。,・]+/).filter(word => word.length > 1 && word !== "おまかせ"), ...["庭園", "公園", "カフェ", "美術館", "博物館", "神社", "寺", "市場", "展望", "温泉"].filter(word => preferenceText.includes(word))])];
   const preferenceScore = (p: (typeof candidates)[number]) => preferenceWords.filter(word => `${p.name} ${p.category} ${p.description}`.includes(word)).length + (/有名/.test(preferenceText) ? Number(Boolean(p.tags?.wikipedia || p.tags?.wikidata)) : 0);
   const priority = (p: (typeof candidates)[number]) => preferenceScore(p) + Number(companionWords[traveler?.companion ?? "unspecified"].some(word => `${p.name} ${p.category}`.includes(word)));
-  candidates.sort((a, b) => priority(b) - priority(a) || distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
+  candidates.sort((a, b) => regionalScore(b) - regionalScore(a) || priority(b) - priority(a) || distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
   const routes: DatasetRoute[] = [], seen = new Set<string>();
   const pace = normalizeTravelPace(traveler?.pace);
   const settings = PACE_SETTINGS[pace];
   const stay = course === "full_day" ? settings.fullDayStay : settings.stay;
-  const maxStops = settings.maxStops;
+  const maxStops = settings.maxStops + (course === "full_day" ? 2 : 0);
+  const dwell = (p: (typeof candidates)[number]) => food(p) ? Math.min(stay, 75) : stay;
   for (let i = 0; i < Math.min(candidates.length, 80); i++) {
     const seed = candidates[(i + variation) % candidates.length];
     const ordered = [seed], remaining = candidates.filter(p => p.id !== seed.id);
+    if (theme === "food") {
+      const preferred = candidates.find(food);
+      if (preferred && preferred.id !== seed.id) { ordered.push(preferred); remaining.splice(remaining.indexOf(preferred), 1); }
+    }
     while (ordered.length < maxStops && remaining.length) {
       remaining.sort((a, b) => distanceKm(ordered[ordered.length - 1], a) - distanceKm(ordered[ordered.length - 1], b) || a.id.localeCompare(b.id));
-      ordered.push(remaining.shift()!);
+      const next = remaining.findIndex(p => !food(p) || (ordered.filter(food).length < 2 && !food(ordered[ordered.length - 1])));
+      if (next < 0) break;
+      ordered.push(remaining.splice(next, 1)[0]);
     }
     const buildLegs = () => [origin, ...ordered, origin].slice(1).map((to, index) => {
       const from = [origin, ...ordered][index], distance = distanceKm(from, to);
       return { from: from.name, to: to.name, distance_km: distance, minutes: Math.ceil(distance / 25 * 60) + 10, mode: "public_transport" as const };
     });
     let legs = buildLegs();
-    while (ordered.length && legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.length * stay > (course === "half_day" ? 300 : 600)) {
+    while (ordered.length && legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.reduce((sum, p) => sum + dwell(p), 0) > (course === "half_day" ? 300 : 600)) {
       ordered.pop(); legs = buildLegs();
     }
     const signature = ordered.map(p => p.id).sort().join("|");
     if (!ordered.length || seen.has(signature)) continue;
     seen.add(signature);
-    const minutes = legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.length * stay;
+    const minutes = legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.reduce((sum, p) => sum + dwell(p), 0);
+    if (theme === "food" && (!ordered.some(food) || ordered.filter(food).length > 2)) continue;
+    if (course === "full_day" && (ordered.length < 4 || minutes < 360 || ordered.filter(food).length > 2)) continue;
     const pattern = course === "full_day" || minutes > 300 ? "full_day" : "half_day";
     routes.push({ id: `local-${entry.id}-${stay}-${ordered.map(p => p.id).join("-")}`, area: entry.id, theme, course: pattern, pattern,
-      recommendation_source: "rules", recommendation_reason: `${PACE_OPTIONS.find(option => option.value === pace)!.label}のペースで${ordered.length}か所、各${stay}分滞在（目安）。${[...new Set(ordered.map(p => p.category))].join("・")}を巡ります。`,
+      recommendation_source: "rules", recommendation_reason: `${PACE_OPTIONS.find(option => option.value === pace)!.label}のペースで${ordered.length}か所、観光は各${stay}分、食事は最大75分（目安）。${[...new Set(ordered.map(p => p.category))].join("・")}を巡ります。`,
       title: `${ordered[0].name}から、${themeTitles[theme]}を楽しむ旅`, estimated_minutes: minutes, legs, total_score: ordered.length,
       start: { name: origin.name, lat: origin.latitude, lng: origin.longitude, to_first_km: legs[0].distance_km, from_last_km: legs[legs.length - 1].distance_km },
       center: [origin.latitude, origin.longitude], coordinates: [origin, ...ordered, origin].map(p => [p.latitude, p.longitude]),
-      spots: ordered.map(p => ({ place_id: p.id, name: p.name, category: p.category, lat: p.latitude, lng: p.longitude, address: p.address, tags: p.tags, stay_minutes: stay, role: "stop", score: 1, reason: p.address })) });
+      spots: ordered.map(p => ({ place_id: p.id, name: p.name, category: p.category, lat: p.latitude, lng: p.longitude, address: p.address, tags: p.tags, stay_minutes: dwell(p), role: "stop", score: 1, reason: p.address })) });
     if (routes.length === 12) break;
   }
   return routes;
 }
 
 export type DiscoveryAgent = { status: "ready" | "unavailable"; message: string };
-export type DiscoverResponse = { routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent };
+export type DiscoverResponse = { routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: unknown };
 
 export function isDiscoverResponse(value: unknown): value is DiscoverResponse {
   if (!value || typeof value !== "object") return false;

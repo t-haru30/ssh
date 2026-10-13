@@ -1,0 +1,6 @@
+.facility-photo { width:100%; min-width:0; margin:12px 0; border-radius:12px; overflow:hidden; }
+.facility-photo .route-photo-tile { width:100%; height:220px; }
+.facility-photo-compact .route-photo-tile { height:140px; }
+.facility-photo .route-photo-tile-credit { font-size:11px; line-height:1.5; }
+.facility-photo .route-category-image > span, .facility-photo .route-category-image > small { font-size:11px; }
+@media (max-width:600px) { .facility-photo .route-photo-tile { height:180px; } .facility-photo-compact .route-photo-tile { height:120px; } }

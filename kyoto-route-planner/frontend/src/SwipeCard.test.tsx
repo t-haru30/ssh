@@ -9,6 +9,8 @@ vi.mock("framer-motion", () => ({
     article: ({ children }: { children: ReactNode }) => <article>{children}</article>,
     div: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   },
+  usePresence: () => [true, undefined],
+  usePresenceData: () => undefined,
   useMotionValue: () => 0,
   useTransform: () => 0,
 }));

@@ -287,8 +287,9 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_theme_evidence_fit_and_user_count_are_validated(self):
         req = request(theme="history", count=1, course="full_day")
-        self.call.side_effect = turns(self.pool, selection(self.pool, "theme"))
-        result = await self.recommend(request=req)
+        pool = [*self.pool, place("four", latitude=35.004)]
+        self.call.side_effect = turns(pool, selection(pool, "theme"))
+        result = await self.recommend(request=req, pool=pool)
         route = result["routes"][0]
         self.assertEqual(route["course"], "full_day")
         self.assertTrue(all(p["stay_minutes"] == 105 for p in route["spots"]))

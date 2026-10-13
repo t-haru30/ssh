@@ -4,10 +4,10 @@ import { isOrigin, isRecord } from "./apiValidation";
 import "./stationSearch.css";
 
 type Candidate = Origin & { code?: string; prefecture?: string; lines?: string[] };
-type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin) => void; disabled?: boolean };
+type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin, prefecture?: string) => void; disabled?: boolean; prefecture?: { name: string; code: string } };
 const identity = (origin: Origin) => `${origin.name}|${origin.latitude}|${origin.longitude}`;
 
-export function StationSearch({ label, value, options, onChange, disabled = false }: Props) {
+export function StationSearch({ label, value, options, onChange, disabled = false, prefecture }: Props) {
   const id = useId();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Candidate[]>([]);
@@ -22,6 +22,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
     controller.current?.abort();
     setLoading(false); setQuery(""); setResults([]); setStatus(""); setExpanded(false);
   }
+  useEffect(() => { cancel(); }, [prefecture?.code]);
   async function search() {
     if (!query.trim() || disabled || loading) return;
     const current = ++generation.current;
@@ -30,7 +31,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
     setLoading(true); setResults([]); setStatus("駅を検索しています…");
     const timer = window.setTimeout(() => request.abort(), 15000);
     try {
-      const response = await fetch(`/api/stations/search?q=${encodeURIComponent(query.trim())}`, { signal: request.signal });
+      const response = await fetch(`/api/stations/search?q=${encodeURIComponent(query.trim())}${prefecture ? `&prefecture_code=${encodeURIComponent(prefecture.code)}` : ""}`, { signal: request.signal });
       const payload: unknown = await response.json();
       if (!response.ok) {
         const message = typeof payload === "object" && payload !== null && "detail" in payload && typeof payload.detail === "string" ? payload.detail : "駅を検索できませんでした。再度お試しください。";
@@ -38,8 +39,9 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
       }
       if (!Array.isArray(payload) || !payload.every(item => isRecord(item) && typeof item.code === "string" && typeof item.prefecture === "string" && Array.isArray(item.lines) && item.lines.every((line: unknown) => typeof line === "string") && isOrigin(item))) throw new Error("駅検索の結果を確認できませんでした。");
       if (current !== generation.current) return;
-      setResults(payload);
-      setStatus(payload.length ? `${payload.length}件の候補があります。駅を選択してください（最大5件）。` : "該当する駅がありません。駅名を変えて検索してください。");
+      const filtered = prefecture ? payload.filter(item => item.prefecture === prefecture.name) : payload;
+      setResults(filtered);
+      setStatus(filtered.length ? `${filtered.length}件の候補があります。駅を選択してください（最大5件）。` : `${prefecture?.name ?? "指定条件"}に該当する駅がありません。駅名を変えて検索してください。`);
     } catch (error) {
       if (current === generation.current) setStatus(request.signal.aborted ? "駅検索がタイムアウトしました。再度お試しください。" : error instanceof Error ? error.message : "駅を検索できませんでした。");
     } finally {
@@ -50,7 +52,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
   const registered = [...new Map([...(value ? [value] : []), ...options].map(item => [identity(item), item])).values()];
   function choose(candidate: Candidate) {
     const qualified = candidate.prefecture && !candidate.name.includes(candidate.prefecture) ? `${candidate.name}（${candidate.prefecture}）` : candidate.name;
-    onChange({ name: qualified.length <= 80 ? qualified : candidate.name, latitude: candidate.latitude, longitude: candidate.longitude });
+    onChange({ name: qualified.length <= 80 ? qualified : candidate.name, latitude: candidate.latitude, longitude: candidate.longitude }, candidate.prefecture);
     cancel();
   }
   return <fieldset className="station-search" disabled={disabled}>
@@ -65,7 +67,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
     {expanded && <div id={`${id}-search`} className="station-search-panel">
     <label htmlFor={id}>駅名を入力</label>
     <div className="station-search-controls">
-      <input id={id} value={query} maxLength={80} placeholder="例: 京都、東京" onChange={event => { generation.current++; controller.current?.abort(); setLoading(false); setQuery(event.target.value); setResults([]); setStatus(""); }} onKeyDown={event => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void search(); } if (event.key === "Escape") cancel(); }} />
+      <input id={id} value={query} maxLength={80} placeholder={prefecture ? `${prefecture.name}内の駅名` : "例: 京都、東京"} onChange={event => { generation.current++; controller.current?.abort(); setLoading(false); setQuery(event.target.value); setResults([]); setStatus(""); }} onKeyDown={event => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void search(); } if (event.key === "Escape") cancel(); }} />
       <button type="button" onClick={() => void search()} disabled={loading || !query.trim()}>駅を検索</button>
       <button type="button" onClick={cancel}>キャンセル</button>
     </div>

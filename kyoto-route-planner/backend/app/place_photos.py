@@ -22,7 +22,7 @@ from app.models import Place
 from urllib.parse import urlparse
 
 ROUTE_TIMEOUT = 35.0
-LOOKUP_TIMEOUT = 10.0
+LOOKUP_TIMEOUT = 18.0
 AI_TIMEOUT = 8.0
 AI_ATTEMPT_LIMIT = 20
 _ai_used = 0

@@ -1,3 +1,4 @@
+import { FacilityPhoto } from "../FacilityPhoto";
 import { ReasonSources, type ReasonSource } from "./reasonSources";
 import { useEffect, useState } from "react";
 import type { Place } from "../types";
@@ -163,7 +164,7 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], re
 }
 
 export function PlaceDetailsDialog({ place, stayMinutes, recommendations, reasonSources, onClose, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; onClose: () => void; enableOfficialSearch?: boolean }) {
-  return <TripDialog title={place.name} onClose={onClose}><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
+  return <TripDialog title={place.name} onClose={onClose}><FacilityPhoto place={place} /><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
 }
 
 export function PlaceDescriptionToggle({ place, stayMinutes, recommendations, reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {

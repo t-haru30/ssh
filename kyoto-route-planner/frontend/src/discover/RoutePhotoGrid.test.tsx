@@ -11,6 +11,6 @@ it("pairs each photo with its own place and attribution, and handles a failed im
   expect(screen.getByRole("img", {name:"美術館"}).getAttribute("src")).toContain("1.jpg");
   expect(screen.getByRole("link", {name:"撮影者1"}).getAttribute("href")).toContain("1.jpg");
   fireEvent.error(screen.getByRole("img", {name:"庭園"}));
-  expect(screen.getByText("写真なし")).toBeTruthy();
+  expect(screen.getByText("AI生成・ジャンルイメージ")).toBeTruthy();
   expect(screen.getByRole("img", {name:"美術館"})).toBeTruthy();
 });

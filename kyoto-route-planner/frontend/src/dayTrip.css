@@ -169,3 +169,8 @@
 .plan-title-input input { width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid #d8e0df; border-radius: 12px; background: var(--surface, #fff); color: var(--ink, #243c32); font: inherit; font-size: 1rem; }
 .results-heading > div:first-child { min-width: 0; flex: 1 1 260px; }
 .favorite-edited { display: inline-block; padding: 3px 8px; border-radius: 8px; background: #e9f2ec; color: #23493d; font-size: .8rem; }
+
+.trip-transit { margin:16px 0; padding:14px 16px; border-left:3px solid var(--forest); background:var(--surface-muted); border-radius:8px; font-size:13px; overflow-wrap:anywhere; }
+.trip-transit p { margin:6px 0; }
+.trip-transit button { min-height:44px; margin-top:8px; padding:8px 12px; }
+.trip-transit li { margin:8px 0; }

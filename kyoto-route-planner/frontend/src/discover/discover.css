@@ -56,3 +56,8 @@
 }
 @media (max-width: 520px) { .discover-route-modal.route-modal { padding: 22px 18px; }.discover-route-modal .route-modal-header h2 { font-size: 21px; }.discover-modal-footer { bottom: -22px; }.discover-route-modal .route-modal-map { height: 210px; } }
 @media (prefers-reduced-motion: reduce) { .discover-destination, .discover-filter-group button { transition: none; }.discover-destination:hover { transform: none; } }
+
+.journey-review { margin: 1rem 0; padding: 1rem; border: 1px solid var(--border, #d9dfd9); border-radius: 16px; background: var(--surface, #fff); overflow-wrap: anywhere; }
+.journey-review h3 { margin-top: 0; }
+.journey-review article { border-top: 1px solid var(--border, #d9dfd9); padding: 1rem 0; }
+.journey-review button { padding: .75rem 1rem; min-height: 44px; }

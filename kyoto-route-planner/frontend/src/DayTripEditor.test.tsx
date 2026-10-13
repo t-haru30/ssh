@@ -5,6 +5,8 @@ import { DayTripEditor } from "./DayTripEditor";
 import { newTripStop, scheduleTrip } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import type { RouteSuggestion } from "./types";
+// Editing is local; facility photo requests are tested independently.
+vi.mock("./FacilityPhoto", () => ({ FacilityPhoto: () => null }));
 
 function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold, .trip-adjustment").forEach(item => { item.open = true; }); return view; }
 const origin = { name: "京都駅", latitude: 35, longitude: 135 };
@@ -188,14 +190,14 @@ describe("DayTripEditor", () => {
     vi.stubGlobal("navigator", { clipboard: { writeText } });
     const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
     render(<DayTripEditor {...props} />);
-    expect(screen.getByRole("meter", { name: "予算に対する判明費用" }).getAttribute("aria-valuetext")).toContain("合計未確認のため予算内かは未判定");
+    expect(screen.getByRole("meter", { name: "予算に対する概算費用" }).getAttribute("aria-valuetext")).toContain("概算 1,200円");
     fireEvent.click(screen.getByRole("button", { name: "公園を固定" }));
     fireEvent.click(screen.getByRole("button", { name: "しおりを見る" }));
     const dialog = screen.getByRole("dialog", { name: "旅のしおり" });
     const bookmark = within(dialog).getByRole("textbox", { name: "しおりの内容" }) as HTMLTextAreaElement;
     expect(bookmark.readOnly).toBe(true);
     expect(bookmark.value).toContain("公園［固定］");
-    expect(bookmark.value).toContain("合計未確認（判明分 200円）");
+    expect(bookmark.value).toContain("概算 1,200円");
     expect(bookmark.value).toContain("営業時間・実際の発着時刻は未確認");
     fireEvent.click(within(dialog).getByRole("button", { name: "しおりをコピー" }));
     await waitFor(() => expect(within(dialog).getByRole("status").textContent).toContain("下のしおりを選択"));

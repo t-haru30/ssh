@@ -37,6 +37,23 @@ class StationSearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(results[0].name, '中野駅')
         self.assertEqual(len(requests), 3)
 
+    async def test_prefecture_filter_is_applied_before_candidate_limit(self):
+        calls = []
+        def handler(req):
+            calls.append(req)
+            if req.url.path.endswith('/light'):
+                self.assertEqual(req.url.params['prefectureCode'], '21')
+                return httpx.Response(200, json={'ResultSet': {'Point': [
+                    {'Station': {'code': str(i), 'Name': '駅', 'Type': 'train'}, 'Prefecture': {'code': '23'}} for i in range(1, 7)
+                ] + [{'Station': {'code': '7', 'Name': '岐阜', 'Type': 'train'}, 'Prefecture': {'code': '21'}}]}})
+            self.assertEqual(req.url.params['code'], '7')
+            return httpx.Response(200, json={'ResultSet': {'Point': {'Station': {'code': '7', 'Name': '岐阜'}, 'Prefecture': {'code': '21', 'Name': '岐阜県'}, 'GeoPoint': {'gcs': 'wgs84', 'lati_d': '35.41', 'longi_d': '136.757'}}}})
+        client = httpx.AsyncClient
+        with patch.dict(os.environ, {'EKISPERT_API_KEY': 'test'}), patch('app.station_search.httpx.AsyncClient', side_effect=lambda **kw: client(transport=httpx.MockTransport(handler), **kw)):
+            result = await search_stations('岐阜', prefecture_code='21')
+        self.assertEqual([p.prefecture for p in result], ['岐阜県'])
+        self.assertEqual(len(calls), 2)
+
     async def test_query_and_missing_key(self):
         with patch.dict(os.environ, {'EKISPERT_API_KEY': ''}):
             for query, status in [('', 422), ('駅', 422), ('x' * 81, 422), ('京都', 503)]:
@@ -75,6 +92,12 @@ class StationSearchEndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [station.model_dump() for station in candidates])
         search.assert_awaited_once_with("中野")
+
+    def test_scoped_request_passes_prefecture_and_rejects_invalid_code(self):
+        with patch("app.main.search_stations", new=AsyncMock(return_value=[])) as search:
+            self.assertEqual(self.client.get("/api/stations/search", params={"q":"岐阜", "prefecture_code":"21"}).status_code, 200)
+            search.assert_awaited_once_with("岐阜", prefecture_code="21")
+            self.assertEqual(self.client.get("/api/stations/search", params={"q":"岐阜", "prefecture_code":"99"}).status_code, 422)
 
     def test_empty_query_rejected_before_provider(self):
         with patch("app.main.search_stations", new=AsyncMock()) as search:

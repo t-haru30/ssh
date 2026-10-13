@@ -44,7 +44,7 @@ async def _get(client: httpx.AsyncClient, path: str, key: str, **params) -> dict
         raise HTTPException(502, "駅検索のデータを取得できませんでした。再度お試しください。") from error
 
 
-async def search_stations(query: str) -> list[StationCandidate]:
+async def search_stations(query: str, prefecture_code: str | None = None) -> list[StationCandidate]:
     query = unicodedata.normalize("NFKC", query).strip()
     if not query or len(query) > 80:
         raise HTTPException(422, "駅名は1〜80文字で入力してください。")
@@ -58,11 +58,14 @@ async def search_stations(query: str) -> list[StationCandidate]:
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
     async with httpx.AsyncClient(timeout=provider_timeout(8), follow_redirects=False,
                                  headers={"Referer": referer} if referer else {}) as client:
-        light = await _get(client, "station/light", key, name=query, nameMatchType="partial", type="train")
+        light = await _get(client, "station/light", key, name=query, nameMatchType="partial", type="train",
+                           **({"prefectureCode": str(int(prefecture_code))} if prefecture_code else {}))
         candidates = []
         seen = set()
         points = _as_list(light.get("Point"))
         for point in points[:30]:
+            if prefecture_code and str(point.get("Prefecture", {}).get("code", "")).zfill(2) != prefecture_code:
+                continue
             station = point.get("Station", {})
             if not isinstance(station, dict) or _text(station.get("Type")) != "train":
                 continue

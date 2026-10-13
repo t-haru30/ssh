@@ -10,6 +10,8 @@ import { savedOvernight, type OvernightSnapshot } from "./overnightFavorite";
 import { FavoritesProvider } from "./useFavorites";
 import { PrefectureProvider } from "./PrefectureContext";
 import type { ReactElement } from "react";
+// Image lookup is independent of itinerary/transport requests and tested separately.
+vi.mock("./FacilityPhoto", () => ({ FacilityPhoto: () => null }));
 
 function render(ui: ReactElement) { return testingRender(ui, { wrapper: ({ children }) => <PrefectureProvider><FavoritesProvider>{children}</FavoritesProvider></PrefectureProvider> }); }
 

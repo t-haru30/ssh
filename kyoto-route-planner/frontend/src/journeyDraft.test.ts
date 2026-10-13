@@ -59,7 +59,7 @@ describe("browser journey draft", () => {
     expect(restored?.plan.date).toBe("2020-04-10");
     expect(restored?.plan.stops[0].locked).toBe(true);
     expect(restored?.plan.estimatedTravel).toBe(true);
-    expect(restored?.plan.travelCost).toBeNull();
+    expect(restored?.plan.provisionalCosts).toBe(true);
   });
   it("restores independent return destination, multiple preferences, reasons and nullable allocations", () => {
     const returnTo = { ...origin, name: "帰着駅", latitude: 35.01 };

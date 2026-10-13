@@ -286,3 +286,18 @@ it("shows unanswered tags without selection and restores the full deck on ordina
   expect(view.container.querySelector(".discover-progress")?.textContent).toBe(initialCount);
   expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false);
 });
+
+it("keeps destination stations inside the selected prefecture", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => url.startsWith("/api/stations/search") ? {ok: true, json: async () => [{name:"岐阜",latitude:35.410,longitude:136.757,code:"gifu",prefecture:"岐阜県",lines:[]}]} : noPhoto));
+  mount(); next();
+  fireEvent.change(screen.getByLabelText("行き先の都道府県"), {target:{value:"gifu"}});
+  expect(within(screen.getByLabelText("行き先の駅・観光の起点")).queryByRole("option", {name:"京都駅"})).toBeNull();
+  const field = screen.getByLabelText("行き先の駅・観光の起点").closest("fieldset")!;
+  fireEvent.click(within(field).getByRole("button", {name:"駅名で探す"}));
+  fireEvent.change(within(field).getByLabelText("駅名を入力"), {target:{value:"岐阜"}});
+  fireEvent.click(within(field).getByRole("button", {name:"駅を検索"}));
+  fireEvent.click(await within(field).findByRole("button", {name:/岐阜.*岐阜県/}));
+  expect((screen.getByLabelText("行き先の都道府県") as HTMLSelectElement).value).toBe("gifu");
+  expect((screen.getByLabelText("県をまたぐ候補も含める") as HTMLInputElement).checked).toBe(false);
+  expect((screen.getByLabelText("行き先の駅・観光の起点") as HTMLSelectElement).selectedOptions[0].textContent).toContain("岐阜");
+});

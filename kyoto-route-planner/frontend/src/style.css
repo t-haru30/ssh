@@ -642,3 +642,6 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 520px) {
   .hero-map { margin: 0 -17px; height: 45vh; }
 }
+
+/* Contain transformed cards so mobile Safari keeps the viewport width. */
+.discover-stack, .idea-stage { overflow: hidden; overflow: clip; overflow-clip-margin: 20px; }

@@ -61,7 +61,7 @@ describe("local facility composition", () => {
 });
 
 it("uses explicit pace independently of age, gender and companion", () => {
- const pool = [place("one", 35.001), place("two", 35.002), place("three", 35.003), place("four", 35.004)];
+ const pool = [place("one", 35.001), place("two", 35.002), place("three", 35.003), place("four", 35.004), place("five", 35.005), place("six", 35.006)];
  const empty = { age_group: "unspecified" as const, gender: "unspecified" as const, companion: "unspecified" as const };
  expect(composeLocalRoutes({ ...conditions, traveler: empty }, pool)).toEqual(composeLocalRoutes(conditions, pool));
  for (const [pace, count, stay, fullStay] of [["relaxed", 2, 75, 120], ["standard", 3, 60, 105], ["packed", 4, 45, 75]] as const) {
@@ -72,7 +72,7 @@ it("uses explicit pace independently of age, gender and companion", () => {
      expect(route.spots.every(spot => spot.stay_minutes === stay)).toBe(true);
      expect(route.estimated_minutes).toBeLessThanOrEqual(300);
      const full = composeLocalRoutes({ ...conditions, course: "full_day", traveler }, pool)[0];
-     expect(full.spots).toHaveLength(count);
+     expect(full.spots).toHaveLength(Math.min(pool.length, count + 2));
      expect(full.spots[0].stay_minutes).toBe(fullStay);
      expect(full.estimated_minutes).toBeLessThanOrEqual(600);
      expect(route.recommendation_reason).toContain(`${count}か所`);
@@ -97,4 +97,16 @@ it("uses companion context to rank categories within the chosen theme and radius
  expect(composeLocalRoutes(conditions, pool)[0].spots[0].name).toBe("近い公園");
  expect(composeLocalRoutes({ ...conditions, traveler }, pool)[0].spots[0].name).toBe("美術館");
  expect(composeLocalRoutes({ ...conditions, theme: "nature", traveler }, pool)[0].spots.map(p => p.name)).toEqual(["近い公園"]);
+});
+
+it("mixes regional food with sightseeing for a full day", () => {
+ const base = { ...conditions, entry: {...entry,id:"iwate",name:"岩手県"}, origin:{name:"盛岡駅",latitude:39.702,longitude:141.136}, theme:"food" as const, course:"full_day" as const };
+ const pool = Array.from({length:8}, (_,i) => ({...place(String(i),39.703+i*.001,"iwate",i === 0 ? "飲食店" : "博物館"), name:i === 0 ? "盛岡冷麺の店" : `博物館${i}`,longitude:141.137}));
+ const routes = composeLocalRoutes(base,pool);
+ expect(routes.length).toBeGreaterThan(0);
+ for (const route of routes) {
+   expect(route.spots.some(p => p.name === "盛岡冷麺の店")).toBe(true);
+   expect(route.spots.length).toBeGreaterThanOrEqual(4);
+   expect(route.estimated_minutes).toBeGreaterThanOrEqual(360);
+ }
 });

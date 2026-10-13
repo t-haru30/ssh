@@ -36,8 +36,8 @@ describe("local initial day trip", () => {
     expect(high.knownCost).toBe(2100);
     expect(low.stops.map(stop => stop.place.id)).toEqual([coffee.id]);
     expect(low.knownCost).toBe(600);
-    expect(low.totalCost).toBeNull();
-    expect(low.violations.join(" ")).toContain("予算内かは未判定");
+    expect(low.provisionalCosts).toBe(true);
+    expect(low.totalCost).toBe(600);
   });
   it("combines preferences and explains actual matches deterministically without fetching", () => {
     const fetch = vi.fn(() => { throw new Error("network must not be used"); });
@@ -56,12 +56,12 @@ describe("local initial day trip", () => {
   });
   it("keeps explicit empty preferences and null planning amounts unknown", () => {
     const initial = createInitialTrip(options({ candidates: [food, coffee], foodEstimate: null, coffeeEstimate: null,
-      input: { departureTime: "09:00", availableMinutes: 240, budget: 0, preferences: [] } }));
+      input: { departureTime: "09:00", availableMinutes: 240, budget: 5000, preferences: [] } }));
     expect(initial.input.preferences).toEqual([]);
     expect(initial.stops.every(stop => stop.spending === null)).toBe(true);
     expect(initial.planningEstimates).toEqual({ food: null, coffee: null });
     expect(initial.transportEstimate).toBeNull();
-    expect(initial.totalCost).toBeNull();
+    expect(initial.provisionalCosts).toBe(true);
     expect(initial.transport.route.reasons?.[food.id]).not.toContain("希望の");
   });
   it("keeps distinct return destination and rejects an impossible window without losing conditions", () => {
@@ -72,7 +72,7 @@ describe("local initial day trip", () => {
     expect(initial.returnTo).toEqual(returnTo);
     expect(initial.input).toEqual(supplied.input);
     expect(initial.violations.join(" ")).toContain("初期案がありません");
-    expect(initial.travelCost).toBeNull();
+    expect(initial.provisionalCosts).toBe(true);
     expect(initial.transport.route.coordinates?.at(-1)).toEqual([35.2, 135]);
   });
   it("retains an affordable preference alternative outside the highest relevance cluster", () => {

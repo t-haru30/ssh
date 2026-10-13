@@ -33,7 +33,7 @@ describe("RouteDetailModal", () => {
       ],
     };
     render(<RouteDetailModal route={route} onClose={() => {}} />);
-    expect(screen.getByText(/09:00 出発：上野駅/)).toBeTruthy();
+    expect(screen.getByText(/現地09:00開始のモデルコース：上野駅/)).toBeTruthy();
     expect(screen.getByText("徒歩で約10分")).toBeTruthy();
     expect(screen.getByText("車で約15分")).toBeTruthy();
     expect(screen.getByText("公共交通で約20分")).toBeTruthy();
@@ -48,7 +48,7 @@ describe("RouteDetailModal", () => {
     const onPlan = vi.fn();
     const onClose = vi.fn();
     render(<RouteDetailModal route={savedRoute} onClose={onClose} onPlanInSearch={onPlan} />);
-    expect(screen.getByText(/出発の目安：東京都・エリア中心/)).toBeTruthy();
+    expect(screen.getByText(/観光の起点：東京都・エリア中心/)).toBeTruthy();
     expect(screen.getByText(/滞在の目安 45分/)).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId("map-origin").textContent).toBe("東京都・エリア中心"));
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "閉じる" }));

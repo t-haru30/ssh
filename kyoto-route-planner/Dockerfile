@@ -17,6 +17,8 @@ ENV PYTHONPATH=/app/backend
 ENV PORT=8080
 ENV PLACE_SEARCH_PROVIDER=public_catalog
 ENV TRAVEL_DATABASE_PATH=/tmp/conciergo/travel.sqlite3
+ENV DISCOVERY_REVIEW_DB_PATH=/tmp/conciergo/journey_reviews.sqlite3
+ENV GOOGLE_PHOTO_QUOTA_PATH=/tmp/conciergo/google_photo_quota.sqlite3
 ENV PYTHON_DOTENV_DISABLED=1
 RUN useradd --uid 10001 --create-home appuser
 USER appuser
