@@ -3,10 +3,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { PrefectureProvider } from "../PrefectureContext";
 import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
+import { clearRoutePhotoCache } from "./useRoutePhoto";
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 } }, localPlaces: Array.from({ length: 8 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
 const illustrationResponse = { ok: true, json: async () => ({ status: "unavailable", key: "a".repeat(64), image_url: null, note: "fixture" }) };
-beforeEach(() => vi.stubGlobal("fetch", vi.fn().mockResolvedValue(illustrationResponse)));
+beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn().mockResolvedValue(illustrationResponse)); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.localStorage.clear(); });
 function renderDiscoverMode(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function count() { return Number(screen.getByText(/^[0-9]+件の候補$/).textContent?.replace("件の候補", "")); }
@@ -26,8 +27,9 @@ describe("DiscoverMode dynamic facilities", () => {
     expect(count()).toBeGreaterThan(1); expect(screen.getAllByText(/博物館/).length).toBeGreaterThan(0);
     expect(fetchMock.mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(0);
   });
-  it("saves and undoes a local composition", () => {
+  it("saves and undoes a local composition", async () => {
     renderDiscoverMode(); const total = count();
+    await act(async () => {});
     fireEvent.click(screen.getByRole("button", { name: "しおりを開く" }));
     const favorites = JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]");
     expect(favorites).toHaveLength(1); expect(favorites[0].places.every((p: { id: string }) => p.id.startsWith("facility-"))).toBe(true);
@@ -35,8 +37,8 @@ describe("DiscoverMode dynamic facilities", () => {
     fireEvent.click(screen.getByRole("button", { name: "元に戻す" }));
     expect(JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]")).toHaveLength(0); expect(screen.getByText(`1 / ${total}`)).toBeTruthy();
   });
-  it("restores browsing position across themes and offers a recovery from an empty theme", () => {
-    renderDiscoverMode(); const total = count(); fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+  it("restores browsing position across themes and offers a recovery from an empty theme", async () => {
+    renderDiscoverMode(); const total = count(); await act(async () => {}); fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
     fireEvent.click(screen.getByRole("button", { name: "グルメ" })); expect(count()).toBe(0);
     expect((screen.getByRole("button", { name: "しおりを開く" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "すべての候補を見る" })); expect(screen.getByText(`2 / ${total}`)).toBeTruthy();
@@ -61,8 +63,9 @@ describe("DiscoverMode dynamic facilities", () => {
     await act(async () => { resolve({ ok: true, json: async () => ({ routes: [], note: "stale result" }) }); });
     await waitFor(() => expect(screen.queryByText("stale result")).toBeNull()); expect(count()).toBe(0);
   });
-  it("plans the saved route after skipping subsequent candidates", () => {
+  it("plans the saved route after skipping subsequent candidates", async () => {
     const onPlan = vi.fn(); renderDiscoverMode(onPlan);
+    await act(async () => {});
     const plan = screen.getByRole("button", { name: /この条件で乗換つきの経路を作る/ });
     fireEvent.click(plan); const first = onPlan.mock.calls[0][0]; onPlan.mockClear();
     fireEvent.click(screen.getByRole("button", { name: "しおりを開く" }));
@@ -74,5 +77,69 @@ describe("DiscoverMode dynamic facilities", () => {
     const onPlan = vi.fn(); renderDiscoverMode(onPlan);
     fireEvent.click(screen.getByRole("button", { name: /この条件で乗換つきの経路を作る/ }));
     expect(onPlan).toHaveBeenCalledWith(expect.objectContaining({ area: "kyoto", spots: expect.any(Array) }), true);
+  });
+  it("keeps the current card until the already-prefetched next photo has decoded", async () => {
+    const replies: Array<() => void> = [];
+    const decoded: Array<() => void> = [];
+    vi.stubGlobal("Image", class {
+      onload: (() => void) | null = null; onerror: (() => void) | null = null;
+      complete = false; naturalWidth = 0; decoding = "";
+      set src(_url: string) { queueMicrotask(() => this.onload?.()); }
+      decode() { return new Promise<void>(resolve => decoded.push(resolve)); }
+      removeAttribute() {}
+    });
+    vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) => new Promise(resolve => {
+      const place = JSON.parse(String(init?.body)).places[0];
+      replies.push(() => resolve({ ok: true, json: async () => ({ status: "ready", place_id: place.id, place_name: place.name,
+        image_url: `https://upload.wikimedia.org/wikipedia/commons/a/ab/${place.id}.jpg`,
+        author_name: "Author", source_url: "https://commons.wikimedia.org/wiki/File:Photo.jpg",
+        license_name: "CC BY 4.0", license_url: "https://creativecommons.org/licenses/by/4.0/",
+        image_verified: true, ai_checked: false, note: "" }) }));
+    })));
+    renderDiscoverMode(); const total = count();
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3));
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    expect(screen.getByText(`1 / ${total}`)).toBeTruthy();
+    expect(screen.getByText("次のカードの写真を準備しています…")).toBeTruthy();
+    await act(async () => replies.forEach(reply => reply()));
+    await waitFor(() => expect(decoded).toHaveLength(3));
+    expect(screen.getByText(`1 / ${total}`)).toBeTruthy();
+    expect(fetch).toHaveBeenCalledTimes(3);
+    await act(async () => decoded.forEach(complete => complete()));
+    await waitFor(() => expect(screen.getByText(`2 / ${total}`)).toBeTruthy());
+    expect(screen.queryByText("次のカードの写真を準備しています…")).toBeNull();
+  });
+  it("does not advance after a pending photo wait is cancelled or its filters change", async () => {
+    const replies: Array<() => void> = [];
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(resolve => replies.push(() => resolve(illustrationResponse)))));
+    renderDiscoverMode(); const total = count();
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3));
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    fireEvent.click(screen.getByRole("button", { name: "待機をやめる" }));
+    await act(async () => replies.forEach(reply => reply()));
+    expect(screen.getByText(`1 / ${total}`)).toBeTruthy();
+    clearRoutePhotoCache();
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    fireEvent.click(screen.getByRole("button", { name: "グルメ" }));
+    await act(async () => replies.forEach(reply => reply()));
+    expect(count()).toBe(0);
+    expect(screen.queryByText("次のカードの写真を準備しています…")).toBeNull();
+  });
+  it("cancels a pending advance when undo is used from the previous action notice", async () => {
+    const replies: Array<() => void> = [];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(illustrationResponse)
+      .mockResolvedValueOnce(illustrationResponse).mockResolvedValueOnce(illustrationResponse)
+      .mockImplementation(() => new Promise(resolve => replies.push(() => resolve(illustrationResponse)))));
+    renderDiscoverMode(); const total = count();
+    await act(async () => {});
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    expect(screen.getByText(`3 / ${total}`)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "スキップ" }));
+    expect(screen.getByText("次のカードの写真を準備しています…")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "元に戻す" }));
+    await act(async () => replies.forEach(reply => reply()));
+    expect(screen.getByText(`2 / ${total}`)).toBeTruthy();
+    expect(screen.queryByText("次のカードの写真を準備しています…")).toBeNull();
   });
 });

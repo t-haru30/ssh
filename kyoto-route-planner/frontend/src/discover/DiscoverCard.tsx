@@ -36,15 +36,16 @@ type DiscoverCardProps = {
   exitDirection: DiscoverDirection;
   onSwipe: (direction: DiscoverDirection) => void;
   active?: boolean;
+  preparingNext?: boolean;
 };
 
-export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true }: DiscoverCardProps) {
+export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true, preparingNext = false }: DiscoverCardProps) {
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
   const selection = useMemo(() => routeSelection(route), [route]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
-  const photoState = useRoutePhoto(selection.places, depth === 0 && active);
+  const photoState = useRoutePhoto(selection.places, depth < 3 && active);
   const photo = photoState.photo?.status === "ready" ? photoState.photo : null;
   const imageStatus = photoState.status === "loading" ? "施設の写真を確認しています…"
     : photo ? "実際の施設写真 · 施設名・位置を照合"
@@ -72,6 +73,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
           icon: categoryIcon(spot.category),
         }))}
       imageUrl={photo?.image_url}
+      imageReady={photoState.status === "ready"}
       photoPlaceName={photo?.place_name}
       authorName={photo?.author_name}
       sourceUrl={photo?.source_url}
@@ -84,6 +86,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
         : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
+      isProcessing={preparingNext}
       acceptLabel="しおりを開く"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}

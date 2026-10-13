@@ -15,6 +15,7 @@ import "./discover.css";
 import { TravelRangeControl } from "../TravelRangeControl";
 import { composeLocalRoutes, isDiscoverResponse } from "./dynamicRoutes";
 import { ProgressStatus, ROUTE_STEPS } from "../ProgressStatus";
+import { isRoutePhotoPrepared, prepareRoutePhoto } from "./useRoutePhoto";
 
 const indexEntries = [...(prefectureIndex as RouteDatasetIndex).prefectures].sort((a, b) => a.prefecture_code.localeCompare(b.prefecture_code));
 const themes = [
@@ -47,6 +48,8 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const [generating, setGenerating] = useState(false);
   const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const advanceRef = useRef<AbortController | null>(null);
+  const [preparingNext, setPreparingNext] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
@@ -56,6 +59,10 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   const localRoutes = useMemo(() => composeLocalRoutes({ entry, origin, theme, course: pattern, radius, crossPrefecture, variation }), [entry, origin, theme, pattern, radius, crossPrefecture, variation]);
   const routes = remote?.key === conditionsKey ? remote.routes : localRoutes;
   const collectionKey = `${conditionsKey}:${remote?.key === conditionsKey ? "api" : "local"}`;
+  useEffect(() => {
+    advanceRef.current?.abort(); advanceRef.current = null; setPreparingNext(false);
+    return () => { advanceRef.current?.abort(); advanceRef.current = null; };
+  }, [collectionKey, active, generating]);
   useEffect(() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); setSelected(null); setNotice(null); }, [conditionsKey]);
   useEffect(() => () => requestRef.current?.abort(), []);
   async function generate() {
@@ -85,13 +92,34 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
   }
   function updateCollection(next: BrowseState) { setCollections(current => ({ ...current, [collectionKey]: next })); }
   function undo() {
+    cancelAdvance();
     if (!history.length) return;
     const savedId = history[history.length - 1].savedId;
     if (savedId && !removeFavorite(savedId)) { setNotice("保存の取り消しができませんでした。もう一度お試しください。"); return; }
     updateCollection({ index: Math.max(0, index - 1), history: history.slice(0, -1) });
     setExitDirection("pass"); setSelected(null); setNotice(null);
   }
-  function swipe(direction: DiscoverDirection) {
+  function cancelAdvance() { advanceRef.current?.abort(); advanceRef.current = null; setPreparingNext(false); }
+  async function swipe(direction: DiscoverDirection) {
+    if (advanceRef.current || generating || !active) return;
+    const controller = new AbortController();
+    advanceRef.current = controller;
+    const next = routes[index + 1];
+    try {
+      if (next) {
+        const places = routeSelection(next).places;
+        if (!isRoutePhotoPrepared(places)) {
+          setPreparingNext(true);
+          await prepareRoutePhoto(places, controller.signal);
+        }
+      }
+      if (!controller.signal.aborted && advanceRef.current === controller) commitSwipe(direction);
+    } catch { /* A changed filter or cancelled wait keeps the current card. */ }
+    finally {
+      if (advanceRef.current === controller) { advanceRef.current = null; setPreparingNext(false); }
+    }
+  }
+  function commitSwipe(direction: DiscoverDirection) {
     const current = routes[index];
     if (!current) return;
     let savedId: string | null = null;
@@ -146,11 +174,12 @@ export function DiscoverMode({ active, onPlanInSearch }: DiscoverModeProps) {
         <p className="discover-fallback-status" role="status">{theme === "all" ? "すべての気分" : themes.find(item => item.id === theme)?.label} · {pattern === "all" ? "時間の指定なし" : pattern === "half_day" ? "半日コース" : "1日コース"}</p>
         <div className="discover-conditions-summary"><span>{origin.name}発 · 半径{radius}km</span><button type="button" onClick={() => { filtersRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); filtersRef.current?.focus({ preventScroll: true }); }}>条件を変更 <span aria-hidden="true">↑</span></button></div>
         {generating && <ProgressStatus title="あなたの旅を組み立てています" steps={ROUTE_STEPS} onCancel={() => { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); }} />}
-        <div className="discover-stack" aria-busy={generating}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
+        <div className="discover-stack" aria-busy={generating || preparingNext}><AnimatePresence custom={exitDirection}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={route.id} route={route} depth={depth} active={active && !generating} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">⌁</span><strong>この条件の候補は、まだありません</strong><p>気分や時間を変えると、新しいConcierGOが見つかるかも。</p><button type="button" className="idea-primary-button" onClick={() => { setTheme("all"); setPattern("all"); }}>すべての候補を見る</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>お気に入りの旅は「保存済み」から見返せます。</p><button type="button" className="idea-primary-button" onClick={() => { updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}
         </div>
-        <div className="discover-actions"><button type="button" className="discover-action undo" onClick={undo} disabled={!history.length} aria-label="1つ前に戻す">↶</button><button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length} aria-label="スキップ"><span aria-hidden="true">↗</span>次の候補</button><button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={!stack.length} aria-label="しおりを開く"><span aria-hidden="true">♡</span>保存して詳細を見る</button></div>
+        <div className="discover-actions"><button type="button" className="discover-action undo" onClick={undo} disabled={!history.length || preparingNext || generating} aria-label="1つ前に戻す">↶</button><button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length || preparingNext || generating} aria-label="スキップ"><span aria-hidden="true">↗</span>次の候補</button><button type="button" className="discover-action like" onClick={() => swipe("like")} disabled={!stack.length || preparingNext || generating} aria-label="しおりを開く"><span aria-hidden="true">♡</span>保存して詳細を見る</button></div>
+        {preparingNext && <div className="discover-photo-pending" role="status"><span>次のカードの写真を準備しています…</span><button type="button" onClick={cancelAdvance}>待機をやめる</button></div>}
         <div className="discover-deck-meta"><span className="discover-progress">{Math.min(index + 1, routes.length)} / {routes.length}</span>{stack[0] && <button type="button" onClick={() => setSelected(stack[0])}>保存せずに詳細を見る →</button>}</div>
         {notice && <div className="discover-toast" role="status"><span>{notice}</span>{history.length > 0 && <button type="button" onClick={undo}>元に戻す</button>}</div>}
         <details className="discover-data-note"><summary>移動時間・提案の範囲について</summary><p>{remote?.key === conditionsKey ? remote.note : `施設候補から条件に合わせて作成しました。半径${radius}km以内で検索範囲を自動調整します。候補が少ない場合はスポット数を減らします。移動時間は推定です。`}</p></details>

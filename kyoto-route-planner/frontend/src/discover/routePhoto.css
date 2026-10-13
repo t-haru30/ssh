@@ -20,3 +20,6 @@
 .route-photo-credit { padding-top: 10px; border-top: 1px solid var(--line); }
 .route-photo-credit a:focus-visible, .swipe-spot-open:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .route-photo-crop { color: var(--muted); }
+.discover-photo-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; padding: 12px; color: var(--muted); font-size: 13px; }
+.discover-photo-pending button { color: var(--accent); background: transparent; border: 0; padding: 8px; font: inherit; text-decoration: underline; cursor: pointer; }
+.discover-photo-pending button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
