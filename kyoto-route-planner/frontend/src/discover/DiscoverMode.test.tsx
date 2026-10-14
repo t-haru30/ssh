@@ -166,11 +166,11 @@ describe("sequential discovery", () => {
     goMood();
     expect(screen.queryByRole("button", { name: "家族と" })).toBeNull();
     expect(screen.getByRole("group", { name: "家族でどんな時間を過ごしたい？" })).toBeTruthy();
-    fireEvent.change(screen.getByLabelText(/ほかに、やってみたいこと/), { target: { value: "庭園で休みたい" } });
+    fireEvent.change(screen.getByLabelText(/旅に加えたいことはありますか？/), { target: { value: "庭園で休みたい" } });
     fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
     expect(screen.queryByRole("textbox")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "← 戻る" }));
-    expect((screen.getByLabelText(/ほかに、やってみたいこと/) as HTMLTextAreaElement).value).toBe("庭園で休みたい");
+    expect((screen.getByLabelText(/旅に加えたいことはありますか？/) as HTMLTextAreaElement).value).toBe("庭園で休みたい");
     expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(0);
   });
   it("sends choices, free text, and selected departure to generation", async () => {
@@ -180,7 +180,7 @@ describe("sequential discovery", () => {
     goMood();
     fireEvent.click(screen.getByRole("button", { name: "ゆっくり過ごしたい" }));
     fireEvent.click(screen.getByRole("button", { name: "半日" }));
-    fireEvent.change(screen.getByLabelText(/ほかに、やってみたいこと/), { target: { value: "庭園で休みたい" } });
+    fireEvent.change(screen.getByLabelText(/旅に加えたいことはありますか？/), { target: { value: "庭園で休みたい" } });
     fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
     fireEvent.click(within(screen.getByRole("group", { name: "出発地点" })).getByRole("button", { name: "駅名で探す" }));
     fireEvent.change(screen.getByLabelText("駅名を入力"), { target: { value: "二条" } });
@@ -270,7 +270,7 @@ it("changes destination directly while retaining profile, mood and free-text ans
   revealThemes(); fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
   goMood();
   fireEvent.click(screen.getByRole("button", { name: "半日" }));
-  fireEvent.change(screen.getByLabelText(/ほかに、やってみたいこと/), { target: { value: "博物館に寄りたい" } });
+  fireEvent.change(screen.getByLabelText(/旅に加えたいことはありますか？/), { target: { value: "博物館に寄りたい" } });
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   await generate();
   fireEvent.click(screen.getByRole("button", { name: "行き先を選び直す" }));

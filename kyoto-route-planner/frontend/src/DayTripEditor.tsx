@@ -349,9 +349,9 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     }
   }
   return <section className="trip-editor" aria-labelledby="trip-editor-title"><fieldset className="trip-controls" disabled={busy}>
-    <header className="trip-heading"><div><h3 id="trip-editor-title" tabIndex={-1} ref={headingRef}>今日の旅を、あなたのペースで</h3></div><span className="trip-lock-count">{lockedCount ? `${lockedCount}件を固定中` : "自由に調整できます"}</span></header>
+    <header className="trip-heading"><div><h3 id="trip-editor-title" tabIndex={-1} ref={headingRef}>今日の旅を、あなたのペースで</h3></div>{lockedCount > 0 && <span className="trip-lock-count">{lockedCount}件を固定中</span>}</header>
     {completedCount > 0 && <p className="trip-completed-note"><strong>{completedCount}か所を訪問済み</strong> 記録した場所・時刻・滞在時間を保ち、これからの予定を調整します。</p>}
-    <div className="trip-overview"><span>{plan.date.replaceAll("-", "/")} · {endpointsLabel(plan)}</span><span>{plan.stops.length}か所の寄り道</span></div>
+    <div className="trip-overview"><span>{plan.stops.length}か所の寄り道</span></div>
     <OvernightSuggestion plan={plan} pending={transitState === "loading"} />
     <div className="trip-route-status" role="status" aria-live="polite">
       {transitState === "loading" ? "公共交通の経路と、旅全体の所要時間を確認しています…" : transitState === "ready" ? `移動・滞在を含む総時間 約${durationLabel(usedMinutes)}` : unknownTravel ? "一部の交通経路が未確認です。" : `移動・滞在を含む総時間（概算）約${durationLabel(usedMinutes)}。未確認の区間があります。`}
@@ -384,7 +384,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <details className="trip-check-toggle"><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
     <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
-    <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong><span>ここから、今日の寄り道へ</span></div><span aria-hidden="true">START</span></div>
+    <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong></div><span aria-hidden="true">START</span></div>
     {!plan.stops.length && <div className="trip-empty"><span aria-hidden="true">＋</span><h4>次の寄り道を、ひとつ。</h4><p>下の「寄り道を追加」から行き先を選べます。<br />変更案を確認して、旅程に加えましょう。</p></div>}
     <ol className="trip-stops">
       {plan.stops.map((stop, index) => <li key={stop.place.id} data-spot-id={stop.place.id} className={`trip-stop${stop.completed ? " is-completed" : stop.locked ? " is-locked" : ""}`}>

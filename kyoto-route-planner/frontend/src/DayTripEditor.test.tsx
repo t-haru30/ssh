@@ -136,7 +136,8 @@ describe("DayTripEditor", () => {
     expect((screen.getByLabelText("使える時間（時間）") as HTMLInputElement).value).toBe("10");
     expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("0");
     expect((screen.getByLabelText("1人あたりの予算（円）") as HTMLInputElement).value).toBe("7000");
-    expect(screen.getByText("2026/10/12 · 京都駅発 → 大阪駅着")).toBeTruthy();
+    expect(screen.queryByText("2026/10/12 · 京都駅発 → 大阪駅着")).toBeNull();
+    expect(screen.getByText("2か所の寄り道")).toBeTruthy();
     expect(screen.getByText(/大阪駅に帰着/)).toBeTruthy();
     expect(screen.getByText(preferenceReason(places[0], ["nature", "culture"]))).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "美術館を削除" }));

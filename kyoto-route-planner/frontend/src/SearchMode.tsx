@@ -719,7 +719,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。「条件を変更する」から日付を確認し、交通経路を再検索してください。</p>}
           <section className="results-section" aria-live="polite">
             <div className="section-heading results-heading">
-              <div><p className="eyebrow">MY DAY TRIP</p><h2>私の旅のしおり</h2>{!isOvernight && <label className="plan-title-input">プラン名<input maxLength={500} value={planTitle} placeholder="旅の名前を入力" onChange={event => setPlanTitle(event.target.value)} /></label>}</div>
+              <div><h2>私の旅のしおり</h2>{!isOvernight && <label className="plan-title-input">プラン名<input maxLength={500} value={planTitle} placeholder="旅の名前を入力" onChange={event => setPlanTitle(event.target.value)} /></label>}</div>
               <button type="button" className="journey-save-button" disabled={searching || (isOvernight ? !overnightResult : !dayTripPlan?.stops.length)} onClick={() => {
                 try {
                   const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
