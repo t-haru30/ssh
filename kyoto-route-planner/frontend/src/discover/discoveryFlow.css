@@ -4,10 +4,10 @@
 .discovery-progress-step[data-complete="true"] .discovery-progress-connector { background:var(--forest); }
 .discovery-progress-step:last-child .discovery-progress-connector { display:none; }
 .discovery-progress-step > button,
-.discovery-progress-label { position:relative; z-index:1; display:flex; align-items:center; gap:8px; border:0; padding:0; background:none; color:inherit; font:inherit; }
+.discovery-progress-label { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:6px; border:0; padding:0; background:none; color:inherit; font:inherit; }
 .discovery-progress-step > button { cursor:pointer; }
 .discovery-progress-step > button:hover { color:var(--forest); }
-@media(max-width:600px) { .discovery-progress-step > button, .discovery-progress-label { flex-direction:column; gap:6px; font-size:13px; } }
+@media(max-width:600px) { .discovery-progress-step > button, .discovery-progress-label { font-size:13px; } }
 .discovery-progress b { display:grid; place-items:center; width:30px; height:30px; border:1px solid var(--line); border-radius:50%; font-size:11px; }
 .discovery-progress [aria-current="step"] { color:var(--forest); font-weight:700; }
 .discovery-progress [aria-current="step"] b, .discovery-progress [data-complete="true"] b { background:var(--forest); color:var(--on-accent); border-color:var(--forest); }
@@ -30,9 +30,9 @@
 .discovery-next > button { min-height:48px; }
 .discovery-next > button:not(.idea-primary-button) { background:none; border:0; color:var(--muted); }
 .discovery-next .idea-primary-button { margin-left:auto; padding:16px 24px; border-radius:14px; }
-.discovery-next .discovery-next-button { background:#c43e26; }
-.discovery-next .discovery-next-button:hover:not(:disabled) { background:#a93420; }
-.discovery-next .discovery-next-button:disabled { opacity:1; background:color-mix(in srgb, var(--accent) 38%, var(--paper)); color:var(--ink); }
+.discovery-next .discovery-next-button { background:var(--forest); color:var(--on-accent); }
+.discovery-next .discovery-next-button:hover:not(:disabled) { background:var(--forest-deep); }
+.discovery-next .discovery-next-button:disabled { opacity:1; background:var(--forest); color:var(--on-accent); }
 .departure-location { margin-top:12px; }
 .departure-location button { min-height:44px; padding:10px 18px; border:1px solid var(--forest); border-radius:12px; background:var(--paper); color:var(--forest); font:inherit; cursor:pointer; }
 .departure-location p { color:var(--muted); font-size:14px; line-height:1.8; }

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { PrefectureProvider } from "./PrefectureContext";
 import { FavoritesProvider } from "./useFavorites";
+import "@fontsource-variable/noto-sans-jp";
 import "./style.css";
 import "./app.css";
 import "./conciergo.css";
