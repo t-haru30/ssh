@@ -24,8 +24,8 @@ def request(**kwargs):
 
 
 def selection(places, fit="distance"):
-    return {"routes": [{"places": [{"id": p.id, "name": p.name, "latitude": p.latitude,
-        "longitude": p.longitude, "fact_ids": ["category"], "fit": fit} for p in places]}]}
+    return {"routes": [{"places": [{"id": p.id,
+        "fact_ids": ["category"], "fit": fit} for p in places]}]}
 
 
 def turns(pool, choices=None):
@@ -73,6 +73,44 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
     async def recommend(self, **kwargs):
         return await agent.recommend_routes(kwargs.get("request", self.request), kwargs.get("pool", self.pool), self.fallback)
 
+    def http_error(self, status, headers=None):
+        return httpx.HTTPStatusError("sensitive provider message", request=httpx.Request("POST", "https://example.test"),
+            response=httpx.Response(status, headers=headers))
+
+    async def test_transient_http_retry_preserves_turn_and_reserves_budget(self):
+        replies = turns(self.pool)
+        self.call.side_effect = [replies[0], self.http_error(503), replies[1], replies[2]]
+        with patch.object(agent.asyncio, "sleep", new=AsyncMock()):
+            result = await self.recommend()
+        self.assertEqual(result["agent"]["status"], "ready")
+        self.assertEqual(self.call.await_count, 4)
+        self.assertEqual(len(agent._calls), 4)
+        self.assertEqual(self.call.await_args_list[1], self.call.await_args_list[2])
+
+    async def test_retry_is_bounded_to_one_per_recommendation(self):
+        self.call.side_effect = [self.http_error(503), self.http_error(503)]
+        with patch.object(agent.asyncio, "sleep", new=AsyncMock()):
+            result = await self.recommend()
+        self.assertEqual(result["agent"]["status"], "unavailable")
+        self.assertEqual(self.call.await_count, 2)
+
+    async def test_nontransient_and_long_or_invalid_retry_after_are_not_retried(self):
+        for status, headers in [(400, {}), (403, {}), (429, {}), (429, {"Retry-After": "30"}),
+                                (429, {"Retry-After": "not-a-delay"})]:
+            self.call.reset_mock()
+            self.call.side_effect = [self.http_error(status, headers)]
+            result = await self.recommend()
+            self.assertEqual(result["agent"]["status"], "unavailable")
+            self.assertEqual(self.call.await_count, 1)
+
+    async def test_transient_retry_cannot_exceed_reserved_quota(self):
+        self.call.side_effect = [self.http_error(503)]
+        with patch.object(agent, "CALLS_PER_MINUTE", 3):
+            result = await self.recommend()
+        self.assertEqual(result["agent"]["status"], "unavailable")
+        self.assertEqual(self.call.await_count, 1)
+        self.assertEqual(len(agent._calls), 3)
+
     async def test_agent_selects_actual_destinations_and_order_then_application_computes_time(self):
         result = await self.recommend()
         self.assertEqual(result["agent"]["status"], "ready")
@@ -97,6 +135,15 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         await self.recommend(request=request(count=1))
         constraints = json.loads(self.call.await_args_list[3].args[3][0]["parts"][0]["text"].split("\n")[0])
         self.assertEqual(constraints["requested_count"], 1)
+
+    async def test_selected_id_uses_exact_database_coordinates_without_model_echo(self):
+        pool=[place('precise',latitude=35.001123456789)]
+        self.call.side_effect=turns(pool)
+        result=await self.recommend(pool=pool)
+        self.assertEqual(result['agent']['status'],'ready')
+        self.assertEqual(result['routes'][0]['spots'][0]['lat'],pool[0].latitude)
+        schema=agent.SELECTION_SCHEMA['properties']['routes']['items']['properties']['places']['items']
+        self.assertEqual(set(schema['properties']),{'id','fact_ids','fit'})
 
     async def test_no_key_and_empty_pool_use_honest_rules_fallback_without_model(self):
         with patch.object(agent, "gemini_api_key", return_value=""):
@@ -357,7 +404,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("untrusted DATA", agent.SYSTEM_INSTRUCTION)
 
     async def test_public_discovery_uses_same_finite_pool_for_ai_and_fallback(self):
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery.load_public_places", return_value=tuple(self.pool)), patch('app.facility_quality.filter_quality',new=AsyncMock(return_value=(tuple(self.pool),{'status':'ready'}))):
             result = await discover_routes(self.request)
         self.assertEqual(result["agent"]["status"], "ready")
         self.assertEqual(result["source"], "OpenStreetMap")

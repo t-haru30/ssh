@@ -22,6 +22,7 @@ from app.regional_food import regional_score
 from app.travel_wishes import wish_score, wish_matches, wish_coverage
 from app.place_kinds import is_cafe, is_meal_place
 from app.venue_hours import visit_fits
+from app.catalog_policy import kind as facility_kind, tier, mix, score as tier_score, LABELS, allowed
 
 
 PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
@@ -160,7 +161,8 @@ def recommendation_reason(request: DiscoverRequest, ordered: list[CatalogPlace])
         label = {"family": "家族", "friends": "友人", "couple": "カップル", "solo": "ひとり旅"}[request.traveler.companion]
         matched = "・".join(dict.fromkeys(p.category for p in ordered if traveler_priority(request, p)))
         reason += f"{label}で巡る候補として、{matched}を選びました。"
-    return reason
+    labels = '・'.join(dict.fromkeys(LABELS[tier(p)] for p in ordered))
+    return reason + f' 推薦区分：{labels}。'
 
 
 def traveler_priority(request: DiscoverRequest, place: CatalogPlace) -> int:
@@ -209,10 +211,13 @@ def venue_name(name: str) -> str:
 def distinct_venues(places: list[CatalogPlace]) -> list[CatalogPlace]:
     """Conservative identity for automatic composition, never saved itineraries."""
     result: list[CatalogPlace] = []
+    by_name: dict[str, list[CatalogPlace]] = {}
     for place in places:
-        if not any(venue_name(place.name) == venue_name(other.name)
-                   and distance_km(place, other) <= 0.3 for other in result):
+        name = venue_name(place.name)
+        same_name = by_name.setdefault(name, [])
+        if not any(distance_km(place, other) <= 0.3 for other in same_name):
             result.append(place)
+            same_name.append(place)
     return result
 
 
@@ -230,13 +235,14 @@ def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ..
         and (request.meals != [] or not dinner_place(place))
         and not any(word in place.category for word in ("ホテル", "旅館", "宿泊"))
         and not is_unsuitable_place(place)
+        and allowed(place, explicit=wish_score(request.priority_text, place) > 0)
         and distance_km(request.origin, place) <= request.radius_km),
         key=lambda place: (place.region != request.prefecture_name, -wish_score(request.priority_text, place), -regional_score(request.origin, place) if request.theme == "food" else 0, distance_km(request.origin, place), place.id))
     candidates = distinct_venues(candidates)
     local = [p for p in candidates if p.region == request.prefecture_name]
     if len(local) >= max_stops(request) and preserves_choices(request, local, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in local)):
         candidates = local
-    return candidates
+    return mix(request, candidates)
 
 
 def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
@@ -319,7 +325,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         return {"routes": [], "note": "施設候補データを読み込めませんでした。", "source": "OpenStreetMap"}
     candidates = eligible_candidates(request, pool)
     # Search the nearest neighbourhood first, then widen only within the user's cap.
-    radii = sorted({min(5, request.radius_km), min(20, request.radius_km), request.radius_km})
+    radii = [request.radius_km]
     effective_radius = radii[-1]
     for radius in radii:
         nearby = [place for place in candidates if distance_km(request.origin, place) <= radius]
@@ -327,6 +333,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
             candidates, effective_radius = nearby, radius
             break
     candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -scenic_priority(p) if 'nature' in selected_themes(request) else 0, -int("有名" in request.preference_text and bool(p.tags.get("wikipedia") or p.tags.get("wikidata"))), -traveler_priority(request, p), distance_km(request.origin, p), p.id))
+    candidates = mix(request, candidates)
     routes, seen, venue_use = [], set(), {}
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
@@ -374,7 +381,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
                 break
             missing = selected_themes(request) - {t for q in ordered for t in place_themes(q)}
             covered = set().union(*(wish_matches(request.priority_text, q) for q in ordered))
-            nearest = min(options, key=lambda p: (-len(wish_matches(request.priority_text, p) - covered), -wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            nearest = min(options, key=lambda p: (-len(wish_matches(request.priority_text, p) - covered), -wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -tier_score(request, p), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -434,11 +441,11 @@ async def _base_discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[
         return result, pool
     live = {hit.place.id: hit.place for hit in search.results}
     pool = dict(live)
-    if len(live) < 6 or request.radius_km > 20:
-        try:
-            pool.update({p.id: p for p in load_public_places() if p.id not in pool})
-        except (OSError, ValueError, KeyError):
-            pass
+    # Keep landmarks even when the live provider returns abundant nearby places.
+    try:
+        pool.update({p.id: p for p in load_public_places() if p.id not in pool})
+    except (OSError, ValueError, KeyError):
+        pass
     result = build_discover_routes(request, tuple(pool.values()))
     if live:
         result["source"] = "Yahoo!ローカルサーチ / OpenStreetMap" if len(pool) > len(live) else "Yahoo!ローカルサーチ"
@@ -486,8 +493,17 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
         else:
             fallback["source"] = previous_source + " / Google Places"
             fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
+    from app.facility_quality import filter_quality
+    pool, quality = await filter_quality(request, pool, restaurants.google_results)
+    previous_source = fallback['source']
+    fallback = build_discover_routes(request, pool)
+    fallback['source'] = previous_source
+    fallback['note'] += ' 地域の全施設を網羅するものではありません。定番観光地は口コミ条件の対象外です。それ以外は口コミ評価4.2以上・50件以上を今回確認できた施設のみ選び、チェーン飲食店は除外しています。'
+    if quality['status'] == 'reviews_unavailable':
+        fallback['note'] += ' 口コミを取得できないため、未確認の候補は推薦に含めていません。'
     fallback["catalog"] = {"openpoi_status": status, "openpoi_added": added, "base_count": len(base),
         "availability_checked":bool(request._venue_hours or blocked),
+        "quality": quality,
         "restaurants_status":restaurants.status,"restaurants_found":len(restaurants.places),"restaurants_added":restaurant_added,
         "restaurants_verified":restaurants.verified_count,
         "verified_dining_ids":[p.id for p in restaurants.places] if restaurants.verified_count else [],
@@ -516,7 +532,23 @@ async def discover_route_events(request: DiscoverRequest):
 async def _select_discover_routes(request, fallback, pool):
     from app.discovery_agent import recommend_routes
     result = await recommend_routes(request, eligible_candidates(request, pool), fallback)
+    # AI may omit whole tiers; restore validated alternatives before mixing the deck.
+    from types import SimpleNamespace
+    unique_routes = {}
+    for route in [*result['routes'], *fallback['routes']]:
+        unique_routes.setdefault(tuple(sorted(s['place_id'] for s in route['spots'])), route)
+    wrappers = []
+    policy_places = {p.id:p for p in pool}
+    for route in unique_routes.values():
+        members = [policy_places[s['place_id']] for s in route['spots'] if s['place_id'] in policy_places]
+        if not members:
+            continue
+        anchor = max(members, key=lambda p:tier_score(request,p))
+        wrappers.append(SimpleNamespace(tags={'recommendation_tier':tier(anchor)}, route=route))
+    result['routes'] = [item.route for item in mix(request, wrappers)][:request.count]
     result["catalog"] = fallback["catalog"]
+    if result.get('agent',{}).get('status') == 'ready':
+        result['note'] += ' 定番以外は口コミ評価4.2以上・50件以上を今回確認できた施設のみ。チェーン飲食店は除外しています。'
     by_id = {p.id: p for p in pool}
     def route_wish_score(route):
         return wish_coverage(request.priority_text, [by_id[spot["place_id"]]

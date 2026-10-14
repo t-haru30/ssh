@@ -79,6 +79,12 @@ class CandidateValidationTests(unittest.TestCase):
 
 
 class OpenPOIAsyncTests(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        async def verified_fixture(request, candidates, existing_google=()):
+            return tuple(candidates), {'status':'ready'}
+        gate=patch('app.facility_quality.filter_quality',side_effect=verified_fixture)
+        gate.start();self.addCleanup(gate.stop)
     async def asyncSetUp(self):
         openpoi._cache.clear()
         openpoi._reverse_cache.clear()

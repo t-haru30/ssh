@@ -165,6 +165,6 @@ export function isDiscoverResponse(value: unknown): value is DiscoverResponse {
         && (p.meal_time === undefined || /^([01]\d|2[0-3]):[0-5]\d$/.test(p.meal_time))
         && (p.address === undefined || (typeof p.address === "string" && p.address.length <= 1000))
         && (p.tags === undefined || (p.tags !== null && typeof p.tags === "object" && !Array.isArray(p.tags)
-          && Object.keys(p.tags).length <= 50 && Object.entries(p.tags).every(([key, value]) => key.length <= 100 && typeof value === "string" && value.length <= 25000))));
+          && Object.keys(p.tags).length <= 256 && Object.entries(p.tags).every(([key, value]) => key.length <= 100 && typeof value === "string" && value.length <= 25000))));
   });
 }

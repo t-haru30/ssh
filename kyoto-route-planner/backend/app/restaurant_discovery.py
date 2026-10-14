@@ -175,7 +175,7 @@ async def _google_candidates(client, request, radius, key):
             return []
         try:
             response = await client.post(BASE + method, headers={"X-Goog-Api-Key":key,
-                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.primaryType,places.businessStatus,places.regularOpeningHours"}, json=body, timeout=7)
+                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.primaryType,places.businessStatus,places.regularOpeningHours,places.rating,places.userRatingCount"}, json=body, timeout=7)
             data = response.json() if response.status_code == 200 and len(response.content) <= 120_000 else None
             return [p for p in data["places"][:20] if isinstance(p, dict)] if isinstance(data, dict) and isinstance(data.get("places"), list) else []
         except (httpx.HTTPError, ValueError, TypeError):

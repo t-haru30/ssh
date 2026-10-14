@@ -9,9 +9,7 @@ import unicodedata
 from app.models import CatalogPlace, ParsedPlaceQuery, PlaceSearchHit, PlaceSearchResponse
 from app.search import _distance_m
 
-PUBLIC_CATALOG_PATH = Path(__file__).resolve().parents[1] / "data" / "public_places.json"
-if not PUBLIC_CATALOG_PATH.is_file():
-    PUBLIC_CATALOG_PATH = Path(__file__).resolve().parents[2] / "frontend" / "public" / "data" / "osm-places.json"
+PUBLIC_CATALOG_PATH = Path(__file__).resolve().parent / "data" / "facility_catalog.json"
 PUBLIC_CATALOG_NOTE = "OpenStreetMapの事前候補を検索しました。全国の施設を網羅せず、営業時間・営業状況は未確認です。"
 
 

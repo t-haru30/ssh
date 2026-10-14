@@ -66,7 +66,7 @@ class YahooOnlySearchTests(unittest.IsolatedAsyncioTestCase):
         _search_cache.clear()
         self.dotenv_patcher = patch("app.poi_search.load_dotenv")
         self.dotenv_patcher.start()
-        self.environment_patcher = patch.dict(os.environ, {"YAHOO_APP_ID": "test-app-id"})
+        self.environment_patcher = patch.dict(os.environ, {"YAHOO_APP_ID": "test-app-id", "PLACE_SEARCH_PROVIDER": "yahoo"})
         self.environment_patcher.start()
 
     def tearDown(self):
