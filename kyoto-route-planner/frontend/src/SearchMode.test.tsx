@@ -198,7 +198,7 @@ describe("SearchMode nearby departures", () => {
     const routeRequests = vi.fn();
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/routes")) {
+      if (url.split("?")[0] === "/api/routes") {
         routeRequests();
         return { ok: true, json: async () => ({ routes: [] }) } as Response;
       }

@@ -7,9 +7,9 @@ export function transitModeLabel(mode: string) {
   return ({ public_transport: "公共交通", train: "鉄道", bus: "バス", walk: "徒歩", walking: "徒歩", car: "車" } as Record<string, string>)[mode] ?? "移動手段未確認";
 }
 
-export function TripTransit({ from, to, date, departureMinute, initial, onResult }: {
+export function TripTransit({ from, to, date, departureMinute, initial, onResult, externalBusy = false }: {
   from: Origin; to: Origin; date: string; departureMinute: number;
-  initial?: RouteTimelineTransit; onResult: (result: RouteTimelineTransit) => void;
+  initial?: RouteTimelineTransit; externalBusy?: boolean; onResult: (result: RouteTimelineTransit) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -59,7 +59,7 @@ export function TripTransit({ from, to, date, departureMinute, initial, onResult
     {!!initial?.legs?.length && <details><summary>路線・乗換を見る</summary><ol>{initial.legs.map((leg, i) =>
       <li key={i}>{leg.from_name} → {leg.to_name}<br />{transitModeLabel(leg.mode)} · {leg.line_name}{leg.duration_minutes != null && ` · 約${leg.duration_minutes}分`}</li>)}</ol>
       <small>駅すぱあと検索結果。施設と駅の間の徒歩・実際の発着時刻は出発前に確認してください。</small></details>}
-    <button type="button" disabled={busy} onClick={() => void search()}>{busy ? "経路と運賃を検索中…" : "公共交通の経路・運賃を検索"}</button>
+    <button type="button" disabled={busy || externalBusy} onClick={() => void search()}>{busy || externalBusy ? "経路と運賃を検索中…" : "公共交通の経路・運賃を検索"}</button>
     {error && <p role="status">{error}</p>}
   </section>;
 }

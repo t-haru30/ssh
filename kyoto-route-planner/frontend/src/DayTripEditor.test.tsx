@@ -15,6 +15,18 @@ const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, f
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
+it("automatically searches all segments and shows total time including stays", async () => {
+  const timeline = [10, 15, 20].map(duration => ({ type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "地下鉄", duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:10", fare_yen: 200 }));
+  const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...source, timeline, coordinates: [[35,135]], total_minutes: 45 }) });
+  vi.stubGlobal("fetch", fetcher);
+  const changed = vi.fn();
+  render(<DayTripEditor {...props} onPlanChange={changed} />);
+  expect(screen.getByText(/公共交通の経路と、旅全体の所要時間を確認/)).toBeTruthy();
+  expect(await screen.findByText("移動・滞在を含む総時間 約3時間45分")).toBeTruthy();
+  expect(changed.mock.calls.at(-1)?.[0]).toMatchObject({ travelMinutes: 45, returnMinute: 765 });
+  expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
+});
+
 it("offers related nearby places only on request and preserves the plan until adoption", async () => {
   const shrine = { ...places[0], id: "shrine", name: "近所の神社", category: "神社" };
   const temple = { ...places[0], id: "temple", name: "近所のお寺", category: "寺院" };

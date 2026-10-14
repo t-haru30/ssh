@@ -30,6 +30,21 @@ function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /
 async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false)); }
 function saved() { return JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]"); }
 
+it("explains missing answers and orders departure before prefecture and gateway", () => {
+  mount();
+  expect(screen.getByRole("button", { name: /次へ：旅の気分/ }).getAttribute("aria-describedby")).toBe("discovery-next-hint");
+  expect(screen.getByText(/誰と出かけるかを選んでください/)).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "指定しない" }));
+  expect(screen.getByText("旅のペースを選んでください。")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "標準" }));
+  expect(screen.getByText("好きな過ごし方を1つ以上選んでください。")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
+  goMood(); fireEvent.click(screen.getByRole("button", { name: /次へ：行き先/ }));
+  const departure = screen.getByLabelText("出発地点"), prefecture = screen.getByLabelText("行き先の都道府県"), gateway = screen.getByLabelText("行き先の駅・観光の起点");
+  expect(departure.compareDocumentPosition(prefecture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(prefecture.compareDocumentPosition(gateway) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
 it("asks about meals after duration and sends optional times only for selected meals", async () => {
   mount(); enterMood();
   expect(screen.queryByRole("button", {name:"朝ごはん"})).toBeNull();
@@ -83,11 +98,12 @@ it("keeps multiple themes selected and includes both in the request", async () =
   expect(body.themes).toEqual(["nature", "food"]);
 });
 
-it("uses a free-text destination suggestion and supports returning to steps 1 and 3", async () => {
+it("prioritizes written wishes without a destination suggestion button and supports returning to steps 1 and 3", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => ({ ok:true, json:async () => ({ origin:{name:"京都駅",latitude:34.985849,longitude:135.758766},prefecture:"京都府",municipality:"京都市" }) })));
   mount(); goMood();
   fireEvent.change(screen.getByRole("textbox"), { target:{value:"京都市で庭園を巡りたい"} });
-  fireEvent.click(screen.getByRole("button", {name:"AIで行き先を提案"}));
+  expect(screen.queryByRole("button", {name:"AIで行き先を提案"})).toBeNull();
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先を選ぶ/}));
   await screen.findByRole("heading", {name:"どこから、どこへ？"});
   expect((screen.getByLabelText("行き先の都道府県") as HTMLSelectElement).value).toBe("kyoto");
   fireEvent.click(screen.getByRole("button", {name:"01 あなたの好みへ"}));
@@ -155,7 +171,7 @@ describe("sequential discovery", () => {
     expect(screen.queryByRole("textbox")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "← 戻る" }));
     expect((screen.getByLabelText(/旅に加えたいことはありますか？/) as HTMLTextAreaElement).value).toBe("庭園で休みたい");
-    expect(fetch).not.toHaveBeenCalled();
+    expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(0);
   });
   it("sends choices, free text, and selected departure to generation", async () => {
     const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => url.startsWith("/api/stations/search") ? { ok: true, json: async () => [{ name: "二条駅", latitude: 35.01, longitude: 135.74, code: "1", prefecture: "京都府", lines: [] }] } : url === "/api/discover" ? { ok: false } : noPhoto);
@@ -172,7 +188,7 @@ describe("sequential discovery", () => {
     fireEvent.click(await screen.findByRole("button", { name: /二条駅 京都府/ }));
     await generate();
     const request = fetchMock.mock.calls.find(([url]) => url === "/api/discover")![1];
-    expect(JSON.parse(String(request?.body))).toMatchObject({ theme: "history", course: "half_day", traveler: { pace: "relaxed" }, preference_text: "ゆっくり過ごしたい。庭園で休みたい", origin: { latitude: 34.985849, longitude: 135.758766 } });
+    expect(JSON.parse(String(request?.body))).toMatchObject({ theme: "history", course: "half_day", traveler: { pace: "relaxed" }, priority_text: "庭園で休みたい", preference_text: "ゆっくり過ごしたい。庭園で休みたい", origin: { latitude: 34.985849, longitude: 135.758766 } });
     expect(screen.queryByLabelText("出発地点")).toBeNull();
   });
   it("likes save and advance, passes do not save, and a liked itinerary opens the same route for editing", async () => {

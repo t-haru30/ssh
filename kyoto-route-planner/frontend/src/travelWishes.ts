@@ -1,0 +1,20 @@
+import type { Place } from "./types";
+
+const groups = [
+  ["カフェ", "喫茶", "珈琲", "コーヒー", "coffee", "cafe"], ["庭園", "日本庭園"],
+  ["美術館", "美術"], ["博物館", "展示"], ["神社", "神宮", "大社"], ["寺院", "お寺", "寺めぐり"],
+  ["公園"], ["展望", "夜景"], ["温泉"], ["市場", "商店街"], ["城", "城跡"],
+  ["冷麺", "盛岡冷麺"], ["わんこそば"], ["じゃじゃ麺"], ["天ぷら", "てんぷら", "天麩羅"],
+  ["寿司", "すし", "鮨"], ["海鮮", "海鮮丼"], ["おでん"], ["飛騨牛"], ["鮎"],
+  ["工芸", "陶芸"], ["動物園", "動物"], ["水族館"], ["植物", "花", "桜"],
+];
+const normalize = (value: string) => value.normalize("NFKC").toLocaleLowerCase("ja-JP");
+export function wishScore(text: string, place: Place): number {
+  text = normalize(text);
+  if (!text.trim()) return 0;
+  const evidence = normalize(`${place.name} ${place.category} ${place.description} ${Object.values(place.tags ?? {}).join(" ")}`);
+  const avoided = (word: string) => new RegExp(`${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:に|は|には|を)?(?:行きたくない|行かない|避け|なし|不要)`).test(text);
+  const name = normalize(place.name);
+  return (name.length >= 3 && text.includes(name) && !avoided(name) ? 10 : 0)
+    + groups.filter(words => words.some(word => text.includes(word) && !avoided(word)) && words.some(word => evidence.includes(word))).length;
+}

@@ -1,5 +1,6 @@
 import { FacilityPhoto } from "./FacilityPhoto";
 import { TripTransit } from "./TripTransit";
+import { OvernightSuggestion } from "./OvernightSuggestion";
 import { lockBodyScroll } from "./bodyScrollLock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
@@ -126,6 +127,8 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const [candidateNote, setCandidateNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [transitState, setTransitState] = useState<"loading" | "ready" | "partial" | "failed">("loading");
+  const [transitRetry, setTransitRetry] = useState(0);
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const [visitDialog, setVisitDialog] = useState<"complete" | "undo" | null>(null);
   const [copyNotice, setCopyNotice] = useState("");
@@ -170,13 +173,17 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   }, [search]);
   const transitKey = JSON.stringify([plan.origin, plan.returnTo, plan.date, plan.input.departureTime,
     plan.stops.map(stop => [stop.place, stop.dwellMinutes, stop.anchorTime, stop.completed])]);
+  const latestTransitKey = useRef(transitKey);
+  latestTransitKey.current = transitKey;
   useEffect(() => {
     const controller = new AbortController();
     const snapshot = plan;
+    let timeout: number | undefined;
+    setTransitState("loading");
     const timer = window.setTimeout(async () => {
       setNotice("全区間の交通経路・運賃を確認中です…");
       let timedOut = false;
-      const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 55000);
+      timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 60000);
       try {
         const response = await fetch("/api/routes/preview", { method: "POST", signal: controller.signal,
           headers: { "Content-Type": "application/json" }, body: JSON.stringify({
@@ -188,17 +195,26 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
         if (!response.ok) throw new Error("交通検索を取得できませんでした。");
         const route: unknown = await response.json();
         if (!isRouteSuggestion(route)) throw new Error("交通検索の応答を確認できませんでした。");
-        if (controller.signal.aborted) return;
+        if (controller.signal.aborted || latestTransitKey.current !== transitKey) return;
         setPlan(current => ({ ...scheduleTrip(current.input, current.origin, current.date, current.stops,
           { route, date: current.date, time: current.input.departureTime }, current.transportEstimate, current.returnTo),
           planningEstimates: current.planningEstimates }));
-        setNotice("全区間の交通経路・概算運賃を反映しました。");
+        const complete = route.timeline?.filter(item => item.type === "transit").every(item => item.duration_minutes != null && !item.is_estimate) && route.total_minutes != null;
+        setTransitState(complete ? "ready" : "partial");
+        setNotice(complete ? "交通経路と所要時間を反映しました。" : "一部の経路を確認できませんでした。取得済みの経路は反映しています。");
       } catch {
-        if (!controller.signal.aborted || timedOut) setNotice("交通経路を確認できませんでした。現在の旅程を保持しています。各区間から再検索できます。");
+        if (latestTransitKey.current === transitKey && (!controller.signal.aborted || timedOut)) {
+          setTransitState("failed");
+          setNotice("交通経路を確認できませんでした。現在の旅程を保持しています。再検索できます。");
+        }
       } finally { window.clearTimeout(timeout); }
     }, 300);
-    return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [transitKey]);
+    return () => { window.clearTimeout(timer); window.clearTimeout(timeout); controller.abort(); };
+  }, [transitKey, transitRetry]);
+  useEffect(() => {
+    if (transitState !== "loading" && transportMatches(plan) && plan.transport.route.total_minutes != null
+      && plan.transport.route.timeline?.filter(item => item.type === "transit").every(item => item.duration_minutes != null && !item.is_estimate)) setTransitState("ready");
+  }, [plan.transport, transitState]);
   const candidateCenter = plan.stops.find(stop => stop.place.id === "trip-arrival")?.place ?? plan.stops[0]?.place ?? plan.origin;
   const options = useMemo(() => {
     const unique = new Map([...candidates, ...source.places, ...searchedPlaces].map(place => [place.id, place]));
@@ -336,6 +352,11 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <header className="trip-heading"><div><h3 id="trip-editor-title" tabIndex={-1} ref={headingRef}>今日の旅を、あなたのペースで</h3></div>{lockedCount > 0 && <span className="trip-lock-count">{lockedCount}件を固定中</span>}</header>
     {completedCount > 0 && <p className="trip-completed-note"><strong>{completedCount}か所を訪問済み</strong> 記録した場所・時刻・滞在時間を保ち、これからの予定を調整します。</p>}
     <div className="trip-overview"><span>{plan.stops.length}か所の寄り道</span></div>
+    <OvernightSuggestion plan={plan} pending={transitState === "loading"} />
+    <div className="trip-route-status" role="status" aria-live="polite">
+      {transitState === "loading" ? "公共交通の経路と、旅全体の所要時間を確認しています…" : transitState === "ready" ? `移動・滞在を含む総時間 約${durationLabel(usedMinutes)}` : unknownTravel ? "一部の交通経路が未確認です。" : `移動・滞在を含む総時間（概算）約${durationLabel(usedMinutes)}。未確認の区間があります。`}
+      {transitState !== "loading" && <button type="button" onClick={() => setTransitRetry(v => v + 1)}>全区間を再検索</button>}
+    </div>
     <div className="trip-summary" aria-label="現在の旅程の概要">
       <div className={!unknownTravel && usedMinutes > plan.input.availableMinutes ? "is-over" : ""}><small>出発 → 帰着の目安</small><strong>{plan.input.departureTime}<span aria-hidden="true"> → </span>{unknownTravel ? "交通経路の確認後" : tripClock(plan.returnMinute)}</strong><span>目標 {tripClock(deadline)} · {unknownTravel ? "交通情報が未確認" : deadline >= plan.returnMinute ? `余裕 ${deadline - plan.returnMinute}分` : `${plan.returnMinute - deadline}分超過`}</span>{!unknownTravel && <div className="trip-meter" role="meter" aria-label="使える時間に対する予定時間" aria-valuemin={0} aria-valuemax={plan.input.availableMinutes} aria-valuenow={Math.min(usedMinutes, plan.input.availableMinutes)} aria-valuetext={`${usedMinutes}分 / ${plan.input.availableMinutes}分${usedMinutes > plan.input.availableMinutes ? `、${usedMinutes - plan.input.availableMinutes}分超過` : ""}`}><i style={{ width: `${Math.min(100, usedMinutes / plan.input.availableMinutes * 100)}%` }} /></div>}<span>移動 {unknownTravel ? "未確認" : `約${plan.travelMinutes}分`} · 滞在 {plan.stops.reduce((total, stop) => total + stop.dwellMinutes, 0)}分</span></div>
       <div className={plan.knownCost > plan.input.budget ? "is-over" : ""}><small>1人あたりの費用</small><strong>{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算</em></> : "合計未確認" : yen(plan.totalCost)}</strong><span>予算 {yen(plan.input.budget)} · {plan.totalCost === null ? `合計未確認（残り${plan.unknownCosts}項目）` : "交通・施設・飲食の概算合計"}</span><div className="trip-meter" role="meter" aria-label="予算に対する概算費用" aria-valuemin={0} aria-valuemax={Math.max(1, plan.input.budget)} aria-valuenow={Math.min(plan.knownCost, Math.max(1, plan.input.budget))} aria-valuetext={`概算 ${yen(plan.knownCost)} / 予算 ${yen(plan.input.budget)}${plan.totalCost === null ? "、合計未確認のため予算内かは未判定" : ""}`}><i style={{ width: `${plan.input.budget ? Math.min(100, plan.knownCost / plan.input.budget * 100) : plan.knownCost ? 100 : 0}%` }} /></div><span>{plan.knownCost > plan.input.budget ? `概算だけで ${yen(plan.knownCost - plan.input.budget)}超過` : plan.totalCost === null ? "未確認の費用を含め、予算内かは未判定" : `予算との差 ${yen(plan.input.budget - plan.knownCost)}`}</span></div>
@@ -368,7 +389,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <ol className="trip-stops">
       {plan.stops.map((stop, index) => <li key={stop.place.id} data-spot-id={stop.place.id} className={`trip-stop${stop.completed ? " is-completed" : stop.locked ? " is-locked" : ""}`}>
         <TripTransit key={`${plan.date}:${plan.input.departureTime}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.origin)}:${index}`}
-          from={index ? plan.stops[index - 1].place : plan.origin} to={stop.place} date={plan.date}
+          from={index ? plan.stops[index - 1].place : plan.origin} to={stop.place} externalBusy={transitState === "loading"} date={plan.date}
           departureMinute={index ? plan.stops[index - 1].end : clockMinutes(plan.input.departureTime)}
           initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[index] : undefined}
           onResult={result => applyTransit(index, result)} />
@@ -394,7 +415,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
         </details></article>
       </li>)}
     </ol>
-    <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
+    <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} externalBusy={transitState === "loading"} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
     <p className="trip-return"><span>{plan.unknownTravelSegments?.includes(plan.stops.length) ? "帰りの交通情報は未確認" : `帰りは約${plan.returnTravel}分`}</span><strong><time>{unknownTravel ? "交通経路の確認後" : tripClock(plan.returnMinute)}</time> {plan.returnTo.name}に帰着</strong><small>帰着時刻は目安です</small></p>
     <div className="trip-footer-actions"><button type="button" disabled={plan.stops.length >= MAX_TRIP_STOPS} onClick={() => { setChooser({ swapId: null }); setCandidateNote(""); }}>＋ 寄り道を追加</button><button type="button" disabled={history.length === 0} onClick={() => { const previous = history[history.length - 1]; if (!previous) return; setHistory(current => current.slice(0, -1)); setPlan(previous); setMinutes(String(previous.input.availableMinutes)); setBudget(String(previous.input.budget)); setTransportCost(previous.transportEstimate === null ? "" : String(previous.transportEstimate)); setNotice("ひとつ前の旅程に戻しました。"); }}>ひとつ前に戻す</button></div>
     {plan.stops.length >= MAX_TRIP_STOPS && <p className="trip-travel-note">寄り道は8か所までです。入れ替え・削除して調整できます。</p>}

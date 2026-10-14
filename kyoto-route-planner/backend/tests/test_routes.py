@@ -300,7 +300,7 @@ class RoutePlannerTests(unittest.TestCase):
             ),
             ("09:05", "09:45"),
         )
-        route_search.assert_awaited_once()
+        route_search.assert_not_awaited()
         self.assertEqual(self.segment_search.await_count, 2)
         self.assertEqual(
             self.segment_search.await_args_list[0].args[:2],

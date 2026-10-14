@@ -7,6 +7,14 @@ const origin = { name: "駅", latitude: 35, longitude: 135 };
 const conditions = { entry, origin, theme: "all" as const, course: "all" as const, radius: 3, crossPrefecture: false, variation: 0 };
 function place(id: string, lat: number, area = "kyoto", category = "公園"): Place { return { id, name: id, latitude: lat, longitude: 135, category, themes: ["nature"], description: "", access_point: "", tags: { area } }; }
 describe("local facility composition", () => {
+  it("prioritizes explicitly written wishes in offline generation without bypassing geography", () => {
+    const cafe = place("庭の喫茶店", 35.002, "kyoto", "カフェ");
+    const pool = [place("博物館",35.001,"kyoto","博物館"), cafe, place("遠くのカフェ",36,"kyoto","カフェ")];
+    const routes = composeLocalRoutes({ ...conditions, theme:"history", course:"half_day", meals:[], priorityText:"カフェでコーヒーを飲みたい" }, pool);
+    expect(routes.length).toBeGreaterThan(0);
+    expect(routes[0].spots.some(s => s.place_id === cafe.id)).toBe(true);
+    expect(routes.every(r => !r.spots.some(s => s.place_id === "遠くのカフェ"))).toBe(true);
+  });
   it("varies the lunch venue across candidates without adding a second restaurant", () => {
     const pool = [...Array.from({length:5}, (_,i) => place(`博物館${i}`,35 + i * .001,"kyoto","博物館")),
       ...Array.from({length:3}, (_,i) => place(`食堂${i}`,35.002 + i * .001,"kyoto","飲食店"))];
