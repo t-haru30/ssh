@@ -6,6 +6,7 @@ type ProgressStatusProps = {
   stepIntervalMs?: number;
   slowAfterMs?: number;
   onCancel?: () => void;
+  cancelLabel?: string;
 };
 
 export const OVERNIGHT_STEPS = [
@@ -22,7 +23,7 @@ export const ROUTE_STEPS = [
 ];
 
 // 外部APIの待ち時間中に進捗の目安を見せ、止まっていないことを伝える
-export function ProgressStatus({ steps, title = "旅のしおりを組み立てています", stepIntervalMs = 4000, slowAfterMs = 15000, onCancel }: ProgressStatusProps) {
+export function ProgressStatus({ steps, title = "旅のしおりを組み立てています", stepIntervalMs = 4000, slowAfterMs = 15000, onCancel, cancelLabel = "検索を中止する" }: ProgressStatusProps) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -37,8 +38,6 @@ export function ProgressStatus({ steps, title = "旅のしおりを組み立て�
     <div className="progress-status" role="status" aria-live="polite">
       <div className="journey-loader-art" aria-hidden="true"><span>⌖</span><i /><i /><i /></div>
       {title && <strong>{title}</strong>}
-      <p className="progress-description">行きたい場所をつないで、あなたの旅に。</p>
-      <small>処理の目安を表示しています。完了すると旅程に切り替わります。</small>
       <ol>
         {steps.map((step, index) => (
           <li key={step} className={index < current ? "done" : index === current ? "current" : undefined}>
@@ -47,9 +46,9 @@ export function ProgressStatus({ steps, title = "旅のしおりを組み立て�
         ))}
       </ol>
       {elapsed >= slowAfterMs && (
-        <small>通常より時間がかかっています。もう少しお待ちください（最大 約1分）。</small>
+        <small>通常より時間がかかっています。{onCancel ? "下のボタンから待機をやめられます。" : "もう少しお待ちください。"}</small>
       )}
-      {onCancel && <button type="button" className="progress-cancel" onClick={onCancel}>検索を中止する</button>}
+      {onCancel && <button type="button" className="progress-cancel" onClick={onCancel}>{cancelLabel}</button>}
     </div>
   );
 }

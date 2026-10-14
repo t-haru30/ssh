@@ -3,9 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RouteSuggestion, Origin } from "../types";
 import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
+import { newTripStop, scheduleTrip } from "../dayTrip";
+import { serializeJourneyFile } from "../journeyFile";
 import { RouteDetailModal } from "./RouteDetailModal";
 
-vi.mock("../MapView", () => ({ MapView: ({ origin }: { origin: Origin }) => <div data-testid="map-origin">{origin.name}</div> }));
+vi.mock("../GoogleJourneyMap", () => ({ GoogleJourneyMap: ({ origin }: { origin: Origin }) => <div data-testid="map-origin">{origin.name}</div> }));
 beforeEach(() => vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 503, json: async () => ({ detail: "テスト用のオフライン環境" }) }))));
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
@@ -33,11 +35,11 @@ describe("RouteDetailModal", () => {
       ],
     };
     render(<RouteDetailModal route={route} onClose={() => {}} />);
-    expect(screen.getByText(/現地09:00開始のモデルコース：上野駅/)).toBeTruthy();
+    expect(screen.getByText(/観光の起点：上野駅/)).toBeTruthy();
     expect(screen.getByText("徒歩で約10分")).toBeTruthy();
     expect(screen.getByText("車で約15分")).toBeTruthy();
     expect(screen.getByText("公共交通で約20分")).toBeTruthy();
-    expect(screen.getByText(/昼食 · .*滞在の目安 1時間/)).toBeTruthy();
+    expect(screen.getByText(/昼ごはん · .*滞在の目安 1時間/)).toBeTruthy();
     expect(screen.getByText("09:10")).toBeTruthy();
     expect(screen.getByText("10:10")).toBeTruthy();
     expect(screen.getByText("帰着の目安 11:30 上野駅")).toBeTruthy();
@@ -145,16 +147,13 @@ describe("RouteDetailModal", () => {
         [34.985849, 135.758766],
       ],
     };
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(preview), { status: 200 }),
-    );
+    const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(url === "/api/routes/preview" ? preview : {places:[],status:"unavailable"}), {status:200}));
     vi.stubGlobal("fetch", fetchMock);
 
     render(<RouteDetailModal route={route} onClose={() => undefined} />);
 
-    expect(fetchMock).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "運行時刻を確認する" }));
-    expect(await screen.findByText("🚆 JR奈良線")).toBeTruthy();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(await screen.findByText("公共交通 · JR奈良線")).toBeTruthy();
     expect(screen.getByText("運行時刻 09:02〜09:08")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/routes/preview",
@@ -236,8 +235,7 @@ describe("RouteDetailModal", () => {
     });
 
     render(<RouteDetailModal route={route} onClose={() => undefined} />);
-    expect(fetchMock).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "運行時刻を確認する" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const locationButton = await screen.findByRole("button", { name: "現在地から出発" });
     fireEvent.click(locationButton);
@@ -263,4 +261,35 @@ describe("RouteDetailModal", () => {
       },
     });
   });
+});
+
+it("automatically previews the outward and homeward transfers while retaining tourist cards", async () => {
+  const travelOrigin = { name: "名古屋駅", latitude: 35.17, longitude: 136.88 };
+  const route = { ...savedRoute, origin: { name: "京都駅", latitude: 34.98, longitude: 135.75 }, travel_origin: travelOrigin };
+  render(<RouteDetailModal route={route} onClose={() => {}} />);
+  await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/routes/preview", expect.anything()));
+  const call = vi.mocked(fetch).mock.calls.find(call => call[0] === "/api/routes/preview")!;
+  const body = JSON.parse(call[1]!.body as string);
+  expect(body.origin).toEqual(travelOrigin);
+  expect(body.return_to).toEqual(travelOrigin);
+  expect(body.places.map((place: { id: string }) => place.id)).toEqual(["trip-arrival", "tokyo-spot", "trip-return"]);
+  expect(body.stay_minutes).toEqual([15, 45, 15]);
+  expect(screen.getByText("東京の史跡", { selector: "strong" })).toBeTruthy();
+  expect(screen.getByText(/帰着の目安 交通検索後に表示 名古屋駅/)).toBeTruthy();
+});
+
+it("previews saved journey date, departure, return destination and anchors", async () => {
+  const origin = { name: "出発駅", latitude: 35, longitude: 135 };
+  const returnTo = { name: "宿泊先", latitude: 35.1, longitude: 135.2 };
+  const source: RouteSuggestion = { origin, return_to: returnTo, places: savedRoute.places, legs: [], total_minutes: null,
+    title: null, story: null, departure_time: null, arrival_time: null, note: "" };
+  const plan = scheduleTrip({ departureTime: "10:30", availableMinutes: 360, budget: 5000 }, origin, "2026-11-22",
+    [{ ...newTripStop(savedRoute.places[0], 60), anchorTime: "12:00", locked: true }],
+    { route: source, date: "", time: "" }, null, returnTo);
+  render(<RouteDetailModal route={{ ...savedRoute, journey_file: serializeJourneyFile(plan, "保存旅程") }} onClose={() => {}} />);
+  await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/routes/preview", expect.anything()));
+  const call = vi.mocked(fetch).mock.calls.find(call => call[0] === "/api/routes/preview")!;
+  expect(JSON.parse(call[1]!.body as string)).toMatchObject({ origin, return_to: returnTo, departure_date: "2026-11-22",
+    departure_time: "10:30", stay_minutes: [60], meal_times: { "tokyo-spot": "12:00" } });
+  expect(screen.getByText(/帰着の目安 交通検索後に表示 宿泊先/)).toBeTruthy();
 });

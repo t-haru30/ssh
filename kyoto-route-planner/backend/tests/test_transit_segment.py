@@ -1,8 +1,10 @@
 import unittest
+import asyncio
+from unittest.mock import Mock
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from app.main import app, limiter
-from app.ekispert import RouteSearchResult, _parse_legs
+from app.ekispert import RouteSearchResult, _parse_legs, _course_endpoint_times, search_route
 from app.models import RouteLeg
 
 
@@ -41,3 +43,34 @@ class TransitSegmentTests(unittest.TestCase):
     def test_duration_includes_walking_and_waiting(self):
         _, minutes = _parse_legs({"Route": {"timeOnBoard": "10", "timeOther": "5", "timeWalk": "8"}})
         self.assertEqual(minutes, 23)
+
+
+class ProviderTimetableTests(unittest.TestCase):
+    def test_structured_course_line_datetimes_include_access_walks(self):
+        # Sanitized provider shape: Course has no top-level departureState.
+        course = {"searchType": "departure", "dataType": "onTimetable", "Price": {"kind": "FareSummary", "Oneway": "450"},
+            "Route": {"Point": [{"Name": "施設A"}, {"Station": {"Name": "駅A"}}, {"Name": "施設B"}],
+                "Line": [
+                    {"timeOnBoard": "3", "DepartureState": {"Datetime": {"text": "2026-10-14T09:00:00+09:00", "operation": "today"}},
+                     "ArrivalState": {"Datetime": {"text": "2026-10-14T09:03:00+09:00", "operation": "today"}}},
+                    {"Name": "鉄道", "Type": "train", "timeOnBoard": "20", "DepartureState": {"Datetime": {"text": "2026-10-14T09:03:00+09:00", "operation": "today"}},
+                     "ArrivalState": {"Datetime": {"text": "2026-10-14T09:23:00+09:00", "operation": "today"}}},
+                ]}}
+        response = Mock(status_code=200)
+        response.json.return_value = {"ResultSet": {"Course": course}}
+        with patch.dict("os.environ", {"EKISPERT_API_KEY": "test-key"}), patch("app.ekispert.load_dotenv"), patch("app.ekispert.request_with_retry", AsyncMock(return_value=response)):
+            result = asyncio.run(search_route(["35,135", "35.1,135.1"], "2026-10-14", "09:00"))
+        self.assertEqual(result[1:4], (23, "09:00", "09:23"))
+        self.assertEqual(result.fare_yen, 450)
+        self.assertEqual(result.departure_at, "2026-10-14T09:00:00+09:00")
+        self.assertEqual(result.arrival_at, "2026-10-14T09:23:00+09:00")
+
+    def test_single_line_and_date_only_plain_response(self):
+        self.assertEqual(_course_endpoint_times({"Route": {"Line": {
+            "DepartureState": {"Datetime": "23:55:00+09:00"},
+            "ArrivalState": {"Datetime": {"text": "00:15:00+09:00"}},
+        }}}), ("23:55:00+09:00", "00:15:00+09:00"))
+        self.assertEqual(_course_endpoint_times({"Route": {"Line": {
+            "DepartureState": {"Datetime": {"text": "2026-10-14"}},
+            "ArrivalState": {"Datetime": "invalid"},
+        }}}), (None, None))

@@ -174,3 +174,12 @@
 .trip-transit p { margin:6px 0; }
 .trip-transit button { min-height:44px; margin-top:8px; padding:8px 12px; }
 .trip-transit li { margin:8px 0; }
+.trip-feasibility { margin:24px 0; padding:20px; border:1px solid var(--line); border-radius:16px; background:var(--surface); line-height:1.7; }
+.trip-feasibility button { margin:10px 8px 4px 0; padding:10px 16px; border:1px solid var(--line); border-radius:10px; }
+.trip-feasibility details { margin:8px 0; }
+.trip-feasibility a[translate="no"] { font:400 14px/1.5 Arial,sans-serif; white-space:nowrap; }
+.trip-search-help { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-muted); font-size: 13px; line-height: 1.7; }
+.trip-search-help ul { padding-left: 20px; margin: 8px 0; }
+.trip-search-help button { min-height: 44px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--forest); background: var(--paper); font: inherit; }
+.trip-related-candidates { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
+.trip-related-candidates h3 { font-size: 16px; }

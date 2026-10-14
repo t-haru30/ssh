@@ -431,7 +431,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「新潟市マンガ・アニメ情報館」から徒歩目安約3分です。"
+          "reason": "次の予定地「新潟市マンガ・アニメ情報館」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "chicken"
+          }
         }
       ],
       "coordinates": [
@@ -565,13 +569,16 @@
         {
           "place_id": "osm-node-13206175406",
           "name": "ひとてま",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 37.9279032,
           "lng": 139.1006845,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「大形神社」から徒歩目安約11分です。"
+          "reason": "次の予定地「大形神社」から徒歩目安約11分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         }
       ],
       "coordinates": [

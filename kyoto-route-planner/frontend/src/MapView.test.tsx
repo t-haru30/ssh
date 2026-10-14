@@ -144,7 +144,7 @@ beforeEach(() => {
 });
 
 describe("MapView", () => {
-  it("opens exact Google Maps coordinates for departure, each facility and return without interpreting names as HTML", () => {
+  it("opens Google Maps by each location's name and address without interpreting names as HTML", () => {
     const name = '<img src=x onerror="alert(1)">同名施設';
     render(<MapView places={[{ ...makePlace(name, 35.123456, 135.654321), address: "<script>unsafe</script>" }]}
       origin={makeOrigin("出発駅", 35, 135)} returnTo={makeOrigin("帰着駅", 34.7, 135.5)} />);
@@ -158,7 +158,7 @@ describe("MapView", () => {
       expect(new URL(link.href).origin).toBe("https://www.google.com");
       return new URL(link.href).searchParams.get("query");
     });
-    expect(queries).toEqual(["35,135", "35.123456,135.654321", "34.7,135.5"]);
+    expect(queries).toEqual(["出発駅", `${name} <script>unsafe</script>`, "帰着駅"]);
     expect(mapTestState.popupContents[1].textContent).toContain(name);
     expect(mapTestState.popupContents[1].querySelector("img,script")).toBeNull();
   });

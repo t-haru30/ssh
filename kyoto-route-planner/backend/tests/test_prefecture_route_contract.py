@@ -10,6 +10,13 @@ from scripts.validate_prefecture_routes import validate_dataset
 
 
 class PrefectureRouteContractTests(unittest.TestCase):
+    def test_food_classification_keeps_cafes_distinct_from_meal_venues(self):
+        from scripts.generate_prefecture_routes import _to_candidate, _spot
+        candidate = _to_candidate({"type":"node", "id":123, "lat":35, "lon":135,
+            "tags":{"name":"Sanzuian", "amenity":"cafe", "name:ja":"氵庵", "cuisine":"coffee_shop"}}, food=True)
+        self.assertEqual(candidate["place"].category,"カフェ")
+        self.assertEqual(_spot(candidate,"stop")["tags"]["amenity"],"cafe")
+
     def test_generated_route_keeps_theme_for_discover_filter_and_planner_handoff(self):
         config = next(area for area in AREAS if area.id == "kyoto")
         place = Place(id="garden", name="庭園", category="公園", description="", access_point="",

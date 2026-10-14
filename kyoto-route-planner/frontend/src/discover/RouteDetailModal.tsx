@@ -1,6 +1,6 @@
+import { transitModeLabel } from "../TripTransit";
 import { FacilityPhoto } from "../FacilityPhoto";
 import { lockBodyScroll } from "../bodyScrollLock";
-import { ReasonSources } from "./reasonSources";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { RouteIdea } from "../SwipeCard";
 import { routeSelection } from "../routeSelection";
@@ -14,8 +14,11 @@ import { VenueEvidence } from "../VenueEvidence";
 import { PlaceDescriptionToggle } from "./PlaceDetails";
 import { placeRecommendation } from "./placeRecommendation";
 import "./discover.css";
+import { journeyOverview } from "./journeyStory";
+import { JourneyReasons } from "./JourneyReasons";
+import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
 
-const MapView = lazy(() => import("../MapView").then(({ MapView: Component }) => ({ default: Component })));
+const MapView = lazy(() => import("../GoogleJourneyMap").then(({ GoogleJourneyMap: Component }) => ({ default: Component })));
 type RouteDetailModalProps = { route: DatasetRoute | RouteIdea; onClose: () => void; onPlanInSearch?: (route: DatasetRoute | RouteIdea) => void };
 
 function addMinutes(time: string | null, minutes: number) {
@@ -28,6 +31,8 @@ function addMinutes(time: string | null, minutes: number) {
 export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetailModalProps) {
   const selection = useMemo(() => routeSelection(route), [route]);
   const { places, origin: start, dwellMinutes } = selection;
+  const googleInfos = useGoogleVenueInfo(places, true);
+  const itinerarySelection = useMemo(() => routeSelection(route, true), [route]);
   const [routeSuggestion, setRouteSuggestion] = useState<RouteSuggestion | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -35,14 +40,27 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   const [currentOrigin, setCurrentOrigin] = useState<Origin | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const origin = currentOrigin ?? start;
+  const origin = currentOrigin ?? itinerarySelection.origin;
+  const previewPlaces = itinerarySelection.places;
+  const previewDwell = itinerarySelection.dwellMinutes;
+  const returnTo = selection.tripPlan?.returnTo ?? (currentOrigin ? origin : itinerarySelection.returnTo ?? origin);
+  const departureTime = selection.tripPlan?.input.departureTime ?? itinerarySelection.departureTime ?? "09:00";
+  const today = new Date(); today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  const journeyDate = selection.tripPlan?.date ?? today.toISOString().slice(0,10);
+  const anchors = useMemo(() => selection.tripPlan
+    ? Object.fromEntries(selection.tripPlan.stops.filter(stop => stop.anchorTime).map(stop => [stop.place.id, stop.anchorTime]))
+    : itinerarySelection.anchorTimes ?? {}, [selection, itinerarySelection]);
+  const includesTransfers = previewPlaces.length !== places.length;
   const isStaticRoute = "spots" in route;
-  const estimatedTimeline = useMemo(() => "spots" in route ? buildRouteTimeline(origin, places, "09:00", currentOrigin ? null : route.estimated_minutes, currentOrigin ? undefined : {
+  const estimatedTimeline = useMemo(() => "spots" in route ? buildRouteTimeline(currentOrigin ?? start, places, route.departure_time ?? "09:00", currentOrigin ? null : route.estimated_minutes, currentOrigin ? undefined : {
     legs: route.legs, stayMinutes: route.spots.map(spot => spot.stay_minutes), spotDetails: route.spots.map(spot => spot.reason),
+    mealTimes: route.spots.map(s => s.meal_time),
+    mealLabels: route.spots.map(s => ({breakfast:"朝ごはん",lunch:"昼ごはん",dinner:"夜ごはん",stop:undefined})[s.role]),
+    dinnerIndexes: route.spots.flatMap((spot, index) => spot.role === "dinner" ? [index] : []),
     lunchIndexes: route.spots.flatMap((spot, index) => spot.role === "lunch" ? [index] : []),
-    returnByMinutes: route.course === "full_day" ? 19 * 60 : undefined,
-  }) : [], [route, origin, currentOrigin, places]);
-  const timeline = useMemo<TimelineItem[]>(() => routeSuggestion?.timeline?.length ? routeSuggestion.timeline.map(item => {
+
+  }) : buildRouteTimeline(origin, places, departureTime, null, { legs: [], stayMinutes: places.map(place => dwellMinutes[place.id] ?? 90) }), [route, origin, currentOrigin, places]);
+  const timeline = useMemo<TimelineItem[]>(() => routeSuggestion?.timeline?.length ? (routeSuggestion.timeline.length >= estimatedTimeline.length ? routeSuggestion.timeline : estimatedTimeline.map((item, index) => routeSuggestion.timeline?.[index] ?? item)).map(item => {
     if (item.type !== "spot" || item.role !== "stop") return item;
     const estimated = estimatedTimeline.find(candidate => candidate.type === "spot" && candidate.place_id === item.place_id);
     const stay = dwellMinutes[item.place_id ?? ""] ?? item.stay_minutes;
@@ -52,10 +70,11 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   const returnLeg = timeline[timeline.length - 2];
   const finish = timeline[timeline.length - 1];
   const coordinates: [number, number][] = places.map(place => [place.latitude, place.longitude]);
+  const lastPreviewConditions = useRef("");
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (previewRequest === 0 || selection.overnightSnapshot) return;
+    if (selection.overnightSnapshot) return;
     const controller = new AbortController();
     let timedOut = false;
     const timeoutId = window.setTimeout(() => {
@@ -64,11 +83,13 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
     }, 55_000);
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const departureDate = now.toISOString().slice(0, 10);
+    const departureDate = selection.tripPlan?.date ?? now.toISOString().slice(0, 10);
 
     async function loadRoute() {
+      const conditions = JSON.stringify([origin, returnTo, previewPlaces, previewDwell, departureDate, departureTime, anchors]);
+      if (lastPreviewConditions.current !== conditions) setRouteSuggestion(null);
+      lastPreviewConditions.current = conditions;
       setRouteLoading(true);
-      setRouteSuggestion(null);
       setRouteError(null);
       try {
         const response = await fetch("/api/routes/preview", {
@@ -76,11 +97,12 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
           body: JSON.stringify({
-            origin,
-            places,
-            stay_minutes: places.map(place => dwellMinutes[place.id] ?? 90),
+            origin, return_to: returnTo,
+            places: previewPlaces,
+            stay_minutes: previewPlaces.map(place => previewDwell[place.id] ?? 90),
+            meal_times: anchors,
             departure_date: departureDate,
-            departure_time: "09:00",
+            departure_time: departureTime,
           }),
         });
         if (!response.ok) {
@@ -121,7 +143,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [places, origin, dwellMinutes, previewRequest]);
+  }, [previewPlaces, origin, previewDwell, previewRequest, returnTo, departureTime, anchors, selection.tripPlan?.date]);
 
   async function useCurrentLocation() {
     setLocationError(null);
@@ -206,21 +228,26 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       <header className="route-modal-header"><div><p className="eyebrow">YOUR LITTLE JOURNEY</p><h2>{route.title}</h2></div><button ref={closeRef} type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button></header>
       <div className="discover-modal-facts"><span><strong>{places.length}</strong> か所を巡る旅のプラン</span>{isStaticRoute && <span>所要時間の目安 <strong>{formatMinutes(route.estimated_minutes)}</strong></span>}</div>
       {!isStaticRoute && route.story && <p className="discover-modal-story">{route.story}</p>}
-      <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} coordinates={[[origin.latitude, origin.longitude], ...coordinates, ...(isStaticRoute ? [[origin.latitude, origin.longitude] as [number, number]] : [])]} legs={[]} /></Suspense></div>
-      {"spots" in route && route.recommendation_source === "gemini" && route.recommendation_reason && <div className="discover-modal-recommendation"><span className="discover-recommendation-label">✦ AIが選んだおすすめ</span><p>{route.recommendation_reason}</p><ReasonSources sources={route.reason_sources} /></div>}
+      <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></Suspense></div>
+      {"spots" in route && <div className="discover-modal-recommendation"><strong>この旅の楽しみ</strong><p>{journeyOverview(route,googleInfos)}</p><details><summary>立ち寄り先ごとのおすすめ理由</summary><JourneyReasons route={route} googleInfos={googleInfos} /></details></div>}
       <div className="discover-modal-section-heading"><h3>この旅で訪れる場所</h3><span>{places.length} SPOTS</span></div>
-      {route.travel_origin && <p>出発地：{route.travel_origin.name} → 観光の起点：{start.name}。到着時刻・帰着時刻は交通検索後に確定します。</p>}
-      <p className="discover-modal-origin">{isStaticRoute ? "現地09:00開始のモデルコース：" : "観光の起点："}{origin.name}<small>現地での仮の時刻です。出発地からの移動は旅程編集で確認できます</small></p>
+      <p className="discover-modal-origin">観光の起点：{start.name}</p>
       {!selection.overnightSnapshot && <div className="discover-origin-control"><button type="button" onClick={() => void useCurrentLocation()} disabled={locationLoading}>{locationLoading ? "現在地を確認中…" : "現在地から出発"}</button>{currentOrigin && <button type="button" onClick={() => setCurrentOrigin(null)}>元の出発地に戻す</button>}</div>}
       {locationError && <p className="result-note" role="alert">{locationError}</p>}
-      {selection.overnightSnapshot ? <p className="result-note">{selection.overnightSnapshot.nights}泊{selection.overnightSnapshot.nights + 1}日 · 宿泊先：{selection.overnightSnapshot.itinerary.hotel.name}。各日の旅程は「このルートで旅を計画する」から開けます。</p> : <button type="button" className="discover-preview-button" disabled={routeLoading} onClick={() => setPreviewRequest(v => v + 1)}>{routeLoading ? "運行時刻を確認中…" : "運行時刻を確認する"}</button>}
-      {routeLoading && <p className="result-note" role="status">駅すぱあとで運行時刻を検索しています…</p>}
-      {routeError && <p className="result-note" role="status">{routeError} 推定時刻を表示しています。</p>}
+      {selection.overnightSnapshot ? <p className="result-note">{selection.overnightSnapshot.nights}泊{selection.overnightSnapshot.nights + 1}日 · 宿泊先：{selection.overnightSnapshot.itinerary.hotel.name}。各日の旅程は「このルートで旅を計画する」から開けます。</p> : <button type="button" className="discover-preview-button" disabled={routeLoading} onClick={() => setPreviewRequest(v => v + 1)}>{routeLoading ? "運行時刻を確認中…" : "交通経路を再検索する"}</button>}
+      {routeLoading && <p className="result-note" role="status">交通経路を確認しています…</p>}
+      {routeError && <p className="result-note" role="status">{routeError} 直前の検索結果またはモデルコースの目安を表示しています。</p>}
+      {includesTransfers && <section className="discover-transfer-summary" aria-label="往復の移動">
+        <h3>{origin.name}からの往復の移動</h3>
+        <p>出発 {departureTime} · 帰着地 {returnTo.name}</p>
+        {routeSuggestion?.timeline?.filter(item => item.type === "transit" && ["trip-arrival", "trip-return"].some(id => previewPlaces.find(place => place.id === id)?.name === item.to_name || previewPlaces.find(place => place.id === id)?.name === item.from_name)).map((item, index) => item.type === "transit" && <p key={index}>{item.from_name} → {item.to_name} · {transitModeLabel(item.mode)} · {item.transit_line ?? "路線未確認"}{item.start_time && item.end_time ? ` · ${item.start_time}〜${item.end_time}` : " · 時刻未確認"}{item.fare_yen != null ? ` · ${item.fare_yen.toLocaleString("ja-JP")}円` : " · 運賃未確認"}</p>)}
+      </section>}
       <ol className="discover-modal-spots">{places.map((place, index) => {
-        const transit = timeline[index * 2 + 1];
-        const visit = timeline[index * 2 + 2];
+        const visitIndex = timeline.findIndex(item => item.type === "spot" && item.role === "stop" && item.place_id === place.id);
+        const transit = timeline[visitIndex - 1];
+        const visit = timeline[visitIndex];
         return <li key={`${index}-${place.id}`}><span className="discover-modal-spot-number">{String(index + 1).padStart(2, "0")}</span><div>
-          {transit?.type === "transit" && <span className="discover-modal-transit">{transit.transit_line ? `${/バス|bus/i.test(transit.transit_line) ? "🚌" : "🚆"} ${transit.transit_line}` : "summary" in transit ? transit.summary : "移動"}</span>}
+          {transit?.type === "transit" && <span className="discover-modal-transit">{"summary" in transit && !transit.transit_line ? transit.summary : `${transitModeLabel(transit.mode)} · ${transit.transit_line ?? "路線未確認"}${transit.fare_yen != null ? ` · ${transit.fare_yen.toLocaleString("ja-JP")}円` : ""}`}</span>}
           {transit?.type === "transit" && transit.start_time && transit.end_time && <span>{transit.is_estimate ? "目安" : "運行時刻"} {transit.start_time}〜{transit.end_time}</span>}
           <strong>{visit?.type === "spot" && <span className="discover-modal-time">{visit.time} </span>}{place.name}</strong>
           <span>{visit?.type === "spot" && visit.label && `${visit.label} · `}{categoryIcon(place.category)} {place.category}{dwellMinutes[place.id] !== undefined && ` · 滞在の目安 ${formatMinutes(dwellMinutes[place.id])}`}</span>
@@ -229,8 +256,8 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
           <PlaceDescriptionToggle reasonSources={"spots" in route ? route.spots[index]?.reason_sources : undefined} place={place} stayMinutes={dwellMinutes[place.id]} recommendations={"spots" in route && route.spots[index]?.reason ? [route.spots[index].reason!] : placeRecommendation(place, { places, origin, theme: route.theme, stayMinutes: dwellMinutes[place.id] })} />
         </div><VenueEvidence place={place} /></li>;
       })}</ol>
-      {returnLeg?.type === "transit" && finish?.type === "spot" && <p className="discover-modal-return"><span>{returnLeg.transit_line ?? ("summary" in returnLeg ? returnLeg.summary : "移動")}</span><strong>帰着の目安 {finish.time} {origin.name}</strong></p>}
-      <div className="discover-modal-footer"><p className="result-note">訪問順と所要時間は目安です。営業時間や移動手段を確認して、旅の計画を仕上げましょう。</p>{onPlanInSearch && <button type="button" className="idea-primary-button" onClick={() => onPlanInSearch(currentOrigin ? "spots" in route ? { ...route, start: { ...route.start, name: origin.name, lat: origin.latitude, lng: origin.longitude } } : { ...route, origin } : route)}>このルートで旅を計画する <span aria-hidden="true">→</span></button>}</div>
+      {returnLeg?.type === "transit" && finish?.type === "spot" && <p className="discover-modal-return"><span>{returnLeg.transit_line ?? ("summary" in returnLeg ? returnLeg.summary : "移動経路は未確認")}</span><strong>帰着の目安 {(includesTransfers || returnTo.latitude !== origin.latitude || returnTo.longitude !== origin.longitude) && !routeSuggestion ? "交通検索後に表示" : finish.time ?? "経路の確認が必要"} {returnTo.name}</strong></p>}
+      <div className="discover-modal-footer"><p className="result-note">時刻は目安です。営業・運行情報は出発前にご確認ください。</p>{onPlanInSearch && <button type="button" className="idea-primary-button" onClick={() => onPlanInSearch(currentOrigin ? "spots" in route ? { ...route, start: { ...route.start, name: origin.name, lat: origin.latitude, lng: origin.longitude } } : { ...route, origin } : route)}>このルートで旅を計画する <span aria-hidden="true">→</span></button>}</div>
     </section>
   </div>;
 }

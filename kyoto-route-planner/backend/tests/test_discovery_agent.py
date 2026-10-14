@@ -107,6 +107,29 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["agent"]["status"], "unavailable")
         self.call.assert_not_awaited()
 
+    async def test_sparse_ai_deck_keeps_valid_alternatives_without_another_model_call(self):
+        pool=[place(str(i),latitude=35+i*.001) for i in range(7)]
+        req=request(count=6)
+        fallback=build_discover_routes(req,tuple(pool))
+        self.call.side_effect=turns(pool,selection(pool[:3]))
+        result=await agent.recommend_routes(req,pool,fallback)
+        self.assertGreater(len(result["routes"]),1)
+        self.assertEqual(result["routes"][0]["recommendation_source"],"gemini")
+        self.assertTrue(any(r["recommendation_source"]=="rules" for r in result["routes"]))
+        sets=[tuple(sorted(s["place_id"] for s in r["spots"])) for r in result["routes"]]
+        self.assertEqual(len(sets),len(set(sets)))
+        self.assertEqual(self.call.await_count,3)
+
+    async def test_official_evidence_ranks_routes_without_erasing_uncited_ai_choices(self):
+        pool=[place(str(i),latitude=35+i*.001) for i in range(6)]
+        choices={"routes":[selection(pool[:3])["routes"][0],selection(pool[3:])["routes"][0]]}
+        self.call.side_effect=turns(pool,choices)
+        self.evidence.return_value={pool[0].id:OfficialAttractions(place_id=pool[0].id,facts=[AttractionFact(text="古い教室を展示しています。",source_url="https://museum.example.jp/")])}
+        result=await agent.recommend_routes(request(count=2),pool,build_discover_routes(request(count=2),tuple(pool)))
+        self.assertEqual(len(result["routes"]),2)
+        self.assertTrue(result["routes"][0]["reason_sources"])
+        self.assertFalse(result["routes"][1]["reason_sources"])
+
     async def test_official_highlights_are_supplied_to_agent_and_cited_in_actual_reasons(self):
         highlight = "明治時代の木造校舎を保存し、当時の教室と手書きの教科書を展示しています。"
         source = "https://museum.example.jp/about/"
@@ -136,7 +159,7 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("城下町", spot["reason"])
             self.assertNotIn("石垣", spot["reason"])
             self.assertEqual([s["url"] for s in spot["reason_sources"]], ["https://castle.example.jp/view/"])
-        self.assertEqual(len(result["routes"][0]["reason_sources"]), 2)
+        self.assertEqual(len(result["routes"][0]["reason_sources"]), 3)
 
     async def test_success_cache_deduplicates_calls_and_defends_against_response_mutation(self):
         result = await self.recommend()
@@ -287,12 +310,15 @@ class DiscoveryAgentTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_theme_evidence_fit_and_user_count_are_validated(self):
         req = request(theme="history", count=1, course="full_day")
-        pool = [*self.pool, place("four", latitude=35.004)]
-        self.call.side_effect = turns(pool, selection(pool, "theme"))
+        pool = [*self.pool, place("four", latitude=35.004, category="レストラン")]
+        choices = selection(pool, "theme")
+        choices["routes"][0]["places"][-1]["fit"] = "distance"
+        self.call.side_effect = turns(pool, choices)
         result = await self.recommend(request=req, pool=pool)
         route = result["routes"][0]
         self.assertEqual(route["course"], "full_day")
-        self.assertTrue(all(p["stay_minutes"] == 105 for p in route["spots"]))
+        self.assertTrue(all(p["stay_minutes"] == (75 if p["role"] == "dinner" else 105) for p in route["spots"]))
+        self.assertEqual(route["spots"][-1]["role"], "dinner")
         self.assertNotIn("ご希望の「歴史と文化」", route["recommendation_reason"])
 
     async def test_all_theme_fit_is_grounded_and_long_official_facts_remain_readable(self):

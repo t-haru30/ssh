@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 
 import httpx
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 from app.models import Place, Origin
 from app.discovery import distance_km
 
@@ -67,8 +68,36 @@ def normalized(name):
     return re.sub(r"[\s・･]", "", unicodedata.normalize("NFKC", name)).casefold()
 
 
+def same_google_venue(place: Place, candidate: dict) -> bool:
+    """Retain the complete catalog branch name; never strip a provider suffix."""
+    name = normalized(candidate.get("displayName", {}).get("text", ""))
+    originals = [value for value in [place.name, *(place.tags.get(key, "") for key in ("name", "name:ja", "name:en", "official_name"))] if isinstance(value,str) and value]
+    aliases = {normalized(value) for value in originals}
+    try:
+        km = distance_km(place, Origin(name=place.name[:80], **candidate["location"]))
+    except (ValueError, TypeError, KeyError):
+        return False
+    # Bilingual signs often append the complete Latin name: 氵庵 -sanzuian-.
+    # Only accept an explicitly delimited full alias within 100 m. A branch
+    # suffix, partial Latin match or a nearby unrelated name still fails.
+    bilingual = any(re.fullmatch(r"[\u3040-\u30ff\u3400-\u9fffー・]{2,30}[-–—(（「]+"
+                    + re.escape(alias) + r"[-–—)）」]+", name)
+                    for alias in aliases if re.fullmatch(r"[a-z][a-z0-9&'.]{4,60}", alias))
+    # Cuisine prefixes are labels, not branch identifiers. Keep the complete
+    # remaining name, including 本店/駅前店/etc.; a moved venue still fails distance.
+    core_aliases = {re.sub(r"^(?:京料理|日本料理|懐石料理|御食事処|お食事処|ごはん処|割烹|料亭)","",alias) for alias in aliases}
+    core_aliases = {alias for alias in core_aliases if len(alias) >= 3}
+    cuisine_label = name in core_aliases or re.sub(r"^(?:京料理|日本料理|御食事処|お食事処|ごはん処|割烹|料亭)","",name) in core_aliases
+    raw_name = unicodedata.normalize("NFKC",candidate.get("displayName",{}).get("text","")).casefold().strip()
+    delimited_prefix = any(len(normalized(alias)) >= 2 and normalized(alias) not in {"食堂","料理店","資料館","美術館","飲食店","カフェ"}
+        and re.search(r"[\s・･]" + re.escape(unicodedata.normalize("NFKC",alias).casefold().strip()) + r"$",raw_name)
+        for alias in originals)
+    return km <= .3 and (name in aliases or km <= .1 and (bilingual or cuisine_label or delimited_prefix
+        or any(len(alias) >= 8 and name.endswith(alias) and 0 < len(name) - len(alias) <= 12 for alias in aliases)))
+
+
 async def fetch_google_photo(place: Place):
-    key = os.getenv("GOOGLE_PLACES_API_KEY", "").strip()
+    key = google_api_key()
     if not key:
         return GooglePhoto(note="Google Places Photosは未設定です。")
     if not reserve_lookup():
@@ -83,10 +112,7 @@ async def fetch_google_photo(place: Place):
                 return GooglePhoto()
             matches = []
             for candidate in response.json().get("places", [])[:3]:
-                if normalized(candidate.get("displayName", {}).get("text", "")) != normalized(place.name):
-                    continue
-                location = Origin(name=place.name, **candidate["location"])
-                if distance_km(place, location) <= .3 and candidate.get("photos"):
+                if same_google_venue(place, candidate) and candidate.get("photos"):
                     matches.append(candidate)
             # Ambiguous same-name branches are not interchangeable.
             if len(matches) != 1:
@@ -116,3 +142,10 @@ async def fetch_google_photo(place: Place):
                                note="施設名と位置を照合したGoogle Mapsの写真です。")
     except (httpx.HTTPError, TimeoutError, ValueError, TypeError, KeyError, IndexError, AttributeError):
         return GooglePhoto()
+
+
+def google_api_key():
+    # Load the local backend configuration even before any other provider is used.
+    # Cloud Run disables dotenv and supplies this through Secret Manager.
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+    return os.getenv("GOOGLE_PLACES_API_KEY", "").strip()

@@ -37,11 +37,15 @@ function App() {
     setShowOnboarding(false);
   }
   function planInSearch(route: Parameters<typeof routeSelection>[0], searchTransport = false) {
-    const selection = routeSelection(route, true);
-    selection.autoSearch = searchTransport;
     const routeIds = "spots" in route ? route.spots.map(spot => spot.place_id) : route.places.map(place => place.id);
-    selection.sourceFavoriteId = favorites.find(item => ("id" in route && item.id === route.id)
-      || (item.title === route.title && item.places.length === routeIds.length && item.places.every(place => routeIds.includes(place.id))))?.id;
+    // Replacement keeps the original favourite ID even when the title or stops
+    // change. Resolve that ID before opening a stale card from the liked list.
+    const source = favorites.find(item => ("id" in route && item.id === route.id)
+      || item.id === `${item.prefecture_code}:${routeIds.slice().sort().join("|")}`
+      || (item.title === route.title && item.places.length === routeIds.length && item.places.every(place => routeIds.includes(place.id))));
+    const selection = routeSelection(source?.edited ? source : route, true);
+    selection.autoSearch = searchTransport;
+    selection.sourceFavoriteId = source?.id;
     const current = readJourneyDraft();
     const samePlaces = !selection.tripPlan && !selection.overnightSnapshot && current
       && current.plan.origin.latitude === selection.origin.latitude && current.plan.origin.longitude === selection.origin.longitude
@@ -125,8 +129,8 @@ function App() {
         <p>旅程と費用は目安です。お出かけ前に、営業時間・料金・運行情報をご確認ください。</p>
         <p>旅の候補：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a> · <a href="https://openpoiapi.com/attribution.html" target="_blank" rel="noreferrer">OpenPOI API</a> · <a href="/data-sources.html">データの出典・ダウンロード</a></p>
         <details><summary>地図と情報について</summary>
-          <p>経路検索：駅すぱあと · 地図：MapLibre / OpenFreeMap。追加の施設検索の取得元は検索結果に表示します。</p>
-          <p>「見つける」は施設候補から条件に合わせてルートを作成します。地図の線はスポット間の目安で、実際の道順とは異なります。</p>
+          <p>経路検索：駅すぱあと · 地図・施設紹介：Google Maps。写真や施設検索の出典は、それぞれの表示で確認できます。</p>
+          <p>直線は訪問順、徒歩経路は道路の参考表示です。電車・バスの乗換経路は区間ごとのリンクから確認できます。</p>
           <p>編集中の旅程と保存済みルートは、このブラウザに保存されます。</p>
         </details>
       </footer>

@@ -178,7 +178,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「天鏡閣」から徒歩目安約1分です。"
+          "reason": "次の予定地「天鏡閣」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "fast_food"
+          }
         },
         {
           "place_id": "osm-node-3008117481",
@@ -427,13 +430,16 @@
         {
           "place_id": "osm-node-13124693875",
           "name": "Jyubako Cafe",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 37.4911858,
           "lng": 140.9870473,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「金比羅大権現」から徒歩目安約6分です。"
+          "reason": "次の予定地「金比羅大権現」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-13124718995",
@@ -573,7 +579,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「報恩感謝」から徒歩目安約1分です。"
+          "reason": "次の予定地「報恩感謝」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "seafood"
+          }
         },
         {
           "place_id": "osm-node-13124734480",

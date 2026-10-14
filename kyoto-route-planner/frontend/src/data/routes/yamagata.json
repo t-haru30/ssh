@@ -91,7 +91,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「芭蕉・清風歴史資料館」から徒歩目安約1分です。"
+          "reason": "次の予定地「芭蕉・清風歴史資料館」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "soba",
+            "name:ja": "福原屋"
+          }
         },
         {
           "place_id": "osm-node-5050137326",
@@ -433,7 +438,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「松岬神社」から徒歩目安約1分です。"
+          "reason": "次の予定地「松岬神社」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese"
+          }
         },
         {
           "place_id": "osm-node-416190573",
@@ -573,7 +582,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「従三位上杉曦山公之碑」から徒歩目安約2分です。"
+          "reason": "次の予定地「従三位上杉曦山公之碑」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese"
+          }
         },
         {
           "place_id": "osm-node-427883861",

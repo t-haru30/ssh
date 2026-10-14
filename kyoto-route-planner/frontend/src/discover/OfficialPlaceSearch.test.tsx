@@ -100,17 +100,18 @@ describe("opened destination integration", () => {
     const free = deferred();
     const fetchMock = vi.fn((url: string, _init?: RequestInit) => url === "/api/places/description" ? free.promise : Promise.resolve(response(ready)));
     vi.stubGlobal("fetch", fetchMock); render(<PlaceDetailsDialog place={place} onClose={vi.fn()} />);
-    expect(fetchMock).toHaveBeenCalledOnce(); expect(fetchMock.mock.calls[0][0]).toBe("/api/places/description");
+    expect(fetchMock.mock.calls.filter(([url]) => !url.startsWith("/api/places/google-info")).map(([url]) => url)).toEqual(["/api/places/description"]);
     await act(async () => { free.resolve(response({ description: null, official: null })); });
     await screen.findByText("公式情報のAI要約");
-    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(["/api/places/description", "/api/places/official-evidence"]);
-    expect(screen.queryByText("未確認")).toBeNull(); expect(screen.queryByText(/公式サイトを確認できませんでした/)).toBeNull();
+    expect(fetchMock.mock.calls.map(([url]) => url).filter(url => !url.startsWith("/api/places/google-info"))).toEqual(["/api/places/description", "/api/places/official-evidence"]);
+    // A cited prose summary does not silently populate the structured official fields.
+    expect(screen.getAllByText("未確認")).toHaveLength(3); expect(screen.queryByText(/公式サイトを確認できませんでした/)).toBeNull();
   });
 
   it("keeps complete official fields without a paid search, and supplements missing fields without replacing the existing link", async () => {
     const fetchMock = vi.fn((url: string, _init?: RequestInit) => Promise.resolve(response(url === "/api/places/description" ? { official } : ready)));
     vi.stubGlobal("fetch", fetchMock); const view = render(<PlaceIntroduction place={place} />);
-    await screen.findByText(official.opening_hours); expect(fetchMock).toHaveBeenCalledOnce();
+    await screen.findByText(official.opening_hours); expect(fetchMock.mock.calls.filter(([url]) => !url.startsWith("/api/places/google-info"))).toHaveLength(1);
     view.unmount();
     fetchMock.mockImplementation(url => Promise.resolve(response(url === "/api/places/description" ? { official: { ...official, admission: null } } : ready)));
     render(<PlaceIntroduction place={place} />); await screen.findByText("公式情報のAI要約");
@@ -126,12 +127,12 @@ describe("opened destination integration", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     const details = screen.getByText(`${place.name}の説明を見る`).closest("details")!;
     act(() => { details.open = true; fireEvent(details, new Event("toggle")); });
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-    const signal = fetchMock.mock.calls[1][1]?.signal as AbortSignal;
+    await waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => !url.startsWith("/api/places/google-info"))).toHaveLength(2));
+    const signal = fetchMock.mock.calls.find(([url]) => url === "/api/places/official-evidence")![1]?.signal as AbortSignal;
     act(() => { details.open = false; fireEvent(details, new Event("toggle")); });
     expect(signal.aborted).toBe(true);
     await act(async () => { paid.resolve(response(ready)); });
-    expect(screen.queryByText("公式情報のAI要約")).toBeNull(); expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText("公式情報のAI要約")).toBeNull(); expect(fetchMock.mock.calls.filter(([url]) => !url.startsWith("/api/places/google-info"))).toHaveLength(2);
   });
 
   it("does not start a new facility's search before its own free response completes", async () => {

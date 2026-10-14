@@ -279,13 +279,18 @@
         {
           "place_id": "osm-node-11611498831",
           "name": "ベーカリーカフェ パーシモン",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 34.2932261,
           "lng": 135.555544,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「慈尊院」から徒歩目安約8分です。"
+          "reason": "次の予定地「慈尊院」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "bread;curry;soft_serve;pasta",
+            "name:en": "Bakery Cafe Persimmon"
+          }
         },
         {
           "place_id": "osm-node-2279230601",

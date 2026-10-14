@@ -212,9 +212,9 @@ def _merge_pages(previous: OfficialPlaceInfo | None, current: OfficialPlaceInfo)
     return merged
 
 
-async def _load(place: Place, state: dict) -> OfficialPlaceInfo:
+async def _load(place: Place, state: dict, matched_url: str | None = None) -> OfficialPlaceInfo:
     seed = _seed_entry(place)
-    url = seed["url"] if seed else None
+    url = seed["url"] if seed else _basic_url(matched_url) if matched_url else None
     if seed:
         state["seed"] = seed
     calls = 0
@@ -447,6 +447,23 @@ async def fetch_official_place_info(place: Place) -> OfficialPlaceInfo:
     if result.checked_at and not state.get("notice_failed"):
         _cache.set(key, result)
     return result
+
+
+async def fetch_matched_official_info(place: Place, url: str) -> OfficialPlaceInfo:
+    """Read the website of a server-matched Places result, without caching it.
+
+    This entry point is not exposed to client-supplied URLs. The same DNS/IP,
+    redirect, response-size and page-name checks as OSM-discovered URLs apply.
+    """
+    state: dict = {}
+    try:
+        return await asyncio.wait_for(_load(place, state, matched_url=url), TOTAL_TIMEOUT_SECONDS)
+    except (asyncio.TimeoutError, httpx.HTTPError, OSError, ValueError, TypeError):
+        partial = state.get("result")
+        if partial and partial.checked_at:
+            return _with_seed(partial, state.get("seed"))
+        return _with_seed(OfficialPlaceInfo(url=state.get("url"), status="link_only" if state.get("url") else "unavailable",
+            note="公式ページの内容は取得できませんでした。リンク先でご確認ください。"), state.get("seed"))
 
 
 def known_official_url(place: Place) -> str | None:

@@ -361,7 +361,7 @@ def _theme(tags: dict[str, str], category: str) -> str:
 
 def _category(tags: dict[str, str], food: bool = False) -> str:
     if food:
-        return "飲食店"
+        return "カフェ" if tags.get("amenity") == "cafe" else "飲食店"
     if tags.get("historic"):
         return "史跡"
     mapping = {
@@ -400,7 +400,7 @@ def _to_candidate(element: dict[str, Any], food: bool = False) -> dict[str, Any]
         latitude=point[0],
         longitude=point[1],
         themes=themes,
-        tags={key: str(value) for key, value in tags.items() if key in {"tourism", "historic", "wikidata", "wikipedia"}},
+        tags={key: str(value) for key, value in tags.items() if key in {"tourism", "historic", "wikidata", "wikipedia", "name:ja", "name:en", "official_name", "amenity", "cuisine", "website", "contact:website"}},
     )
     return {"place": place, "score": calculate_place_score(place, themes[0])}
 
@@ -695,6 +695,7 @@ def _spot(candidate: dict[str, Any], role: str) -> dict[str, Any]:
         "place_id": place.id,
         "name": place.name,
         "category": place.category,
+        "tags": place.tags,
         "lat": place.latitude,
         "lng": place.longitude,
         "stay_minutes": 60 if role == "lunch" else 45,

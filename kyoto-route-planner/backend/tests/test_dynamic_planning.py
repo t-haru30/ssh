@@ -20,7 +20,7 @@ def response(*places):
 class DiscoveryBoundsTests(unittest.TestCase):
     def test_full_day_stays_fit_duration_and_exclude_outside_radius_and_hotels(self):
         origin = Origin(name="駅", latitude=35, longitude=135.7)
-        request = DiscoverRequest(area="kyoto", prefecture_name="京都府", origin=origin, radius_km=5, course="full_day")
+        request = DiscoverRequest(area="kyoto", prefecture_name="京都府", origin=origin, radius_km=5, course="full_day", meals=[])
         result = build_discover_routes(request, tuple([place(str(i), 35 + i / 1000) for i in range(10)] + [place("far", 36), place("hotel", category="ホテル")]))
         self.assertTrue(result["routes"])
         for route in result["routes"]:
@@ -139,7 +139,7 @@ class DiscoveryEndpointTests(unittest.TestCase):
         from app.main import app, limiter
         limiter.reset()
         payload = {"area": "kyoto", "prefecture_name": "京都府", "origin": {"name": "駅", "latitude": 35, "longitude": 135.7}, "radius_km": 5}
-        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog"}), patch("app.discovery.load_public_places", return_value=(place("garden"),)):
+        with patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "public_catalog", "OPENPOI_ENABLED": "0"}), patch("app.discovery_agent.gemini_api_key", return_value=""), patch("app.discovery.load_public_places", return_value=(place("garden"),)):
             client = TestClient(app)
             result = client.post("/api/discover", json=payload)
             invalid = client.post("/api/discover", json={**payload, "radius_km": 20001})

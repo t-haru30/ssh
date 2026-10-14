@@ -421,7 +421,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「伊丹市昆虫館」から徒歩目安約17分です。"
+          "reason": "次の予定地「伊丹市昆虫館」から徒歩目安約17分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-1423052008",
@@ -555,13 +558,17 @@
         {
           "place_id": "osm-node-6815180156",
           "name": "ホリーズカフェ",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 34.7348361,
           "lng": 135.4329355,
           "stay_minutes": 60,
           "score": 40.0,
           "role": "lunch",
-          "reason": "次の予定地「遊女塚」から徒歩目安約20分です。"
+          "reason": "次の予定地「遊女塚」から徒歩目安約20分です。",
+          "tags": {
+            "amenity": "cafe",
+            "wikipedia": "ja:ホリーズカフェ"
+          }
         },
         {
           "place_id": "osm-node-4314988139",

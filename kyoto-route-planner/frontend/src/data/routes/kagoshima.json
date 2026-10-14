@@ -188,7 +188,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「薩摩伝承館」から徒歩目安約21分です。"
+          "reason": "次の予定地「薩摩伝承館」から徒歩目安約21分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "name:ja": "札幌ラーメン あらた"
+          }
         },
         {
           "place_id": "osm-node-5661669624",
@@ -421,7 +425,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「七ッ島保存記念碑」から徒歩目安約10分です。"
+          "reason": "次の予定地「七ッ島保存記念碑」から徒歩目安約10分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "japanese",
+            "name:en": "Hokka Hokka Tei",
+            "name:ja": "ほっかほっか亭"
+          }
         },
         {
           "place_id": "osm-node-5751841126",
@@ -571,7 +581,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「潮見橋」から徒歩目安約3分です。"
+          "reason": "次の予定地「潮見橋」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "burger",
+            "name:en": "McDonald's",
+            "name:ja": "マクドナルド"
+          }
         }
       ],
       "coordinates": [

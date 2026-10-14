@@ -61,3 +61,9 @@
 .journey-review h3 { margin-top: 0; }
 .journey-review article { border-top: 1px solid var(--border, #d9dfd9); padding: 1rem 0; }
 .journey-review button { padding: .75rem 1rem; min-height: 44px; }
+.swipe-spot-appeal { display: block; margin-top: 6px; font-size: 13px; line-height: 1.7; color: var(--control-text); }
+.swipe-reason { padding: 18px; border-left: 4px solid var(--forest); }
+.swipe-reason > strong { font-size: 16px; }
+.swipe-reason .swipe-story { font-size: 16px; line-height: 1.8; }
+.journey-review > summary { cursor: pointer; font-size: 13px; }
+details.journey-review:not([open]) { background: transparent; border: 0; padding: 0; margin: 8px 0; }

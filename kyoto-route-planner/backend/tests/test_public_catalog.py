@@ -68,6 +68,17 @@ class PublicCatalogTests(unittest.TestCase):
         self.assertEqual([hit.place.id for hit in result.results], ["osm-node-1"])
         self.assertEqual(result.results[0].place.genre_code, "0424001")
 
+    def test_shrine_query_includes_jingu_and_taisha_without_unrelated_temples(self):
+        self.places[0].name = "試験神宮"
+        self.places[0].category = "観光名所"
+        self.places[1].name = "試験大社"
+        self.places[1].category = "神宮"
+        self.path.write_text(json.dumps({"version": 1, "license": {"name": "ODbL-1.0"},
+                                         "places": [place.model_dump() for place in self.places]}), encoding="utf-8")
+        with patch.dict(os.environ, {"PLACE_SEARCH_PROVIDER": "public_catalog"}):
+            result = asyncio.run(search_yahoo_catalog("京都 神社"))
+        self.assertEqual({hit.place.id for hit in result.results}, {"osm-node-1", "osm-node-2"})
+
     def test_non_osm_catalog_cannot_be_loaded(self):
         self.places[0].id = "p12-private"
         self.path.write_text(json.dumps({"version": 1, "license": {"name": "ODbL-1.0"},

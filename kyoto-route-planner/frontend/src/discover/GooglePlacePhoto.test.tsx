@@ -48,3 +48,16 @@ it("never displays the previous facility photo after identity changes", async ()
   view.rerender(<GooglePlacePhoto place={{...place,id:"another",name:"別の施設"}} enabled showName>代替画像</GooglePlacePhoto>);
   expect(screen.queryByRole("img")).toBeNull();
 });
+
+it("keeps an already displayed photo through a temporary dialog or tab switch without another paid lookup", async () => {
+  const fetcher=vi.fn().mockResolvedValue({ok:true,json:async () => ({status:"ready",place_id:place.id,image_url:"https://lh3.googleusercontent.com/photo",source_url:"https://maps.google.com/",authors:[]})});
+  vi.stubGlobal("fetch",fetcher);
+  const view=render(<GooglePlacePhoto place={place} enabled showName>代替画像</GooglePlacePhoto>);
+  await screen.findByRole("img");
+  view.rerender(<GooglePlacePhoto place={place} enabled={false} showName>代替画像</GooglePlacePhoto>);
+  expect(screen.queryByRole("img")).toBeNull();
+  view.rerender(<GooglePlacePhoto place={place} enabled showName>代替画像</GooglePlacePhoto>);
+  await act(async () => {});
+  expect(screen.getByRole("img").getAttribute("src")).toBe("https://lh3.googleusercontent.com/photo");
+  expect(fetcher).toHaveBeenCalledTimes(1);
+});

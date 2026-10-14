@@ -10,7 +10,8 @@ export type SharedSwipeCardSpot = {
   id: string;
   name: string;
   category?: string;
-  icon?: string;
+  appeal?: string;
+  icon?: ReactNode;
 };
 
 export type SharedSwipeCardProps = {
@@ -18,6 +19,7 @@ export type SharedSwipeCardProps = {
   title: string;
   description?: string;
   descriptionLabel?: string;
+  descriptionSupplement?: ReactNode;
   recommendationLabel?: string;
   recommendationSources?: ReactNode;
   summary?: string;
@@ -53,6 +55,7 @@ export function SharedSwipeCard({
   title,
   description,
   descriptionLabel,
+  descriptionSupplement,
   recommendationLabel,
   recommendationSources,
   summary,
@@ -103,6 +106,7 @@ export function SharedSwipeCard({
     return () => { removed = true; window.clearTimeout(timeout); movement.stop(); fade.stop(); };
   }, [isPresent, departureDirection, safeToRemove, x, opacity]);
   const rotate = useTransform(x, [-240, 240], [-13, 13]);
+  const backgroundColor = useTransform(x, value => `color-mix(in srgb, var(--paper) ${100 - Math.min(30, Math.abs(value) / 110 * 30)}%, ${value < 0 ? "#e99535" : "#2ba06a"})`);
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
@@ -126,7 +130,7 @@ export function SharedSwipeCard({
   return (
     <motion.article
       className={`swipe-card${isProcessing ? " is-processing" : ""}`}
-      style={{ x, rotate, opacity, zIndex: 10 - depth, pointerEvents: isTop && isPresent ? "auto" : "none" }}
+      style={{ x, rotate, opacity, backgroundColor, zIndex: 10 - depth, pointerEvents: isTop && isPresent ? "auto" : "none" }}
       drag={isPresent && swipeEnabled && isTop && !isProcessing ? "x" : false}
       dragMomentum={false}
       whileTap={swipeEnabled && isTop && !isProcessing ? { cursor: "grabbing" } : undefined}
@@ -199,7 +203,7 @@ export function SharedSwipeCard({
           <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
         </> : title}</h3>
         {recommendationLabel && <span className="discover-recommendation-label">✦ {recommendationLabel}</span>}
-        {description && (descriptionLabel ? <section className="swipe-reason" aria-label={descriptionLabel}><strong>{descriptionLabel}</strong><p className="swipe-story">{description}</p></section> : <p className="swipe-story">{description}</p>)}
+        {description && (descriptionLabel ? <section className="swipe-reason" aria-label={descriptionLabel}><strong>{descriptionLabel}</strong><p className="swipe-story">{description}</p>{descriptionSupplement}</section> : <p className="swipe-story">{description}</p>)}
         {recommendationSources}
         {summary && <p className="swipe-distance">{summary}</p>}
         <ul className="swipe-spot-list">
@@ -214,7 +218,7 @@ export function SharedSwipeCard({
                 aria-haspopup="dialog"
               >
                 <span className="swipe-spot-icon" aria-hidden="true">{spot.icon ?? <PinIcon />}</span>
-                <span className="swipe-spot-copy"><strong>{spot.name}</strong>{spot.category && <small>{spot.category}</small>}</span>
+                <span className="swipe-spot-copy"><strong>{spot.name}</strong>{spot.category && <small>{spot.category}</small>}{spot.appeal && <span className="swipe-spot-appeal">{spot.appeal}</span>}</span>
                 <span className="swipe-spot-detail-label">説明 <span aria-hidden="true">›</span></span>
               </button> : <>
               <span className="swipe-spot-icon" aria-hidden="true">

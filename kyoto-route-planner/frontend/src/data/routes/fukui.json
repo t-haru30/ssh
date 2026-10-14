@@ -91,7 +91,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「旧敦賀港駅ランプ小屋」から徒歩目安約3分です。"
+          "reason": "次の予定地「旧敦賀港駅ランプ小屋」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-11250220361",
@@ -421,7 +424,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「福井県立恐竜博物館」から徒歩目安約3分です。"
+          "reason": "次の予定地「福井県立恐竜博物館」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "food_court"
+          }
         },
         {
           "place_id": "osm-node-1420949543",
@@ -561,7 +567,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「勝山城博物館」から徒歩目安約12分です。"
+          "reason": "次の予定地「勝山城博物館」から徒歩目安約12分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-1420945298",

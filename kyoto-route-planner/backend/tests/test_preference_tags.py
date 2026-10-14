@@ -5,18 +5,22 @@ from app.preference_tags import PreferenceTagsRequest, suggest_tags, parse_tags,
 
 class PreferenceTagTests(unittest.IsolatedAsyncioTestCase):
     def test_validation(self):
-        self.assertEqual(parse_tags('{"tags":["庭園でひと休み","庭園でひと休み"]}'), ["庭園でひと休み"])
+        self.assertEqual(parse_tags('{"tags":["静かな時間","静かな時間"]}'), ["静かな時間"])
         for value in ['{"tags":[]}', '{"tags":[42]}', '{"tags":["<script>"]}', '{"tags":["' + '長' * 21 + '"]}']:
             with self.assertRaises(ValueError):
                 parse_tags(value)
 
     async def test_model_output_and_context(self):
         payload = PreferenceTagsRequest(theme="food", traveler={"companion":"solo", "age_group":"65_plus", "gender":"female"})
-        response = httpx.Response(200, request=httpx.Request("POST", "https://example.test"), json={"candidates":[{"finishReason":"STOP", "content":{"parts":[{"text":'{"tags":["地元の市場巡り","喫茶店でひと休み"]}'}]}}]})
+        response = httpx.Response(200, request=httpx.Request("POST", "https://example.test"), json={"candidates":[{"finishReason":"STOP", "content":{"parts":[{"text":'{"tags":["新しい発見","地元の暮らし"]}'}]}}]})
         with patch('app.preference_tags._cache.get', return_value=(False, None)), patch('app.preference_tags.gemini_api_key', return_value='test'), patch('app.preference_tags.setting', return_value='gemini-test'), patch('httpx.AsyncClient.post', new=AsyncMock(return_value=response)) as post:
             result = await suggest_tags(payload)
         self.assertEqual(result['source'], 'ai')
         context = post.call_args.kwargs['json']['contents'][0]['parts'][0]['text']
+        prompt = post.call_args.kwargs['json']['systemInstruction']['parts'][0]['text']
+        self.assertIn('concrete, easy-to-picture travel activities', prompt)
+        self.assertIn('ordinary language', prompt)
+        self.assertIn('郷土料理を味わう', prompt)
         self.assertIn('food', context)
         self.assertNotIn('female', context)
         self.assertNotIn('65_plus', context)
@@ -32,10 +36,10 @@ class PreferenceTagTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, {'tags': [], 'source':'unavailable', 'reason':'rate_limit'})
 
     async def test_more_tags_excludes_seen_tags_and_uses_distinct_cache_key(self):
-        payload = PreferenceTagsRequest(theme="nature", exclude_tags=["庭園でひと休み"])
-        response = httpx.Response(200, request=httpx.Request("POST", "https://example.test"), json={"candidates":[{"finishReason":"STOP", "content":{"parts":[{"text":'{"tags":["庭園でひと休み","湖畔を散歩"]}'}]}}]})
+        payload = PreferenceTagsRequest(theme="nature", exclude_tags=["静かな時間"])
+        response = httpx.Response(200, request=httpx.Request("POST", "https://example.test"), json={"candidates":[{"finishReason":"STOP", "content":{"parts":[{"text":'{"tags":["静かな時間","心を整える"]}'}]}}]})
         with patch('app.preference_tags._cache.get', return_value=(False, None)) as cache_get, patch('app.preference_tags.gemini_api_key', return_value='test'), patch('app.preference_tags.setting', return_value='gemini-test'), patch('httpx.AsyncClient.post', new=AsyncMock(return_value=response)) as post:
             result = await suggest_tags(payload)
-        self.assertEqual(result['tags'], ["湖畔を散歩"])
+        self.assertEqual(result['tags'], ["心を整える"])
         self.assertIn('exclude_tags', cache_get.call_args.args[0])
-        self.assertIn('庭園でひと休み', post.call_args.kwargs['json']['contents'][0]['parts'][0]['text'])
+        self.assertIn('静かな時間', post.call_args.kwargs['json']['contents'][0]['parts'][0]['text'])

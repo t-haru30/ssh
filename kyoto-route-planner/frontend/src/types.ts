@@ -52,6 +52,7 @@ export type RouteTimelineSpot = {
 };
 
 export type RouteTimelineTransit = {
+  map_token?: string | null;
   type: "transit";
   from_name: string;
   to_name: string;

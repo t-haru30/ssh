@@ -10,6 +10,7 @@ const license = {
   attribution: "© OpenStreetMap contributors", source: "https://www.openstreetmap.org/copyright",
 };
 const themes = new Set(["all", "history", "temple", "nature", "food"]);
+const osmTagKeys = new Set(["name:ja", "name:en", "official_name", "amenity", "cuisine", "website", "contact:website", "wikipedia", "wikidata"]);
 // Reviewed removals: closed venues and a direction stone mistaken for the shrine.
 const excludedPlaces = new Set(["osm-node-1897894350", "osm-node-1177156758", "osm-node-11174591021"]);
 
@@ -63,7 +64,8 @@ export async function buildPublicData(sourceDir, outputDir) {
             region: entry.name, address: entry.name, description: "",
             access_point: "座標から経路検索", latitude: spot.lat, longitude: spot.lng,
             themes: [route.theme], source_record_id: `${kind}/${id}`,
-            tags: { source: "OpenStreetMap", source_url: `https://www.openstreetmap.org/${kind}/${id}`, license: license.name },
+            tags: { ...Object.fromEntries(Object.entries(spot.tags ?? {}).filter(([key, value]) => osmTagKeys.has(key) && typeof value === "string")),
+              source: "OpenStreetMap", source_url: `https://www.openstreetmap.org/${kind}/${id}`, license: license.name },
           });
         }
       }

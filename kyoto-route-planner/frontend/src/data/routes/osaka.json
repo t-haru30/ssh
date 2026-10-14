@@ -285,7 +285,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「アイセルシュラホール」から徒歩目安約9分です。"
+          "reason": "次の予定地「アイセルシュラホール」から徒歩目安約9分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-9575866193",
@@ -431,7 +434,14 @@
           "stay_minutes": 60,
           "score": 40.0,
           "role": "lunch",
-          "reason": "次の予定地「大阪府立 上方演芸資料館」から徒歩目安約2分です。"
+          "reason": "次の予定地「大阪府立 上方演芸資料館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "noodle",
+            "name:en": "CHITOSE",
+            "website": "https://www.chitose-nikusui.com/chitose/",
+            "wikidata": "Q108376898"
+          }
         }
       ],
       "coordinates": [
@@ -571,7 +581,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「湯木美術館」から徒歩目安約4分です。"
+          "reason": "次の予定地「湯木美術館」から徒歩目安約4分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "italian"
+          }
         }
       ],
       "coordinates": [

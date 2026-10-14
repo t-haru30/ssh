@@ -16,7 +16,7 @@ for (const dataset of Object.values(datasets)) {
       catalog.set(spot.place_id, { id: spot.place_id, name: spot.name, category: spot.category,
         description: "", access_point: "", latitude: spot.lat, longitude: spot.lng, themes: [],
         address: prefectureNames.get(dataset.area),
-        tags: { area: dataset.area, source: "OpenStreetMap" } });
+        tags: { ...spot.tags, area: dataset.area, source: "OpenStreetMap" } });
     }
   }
 }

@@ -421,7 +421,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「皇子神社」から徒歩目安約7分です。"
+          "reason": "次の予定地「皇子神社」から徒歩目安約7分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "burger",
+            "name:en": "McDonald's",
+            "name:ja": "マクドナルド"
+          }
         },
         {
           "place_id": "osm-node-12012592617",
@@ -571,7 +577,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「弁慶の岩屋」から徒歩目安約16分です。"
+          "reason": "次の予定地「弁慶の岩屋」から徒歩目安約16分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "chinese"
+          }
         }
       ],
       "coordinates": [
