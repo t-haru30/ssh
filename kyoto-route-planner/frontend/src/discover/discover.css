@@ -68,3 +68,8 @@
 .swipe-reason .swipe-story { font-size: 16px; line-height: 1.8; }
 .journey-review > summary { cursor: pointer; font-size: 13px; }
 details.journey-review:not([open]) { background: transparent; border: 0; padding: 0; margin: 8px 0; }
+/* Keep the close control within reach while reading a long facility description. */
+.discover-route-modal .route-modal-header { position:sticky; top:-28px; z-index:6; background:var(--paper); padding-block:10px; }
+.discover-route-modal .route-modal-header h2 { max-height:3.2em; overflow:hidden; }
+.discover-mode .prefecture-picker select { min-height:56px; font-size:20px; font-weight:700; }
+@media(max-width:520px) { .discover-route-modal .route-modal-header { top:-22px; } }

@@ -58,12 +58,17 @@ it("preserves the chosen map area when switching the layer or highlighting a tim
   const view=render(<GoogleJourneyMap {...journey} />);
   await waitFor(() => expect(mocks.fit).toHaveBeenCalledTimes(1));
   fireEvent.click(screen.getByRole("button",{name:"全体"}));
+  expect(screen.getByRole("button",{name:"全体"}).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("button",{name:"観光エリア"}).getAttribute("aria-pressed")).toBe("false");
   expect(mocks.fit).toHaveBeenCalledTimes(2);
   fireEvent.click(screen.getByRole("button",{name:"電車・バス"}));
   await act(async () => {});
   expect(mocks.fit).toHaveBeenCalledTimes(2);
   view.rerender(<GoogleJourneyMap {...journey} activeSpotId="museum" />);
   expect(mocks.fit).toHaveBeenCalledTimes(2);
+  expect(screen.getByRole("button",{name:"全体"}).getAttribute("aria-pressed")).toBe("true");
+  fireEvent.click(screen.getByRole("button",{name:"観光エリア"}));
+  expect(screen.getByRole("button",{name:"観光エリア"}).getAttribute("aria-pressed")).toBe("true");
 });
 it("redraws the same map after returning from a hidden screen without another map load",async()=>{
   const created=vi.fn(),resize=vi.fn();

@@ -28,6 +28,8 @@ class Origin(BaseModel):
     longitude: Longitude
 
 class TransitSegmentRequest(BaseModel):
+    route_priority: Literal['time','price'] = 'time'
+    prefer_nearby_airport: bool = True
     origin: Origin
     destination: Origin
     departure_date: date
@@ -75,6 +77,8 @@ class RouteSuggestionRequest(BaseModel):
         return self
 
 class RoutePreviewRequest(BaseModel):
+    route_priority: Literal['time','price'] = 'time'
+    prefer_nearby_airport: bool = True
     origin: Origin
     return_to: Origin | None = None
     places: list[Place] = Field(min_length=1, max_length=8)

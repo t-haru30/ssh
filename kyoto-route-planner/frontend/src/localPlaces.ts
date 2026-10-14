@@ -2,6 +2,7 @@ import type { RouteDataset } from "./discover/datasetTypes";
 import type { Origin, Place } from "./types";
 import prefectureIndex from "./data/routes/index.json";
 import { facilityThemes, isUnsuitablePlace } from "./placeThemes";
+import gatewayPresets from "./data/gatewayPresets.json";
 
 const datasets = import.meta.glob(["./data/routes/*.json", "!./data/routes/index.json"], { eager: true, import: "default" }) as Record<string, RouteDataset>;
 const catalog = new Map<string, Place>();
@@ -20,6 +21,9 @@ for (const dataset of Object.values(datasets)) {
     }
   }
 }
+
+const nahaAirport=gatewayPresets.gateways.okinawa.find(p=>p.name==="那覇空港");
+if(nahaAirport) localOrigins.okinawa={name:nahaAirport.name,latitude:nahaAirport.latitude,longitude:nahaAirport.longitude};
 
 /** Local suggestions remain available before any optional provider search. */
 export const localPlaces = [...catalog.values()].filter(place => !isUnsuitablePlace(place)).map(place => ({ ...place, themes: facilityThemes(place) }));

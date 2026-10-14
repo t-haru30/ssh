@@ -8,9 +8,12 @@ it("pairs each photo with its own place and attribution, and handles a failed im
   const places: Place[] = ["庭園", "美術館"].map((name,i) => ({id:String(i),name,latitude:35,longitude:135,category:"観光",description:"",access_point:"",themes:[]}));
   render(<RoutePhotoGrid places={places} enabled />);
   expect(screen.getByRole("img", {name:"庭園"}).getAttribute("src")).toContain("0.jpg");
+  fireEvent.click(screen.getByRole("button",{name:"次の施設の写真"}));
   expect(screen.getByRole("img", {name:"美術館"}).getAttribute("src")).toContain("1.jpg");
   expect(screen.getByRole("link", {name:"撮影者1"}).getAttribute("href")).toContain("1.jpg");
+  fireEvent.click(screen.getByRole("button",{name:"前の施設の写真"}));
   fireEvent.error(screen.getByRole("img", {name:"庭園"}));
   expect(screen.getByText("AI生成・ジャンルイメージ")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button",{name:"次の施設の写真"}));
   expect(screen.getByRole("img", {name:"美術館"})).toBeTruthy();
 });

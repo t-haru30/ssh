@@ -221,7 +221,7 @@ describe("destination introductions", () => {
     vi.stubGlobal("fetch", vi.fn(async () => response(data)));
     render(<PlaceIntroduction enableOfficialSearch={false} place={place} />);
     expect((await screen.findByText(/詳しい説明は、現在確認できません/)).textContent).toContain("地図");
-    expect(screen.getByText(/天候や歩く距離に合わせて/)).toBeTruthy();
+    expect(screen.queryByText("立ち寄りのヒント")).toBeNull();
     expect(screen.getByRole("link", { name: /地図で場所を確認する/ })).toBeTruthy();
     expect(screen.queryByText(article.description)).toBeNull();
     expect(screen.queryByRole("link", { name: /Wikipediaの寄稿者/ })).toBeNull();
@@ -231,7 +231,7 @@ describe("destination introductions", () => {
     vi.stubGlobal("fetch", vi.fn(async () => { if (kind === "network") throw Error("offline"); return response(article, false); }));
     render(<PlaceIntroduction enableOfficialSearch={false} place={{ ...place, category: "美術館" }} />);
     await screen.findByText(/詳しい説明は、現在確認できません/);
-    expect(screen.getByText(/企画展・休館日・入館時間/)).toBeTruthy();
+    expect(screen.queryByText("立ち寄りのヒント")).toBeNull();
     expect(screen.queryByText(article.description)).toBeNull();
   });
 

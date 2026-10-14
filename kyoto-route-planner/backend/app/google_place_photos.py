@@ -118,7 +118,14 @@ async def fetch_google_photo(place: Place):
             if len(matches) != 1:
                 return GooglePhoto()
             candidate = matches[0]
-            photo = candidate["photos"][0]
+            # Prefer a venue's own landscape photograph over a portrait upload.
+            # This uses already-returned metadata, without more billable searches.
+            def suitability(photo):
+                width, height = photo.get("widthPx",0), photo.get("heightPx",0)
+                landscape = isinstance(width,(int,float)) and isinstance(height,(int,float)) and width >= height > 0
+                owner = any(normalized(a.get("displayName","")) == normalized(candidate.get("displayName",{}).get("text","")) for a in photo.get("authorAttributions",[]) if isinstance(a,dict))
+                return (landscape,owner)
+            photo = max(candidate["photos"][:10],key=suitability)
             name = photo.get("name", "")
             if not re.fullmatch(r"places/[A-Za-z0-9_-]+/photos/[A-Za-z0-9_-]+", name) or name.split("/")[1] != candidate["id"]:
                 return GooglePhoto()

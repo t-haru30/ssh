@@ -1,5 +1,6 @@
 import { distanceKm } from "./dayTrip";
 import type { Origin, Place } from "./types";
+import {osmVisitFits} from "./venueHours";
 
 export const MEALS = [
   { kind: "breakfast", label: "朝ごはん", time: "08:30" },
@@ -17,7 +18,7 @@ export function mealError(meals: MealChoice[]) {
 }
 
 /** Insert sightseeing only when it fits before the next requested meal. */
-export function planMeals(places: Place[], meals: MealChoice[], origin: Origin, course: string, dwell: (p: Place) => number, isMeal: (p: Place) => boolean) {
+function planMealOrder(places: Place[], meals: MealChoice[], origin: Origin, course: string, dwell: (p: Place) => number, isMeal: (p: Place) => boolean) {
   const choices = MEALS.flatMap(m => meals.filter(c => c.kind === m.kind));
   const venues = places.filter(isMeal), pending = places.filter(p => !isMeal(p));
   if (venues.length !== choices.length || mealError(choices)) return null;
@@ -40,9 +41,21 @@ export function planMeals(places: Place[], meals: MealChoice[], origin: Origin, 
     const arrival = now + travel(cursor, venue);
     if (arrival > target + (meal.time ? 0 : 90)) return null;
     const at = Math.max(arrival, target);
+    if(!osmVisitFits(venue,at,dwell(venue)))return null;
     anchors[venue.id] = clockOf(at); roles[venue.id] = meal.kind;
     ordered.push(venue); now = at + dwell(venue); cursor = venue;
   }
   pending.forEach(add);
   return { ordered, roles, anchors, departure: clockOf(start), minutes: now + travel(cursor, origin) - start };
+}
+
+export function planMeals(places: Place[], meals: MealChoice[], origin: Origin, course: string, dwell: (p: Place) => number, isMeal: (p: Place) => boolean) {
+  const venues=places.filter(isMeal),others=places.filter(p=>!isMeal(p));
+  if(venues.length!==meals.length || venues.length>3)return null;
+  function orders(items:Place[]):Place[][] {return items.length ? items.flatMap((p,i)=>orders(items.filter((_,n)=>n!==i)).map(rest=>[p,...rest])) : [[]];}
+  for(const order of orders(venues)) {
+    const plan=planMealOrder([...others,...order],meals,origin,course,dwell,isMeal);
+    if(plan)return plan;
+  }
+  return null;
 }

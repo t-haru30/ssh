@@ -138,6 +138,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   const [travelRadius, setTravelRadius] = useState(savedForm?.travelRadius ?? 30);
   const [suggestions, setSuggestions] = useState<RouteSuggestion[]>(() => restoredDraft ? [{ ...restoredDraft.plan.transport.route, title: restoredDraft.title }] : legacyPlan?.suggestions ?? []);
   const [dayTripPlan, setDayTripPlan] = useState<TripPlan | null>(restoredDraft?.plan ?? null);
+  const [routePriority,setRoutePriority]=useState<"time"|"price">("time");
+  const [preferNearbyAirport,setPreferNearbyAirport]=useState(true);
   const [tripSession, setTripSession] = useState(0);
   const [transportStamp, setTransportStamp] = useState(() => ({ date: restoredDraft?.plan.transport.date ?? "", time: restoredDraft?.plan.transport.time ?? "" }));
   const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraft));
@@ -427,6 +429,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
             meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
             departure_date:departureDate,departure_time:departureTime,
+            route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
           } : request),
           signal: controller.signal,
         }, REQUEST_TIMEOUT_MS);
@@ -500,6 +503,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
           meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
           departure_date:departureDate,departure_time:departureTime,
+          route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
         } : request),
         signal: controller.signal,
       }, REQUEST_TIMEOUT_MS);
@@ -578,6 +582,11 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
       {editingOnly && !hasResult && <section className="discovery-question"><h2>まずは、気になる旅を選びましょう</h2><p>「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
       {(!editingOnly || hasResult) && <div className={`search-stage${hasResult ? " has-result" : ""}`}>
+        {hasResult && <div className="trip-departure-fields" aria-label="旅の出発日時">
+          <label>出発日<input form="journey-conditions" type="date" value={departureDate} onChange={event=>setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required /></label>
+          <label>出発時刻<input form="journey-conditions" type="time" value={departureTime} onChange={event=>setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required /></label>
+          <button type="button" className="idea-primary-button" disabled={searching || loading || !validDeparture || hasCompleted} onClick={()=>formRef.current?.requestSubmit()}>{searching ? "交通情報を更新中…" : "この日時で交通情報を更新"}</button>
+        </div>}
         {hasResult && (
           <button
             className="form-toggle-button"
@@ -617,7 +626,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           </div>
 
           }
-          <form ref={formRef} onSubmit={handleSubmit}>
+          <form id="journey-conditions" ref={formRef} onSubmit={handleSubmit}>
             <div className="journey-form-intro"><span>01</span><div><strong>旅の条件を決めましょう</strong><p>行きたい場所と、過ごせる時間から。</p></div></div>
             <div className="journey-range-fields">
               <TravelRangeControl label="移動範囲・出発地からの半径（km）" value={travelRadius} onChange={setTravelRadius} disabled={searching} hint="県境を越えて、この範囲内の候補を探します。" />
@@ -688,14 +697,14 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
                   詳細設定：{departureDate} {departureTime}出発
                 </summary>
                 <div className="form-advanced-fields">
-                  <label>
+                  {!hasResult && <label>
                     <span>出発日</span>
                     <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required />
-                  </label>
-                  <label>
+                  </label>}
+                  {!hasResult && <label>
                     <span>出発時刻</span>
                     <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required />
-                  </label>
+                  </label>}
                   {(!hasResult || isOvernight) && <label>
                     <span>{isOvernight ? "1日あたりの立ち寄り先" : "立ち寄り先"}</span>
                     <select value={stopCount} onChange={(event) => setStopCount(Number(event.target.value))} disabled={searching}>
@@ -730,7 +739,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             <span>{draftRestored ? "前回の旅程を復元しました。続きから編集できます。" : "このブラウザには保存できません。しおりをコピーして残してください。"}</span>
             {draftRestored && <button type="button" onClick={() => setDraftRestored(false)} aria-label="復元のお知らせを閉じる">✕</button>}
           </div>}
-          {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。「条件を変更する」から日付を確認し、交通経路を再検索してください。</p>}
+          {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。上の「出発日」を変更し、交通情報を更新してください。</p>}
           <section className="results-section" aria-live="polite">
             <div className="section-heading results-heading">
               <div><h2>私の旅のしおり</h2>{!isOvernight && <label className="plan-title-input">プラン名<input maxLength={500} value={planTitle} placeholder="旅の名前を入力" onChange={event => setPlanTitle(event.target.value)} /></label>}</div>
@@ -803,6 +812,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         {!isOvernight && suggestions[0] && (
           <div className="route-options">
             <DayTripEditor key={tripSession} source={suggestions[0]} sourceDate={transportStamp.date} sourceTime={transportStamp.time}
+              routePriority={routePriority} onRoutePriorityChange={setRoutePriority} preferNearbyAirport={preferNearbyAirport} onPreferNearbyAirportChange={setPreferNearbyAirport}
               origin={origin ?? suggestions[0].origin} returnTo={returnTo ?? origin ?? suggestions[0].origin} preferences={preferences} date={editorDate} departureTime={editorTime} candidates={editingCandidates}
               initialAnchorTimes={preset?.nonce === tripSession ? preset.anchorTimes : undefined} initialAvailableMinutes={preset?.nonce === tripSession ? preset.availableMinutes : undefined} initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
             <div className="route-swipe-controls">

@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 from app.models import Place
 from app.google_place_photos import BASE, google_api_key, same_google_venue, reserve_lookup, safe_url
 from app.official_place_info import OfficialPlaceInfo, _basic_url, fetch_matched_official_info
+from app.venue_hours import google_regular_windows
+from datetime import date, timedelta
 
 class GoogleVenueInfo(BaseModel):
     place_id: str
@@ -19,6 +21,7 @@ class GoogleVenueInfo(BaseModel):
     rating_count: int | None = None
     business_status: str = "unknown"
     opening_hours: list[str] = Field(default_factory=list)
+    weekly_hours: list[list[tuple[int,int]]] | None = None
     source_url: str | None = None
     display_name: str = ""
     address: str = ""
@@ -62,6 +65,8 @@ async def fetch_google_info(place: Place, include_official: bool = False) -> Goo
                 rating_count=count if type(count) is int and count >= 0 else None,
                 business_status={"OPERATIONAL":"operational","CLOSED_PERMANENTLY":"closed","CLOSED_TEMPORARILY":"temporary"}.get(item.get("businessStatus"), "unknown"),
                 opening_hours=[s for s in item.get("regularOpeningHours", {}).get("weekdayDescriptions", [])[:7] if isinstance(s,str) and len(s)<=300],
+                weekly_hours=([google_regular_windows(item.get('regularOpeningHours'),date(2026,10,11)+timedelta(days=i)) for i in range(7)]
+                    if google_regular_windows(item.get('regularOpeningHours'),date(2026,10,11)) is not None else None),
                 source_url=safe_url(item.get("googleMapsUri")))
         # Only opened details read the matched website. No additional Places
         # request, no client-supplied URL and no Google-content cache/database.

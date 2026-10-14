@@ -17,6 +17,7 @@ import "./discover.css";
 import { journeyOverview } from "./journeyStory";
 import { JourneyReasons } from "./JourneyReasons";
 import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
+import { openingConflict } from "../venueHours";
 
 const MapView = lazy(() => import("../GoogleJourneyMap").then(({ GoogleJourneyMap: Component }) => ({ default: Component })));
 type RouteDetailModalProps = { route: DatasetRoute | RouteIdea; onClose: () => void; onPlanInSearch?: (route: DatasetRoute | RouteIdea) => void };
@@ -37,6 +38,8 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [previewRequest, setPreviewRequest] = useState(0);
+  const [routePriority,setRoutePriority]=useState<"time"|"price">("time");
+  const [preferNearbyAirport,setPreferNearbyAirport]=useState(true);
   const [currentOrigin, setCurrentOrigin] = useState<Origin | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -86,7 +89,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
     const departureDate = selection.tripPlan?.date ?? now.toISOString().slice(0, 10);
 
     async function loadRoute() {
-      const conditions = JSON.stringify([origin, returnTo, previewPlaces, previewDwell, departureDate, departureTime, anchors]);
+      const conditions = JSON.stringify([origin, returnTo, previewPlaces, previewDwell, departureDate, departureTime, anchors,routePriority,preferNearbyAirport]);
       if (lastPreviewConditions.current !== conditions) setRouteSuggestion(null);
       lastPreviewConditions.current = conditions;
       setRouteLoading(true);
@@ -103,6 +106,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
             meal_times: anchors,
             departure_date: departureDate,
             departure_time: departureTime,
+            route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
           }),
         });
         if (!response.ok) {
@@ -143,7 +147,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [previewPlaces, origin, previewDwell, previewRequest, returnTo, departureTime, anchors, selection.tripPlan?.date]);
+  }, [previewPlaces, origin, previewDwell, previewRequest, returnTo, departureTime, anchors, selection.tripPlan?.date,routePriority,preferNearbyAirport]);
 
   async function useCurrentLocation() {
     setLocationError(null);
@@ -228,6 +232,9 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       <header className="route-modal-header"><div><p className="eyebrow">YOUR LITTLE JOURNEY</p><h2>{route.title}</h2></div><button ref={closeRef} type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button></header>
       <div className="discover-modal-facts"><span><strong>{places.length}</strong> か所を巡る旅のプラン</span>{isStaticRoute && <span>所要時間の目安 <strong>{formatMinutes(route.estimated_minutes)}</strong></span>}</div>
       {!isStaticRoute && route.story && <p className="discover-modal-story">{route.story}</p>}
+      <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
+        {includesTransfers && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
+      </div>
       <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></Suspense></div>
       {"spots" in route && <div className="discover-modal-recommendation"><strong>この旅の楽しみ</strong><p>{journeyOverview(route,googleInfos)}</p><details><summary>立ち寄り先ごとのおすすめ理由</summary><JourneyReasons route={route} googleInfos={googleInfos} /></details></div>}
       <div className="discover-modal-section-heading"><h3>この旅で訪れる場所</h3><span>{places.length} SPOTS</span></div>
@@ -246,10 +253,12 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
         const visitIndex = timeline.findIndex(item => item.type === "spot" && item.role === "stop" && item.place_id === place.id);
         const transit = timeline[visitIndex - 1];
         const visit = timeline[visitIndex];
+        const conflict=visit?.type==="spot" && visit.time ? openingConflict(googleInfos.find(info=>info.place_id===place.id),journeyDate,Number(visit.time.slice(0,2))*60+Number(visit.time.slice(3)),dwellMinutes[place.id]??90) : null;
         return <li key={`${index}-${place.id}`}><span className="discover-modal-spot-number">{String(index + 1).padStart(2, "0")}</span><div>
           {transit?.type === "transit" && <span className="discover-modal-transit">{"summary" in transit && !transit.transit_line ? transit.summary : `${transitModeLabel(transit.mode)} · ${transit.transit_line ?? "路線未確認"}${transit.fare_yen != null ? ` · ${transit.fare_yen.toLocaleString("ja-JP")}円` : ""}`}</span>}
           {transit?.type === "transit" && transit.start_time && transit.end_time && <span>{transit.is_estimate ? "目安" : "運行時刻"} {transit.start_time}〜{transit.end_time}</span>}
           <strong>{visit?.type === "spot" && <span className="discover-modal-time">{visit.time} </span>}{place.name}</strong>
+          {conflict && <p className="error-panel" role="status">{conflict}</p>}
           <span>{visit?.type === "spot" && visit.label && `${visit.label} · `}{categoryIcon(place.category)} {place.category}{dwellMinutes[place.id] !== undefined && ` · 滞在の目安 ${formatMinutes(dwellMinutes[place.id])}`}</span>
           {visit?.type === "spot" && visit.detail && <span>{visit.detail}</span>}
           <FacilityPhoto place={place} />

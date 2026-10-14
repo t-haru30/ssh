@@ -6,6 +6,7 @@ import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
 import { similarTrip } from "./routeDiversity";
+import kyotoDataset from "../data/routes/kyoto.json";
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: ({ route, onClose }: { route: { title: string }; onClose: () => void }) => <div role="dialog" aria-label={route.title}><button onClick={onClose}>閉じる</button></div> }));
 vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 } }, localPlaces: Array.from({ length: 18 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
 const noPhoto = { ok: true, json: async () => ({ status: "unavailable", key: "a".repeat(64), image_url: null, note: "fixture" }) };
@@ -29,6 +30,27 @@ function goMood() {
 function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ })); fireEvent.change(screen.getByLabelText("出発地点"), { target: { value: "京都駅|34.985849|135.758766" } }); }
 async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false)); }
 function saved() { return JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]"); }
+
+it.each([false,true])("shows streamed cards before AI completes, preserving a deck after interaction=%s",async(interact)=>{
+  const native=await vi.importActual<{TextDecoder:typeof globalThis.TextDecoder;TextEncoder:typeof globalThis.TextEncoder}>("node:util");
+  vi.stubGlobal("TextDecoder",native.TextDecoder);
+  const encode=new native.TextEncoder();
+  let complete!:(value:{done:boolean;value:Uint8Array})=>void;
+  let reads=0;
+  const releaseLock=vi.fn();
+  const frame=(stage:string,title:string)=>encode.encode('data: '+JSON.stringify({stage,result:{routes:[{...kyotoDataset.routes[0],title}],note:"fixture"}})+'\n\n');
+  vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/discover" ? {ok:true,headers:{get:()=>"text/event-stream"},body:{getReader:()=>({
+    read:()=>++reads===1 ? Promise.resolve({done:false,value:frame("initial","先に表示する旅")}) : reads===2 ? new Promise(resolve=>{complete=resolve;}) : Promise.resolve({done:true}),
+    cancel:async()=>{},releaseLock,
+  })}} : noPhoto));
+  mount();next();await generate();
+  expect(screen.getByRole("heading",{name:"先に表示する旅"})).toBeTruthy();
+  if(interact)fireEvent.click(screen.getByRole("button",{name:"詳細を見る"}));
+  await act(async()=>complete({done:false,value:frame("complete","AIが仕上げた旅")}));
+  await waitFor(()=>expect(releaseLock).toHaveBeenCalled());
+  expect(screen.getByRole("heading",{name:interact ? "先に表示する旅" : "AIが仕上げた旅"})).toBeTruthy();
+  if(interact)expect(screen.getByRole("dialog",{name:"先に表示する旅"})).toBeTruthy();
+});
 
 it("explains missing answers and orders departure before prefecture and gateway", () => {
   mount();
@@ -83,6 +105,14 @@ it("keeps valid local candidates when the online response contains no routes", a
   mount(); next(); await generate();
   expect(screen.getByText(/^[1-9][0-9]*件の候補$/)).toBeTruthy();
   expect(screen.queryByText("この条件で新しく提案できる旅程はありません")).toBeNull();
+});
+
+it("does not reintroduce local cards rejected by known opening hours",async()=>{
+  vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/discover" ? {ok:true,json:async()=>({routes:[],note:"指定時刻に営業する候補がありません。",catalog:{availability_checked:true}})} : noPhoto));
+  mount();next();
+  fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
+  await waitFor(()=>expect(screen.queryByText(/^[1-9][0-9]*件の候補$/)).toBeNull());
+  expect(await screen.findByText("この条件で新しく提案できる旅程はありません")).toBeTruthy();
 });
 
 it("keeps multiple themes selected and includes both in the request", async () => {
@@ -394,5 +424,5 @@ it("regenerates for a new prefecture and station after returning through the moo
   fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
   await waitFor(()=>expect(requests).toHaveLength(2));
   expect(requests[0].area).toBe("kyoto");
-  expect(requests[1]).toMatchObject({area:"gifu",prefecture_name:"岐阜県",origin:gifu});
+  expect(requests[1]).toMatchObject({area:"gifu",prefecture_name:"岐阜県",origin:{name:gifu.name}});
 });

@@ -16,9 +16,16 @@ export function facilityThemes(place: Place): Theme[] {
 // Explicit selections and saved journeys do not pass through this filter.
 const unsuitablePlacePattern = /墓園|墓地|霊園|霊苑|斎場|斎苑|火葬場|葬祭|葬儀|納骨|工場|工業団地|病院|医院|クリニック|診療所|発電所|処理場|清掃センター/;
 export function isUnsuitablePlace(place: Place): boolean {
+  if (/^(?:北|南|東|西).{0,12}から見た/.test(place.name)) return true;
   if (!unsuitablePlacePattern.test(`${place.name} ${place.category}`)) return false;
   if (/奥の院|奥之院/.test(place.name)) return false;
   const rawSitelinks = place.tags?.sitelinks?.trim() ?? "";
   const sitelinks = /^[+-]?\d+$/.test(rawSitelinks) ? Number(rawSitelinks) : 0;
   return sitelinks < 10;
+}
+
+export function scenicPriority(place:Place):number {
+  if(!facilityThemes(place).includes("nature"))return 0;
+  const tags=place.tags??{};
+  return Number(Boolean(tags.wikidata||tags.wikipedia||tags.website))+2*Number(/庭園|国立|県立|植物園|渓谷|滝|湖|海岸|展望台|自然公園|名勝/.test(place.name+place.category));
 }

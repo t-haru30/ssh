@@ -14,9 +14,9 @@ class DistinctDiscoveryPlacesTests(unittest.TestCase):
                  place("west", "西から見た二条城東南隅櫓の眺め", 35.002)]
         request = DiscoverRequest(area="kyoto", prefecture_name="京都府",
                                   origin=Origin(name="駅", latitude=35, longitude=135))
-        routes = build_discover_routes(request, tuple(views))["routes"]
+        routes = build_discover_routes(request, (*views,place('canonical','二条城東南隅櫓')))["routes"]
         assert len(routes) == 1
-        assert [p["place_id"] for p in routes[0]["spots"]] == ["south"]
+        assert [p["place_id"] for p in routes[0]["spots"]] == ["canonical"]
         assert views[1].name == "西から見た二条城東南隅櫓の眺め"
 
 

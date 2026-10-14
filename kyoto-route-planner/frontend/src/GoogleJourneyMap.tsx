@@ -30,6 +30,7 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
   const [failed,setFailed] = useState(false);
   const [retry,setRetry] = useState(0);
   const [mode,setMode] = useState<"overview"|"routes"|"walk">(initialMode);
+  const [scope,setScope] = useState<"area"|"all">("area");
   const [pathState,setPathState] = useState<{key:string;segments:PathSegment[];missing:boolean;warnings?:string[]}>({key:"",segments:[],missing:false});
   const [pathLoading,setPathLoading] = useState(false);
   const [pathError,setPathError] = useState(false);
@@ -128,7 +129,7 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
     // Layer changes, fetched paths and scroll-spy highlights must not undo the
     // user's chosen area/zoom. Fit again only when the journey's points change.
     const locationKey=JSON.stringify(direct);
-    if (visible && fittedKey.current !== locationKey) { fittedKey.current=locationKey; fitRef.current(false); }
+    if (visible && fittedKey.current !== locationKey) { fittedKey.current=locationKey; setScope("area"); fitRef.current(false); }
     return () => { markers.forEach(marker => {marker.map = null;}); polylines.forEach(line => line.setMap(null)); popups.forEach(p => p.close()); };
   },[api,origin,returnTo,places,mode,pathState,pathKey,activeSpotId,visible]);
   const mapPlace = places[0] ?? origin;
@@ -142,7 +143,7 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
   });
   const googleTransit=mode === "routes" && api?.routeProvider === "google";
   return <section className="map-frame google-journey-map" aria-label="旅程のGoogle Maps">
-    <div className="journey-map-controls"><div role="group" aria-label="地図の線の表示"><button type="button" aria-pressed={mode === "overview"} onClick={() => setMode("overview")}>つながり（直線）</button><button type="button" aria-pressed={mode === "routes"} onClick={() => setMode("routes")}>電車・バス</button><button type="button" aria-pressed={mode === "walk"} onClick={() => setMode("walk")}>徒歩経路</button></div><div><button type="button" onClick={() => fitRef.current(false)}>観光エリア</button><button type="button" onClick={() => fitRef.current(true)}>全体</button></div></div>
+    <div className="journey-map-controls"><div role="group" aria-label="地図の線の表示"><button type="button" aria-pressed={mode === "overview"} onClick={() => setMode("overview")}>つながり（直線）</button><button type="button" aria-pressed={mode === "routes"} onClick={() => setMode("routes")}>電車・バス</button><button type="button" aria-pressed={mode === "walk"} onClick={() => setMode("walk")}>徒歩経路</button></div><div className="journey-map-scope" role="group" aria-label="地図の表示範囲"><button type="button" aria-pressed={scope === "area"} onClick={() => {setScope("area");fitRef.current(false);}}>観光エリア</button><button type="button" aria-pressed={scope === "all"} onClick={() => {setScope("all");fitRef.current(true);}}>全体</button></div></div>
     <div className="map-canvas" ref={container} aria-label="旅程のスポット地図" />
     {!api && <div className="journey-map-placeholder" role="status">{failed ? <>地図を表示できません。{mapPlace && <a href={googleMapsUrl(mapPlace)} target="_blank" rel="noopener noreferrer">Google Mapsで確認する</a>}<button type="button" onClick={() => setRetry(v => v+1)}>再読み込み</button></> : "Google Mapsを読み込んでいます…"}</div>}
     <p className="journey-map-legend" role="status">{mode === "overview" ? "訪問順を直線で表示しています。" : googleTransit ? "背景は周辺の路線図です。この旅の乗換経路は区間ごとに開けます。" : pathLoading || routeLoading ? "経路を読み込んでいます…" : mode === "routes" && tokensKey === "[]" ? "交通経路の検索後に表示します。" : pathError || !paths.length ? mode === "walk" && !pathError && !pathState.missing ? "近距離の徒歩経路はありません。電車・バスの経路をご確認ください。" : "経路線を取得できませんでした。" : mode === "walk" ? <>緑：徒歩の参考経路。旅程の移動手段は変わりません。{pathState.missing && "未取得の区間があります。"}</> : <>青：鉄道　茶：バス　緑：徒歩。{pathState.missing && "未取得の区間があります。"}破線は停留所・接続地点間の目安です。経路：駅すぱあと</>}{!googleTransit && mode !== "overview" && (pathError || pathState.missing && !paths.length && !pathLoading || !paths.length && !pathLoading && !routeLoading && mode === "routes") && <button type="button" onClick={() => {setPathState({key:"",segments:[],missing:false});setRetry(v => v+1);}}>再試行</button>}</p>

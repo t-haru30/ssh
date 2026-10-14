@@ -50,15 +50,14 @@ class RestaurantParsingTests(unittest.TestCase):
 
 
 class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
-    async def test_overpass_failure_uses_only_independent_osm_seeds_in_the_requested_region(self):
+    async def test_independent_seeds_skip_overpass_wait_and_stay_in_the_requested_region(self):
         client = type("Client",(),{"get":AsyncMock(side_effect=httpx.ReadTimeout("unavailable"))})()
         with patch("app.restaurant_discovery._osm_cache",return_value=None), \
              patch("app.restaurant_discovery._in_prefecture",side_effect=lambda req,lat,lon:lat<36), \
              patch("pathlib.Path.read_text",return_value=json.dumps({"license":"ODbL-1.0","places":[place(1).model_dump(),place(2,lat=37).model_dump()]})):
             result = await _osm_restaurants(client,request(),6)
         self.assertEqual([p.id for p in result],["osm-node-1"])
-        self.assertEqual(client.get.await_count,2)
-        self.assertTrue(all(call.kwargs["timeout"]==6 for call in client.get.call_args_list))
+        client.get.assert_not_awaited()
 
     async def test_unavailable_google_or_osm_is_distinguished_without_private_diagnostics(self):
         result = await self.run_provider([], (place(1),))

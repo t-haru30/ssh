@@ -14,6 +14,7 @@ from fastapi import HTTPException
 from app.http_client import provider_timeout, request_with_retry
 from app.models import Origin, RouteLeg
 from app.places import list_origins
+from app.route_preferences import options
 
 API_BASE_URL = "https://api.ekispert.jp/v1/json"
 logger = logging.getLogger(__name__)
@@ -151,6 +152,7 @@ async def _fetch_geo_station_points(
     try:
         async with httpx.AsyncClient(
             timeout=provider_timeout(10.0),
+            verify=ssl.create_default_context(),
             headers={"Referer": referer} if referer else {},
         ) as client:
             response = await request_with_retry(
@@ -416,12 +418,18 @@ async def search_route(
         )
 
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
+    priority,nearby_airport=options.get()
+    if nearby_airport:
+        from app.airport_routes import airport_via
+        via_points=await airport_via(via_points,_fetch_geo_station_points)
     params = {
         "key": key,
         "viaList": ":".join(_station_via_points(via_points)),
         "date": departure_date.replace("-", ""),
         "time": departure_time.replace(":", ""),
         "searchType": "departure",
+        "sort":priority,
+        "searchCount":"10",
         "answerCount": "1",
         "gcs": "wgs84",
     }

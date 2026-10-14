@@ -12,11 +12,40 @@ import { LazyMapView } from "./LazyMapView";
 import { FacilityPhoto } from "./FacilityPhoto";
 import "./journeyChat.css";
 
-export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
+export function JourneyChat({ plan, candidates, onApply, disabled = false,routePriority="time",preferNearbyAirport=true }: {
   plan: TripPlan; candidates: Place[]; onApply: (plan: TripPlan) => void; disabled?: boolean;
+  routePriority?:"time"|"price";preferNearbyAirport?:boolean;
 }) {
   const [chatVisible, setChatVisible] = useState(true);
   const [mapVisible, setMapVisible] = useState(true);
+  const [mobilePanel, setMobilePanel] = useState<"chat" | "preview" | "map">("chat");
+  const [mobile, setMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const media = window.matchMedia?.("(max-width:650px)");
+    if (!media) return;
+    const update = () => setMobile(media.matches);
+    update(); media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!mobile || !mobileOpen || !dialog.current) return;
+    const element = dialog.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    element.showModal();
+    const viewport = window.visualViewport;
+    const update = () => {
+      element.style.height = `${viewport?.height ?? window.innerHeight}px`;
+      element.style.top = `${viewport?.offsetTop ?? 0}px`;
+    };
+    update(); viewport?.addEventListener("resize", update); viewport?.addEventListener("scroll", update);
+    return () => {
+      element.close(); document.body.style.overflow = previousOverflow;
+      viewport?.removeEventListener("resize", update); viewport?.removeEventListener("scroll", update);
+    };
+  }, [mobile, mobileOpen]);
   const [chatWidth, setChatWidth] = useState(45);
   const [editorWidth, setEditorWidth] = useState<number | null>(null);
   const panels = useRef<HTMLDivElement>(null);
@@ -47,13 +76,14 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
   const identity = JSON.stringify(plan);
   const latest = useRef(identity); latest.current = identity;
   useEffect(() => {
+    if (request.current) setError("旅程や移動時間が更新されたため、相談を中断しました。最新の旅程でもう一度相談してください。");
     request.current?.abort(); request.current = null;
     setWorking(false); setProposal(null); setSteps([]); setReplacing(null); setDraggedStop(null); setDropTarget(null); setReorderError("");
     // History is conversational only; every request sends the authoritative current plan.
   }, [identity]);
   useEffect(() => () => { request.current?.abort(); request.current = null; }, []);
 
-  useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [messages, working]);
+  useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [messages, working, proposal]);
 
   function cancel() {
     request.current?.abort(); request.current = null;
@@ -98,7 +128,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
     }
   }
   const pending = proposal?.base === identity ? proposal.plan : null;
-  const routeRequestKey = pending ? JSON.stringify([identity, pending.origin, pending.returnTo, pending.date, pending.input, pending.stops.map(s => [s.place, s.dwellMinutes, s.anchorTime])]) : "";
+  const routeRequestKey = pending ? JSON.stringify([identity, pending.origin, pending.returnTo, pending.date, pending.input, pending.stops.map(s => [s.place, s.dwellMinutes, s.anchorTime]),routePriority,preferNearbyAirport]) : "";
   useEffect(() => {
     if (!pending) { setRouteStatus("idle"); return; }
     const snapshot = pending;
@@ -112,6 +142,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
           const response = await fetch("/api/routes/preview", {method:"POST", signal:controller.signal, headers:{"Content-Type":"application/json"}, body:JSON.stringify({
             origin:snapshot.origin, return_to:snapshot.returnTo, places:snapshot.stops.map(s => s.place), stay_minutes:snapshot.stops.map(s => s.dwellMinutes),
             meal_times:Object.fromEntries(snapshot.stops.filter(s => s.anchorTime).map(s => [s.place.id,s.anchorTime])), departure_date:snapshot.date, departure_time:snapshot.input.departureTime,
+            route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
           })});
           const route: unknown = await response.json();
           if (!response.ok || !isRouteSuggestion(route)) throw new Error();
@@ -169,13 +200,24 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
     return <PreviewTransit from={from} to={to} minutes={minutes} unknown={shown.unknownTravelSegments?.includes(index)} loading={reviewing && routeStatus === "loading"} transit={transit} places={[shown.origin, ...shown.stops.map(s => s.place), shown.returnTo]} />;
   }
   const money = (p: TripPlan) => p.totalCost === null ? "未確認" : `${p.totalCost.toLocaleString("ja-JP")}円`;
-  const content = <section className="journey-chat" aria-labelledby="journey-chat-title">
+  function applyProposal() {
+    if (!pending || proposal?.base !== latest.current || working || disabled || routeStatus === "loading" || pending.violations.length) return;
+    onApply(pending); setProposal(null); setView("current");
+    setMessages(current => [...current, {role:"assistant", text:"変更案を旅程に反映しました。「旅程」「マップ」で確認できます。"}]);
+  }
+  const content = <section className="journey-chat" data-mobile-panel={mobilePanel} aria-labelledby="journey-chat-title">
+    {mobile && <header className="journey-mobile-header"><button type="button" autoFocus onClick={() => mobilePanel === "chat" ? setMobileOpen(false) : setMobilePanel("chat")}>{mobilePanel === "chat" ? "← 編集画面" : "← 会話に戻る"}</button><strong>旅の相談</strong><span>{working ? "考え中…" : pending ? "変更案あり" : "ConcierGO"}</span></header>}
     <header className="journey-workspace-header">
       <div><span className="journey-workspace-icon" aria-hidden="true">✦</span><div><h3 id="journey-chat-title">相談しながら、旅を整える</h3><p>希望を伝える → 変更案を確認 → 旅程に反映</p></div></div>
       <span className={`journey-state ${working ? "is-working" : pending ? "is-pending" : ""}`}>{working ? "相談中" : pending ? "変更案があります" : "現在の旅程を編集中"}</span>
       <button type="button" className="journey-preview-toggle" aria-expanded={chatVisible} aria-controls="journey-chat-panel" onClick={() => setChatVisible(v => !v)}>{chatVisible ? "チャットを隠す" : "チャットを表示"}</button>
       <button type="button" className="journey-preview-toggle" aria-expanded={mapVisible} aria-controls="journey-map-panel" onClick={() => setMapVisible(v => !v)}>{mapVisible ? "マップを隠す" : "マップを表示"}</button>
     </header>
+    <div className="journey-mobile-nav" role="group" aria-label="旅程エディターの表示">
+      <button type="button" aria-pressed={mobilePanel === "chat"} aria-controls="journey-chat-panel" onClick={() => { setChatVisible(true); setMobilePanel("chat"); }}>チャット</button>
+      <button type="button" aria-pressed={mobilePanel === "preview"} aria-controls="journey-preview-panel" onClick={() => setMobilePanel("preview")}>旅程{pending ? " ●" : ""}</button>
+      <button type="button" aria-pressed={mobilePanel === "map"} aria-controls="journey-map-panel" onClick={() => { setMapVisible(true); setMobilePanel("map"); }}>マップ</button>
+    </div>
     <div ref={panels} style={{ "--editor-width": `${editorRatio}%` } as CSSProperties} className={`journey-workspace-body ${mapVisible ? "has-map" : ""} ${chatVisible ? "" : "chat-hidden"}`}><div ref={workspace} className={`journey-editor-panes ${chatVisible ? "" : "is-chat-hidden"}`} style={{ "--chat-width": `${chatWidth}%` } as CSSProperties}>
       <div id="journey-chat-panel" className="journey-conversation" hidden={!chatVisible}>
         <div className="journey-pane-label"><span>チャット</span><span>ConcierGO</span></div>
@@ -184,6 +226,16 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
             <div className="journey-chat-examples">{["近くのカフェを追加したい", "立ち寄り先を減らして、ゆっくり過ごしたい", "最後の場所で30分長く過ごしたい"].map((text, i) => <button type="button" key={text} disabled={working || disabled} onClick={() => { setInput(text); composer.current?.focus(); }}><span aria-hidden="true">{["＋", "↘", "◷"][i]}</span>{text}<span aria-hidden="true">↗</span></button>)}</div>
           </div>}
           {messages.filter(m => !m.context).map((m, i) => <div key={i} className={`journey-chat-message ${m.role}`}><strong>{m.role === "user" ? "あなた" : "✦ ConcierGO"}</strong><p>{m.text}</p></div>)}
+          {pending && <article className="journey-change-card" aria-label="会話内の変更案">
+            <span>未反映の変更案</span><h4>この旅程に変更しますか？</h4>
+            <ul>{tripChanges(plan, pending).map((change, i) => <li key={i}>{change}</li>)}</ul>
+            <dl><div><dt>帰着</dt><dd>{tripClock(plan.returnMinute)} → {tripClock(pending.returnMinute)}</dd></div><div><dt>概算費用</dt><dd>{money(plan)} → {money(pending)}</dd></div></dl>
+            <p>{routeStatus === "loading" ? "移動時間を確認しています…" : routeStatus === "failed" ? "経路取得に失敗したため、徒歩概算です。" : "移動・費用は概算です。営業状況は未確認です。"}</p>
+            {pending.violations.length > 0 && <p role="alert">{pending.violations.join(" ")}</p>}
+            <button type="button" className="trip-primary" disabled={working || disabled || routeStatus === "loading" || pending.violations.length > 0} onClick={applyProposal}>この案を旅程に反映</button>
+            <div><button type="button" onClick={() => {setView("changes");setMobilePanel("preview");}}>旅程を見る</button><button type="button" onClick={() => {setView("changes");setMapVisible(true);setMobilePanel("map");}}>マップで確認</button></div>
+            <button type="button" disabled={working} onClick={() => {setProposal(null);setView("current");setMessages(current => [...current,{role:"assistant",text:"変更案を見送りました。現在の旅程はそのままです。"}]);}}>この案を見送る</button>
+          </article>}
           {working && <div className="journey-working" role="status"><span className="journey-pulse" aria-hidden="true" /><div><strong>変更案を考えています</strong><p>必要な候補を調べ、時間と予算を確認します。</p></div></div>}
         </div>
         {steps.length > 0 && <details className="journey-checks"><summary>調べたこと・確認したこと <span>{steps.length}件</span></summary><ol>{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></details>}
@@ -251,7 +303,8 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false }: {
     </section>
     </div>
   </section>;
-  return host ? createPortal(content, host) : content;
+  const launcher = <button type="button" className="journey-mobile-launcher" onClick={() => {setChatVisible(true);setMobilePanel("chat");setMobileOpen(true);}}>✦ AIに相談{pending ? " · 変更案あり" : "して旅程を編集"}</button>;
+  return <>{host ? createPortal(mobile ? launcher : content, host) : mobile ? launcher : content}{mobile && mobileOpen && createPortal(<dialog className="journey-mobile-dialog" ref={dialog} aria-label="旅程をチャットで編集" onCancel={() => setMobileOpen(false)}>{content}</dialog>, document.body)}</>;
 }
 
 

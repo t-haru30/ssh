@@ -78,14 +78,6 @@ function readIntroduction(value: unknown): Introduction | null {
   return Object.fromEntries(keys.map(key => [key, value[key]])) as Introduction;
 }
 
-function visitHint(category: string) {
-  if (/寺|神社|神宮|大社/.test(category)) return "境内を歩く時間も含めて、ゆとりのある滞在を。拝観できる場所や時間は、出発前に施設の案内で確認しましょう。";
-  if (/博物館|美術館|資料館|歴史|文化/.test(category)) return "展示や建物をゆっくり楽しむ立ち寄り先です。企画展・休館日・入館時間を確認しておくと、当日の予定を立てやすくなります。";
-  if (/公園|庭園|自然|景|山|湖|海|滝/.test(category)) return "景色を眺めたり、周辺を散策したりする時間に。天候や歩く距離に合わせて、滞在時間を調整しましょう。";
-  if (/食|グルメ|カフェ|喫茶|料理|レストラン|市場/.test(category)) return "食事や休憩を楽しむ立ち寄り先です。営業時間や混み合う時間、予約の要否を確認しておきましょう。";
-  return "この旅で立ち寄る候補のひとつです。周辺を歩く時間も見込み、営業時間や利用条件を確認してから出かけましょう。";
-}
-
 /** Mounted only after a person opens a destination; browsing cards makes no API calls. */
 export function PlaceIntroduction({ place, stayMinutes, recommendations = [], reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {
   const googleInfos = useGoogleVenueInfo([place], enableOfficialSearch, true);
@@ -165,7 +157,6 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], re
           <a className="place-details-official-link" href={`https://www.google.com/search?q=${encodeURIComponent(`${place.name} ${place.address ?? ""} 公式 開館時間 休館日`)}`} target="_blank" rel="noopener noreferrer">施設名で公式案内を探す <span aria-hidden="true">↗</span></a></>}
       {needsOfficialSearch && !googleInfo && <OfficialPlaceSearch key={place.id} place={place} />}
     </section>}
-    <div className="place-visit-hint"><h4>立ち寄りのヒント</h4><p>{visitHint(place.category)}</p></div>
     <div className="place-details-map-links">
       <a className="place-details-map-link" href={mapUrl} target="_blank" rel="noopener noreferrer">地図で場所を確認する <span aria-hidden="true">↗</span></a>
       <a className="place-details-map-link" href={googleMapsUrl(place)} target="_blank" rel="noopener noreferrer">Google Mapsで開く <span aria-hidden="true">↗</span></a>

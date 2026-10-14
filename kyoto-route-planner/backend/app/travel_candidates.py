@@ -41,11 +41,16 @@ async def independent_stations(origin, area, expanded):
     entry = hints.get(area)
     if not entry:
         return []
+    presets=json.loads((SEEDS_PATH.parent/'gateway_presets.json').read_text(encoding='utf-8'))['gateways'].get(area,[])
+    bundled=[CatalogPlace(id='osm-gateway-'+p['source_url'].rsplit('/',2)[-2]+'-'+p['source_url'].rsplit('/',1)[-1],
+            name=p['name'],category='空港' if p['name'].endswith('空港') else '駅',latitude=p['latitude'],longitude=p['longitude'],region='',address='',description='',
+            tags={'source':'OpenStreetMap','license':'ODbL-1.0','source_url':p['source_url']}) for p in presets]
+    if bundled and not expanded:return bundled
     queries = entry['queries'] if expanded else [origin.name.removesuffix('駅').split('（')[0]]
     cache_key = json.dumps([area, queries])
     hit, stations = _station_cache.get(cache_key)
     if hit:
-        return stations
+        return [*bundled,*stations]
     async def resolve(query):
         try:
             found = await asyncio.wait_for(search_stations(query, entry['code']), timeout=8)
@@ -57,7 +62,7 @@ async def independent_stations(origin, area, expanded):
     result = [p for group in await asyncio.gather(*(resolve(q) for q in queries[:2])) for p in group]
     if result:
         _station_cache.set(cache_key,result)
-    return result
+    return [*bundled,*result]
 
 
 def area_at(origin, area=None):

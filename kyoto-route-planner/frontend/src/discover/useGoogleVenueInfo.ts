@@ -3,7 +3,7 @@ import type { Place } from "../types";
 import { isRecord } from "../apiValidation";
 import { publicReasonUrl } from "./reasonSources";
 
-export type GoogleVenueInfo = { place_id: string; status: "ready"; summary: string; category: string; primary_type: string; rating: number | null; rating_count: number | null; business_status: string; opening_hours: string[]; source_url: string; display_name?: string; address?: string; website_url?: string | null; official?: unknown };
+export type GoogleVenueInfo = { place_id: string; status: "ready"; summary: string; category: string; primary_type: string; rating: number | null; rating_count: number | null; business_status: string; opening_hours: string[]; weekly_hours?: [number,number][][] | null; source_url: string; display_name?: string; address?: string; website_url?: string | null; official?: unknown };
 export function useGoogleVenueInfo(places: Place[], enabled: boolean, includeOfficial = false) {
   const [state, setState] = useState<{key:string; infos:GoogleVenueInfo[]}>({key:"",infos:[]});
   const key = JSON.stringify(places);
@@ -21,6 +21,7 @@ export function useGoogleVenueInfo(places: Place[], enabled: boolean, includeOff
         const infos = data.places.filter((p): p is GoogleVenueInfo => isRecord(p) && p.status === "ready" && typeof p.place_id === "string" && places.some(place => place.id === p.place_id)
           && typeof p.summary === "string" && p.summary.length <= 2000 && typeof p.category === "string" && typeof p.primary_type === "string"
           && typeof p.business_status === "string" && (p.rating === null || typeof p.rating === "number" && p.rating >= 0 && p.rating <= 5)
+          && (p.weekly_hours == null || Array.isArray(p.weekly_hours) && p.weekly_hours.length===7 && p.weekly_hours.every(day=>Array.isArray(day) && day.length<=12 && day.every(w=>Array.isArray(w) && w.length===2 && w.every(n=>Number.isInteger(n) && n>=0 && n<=10080) && w[1]>w[0])))
           && (p.rating_count === null || typeof p.rating_count === "number" && Number.isInteger(p.rating_count) && p.rating_count >= 0)
           && (p.display_name === undefined || typeof p.display_name === "string" && p.display_name.length <= 200)
           && (p.address === undefined || typeof p.address === "string" && p.address.length <= 500)
