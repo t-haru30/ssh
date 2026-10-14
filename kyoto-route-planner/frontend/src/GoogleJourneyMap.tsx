@@ -21,7 +21,7 @@ function readPaths(data: unknown): { segments: PathSegment[]; missing: boolean }
   }
   return {segments,missing};
 }
-export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId = null,mapTokens = [],timeline = [],journeyDate = "",routeLoading = false,visible=true}: MapViewProps) {
+export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId = null,mapTokens = [],timeline = [],journeyDate = "",routeLoading = false,visible=true,initialMode="overview"}: MapViewProps) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<InstanceType<GoogleMapsApi["Map"]> | null>(null);
   const fitRef = useRef<(all: boolean) => void>(() => {});
@@ -29,7 +29,7 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
   const [api,setApi] = useState<GoogleMapsApi | null>(null);
   const [failed,setFailed] = useState(false);
   const [retry,setRetry] = useState(0);
-  const [mode,setMode] = useState<"overview"|"routes"|"walk">("overview");
+  const [mode,setMode] = useState<"overview"|"routes"|"walk">(initialMode);
   const [pathState,setPathState] = useState<{key:string;segments:PathSegment[];missing:boolean;warnings?:string[]}>({key:"",segments:[],missing:false});
   const [pathLoading,setPathLoading] = useState(false);
   const [pathError,setPathError] = useState(false);
@@ -150,3 +150,4 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
     {mode !== "overview" && !googleTransit && pathState.key === pathKey && Boolean(pathState.warnings?.length) && <details className="journey-map-warnings"><summary>経路の注意事項</summary>{pathState.warnings!.map(w => <p key={w}>{w}</p>)}</details>}
   </section>;
 }
+
