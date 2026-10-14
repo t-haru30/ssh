@@ -16,14 +16,22 @@ const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, f
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
-it("automatically searches all segments and shows total time including stays", async () => {
+it("automatically searches all segments and displays total time without showing overruns", async () => {
   const timeline = [10, 15, 20].map(duration => ({ type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "地下鉄", duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:10", fare_yen: 200 }));
   const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...source, timeline, coordinates: [[35,135]], total_minutes: 45 }) });
   vi.stubGlobal("fetch", fetcher);
   const changed = vi.fn();
   render(<DayTripEditor {...props} onPlanChange={changed} />);
-  expect(screen.getByText(/公共交通の経路と、旅全体の所要時間を確認/)).toBeTruthy();
-  expect(await screen.findByText("移動・滞在を含む総時間 約3時間45分")).toBeTruthy();
+  expect(screen.getByText("公共交通の経路を確認しています…")).toBeTruthy();
+  expect(await screen.findAllByText("約3時間45分")).toHaveLength(2);
+  expect(screen.getByLabelText("現在の旅程の概要")).toBeTruthy();
+  expect(screen.queryByText(/移動・滞在を含む総時間/)).toBeNull();
+  expect(screen.getByText(/移動 約45分 · 滞在/)).toBeTruthy();
+  const costHeading = screen.getByText("/1人").parentElement;
+  expect(costHeading?.className).toBe("trip-cost-heading");
+  expect(costHeading?.firstElementChild?.tagName).toBe("STRONG");
+  expect(screen.getByText("交通・施設・飲食の合計")).toBeTruthy();
+  expect(screen.queryByText(/超過/)).toBeNull();
   expect(changed.mock.calls.at(-1)?.[0]).toMatchObject({ travelMinutes: 45, returnMinute: 765 });
   expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
 });
@@ -217,7 +225,9 @@ describe("DayTripEditor", () => {
     vi.stubGlobal("navigator", { clipboard: { writeText } });
     const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
     render(<DayTripEditor {...props} />);
-    expect(screen.getByRole("meter", { name: "予算に対する概算費用" }).getAttribute("aria-valuetext")).toContain("概算 1,200円");
+    expect(screen.getByLabelText("現在の旅程の概要").textContent).toContain("1,200円");
+    expect(screen.getByLabelText("現在の旅程の概要").textContent).not.toContain("予算");
+    expect(screen.queryByRole("meter", { name: "予算に対する概算費用" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "公園を固定" }));
     fireEvent.click(screen.getByRole("button", { name: "しおりを見る" }));
     const dialog = screen.getByRole("dialog", { name: "旅のしおり" });
@@ -275,4 +285,3 @@ it("automatically previews return destination and preserves stops on failure", a
   await screen.findByText(/交通経路を確認できませんでした。現在の旅程を保持/);
   expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
 });
-

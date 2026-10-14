@@ -7,7 +7,7 @@ const from = { name: "博物館", latitude: 35, longitude: 135 };
 const to = { name: "カフェ", latitude: 35.01, longitude: 135 };
 
 it("searches a facility pair with the rolled-over departure date and keeps fare and route together", async () => {
-  const result = { type: "transit", from_name: from.name, to_name: to.name, mode: "public_transport", fare_yen: 260,
+  const result = { type: "transit", from_name: from.name, to_name: to.name, mode: "public_transport", transit_line: "地下鉄", fare_yen: 260,
     start_time: "00:15", end_time: "00:30", duration_minutes: 15, is_estimate: false, legs: [{ from_name: "駅A", to_name: "駅B", line_name: "地下鉄", mode: "train", duration_minutes: 10 }] };
   const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => result });
   vi.stubGlobal("fetch", fetch);
@@ -19,8 +19,10 @@ it("searches a facility pair with the rolled-over departure date and keeps fare 
   expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ departure_date: "2026-10-14", departure_time: "00:15", origin: from, destination: to });
   view.rerender(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={1455} initial={result as never} onResult={onResult} />);
   expect(screen.getByText("概算運賃 260円")).toBeTruthy();
+  expect(screen.getByText("地下鉄 · 約15分")).toBeTruthy();
+  expect(screen.queryByText("公共交通 · 地下鉄")).toBeNull();
   fireEvent.click(screen.getByText("路線・乗換を見る"));
-  expect(screen.getByText(/地下鉄/)).toBeTruthy();
+  expect(screen.getAllByText(/地下鉄/).length).toBeGreaterThan(0);
 });
 
 it("keeps the current itinerary intact when a segment lookup fails and allows retry", async () => {
@@ -34,12 +36,42 @@ it("keeps the current itinerary intact when a segment lookup fails and allows re
   await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 });
 
-it("labels walking explicitly without inventing a railway", () => {
+it("omits the movement category when route details are unavailable", () => {
   const initial = { type: "transit" as const, from_name: from.name, to_name: to.name, mode: "walk" as const,
     start_time: null, end_time: null, duration_minutes: 12, is_estimate: true, fare_yen: 0 };
   render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={540} initial={initial} onResult={vi.fn()} />);
-  expect(screen.getByText(/徒歩 · 徒歩区間/)).toBeTruthy();
+  expect(screen.getByText("路線未確認 · 約12分")).toBeTruthy();
   expect(screen.getByText("概算運賃 0円")).toBeTruthy();
+});
+
+it("removes generic movement labels and stacks multiple route legs with downward arrows", () => {
+  const initial = {
+    type: "transit" as const,
+    from_name: from.name,
+    to_name: to.name,
+    mode: "public_transport" as const,
+    transit_line: "移動 / JR東海道線 / 市バス",
+    start_time: "09:00",
+    end_time: "09:45",
+    duration_minutes: 45,
+    is_estimate: false,
+    fare_yen: 500,
+    legs: [
+      { from_name: "博物館", to_name: "駅A", line_name: "JR東海道線", mode: "train", duration_minutes: 20 },
+      { from_name: "駅A", to_name: "カフェ", line_name: "市バス", mode: "bus", duration_minutes: 25 },
+    ],
+  };
+  render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={540} initial={initial} onResult={vi.fn()} />);
+
+  const route = screen.getByRole("list", { name: "利用する交通手段" });
+  expect(route.textContent).toContain("JR東海道線");
+  expect(route.textContent).toContain("市バス");
+  expect(route.textContent).not.toMatch(/鉄道 · |バス · |徒歩 · /);
+  expect(route.textContent).not.toContain("移動");
+  expect(route.textContent).not.toContain("/");
+  expect(route.querySelectorAll(".trip-transit-route-arrow")).toHaveLength(1);
+  expect(screen.getByText("概算運賃 500円")).toBeTruthy();
+  expect(screen.getByText("約45分")).toBeTruthy();
 });
 
 it("cancels the old segment when conditions change and never applies a late response to the new itinerary", async () => {

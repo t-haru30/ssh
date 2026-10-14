@@ -559,7 +559,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       aria-labelledby="tab-search"
       hidden={!active}
     >
-      <section className="hero">
+      {!editingOnly && <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">MAKE IT YOUR DAY</p>
           <h1>{editingOnly ? <>選んだ旅を、<br /><em>自分らしく</em>整える。</> : <>行きたいをつないで、<br /><em>私らしい一日</em>に。</>}</h1>
@@ -568,7 +568,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           </p>
         </div>
         <div className="hero-stamp" aria-hidden="true"><span>旅</span><small>WANDER<br />WITH CARE</small></div>
-      </section>
+      </section>}
 
       <JourneyFileControls plan={isOvernight ? null : dayTripPlan} title={planTitle.trim() || "私のConcierGO"} busy={searching} onImport={importJourney} />
 
@@ -854,4 +854,3 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     </div>
   );
 }
-

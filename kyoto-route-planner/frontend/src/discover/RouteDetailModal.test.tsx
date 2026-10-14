@@ -38,7 +38,7 @@ describe("RouteDetailModal", () => {
     expect(screen.getByText(/観光の起点：上野駅/)).toBeTruthy();
     expect(screen.getByText("徒歩で約10分")).toBeTruthy();
     expect(screen.getByText("車で約15分")).toBeTruthy();
-    expect(screen.getByText("公共交通で約20分")).toBeTruthy();
+    expect(screen.getByText("約20分")).toBeTruthy();
     expect(screen.getByText(/昼ごはん · .*滞在の目安 1時間/)).toBeTruthy();
     expect(screen.getByText("09:10")).toBeTruthy();
     expect(screen.getByText("10:10")).toBeTruthy();
@@ -153,7 +153,8 @@ describe("RouteDetailModal", () => {
     render(<RouteDetailModal route={route} onClose={() => undefined} />);
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    expect(await screen.findByText("公共交通 · JR奈良線")).toBeTruthy();
+    expect(await screen.findByText("JR奈良線")).toBeTruthy();
+    expect(screen.queryByText("公共交通 · JR奈良線")).toBeNull();
     expect(screen.getByText("運行時刻 09:02〜09:08")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/routes/preview",

@@ -1,4 +1,4 @@
-import { transitModeLabel } from "../TripTransit";
+import { transitRouteLabel } from "../TripTransit";
 import { FacilityPhoto } from "../FacilityPhoto";
 import { lockBodyScroll } from "../bodyScrollLock";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -247,7 +247,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       {includesTransfers && <section className="discover-transfer-summary" aria-label="往復の移動">
         <h3>{origin.name}からの往復の移動</h3>
         <p>出発 {departureTime} · 帰着地 {returnTo.name}</p>
-        {routeSuggestion?.timeline?.filter(item => item.type === "transit" && ["trip-arrival", "trip-return"].some(id => previewPlaces.find(place => place.id === id)?.name === item.to_name || previewPlaces.find(place => place.id === id)?.name === item.from_name)).map((item, index) => item.type === "transit" && <p key={index}>{item.from_name} → {item.to_name} · {transitModeLabel(item.mode)} · {item.transit_line ?? "路線未確認"}{item.start_time && item.end_time ? ` · ${item.start_time}〜${item.end_time}` : " · 時刻未確認"}{item.fare_yen != null ? ` · ${item.fare_yen.toLocaleString("ja-JP")}円` : " · 運賃未確認"}</p>)}
+        {routeSuggestion?.timeline?.filter(item => item.type === "transit" && ["trip-arrival", "trip-return"].some(id => previewPlaces.find(place => place.id === id)?.name === item.to_name || previewPlaces.find(place => place.id === id)?.name === item.from_name)).map((item, index) => item.type === "transit" && <p key={index}>{item.from_name} → {item.to_name} · {transitRouteLabel(item.transit_line)}{item.start_time && item.end_time ? ` · ${item.start_time}〜${item.end_time}` : " · 時刻未確認"}{item.fare_yen != null ? ` · ${item.fare_yen.toLocaleString("ja-JP")}円` : " · 運賃未確認"}</p>)}
       </section>}
       <ol className="discover-modal-spots">{places.map((place, index) => {
         const visitIndex = timeline.findIndex(item => item.type === "spot" && item.role === "stop" && item.place_id === place.id);
@@ -255,7 +255,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
         const visit = timeline[visitIndex];
         const conflict=visit?.type==="spot" && visit.time ? openingConflict(googleInfos.find(info=>info.place_id===place.id),journeyDate,Number(visit.time.slice(0,2))*60+Number(visit.time.slice(3)),dwellMinutes[place.id]??90) : null;
         return <li key={`${index}-${place.id}`}><span className="discover-modal-spot-number">{String(index + 1).padStart(2, "0")}</span><div>
-          {transit?.type === "transit" && <span className="discover-modal-transit">{"summary" in transit && !transit.transit_line ? transit.summary : `${transitModeLabel(transit.mode)} · ${transit.transit_line ?? "路線未確認"}${transit.fare_yen != null ? ` · ${transit.fare_yen.toLocaleString("ja-JP")}円` : ""}`}</span>}
+          {transit?.type === "transit" && <span className="discover-modal-transit">{"summary" in transit && !transit.transit_line ? transit.summary : `${transitRouteLabel(transit.transit_line)}${transit.fare_yen != null ? ` · ${transit.fare_yen.toLocaleString("ja-JP")}円` : ""}`}</span>}
           {transit?.type === "transit" && transit.start_time && transit.end_time && <span>{transit.is_estimate ? "目安" : "運行時刻"} {transit.start_time}〜{transit.end_time}</span>}
           <strong>{visit?.type === "spot" && <span className="discover-modal-time">{visit.time} </span>}{place.name}</strong>
           {conflict && <p className="error-panel" role="status">{conflict}</p>}

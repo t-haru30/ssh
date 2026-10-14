@@ -538,6 +538,7 @@ describe("editing-only entry", () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [savedRoute.origin] })));
     const onDiscover = vi.fn();
     render(<SearchMode active editingOnly onDiscover={onDiscover} />);
+    expect(document.querySelector("#panel-search > .hero")).toBeNull();
     expect(screen.getByRole("heading", { name: "まずは、気になる旅を選びましょう" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /この条件で旅程を提案する/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "宿泊あり" })).toBeNull();
