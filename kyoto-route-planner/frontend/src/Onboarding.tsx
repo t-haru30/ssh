@@ -24,22 +24,20 @@ type OnboardingProps = {
 };
 
 const STEPS = [
-  { title: "検索条件を選ぶ", body: "誰と行くか、旅の気分、行き先、出発地点を順番に選びます。", demo: "条件を選んで旅を探す画面" },
-  { title: "スワイプで旅を選ぶ", body: "気になる旅は右へスワイプして保存。違うと思った旅は左へスワイプして次へ。", demo: "旅程カードを右へスワイプして保存する様子" },
-  { title: "プランを編集する", body: "選んだ旅をもとに、訪問先や使える時間・予算を調整して自分のプランに仕上げます。", demo: "訪問先と時間と予算を編集する画面" },
+  { title: "検索条件を選ぶ", demo: "条件を選んで旅を探す画面" },
+  { title: "スワイプで旅を選ぶ", demo: "旅程カードを右へスワイプして保存する様子" },
+  { title: "プランを編集する", demo: "訪問先と時間と予算を編集する画面" },
 ];
 
 export function Onboarding({ onClose }: OnboardingProps) {
-  const firstTabRef = useRef<HTMLButtonElement>(null);
-  const startRef = useRef<HTMLButtonElement>(null);
+  const actionRef = useRef<HTMLButtonElement>(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [furthestStep, setFurthestStep] = useState(0);
   const [suppressFuture, setSuppressFuture] = useState(shouldSuppressOnboarding);
   const step = STEPS[activeStep];
 
   useEffect(() => {
-    firstTabRef.current?.focus();
-  }, []);
+    actionRef.current?.focus();
+  }, [activeStep]);
 
   useEffect(() => {
     function handleKey(event: KeyboardEvent) {
@@ -52,53 +50,21 @@ export function Onboarding({ onClose }: OnboardingProps) {
   return (
     <div className="route-modal-backdrop" role="presentation">
       <div className="route-modal onboarding" role="dialog" aria-modal="true" aria-label="はじめての使い方">
-        <p className="eyebrow">WELCOME</p>
-        <h2>3つのステップで、旅のプランが完成</h2>
-        <p className="onboarding-intro">条件を選んで、旅を見つけて、自分だけのプランに。</p>
-        <div className="onboarding-step-tabs" role="tablist" aria-label="旅づくりの3ステップ">
-          {STEPS.map((item, index) => (
-            <button
-              key={item.title}
-              ref={index === 0 ? firstTabRef : undefined}
-              type="button"
-              id={`onboarding-tab-${index + 1}`}
-              role="tab"
-              aria-selected={activeStep === index}
-              aria-controls="onboarding-step-panel"
-              tabIndex={activeStep === index ? 0 : -1}
-              disabled={index > furthestStep}
-              onKeyDown={(event) => {
-                const offset = event.key === "ArrowRight" || event.key === "ArrowDown"
-                  ? 1
-                  : event.key === "ArrowLeft" || event.key === "ArrowUp"
-                    ? -1
-                    : 0;
-                if (!offset) return;
-                event.preventDefault();
-                const tabs = Array.from(event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
-                const next = Math.max(0, Math.min(furthestStep, index + offset));
-                setActiveStep(next);
-                tabs[next]?.focus();
-              }}
-              onClick={() => { if (index <= furthestStep) setActiveStep(index); }}
-            >
-              <span>{`STEP ${index + 1}`}</span>
-              {item.title}
-            </button>
-          ))}
-        </div>
         <section
           className={`onboarding-step-panel onboarding-demo-${activeStep + 1}`}
-          id="onboarding-step-panel"
-          role="tabpanel"
-          aria-labelledby={`onboarding-tab-${activeStep + 1}`}
+          role="region"
+          aria-label={`STEP ${activeStep + 1} / 3: ${step.title}`}
+          aria-live="polite"
         >
-          <p className="onboarding-step-count">{`STEP ${activeStep + 1} / 3`}</p>
+          <div className="onboarding-step-header">
+            <p className="onboarding-step-count">{`STEP ${activeStep + 1} / 3`}</p>
+            <h3>{step.title}</h3>
+          </div>
           <div className="onboarding-demo" role="img" aria-label={step.demo}>
             {activeStep === 0 && (
               <div className="onboarding-search-preview" aria-hidden="true">
                 <span className="onboarding-preview-label">誰と出かけますか？</span>
-                <span className="onboarding-preview-chip">友人と</span>
+                <span className="onboarding-preview-chip onboarding-preview-chip-friend">友人と</span>
                 <span className="onboarding-preview-label">旅の気分</span>
                 <span className="onboarding-preview-chip onboarding-preview-chip-active">自然を楽しむ</span>
                 <span className="onboarding-preview-button">次へ：行き先を選ぶ →</span>
@@ -119,28 +85,38 @@ export function Onboarding({ onClose }: OnboardingProps) {
               <div className="onboarding-plan-preview" aria-hidden="true">
                 <span className="onboarding-preview-label">今日のプラン</span>
                 <span className="onboarding-plan-stop"><b>10:00</b><i />鴨川を散歩</span>
-                <span className="onboarding-plan-stop"><b>11:30</b><i />京都のカフェ</span>
-                <span className="onboarding-plan-budget">予算 <strong>¥5,000</strong><span> ━━━━━</span></span>
+                <span className="onboarding-plan-stop onboarding-plan-stop-edit">
+                  <b>11:30</b><i />
+                  <span className="onboarding-plan-stop-name">
+                    <span>京都のカフェ</span>
+                    <span>京都のレストラン</span>
+                  </span>
+                </span>
+                  <span className="onboarding-plan-budget">予算 <span className="onboarding-plan-budget-amount">
+                    <span>¥3,000</span>
+                    <span>¥6,000</span>
+                  </span><span className="onboarding-plan-budget-meter"> ━━━━━</span></span>
               </div>
             )}
           </div>
-          <h3>{step.title}</h3>
-          <p className="onboarding-step-description">{step.body}</p>
           <div className="onboarding-demo-controls">
             <button type="button" onClick={() => setActiveStep((current) => Math.max(0, current - 1))} disabled={activeStep === 0}>← 前へ</button>
-            {activeStep < STEPS.length - 1
-              ? <button type="button" className="idea-primary-button" onClick={() => {
-                const next = Math.min(STEPS.length - 1, activeStep + 1);
-                setFurthestStep((furthest) => Math.max(furthest, next));
-                setActiveStep(next);
-              }}>次のステップを見る →</button>
-              : <button ref={startRef} type="button" className="idea-primary-button onboarding-start-button" onClick={() => onClose(suppressFuture)}>はじめる</button>}
+            {activeStep === STEPS.length - 1 && (
+              <button ref={actionRef} type="button" className="idea-primary-button onboarding-start-button" onClick={() => onClose(suppressFuture)}>はじめる</button>
+            )}
           </div>
         </section>
-        <label className="onboarding-suppress-option">
-          <input type="checkbox" checked={suppressFuture} onChange={(event) => setSuppressFuture(event.currentTarget.checked)} />
-          <span>今後、使い方の説明を表示しない</span>
-        </label>
+        <div className="onboarding-footer">
+          {activeStep < STEPS.length - 1 && (
+            <button ref={actionRef} type="button" className="idea-primary-button onboarding-next-button" onClick={() => {
+                setActiveStep((current) => Math.min(STEPS.length - 1, current + 1));
+            }}>次のステップを見る →</button>
+          )}
+          <label className="onboarding-suppress-option">
+            <input type="checkbox" checked={suppressFuture} onChange={(event) => setSuppressFuture(event.currentTarget.checked)} />
+            <span>今後、使い方の説明を表示しない</span>
+          </label>
+        </div>
       </div>
     </div>
   );
