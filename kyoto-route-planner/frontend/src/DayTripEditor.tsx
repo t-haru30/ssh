@@ -1,4 +1,5 @@
 import { JourneyChat } from "./JourneyChat";
+import { MobileTripMap } from "./MobileTripMap";
 import { FacilityPhoto } from "./FacilityPhoto";
 import { TripTransit } from "./TripTransit";
 import { OvernightSuggestion } from "./OvernightSuggestion";
@@ -47,7 +48,7 @@ function tripBookmark(plan: TripPlan) {
     ]),
     "",
     `帰りは${plan.unknownTravelSegments?.length ? "交通情報未確認" : `約${plan.returnTravel}分 → ${tripClock(plan.returnMinute)}`} ${plan.returnTo.name}`,
-    `${isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：${plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃・未取得区間は仮置き" : "利用者見積もり"}）`}`,
+    `${isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：${plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃" : "利用者見積もり"}）`}`,
     plan.estimatedTravel ? "移動は直線距離からの徒歩概算です。交通経路は再検索してください。" : "取得済み区間は交通検索の所要時間、区間情報がない場合は合計時間からの概算です。",
     "営業時間・実際の発着時刻は未確認です。出発前に確認してください。",
     ...plan.violations.map(message => `確認：${message}`),
@@ -338,7 +339,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const unknownTravel = Boolean(plan.unknownTravelSegments?.length);
   const previewFitsTime = !preview || preview.input.availableMinutes === plan.input.availableMinutes || (!preview.unknownTravelSegments?.length && preview.returnMinute <= clockMinutes(preview.input.departureTime) + preview.input.availableMinutes);
   const usedMinutes = plan.returnMinute - clockMinutes(plan.input.departureTime);
-  const displayedViolations = plan.violations.filter(message => !/(帰着目標|超過|予算|費用|時間枠|固定開始|間に合いません)/.test(message));
+  const displayedViolations = plan.violations.filter(message => !/(帰着目標|超過|予算|費用|時間枠)/.test(message));
   const bookmark = tripBookmark(plan);
   async function copyBookmark() {
     try {
@@ -352,6 +353,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <header className="trip-heading"><div><h3 id="trip-editor-title" tabIndex={-1} ref={headingRef}>今日の旅を、あなたのペースで</h3></div>{lockedCount > 0 && <span className="trip-lock-count">{lockedCount}件を固定中</span>}</header>
     {completedCount > 0 && <p className="trip-completed-note"><strong>{completedCount}か所を訪問済み</strong> 記録した場所・時刻・滞在時間を保ち、これからの予定を調整します。</p>}
     <div className="trip-overview"><span>{plan.stops.length}か所の寄り道</span></div>
+    <MobileTripMap plan={plan} routeLoading={transitState === "loading"} />
     <OvernightSuggestion plan={plan} pending={transitState === "loading"} />
     <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
       {plan.stops.some(s=>distanceKm(plan.origin,s.place)>500) && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
@@ -362,14 +364,14 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     </div>
     <div className="trip-summary" aria-label="現在の旅程の概要">
       <div><strong>{unknownTravel ? "概算 " : ""}約{durationLabel(usedMinutes)}</strong><span>移動 {unknownTravel ? "未確認" : `約${plan.travelMinutes}分`} · 滞在 {plan.stops.reduce((total, stop) => total + stop.dwellMinutes, 0)}分</span></div>
-      <div><div className="trip-cost-heading"><strong>{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算</em></> : "合計未確認" : yen(plan.totalCost)}</strong><small>/1人</small></div><span>{plan.totalCost === null ? `未確認の費用が${plan.unknownCosts}項目あります` : "交通・施設・飲食の合計"}</span></div>
+      <div><div className="trip-cost-heading"><strong>{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算小計</em></> : "合計未確認" : yen(plan.totalCost)}</strong><small>/1人</small></div><span>{plan.totalCost === null ? `未確認の費用が${plan.unknownCosts}項目あります` : "交通・施設・飲食の合計"}</span></div>
     </div>
     {displayedViolations.length > 0 && <details className="trip-warnings"><summary>旅程の確認が必要です</summary><ul>{displayedViolations.map(message => <li key={message}>{message}</li>)}</ul></details>}
     {error && <p className="trip-error" role="alert">{error}</p>}
     <p className={`trip-live-message${notice ? " has-message" : ""}`} role="status" aria-live="polite" aria-atomic="true">{notice}</p>
     <details className="trip-method-details"><summary>移動・費用の見積もりについて</summary><div>
     <p className="trip-travel-note">{plan.estimatedTravel ? "移動は直線距離からの徒歩概算です。予定の入れ替え・削除後は交通経路を再検索してください。" : "取得済みの区間は交通検索の所要時間を使用しています。区間情報がない場合は合計時間からの概算です。"} 営業時間・実際の発着時刻は未確認です。</p>
-    <p className="trip-travel-note">{isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：{plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃・未取得区間は仮置き" : "利用者見積もり"}）`}</p>
+    <p className="trip-travel-note">{isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：{plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃" : "利用者見積もり"}）`}</p>
     <p className="trip-travel-note">旅程を開いたときや行き先・日時・滞在時間を変えたときに交通経路を確認します。施設・飲食費は利用者の見積もりで、無料と確認できた予定には0円を入力してください。</p>
     <p className="trip-travel-note">おすすめの理由は、登録ジャンル・名称・テーマと好みを照合した説明です。営業時間や体験の評価は含みません。</p>
     {!plan.estimatedTravel && plan.transport.route.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{plan.transport.route.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}

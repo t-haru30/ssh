@@ -10,6 +10,7 @@ import { chatPayload, readChatProposal } from "./journeyChatState";
 import type { ChatMessage } from "./journeyChatState";
 import { LazyMapView } from "./LazyMapView";
 import { FacilityPhoto } from "./FacilityPhoto";
+import { useMobileLayout } from "./useMobileLayout";
 import "./journeyChat.css";
 
 export function JourneyChat({ plan, candidates, onApply, disabled = false,routePriority="time",preferNearbyAirport=true }: {
@@ -19,16 +20,9 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   const [chatVisible, setChatVisible] = useState(true);
   const [mapVisible, setMapVisible] = useState(true);
   const [mobilePanel, setMobilePanel] = useState<"chat" | "preview" | "map">("chat");
-  const [mobile, setMobile] = useState(false);
+  const mobile = useMobileLayout();
   const [mobileOpen, setMobileOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const media = window.matchMedia?.("(max-width:650px)");
-    if (!media) return;
-    const update = () => setMobile(media.matches);
-    update(); media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
   useEffect(() => {
     if (!mobile || !mobileOpen || !dialog.current) return;
     const element = dialog.current;
@@ -147,7 +141,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
           const route: unknown = await response.json();
           if (!response.ok || !isRouteSuggestion(route)) throw new Error();
           if (controller.signal.aborted) return;
-          const next = {...scheduleTrip(snapshot.input, snapshot.origin, snapshot.date, snapshot.stops, {route,date:snapshot.date,time:snapshot.input.departureTime}, snapshot.transportEstimate, snapshot.returnTo), planningEstimates:snapshot.planningEstimates};
+          const next = {...scheduleTrip(snapshot.input, snapshot.origin, snapshot.date, snapshot.stops, {route,date:snapshot.date,time:snapshot.input.departureTime}, snapshot.transportEstimate, snapshot.returnTo, {checkPlanningLimits:false}), planningEstimates:snapshot.planningEstimates};
           if (!transportMatches(next)) throw new Error();
           setProposal(current => current?.plan === snapshot ? {...current,plan:next} : current);
           setRouteStatus("idle");
@@ -236,7 +230,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
             <div><button type="button" onClick={() => {setView("changes");setMobilePanel("preview");}}>旅程を見る</button><button type="button" onClick={() => {setView("changes");setMapVisible(true);setMobilePanel("map");}}>マップで確認</button></div>
             <button type="button" disabled={working} onClick={() => {setProposal(null);setView("current");setMessages(current => [...current,{role:"assistant",text:"変更案を見送りました。現在の旅程はそのままです。"}]);}}>この案を見送る</button>
           </article>}
-          {working && <div className="journey-working" role="status"><span className="journey-pulse" aria-hidden="true" /><div><strong>変更案を考えています</strong><p>必要な候補を調べ、時間と予算を確認します。</p></div></div>}
+          {working && <div className="journey-working" role="status"><span className="journey-pulse" aria-hidden="true" /><div><strong>変更案を考えています</strong><p>必要な候補を調べ、移動時間と変更内容を確認します。</p></div></div>}
         </div>
         {steps.length > 0 && <details className="journey-checks"><summary>調べたこと・確認したこと <span>{steps.length}件</span></summary><ol>{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></details>}
         {error && <p role="alert" className="trip-error">{error}</p>}

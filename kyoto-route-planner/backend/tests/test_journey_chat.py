@@ -28,9 +28,10 @@ class ValidationTests(unittest.TestCase):
         for p in [proposal(("unknown", 60)), proposal(("a", 60), ("a", 60)), proposal(("b", 30)), proposal(("a", 30))]:
             self.assertTrue(chat.validate(payload(), p))
 
-    def test_checks_time_appointments_and_known_budget(self):
-        self.assertIn("帰着", " ".join(chat.validate(payload(), proposal(("a", 60), ("b", 90)))))
-        self.assertIn("予算", " ".join(chat.validate(payload(budget=100), proposal(("a", 60)))))
+    def test_ignores_removed_budget_and_duration_settings_but_keeps_fixed_appointments(self):
+        self.assertEqual(chat.validate(payload(available_minutes=30, budget=0), proposal(("a", 60), ("b", 360))), [])
+        request = payload().model_dump(exclude={"available_minutes", "budget"})
+        self.assertEqual(chat.validate(chat.ChatRequest(**request), proposal(("a", 60), ("b", 90))), [])
         p = payload()
         p.stops[0].anchor = "09:00"
         self.assertIn("固定開始", " ".join(chat.validate(p, proposal(("b", 30), ("a", 60)))))
@@ -53,7 +54,7 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_search_validation_feedback_then_repair(self):
         outputs = [call("search_candidates", {"query": "カフェ"}),
-            call("validate_proposal", proposal(("a", 60), ("b", 90)).model_dump()),
+            call("validate_proposal", proposal(("a", 30), ("b", 90)).model_dump()),
             call("validate_proposal", proposal(("a", 60), ("b", 30)).model_dump())]
         snapshots = []
         async def fake(client, key, model, contents):
@@ -69,6 +70,20 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(feedback["id"], "turn-id")
         self.assertEqual(snapshots[1][1]["parts"][0]["thoughtSignature"], "preserve-me")
         self.assertIn("再検討", result.steps[1])
+
+    async def test_legacy_limits_are_not_sent_to_the_model_or_used_to_reject_edits(self):
+        import json
+        snapshots = []
+        async def fake(client, key, model, contents):
+            snapshots.append(contents)
+            return call("validate_proposal", proposal(("a", 60), ("b", 360)).model_dump())
+        with patch.object(chat, "model_call", side_effect=fake):
+            result = await chat.run(payload(available_minutes=30, budget=0), "test", "gemini-test")
+        context = json.loads(snapshots[0][0]["parts"][0]["text"])
+        self.assertNotIn("budget", context)
+        self.assertNotIn("available_minutes", context)
+        self.assertEqual(result.proposal.stops[-1].dwell, 360)
+        self.assertNotIn("予算", " ".join(result.steps))
 
     async def test_can_ask_instead_of_silently_dropping_request(self):
         with patch.object(chat, "model_call", new=AsyncMock(return_value=call("ask_user", {"question": "固定予定を手動で解除しますか？"}))):

@@ -3,7 +3,7 @@ import { currentLocation } from "../currentLocation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { RouteIdea } from "../SwipeCard";
-import { usePrefecture } from "../PrefectureContext";
+import { PREFECTURE_REGIONS, usePrefecture } from "../PrefectureContext";
 import type { PrefectureCode } from "../PrefectureContext";
 import { useFavorites } from "../useFavorites";
 import { routeSelection } from "../routeSelection";
@@ -296,7 +296,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           <button type="button" disabled={locating} onClick={useCurrentLocation}>{locating ? "現在地を取得中…" : "現在地を使う"}</button>
           {(locationMessage || departure.name === "現在地") && <p role="status" aria-live="polite">{locationMessage || "現在地を出発地点に設定しました。"}</p>}
         </div>
-        <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{PREFECTURE_REGIONS.map(region => <optgroup key={region.name} label={region.name}>{indexEntries.filter(item => (region.codes as readonly string[]).includes(item.prefecture_code)).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup>)}</select></label>
         <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={station => { invalidateDestinationResults();setDestination(station);setCrossPrefecture(false); }} />
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}

@@ -1,5 +1,5 @@
 import { isPlace, isRecord } from "./apiValidation";
-import { clockMinutes, minimumDwell, newTripStop, scheduleTrip, MAX_TRIP_STOPS } from "./dayTrip";
+import { minimumDwell, newTripStop, scheduleTrip, MAX_TRIP_STOPS } from "./dayTrip";
 import type { TripPlan } from "./dayTrip";
 import type { Place } from "./types";
 
@@ -9,7 +9,6 @@ export function chatPayload(plan: TripPlan, candidates: Place[], message: string
   return {
     message, history: history.slice(-12).map(m => ({ role: m.role, text: (m.context ?? m.text).slice(0, 3000) })),
     origin: plan.origin, return_to: plan.returnTo, departure: plan.input.departureTime,
-    available_minutes: plan.input.availableMinutes, budget: plan.input.budget,
     return_travel: plan.returnTravel, travel_cost: plan.travelCost,
     stops: plan.stops.map(s => ({ place: candidate(s.place), dwell: s.dwellMinutes, locked: s.locked,
       completed: Boolean(s.completed), anchor: s.anchorTime, spending: s.spending, start: s.start, end: s.end, travel: s.travel })),
@@ -49,8 +48,8 @@ export function readChatProposal(value: unknown, plan: TripPlan, candidates: Pla
   const completed = plan.stops.filter(s => s.completed);
   if (completed.some((s, i) => stops[i]?.place.id !== s.place.id)) throw new Error("訪問済みの順番は変更できません。");
   const sameRoute = stops.length === plan.stops.length && stops.every((s, i) => s.place.id === plan.stops[i].place.id);
-  const next = { ...scheduleTrip(plan.input, plan.origin, plan.date, stops, plan.transport, sameRoute ? plan.transportEstimate : null, plan.returnTo), planningEstimates: plan.planningEstimates };
+  const next = { ...scheduleTrip(plan.input, plan.origin, plan.date, stops, plan.transport, sameRoute ? plan.transportEstimate : null, plan.returnTo, { checkPlanningLimits: false }), planningEstimates: plan.planningEstimates };
   const needsTransit=!sameRoute && Boolean(next.unknownTravelSegments?.length);
-  if (stops.reduce((sum,s)=>sum+s.dwellMinutes,0)>next.input.availableMinutes || !needsTransit && (next.returnMinute > clockMinutes(next.input.departureTime) + next.input.availableMinutes || next.stops.some(s => s.late > 0)) || next.knownCost > next.input.budget) throw new Error("再計算すると時間・予算・固定開始の条件に収まりませんでした。条件を見直してもう一度相談してください。");
+  if (!needsTransit && next.stops.some(s => s.late > 0)) throw new Error("固定した開始時刻に間に合わない変更案です。訪問順や滞在時間を見直してください。");
   return next;
 }

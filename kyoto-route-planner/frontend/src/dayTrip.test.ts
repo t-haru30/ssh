@@ -10,6 +10,24 @@ const transport: TripTransport = { route: { origin, places: stops.map(stop => st
 const plan = (selected: TripStop[] = stops, availableMinutes = 360, budget = 5000) => scheduleTrip({ departureTime: "09:00", availableMinutes, budget }, origin, transport.date, selected, transport);
 
 describe("day trip constraints", () => {
+  it("keeps missing fares out of totals and counts only known segment fares", () => {
+    const source = { ...transport, route: { ...transport.route, fare_yen: null,
+      timeline: [200, null, 0, 300].map(fare => ({ type: "transit" as const, from_name: "A", to_name: "B",
+        mode: "public_transport" as const, start_time: null, end_time: null, duration_minutes: 10, is_estimate: false, fare_yen: fare })) } };
+    const partial = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 5000 }, origin, source.date, stops, source);
+    expect(partial.travelCost).toBeNull();
+    expect(partial.totalCost).toBeNull();
+    expect(partial.knownCost).toBe(500);
+    expect(partial.unknownCosts).toBe(1);
+    source.route.timeline[1].fare_yen = 100;
+    const complete = scheduleTrip(partial.input, origin, source.date, stops, source);
+    expect(complete.travelCost).toBe(600);
+    expect(complete.totalCost).toBe(600);
+    const moved = scheduleTrip(partial.input, origin, source.date, stops.slice(0, 2), source);
+    expect(moved.travelCost).toBeNull();
+    expect(moved.totalCost).toBeNull();
+    expect(moved.knownCost).toBe(0);
+  });
   it("preserves completed actual times, dwell and travel when the remaining route and departure change", () => {
     const completed = completeNextStop(plan());
     const past = completed.stops[0];

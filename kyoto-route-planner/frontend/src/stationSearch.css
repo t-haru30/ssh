@@ -1,5 +1,6 @@
 .station-search { border: 1px solid #d8e0df; border-radius: 12px; padding: 12px; min-width: 0; margin: 8px 0; }
 .station-search legend { font-weight: 700; padding: 0 4px; }
+.discover-mode .discovery-question .station-search legend { font-size:14px; }
 .station-search p { margin: 6px 0; font-size: .85rem; }
 .station-search-controls { display: flex; gap: 6px; flex-wrap: wrap; }
 .station-search-default { display: flex; align-items: center; gap: 8px; }

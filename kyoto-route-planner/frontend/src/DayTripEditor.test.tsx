@@ -16,6 +16,14 @@ const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, f
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
+it("shows fixed-start conflicts even though the removed budget and duration controls are hidden", () => {
+  const initialPlan = scheduleTrip({departureTime:"09:00",availableMinutes:360,budget:5000}, origin, props.date,
+    places.map((place,index)=>({...newTripStop(place),locked:index===0,anchorTime:index===0?"09:00":null})),
+    {route:source,date:props.date,time:"09:00"});
+  render(<DayTripEditor {...props} initialPlan={initialPlan} />);
+  expect(screen.getByText(/公園の固定開始に.*間に合いません/)).toBeTruthy();
+});
+
 it("automatically searches all segments and displays total time without showing overruns", async () => {
   const timeline = [10, 15, 20].map(duration => ({ type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "地下鉄", duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:10", fare_yen: 200 }));
   const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...source, timeline, coordinates: [[35,135]], total_minutes: 45 }) });

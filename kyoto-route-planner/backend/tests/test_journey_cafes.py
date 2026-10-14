@@ -21,7 +21,7 @@ class CafeTests(unittest.TestCase):
         hint = chat.insertion_hint(p, p.candidates[0])
         self.assertEqual(hint['best_insertion_index'], 1)
         self.assertEqual(hint['insertion_errors'], [])
-        self.assertTrue(chat.validate(payload(budget=1000), proposal(('a', 60), ('b', 30))))
+        self.assertEqual(chat.validate(payload(budget=1000), proposal(('a', 60), ('b', 30))), [])
         self.assertTrue(chat.validate(payload(), proposal(('a', 60), ('b', 15))))
 
 
