@@ -21,7 +21,6 @@ it("sends changed traveler conditions, cancels stale recommendations and restore
   fireEvent.click(screen.getByRole("button", { name: "たくさん巡る" }));
   fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /旅の気分を選ぶ/ }));
-  fireEvent.click(within(screen.getByRole("group", { name: /今回の旅で|家族で|食の寄り道/ })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ }));
@@ -34,7 +33,6 @@ it("sends changed traveler conditions, cancels stale recommendations and restore
   expect(requests).toHaveLength(1);
   fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /旅の気分を選ぶ/ }));
-  fireEvent.click(within(screen.getByRole("group", { name: /今回の旅で|家族で|食の寄り道/ })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ }));

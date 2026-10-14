@@ -43,7 +43,10 @@ def audit(request, route, pool, *, check_regional=True):
         issues.append("region")
     if len({p.id for p in places}) != len(places):
         issues.append("duplicates")
-    meals = ["food" in place_themes(p) for p in places]
+    from app.place_kinds import is_cafe
+    meals = ["food" in place_themes(p) and not is_cafe(p) for p in places]
+    if sum(is_cafe(p) for p in places) > 1 or any(is_cafe(p) and spot.get("stay_minutes", 0) > 30 for p, spot in zip(places, spots)):
+        issues.append("meals")
     if sum(meals) > max(2, len(request.meals or [])) or request.meals is None and any(a and b for a, b in zip(meals, meals[1:])):
         issues.append("meals")
     if check_regional and request.theme == "food" and not any(regional_score(request.origin, p) and "food" in place_themes(p) for p in places):

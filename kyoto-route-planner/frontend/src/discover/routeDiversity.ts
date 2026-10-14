@@ -1,5 +1,6 @@
 import type { DatasetRoute } from "./datasetTypes";
 import { sameNearbyVenue } from "../venueIdentity";
+import { wishCoverage } from "../travelWishes";
 
 type Spot = DatasetRoute["spots"][number];
 const sameSpot = (a: Spot, b: Spot) => a.place_id === b.place_id || sameNearbyVenue(
@@ -15,7 +16,7 @@ export function similarTrip(a: DatasetRoute, b: DatasetRoute): boolean {
 }
 
 /** Keep distinct trips in recommendation order, preferring unseen facilities next. */
-export function diverseRoutes(candidates: DatasetRoute[], seen: DatasetRoute[] = []): DatasetRoute[] {
+export function diverseRoutes(candidates: DatasetRoute[], seen: DatasetRoute[] = [], priorityText = ""): DatasetRoute[] {
   const remaining = candidates.filter(route => route.spots.length && !seen.some(previous => similarTrip(route, previous)));
   const result: DatasetRoute[] = [];
   while (remaining.length) {
@@ -23,7 +24,8 @@ export function diverseRoutes(candidates: DatasetRoute[], seen: DatasetRoute[] =
     let best = 0;
     const novelty = (route: DatasetRoute) => route.spots.filter(spot => !used.some(other => sameSpot(spot, other))).length / route.spots.length
       + .5 * route.spots.filter(spot => spot.role && spot.role !== "stop" && !used.some(other => sameSpot(spot, other))).length;
-    for (let i = 1; i < remaining.length; i++) if (novelty(remaining[i]) > novelty(remaining[best])) best = i;
+    const priority = (route: DatasetRoute) => wishCoverage(priorityText, route.spots.map(spot => ({id:spot.place_id,name:spot.name,category:spot.category ?? "",description:"",tags:spot.tags,latitude:spot.lat,longitude:spot.lng,access_point:"",themes:[]})));
+    for (let i = 1; i < remaining.length; i++) if (priority(remaining[i]) > priority(remaining[best]) || priority(remaining[i]) === priority(remaining[best]) && novelty(remaining[i]) > novelty(remaining[best])) best = i;
     const [next] = remaining.splice(best, 1);
     if (!result.some(previous => similarTrip(next, previous))) result.push(next);
   }

@@ -28,6 +28,7 @@ import { composeLocalRoutes } from "./dynamicRoutes";
 import type { DiscoveryAgent } from "./dynamicRoutes";
 import { diverseRoutes } from "./routeDiversity";
 import { ProgressStatus } from "../ProgressStatus";
+import { requestedWishes } from "../travelWishes";
 
 
 import { MEALS, mealError, mealTime, minuteOf, type MealChoice } from "../mealPlanning";
@@ -61,10 +62,12 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   useEffect(() => { saveTravelerProfile(traveler); }, [traveler]);
   const [step, setStep] = useState(0);
   const [profileStage, setProfileStage] = useState(() => readCompletedTheme() === null ? 0 : 3);
-  const [moodStage, setMoodStage] = useState(0);
+  const [durationAnswered, setDurationAnswered] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [preferenceText, setPreferenceText] = useState("");
-  const [wish, setWish] = useState("おまかせ");
+  const [preferLandmarks, setPreferLandmarks] = useState(() => {
+    try { return localStorage.getItem("discovery-prefer-landmarks") === "true"; } catch { return false; }
+  });
   const [departure, setDeparture] = useState<Origin>(() => ({ name: "名古屋駅", latitude: 35.1709, longitude: 136.8815 }));
   const [destination, setDestination] = useState<Origin>(() => localOrigins[area] ?? { name: `${prefecture.name}・エリア中心`, latitude: indexEntries.find(item => item.id === area)!.center[0], longitude: indexEntries.find(item => item.id === area)!.center[1] });
   const [liked, setLiked] = useState<DatasetRoute[]>([]);
@@ -106,6 +109,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     if (profileStage < 3) return;
     try { localStorage.setItem(PROFILE_THEME_KEY, theme); localStorage.setItem("discovery-profile-themes-v2", JSON.stringify(chosenThemes)); } catch { /* Keep answers in memory if storage is unavailable. */ }
   }, [profileStage, theme, chosenThemes]);
+  useEffect(() => { try { localStorage.setItem("discovery-prefer-landmarks", String(preferLandmarks)); } catch { /* Keep the choice in memory. */ } }, [preferLandmarks]);
   const [pattern, setPattern] = useState<"all" | "half_day" | "full_day">("all");
   const [meals, setMeals] = useState<MealChoice[]>([]);
   const [mealMode, setMealMode] = useState<"unanswered" | "auto" | "custom">("unanswered");
@@ -127,8 +131,9 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const requestRef = useRef<AbortController | null>(null);
   const interactedWithDeck = useRef(false);
   const seenRoutes = useRef<Record<string, DatasetRoute[]>>({});
-  const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` }));
-  const draft = { area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` };
+  const preferenceSummary = [preferLandmarks ? "有名な場所を巡りたい" : "", preferenceText, ...selectedTags].filter(Boolean).join("。");
+  const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: preferenceSummary }));
+  const draft = { area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: preferenceSummary };
   const dirty = conditionsId(draft) !== conditionsId(applied);
   const advanceRef = useRef<AbortController | null>(null);
   const [preparingNext, setPreparingNext] = useState(false);
@@ -138,7 +143,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const entry = indexEntries.find(item => item.id === applied.area)!;
   const origin = applied.origin;
   const conditionsKey = conditionsId(applied);
-  const localRoutes = useMemo(() => diverseRoutes(composeLocalRoutes({ entry, origin, theme: applied.theme, themes: applied.themes, meals: applied.meals, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler, priorityText: applied.priority_text, preferenceText: applied.preference_text })), [entry, origin, applied]);
+  const localRoutes = useMemo(() => diverseRoutes(composeLocalRoutes({ entry, origin, theme: applied.theme, themes: applied.themes, meals: applied.meals, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler, priorityText: applied.priority_text, preferenceText: applied.preference_text }), [], applied.priority_text), [entry, origin, applied]);
   const routes = useMemo(() => (remote?.key === conditionsKey ? remote.routes : localRoutes).map(route => ({ ...route, travel_origin: applied.departure })), [remote, conditionsKey, localRoutes, applied.departure]);
   const collectionKey = `${conditionsKey}:${remote?.key === conditionsKey ? "api" : "local"}`;
   useEffect(() => {
@@ -158,7 +163,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   function editConditions() { returnToConditions(0); }
   function editDestination() { returnToConditions(2); }
   function useLocalCandidates(message: string) {
-    setRemote({ key: conditionsKey, routes: diverseRoutes(localRoutes, seenRoutes.current[preferenceId(applied)]), note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message } });
+    setRemote({ key: conditionsKey, routes: diverseRoutes(localRoutes, seenRoutes.current[preferenceId(applied)], applied.priority_text), note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message } });
     setCollections(current => ({ ...current, [`${conditionsKey}:api`]: EMPTY_BROWSE }));
   }
   function cancelGeneration() {
@@ -173,7 +178,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     if (!excludeViewed) seenRoutes.current[preferenceId(next)] = [];
     const excluded = excludeViewed ? [...(seenRoutes.current[preferenceId(next)] ?? [])] : [];
     const viewedDiningIds = [...new Set(excluded.flatMap(route => route.spots.filter(spot => spot.role !== "stop").map(spot => spot.place_id)))].slice(-60);
-    const fallback = diverseRoutes(composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler, priorityText: next.priority_text, preferenceText: next.preference_text }), excluded);
+    const fallback = diverseRoutes(composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler, priorityText: next.priority_text, preferenceText: next.preference_text }), excluded, next.priority_text);
     setDeckEpoch(value => value + 1);
     cancelAdvance(); setApplied(next); setSelected(null);
     setRemote({ key: nextKey, routes: fallback, note: "条件に合う未閲覧の候補です。移動時間は推定です。" });
@@ -194,8 +199,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         const availabilityChecked=data.catalog?.availability_checked===true;
         if (stage==="initial" && !data.routes.length && !availabilityChecked) return;
         if (!controller.signal.aborted && requestRef.current === controller && !(receivedDeck && interactedWithDeck.current)) {
-        const received = diverseRoutes(data.routes, excluded);
-        const combined = !availabilityChecked && received.length < 4 ? diverseRoutes([...received, ...fallback], excluded).slice(0, 8) : received;
+        const received = diverseRoutes(data.routes, excluded, next.priority_text);
+        const combined = !availabilityChecked && received.length < 4 ? diverseRoutes([...received, ...fallback], excluded, next.priority_text).slice(0, 8) : received;
         const supplement = combined.length > received.length;
         setRemote({ key: nextKey, ...data, note: supplement ? "条件に合う登録済みの施設から候補を補いました。移動時間は推定です。" : data.note,
           review: isJourneyReview(data.review) ? data.review : undefined, originalRoutes: combined, routes: combined });
@@ -212,7 +217,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   }
   const nextBlockedReason = step === 0 && profileStage < 3
     ? ["誰と出かけるかを選んでください。「指定しない」でも進めます。", "旅のペースを選んでください。", "好きな過ごし方を1つ以上選んでください。"][profileStage]
-    : step === 1 && moodStage < 2 ? moodStage === 0 ? "今回の旅で大切にしたいことを選んでください。" : "どれくらい楽しむかを選んでください。"
+    : step === 1 && !durationAnswered ? "どれくらい楽しむかを選んでください。"
     : step > 0 && step < 3 && mealWarning ? mealWarning : step === 2 && locating ? "現在地を取得中です。取得が終わるまでお待ちください。" : "";
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);
@@ -277,14 +282,13 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         <div className="discovery-profile-progress" role="progressbar" aria-label="好みの設定" aria-valuemin={0} aria-valuemax={3} aria-valuenow={profileStage} aria-valuetext={`${profileStage} / 3項目完了`}><span>好みの設定 <b>{profileStage} / 3</b></span><div><i style={{ width: `${profileStage / 3 * 100}%` }} /></div></div>
         <div className="profile-reveal profile-first-question"><TravelerPreferences section="companion" answered={profileStage >= 1} value={traveler} onChange={value => { setTraveler(value); setProfileStage(stage => Math.max(stage, 1)); }} /></div>
         {profileStage >= 1 && <div className="profile-reveal"><TravelerPreferences section="pace" answered={profileStage >= 2} value={traveler} onChange={value => { setTraveler(value); setProfileStage(stage => Math.max(stage, 2)); }} /></div>}
-        {profileStage >= 2 && <div className="profile-reveal"><fieldset className="discover-filter-group"><legend>好きな過ごし方は？（複数選択できます）</legend><div className="discover-theme-options">{themes.map(item => <button type="button" key={item.id} aria-pressed={profileStage >= 3 && chosenThemes.includes(item.id)} onClick={() => { setTheme(item.id); setProfileStage(3); }}>{item.label}</button>)}</div></fieldset></div>}
+        {profileStage >= 2 && <div className="profile-reveal"><fieldset className="discover-filter-group"><legend>好きな過ごし方は？（複数選択できます）</legend><div className="discover-theme-options">{themes.map(item => <button type="button" key={item.id} aria-pressed={profileStage >= 3 && chosenThemes.includes(item.id) && (item.id !== "all" || !preferLandmarks)} onClick={() => { setTheme(item.id); if (item.id === "all") setPreferLandmarks(false); setProfileStage(3); }}>{item.label}</button>)}<button type="button" aria-pressed={preferLandmarks} onClick={() => {setPreferLandmarks(value => !value); setProfileStage(3);}}>名所・定番</button></div></fieldset></div>}
       </>}
       {step === 1 && <>
-        <div className="discovery-tags" aria-label="あなたの旅のタグ">{selectedTags.map(tag => <span key={tag}>✦ {tag}</span>)}<span>{travelerProfileSummary(traveler)}</span><span>{chosenThemes.map(id => themes.find(item => item.id === id)?.label).join("・")}</span><span>{PACE_OPTIONS.find(item => item.value === normalizeTravelPace(traveler.pace))?.label}</span></div>
+        <div className="discovery-tags" aria-label="あなたの旅のタグ">{selectedTags.map(tag => <span key={tag}>✦ {tag}</span>)}<span>{travelerProfileSummary(traveler)}</span><span>{[...chosenThemes.filter(id=>id!=="all" || !preferLandmarks).map(id => themes.find(item => item.id === id)?.label), ...(preferLandmarks ? ["名所・定番"] : [])].join("・")}</span><span>{PACE_OPTIONS.find(item => item.value === normalizeTravelPace(traveler.pace))?.label}</span></div>
         <div className="profile-reveal"><PreferenceTags theme={theme} traveler={traveler} selected={selectedTags} onChange={setSelectedTags} /></div>
-        <div className="profile-reveal profile-first-question"><fieldset className="discover-filter-group"><legend>{traveler.companion === "family" ? "家族でどんな時間を過ごしたい？" : theme === "food" ? "食の寄り道、どう楽しむ？" : "今回の旅で大切にしたいのは？"}</legend><div className="discover-theme-options">{["おまかせ", "ゆっくり過ごしたい", "有名な場所を巡りたい", "自然を楽しみたい", "おいしいものを食べたい"].map(label => <button type="button" key={label} aria-pressed={moodStage >= 1 && wish === label} onClick={() => { setWish(label); setMoodStage(stage => Math.max(stage, 1)); if (label === "ゆっくり過ごしたい") setTraveler({ ...traveler, pace: "relaxed" }); if (label === "自然を楽しみたい" && !chosenThemes.includes("nature")) setTheme("nature"); if (label === "おいしいものを食べたい" && !chosenThemes.includes("food")) setTheme("food"); }}>{label}</button>)}</div></fieldset></div>
-        {moodStage >= 1 && <div className="profile-reveal"><fieldset className="discover-filter-group"><legend>どれくらい楽しむ？</legend><div className="discover-duration-options">{([{ id: "all", label: "おまかせ" }, { id: "half_day", label: "半日" }, { id: "full_day", label: "1日" }] as const).map(item => <button key={item.id} type="button" aria-pressed={moodStage >= 2 && pattern === item.id} onClick={() => { setPattern(item.id); if (item.id === "half_day") setMeals(current => current.filter(m => m.kind !== "breakfast")); setMoodStage(2); }}>{item.label}</button>)}</div></fieldset></div>}
-        {moodStage >= 2 && <div className="profile-reveal"><fieldset className="discover-filter-group">
+        <div className="profile-reveal profile-first-question"><fieldset className="discover-filter-group"><legend>どれくらい楽しむ？</legend><div className="discover-duration-options">{([{ id: "all", label: "おまかせ" }, { id: "half_day", label: "半日" }, { id: "full_day", label: "1日" }] as const).map(item => <button key={item.id} type="button" aria-pressed={durationAnswered && pattern === item.id} onClick={() => { setPattern(item.id); if (item.id === "half_day") setMeals(current => current.filter(m => m.kind !== "breakfast")); setDurationAnswered(true); }}>{item.label}</button>)}</div></fieldset></div>
+        {durationAnswered && <div className="profile-reveal"><fieldset className="discover-filter-group">
           <legend>{pattern === "full_day" ? "1日の旅に、どの食事を入れますか？" : pattern === "half_day" ? "食事の予定は入れますか？" : "旅の途中に、どの食事を入れますか？"}</legend>
           {chosenThemes.includes("food") && <p className="preference-tags-note">{`未選択なら${pattern === "full_day" ? "昼・夜ごはん" : "昼ごはん"}を入れます。食事を入れない場合は「食事なし」を選んでください。`}</p>}
           <div className="discover-theme-options"><button type="button" aria-pressed={mealMode === "auto"} onClick={() => {setMealMode("auto"); setMeals([]);}}>食事はおまかせ</button>{MEALS.filter(m => pattern !== "half_day" || m.kind !== "breakfast").map(m => <button type="button" key={m.kind} aria-pressed={mealMode === "custom" && meals.some(c => c.kind === m.kind)} onClick={() => {setMealMode("custom"); setMeals(current => current.some(c => c.kind === m.kind) ? current.filter(c => c.kind !== m.kind) : [...current, {kind: m.kind}]);}}>{m.label}</button>)}<button type="button" aria-pressed={mealMode === "custom" && !meals.length} onClick={() => {setMealMode("custom"); setMeals([]);}}>食事なし</button></div>
@@ -292,7 +296,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           {mealWarning && <p role="alert">{mealWarning}</p>}
         </fieldset></div>}
         <div className="profile-reveal"><label className="discovery-free-text">旅に加えたいことはありますか？（任意）<textarea value={preferenceText} onChange={event => setPreferenceText(event.target.value)} maxLength={500} rows={3} placeholder="例：金沢で庭園を歩いて、カフェに寄りたい" /></label>
-          <small>入力した希望を、旅程づくりで優先します。</small>
+          <small>施設名や食べたいものも書けます。入力した希望を優先します。</small>
+          {requestedWishes(preferenceText).length > 0 && <p className="discovery-wish-preview" role="status">旅程で優先：{requestedWishes(preferenceText).join("・")}</p>}
         </div>
       </>}
       {step === 2 && <>
@@ -306,7 +311,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}
       <footer className="discovery-question-footer">
-        <p id="discovery-next-hint" className="discovery-next-hint" role="status" aria-live="polite">{nextBlockedReason || (step === 0 ? profileStage >= 3 ? "好みの設定が完了しました。" : `あと${3 - profileStage}項目を選んでください。` : step === 1 ? moodStage < 2 ? "旅の気分と長さを選ぶと次へ進めます。" : "行き先は次の画面で選べます。" : "この条件で旅程を探します。")}</p>
+        <p id="discovery-next-hint" className="discovery-next-hint" role="status" aria-live="polite">{nextBlockedReason || (step === 0 ? profileStage >= 3 ? "好みの設定が完了しました。" : `あと${3 - profileStage}項目を選んでください。` : step === 1 ? "行き先は次の画面で選べます。" : "この条件で旅程を探します。")}</p>
         <div className="discovery-next">{step > 0 && <button type="button" onClick={() => setStep(step - 1)}>← 戻る</button>}<button type="button" className="idea-primary-button" aria-describedby="discovery-next-hint" disabled={Boolean(nextBlockedReason)} onClick={() => step === 2 ? void generate() : setStep(step + 1)}>{step === 2 ? "おすすめ旅程を見る" : step === 0 ? "次へ：旅の気分を選ぶ" : "次へ：行き先を選ぶ"} →</button></div>
       </footer>
     </section>}
@@ -321,7 +326,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         {!generating && remote?.key === conditionsKey && remote.agent?.status === "unavailable" && <div className="discover-candidate-note" role="status"><p>{!routes.length ? "AIの提案を取得できませんでした。食事や時間の条件を見直して再検索できます。" : remote.agent.message.startsWith("AIの提案を中止") ? "AIを待たずに、条件に合う候補を表示しています。" : "AIの提案を取得できませんでした。条件に合う候補で続けられます。"}</p><button type="button" onClick={() => void generate(applied)}>AIの提案を再試行</button></div>}
         {!generating && remote?.key === conditionsKey && remote.review && <JourneyReview key={remote.review.id} report={remote.review}
           onAdopt={route => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: [route]} : current); updateCollection(EMPTY_BROWSE); }}
-          onRestore={() => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: diverseRoutes(current.originalRoutes ?? [], [])} : current); updateCollection(EMPTY_BROWSE); }} />}
+          onRestore={() => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: diverseRoutes(current.originalRoutes ?? [], [], applied.priority_text)} : current); updateCollection(EMPTY_BROWSE); }} />}
         {!generating && <><div className="discover-stack" aria-busy={preparingNext} onPointerDownCapture={()=>{interactedWithDeck.current=true;}} onClickCapture={()=>{interactedWithDeck.current=true;}}><AnimatePresence custom={exitDirection === "like" ? "accept" : "skip"}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={`${deckEpoch}:${route.id}`} route={route} depth={depth} active={active && !generating && !selected} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><strong>この条件で新しく提案できる旅程はありません</strong><p>{applied.themes.includes("food") && !applied.meals.length ? "食事なしでは飲食店を候補から外します。食事を選ぶか、ほかの好みを組み合わせてください。" : "食事の時刻や観光範囲を見直すと、候補を増やせます。"}</p><button type="button" className="idea-primary-button" onClick={() => returnToConditions(1)}>食事・時間を見直す</button><button type="button" onClick={editDestination}>観光範囲を広げる</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>いいねした旅程を下から選んで、編集しましょう。</p><button type="button" className="idea-primary-button" onClick={() => { setDeckEpoch(value => value + 1); updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}

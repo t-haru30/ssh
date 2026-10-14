@@ -19,7 +19,8 @@ from app.models import CatalogPlace, Origin, Theme
 from app.places import is_unsuitable_place
 from app.public_catalog import load_public_places
 from app.regional_food import regional_score
-from app.travel_wishes import wish_score
+from app.travel_wishes import wish_score, wish_matches, wish_coverage
+from app.place_kinds import is_cafe, is_meal_place
 from app.venue_hours import visit_fits
 
 
@@ -83,17 +84,15 @@ def selected_themes(request: DiscoverRequest) -> set[str]:
 
 
 def dinner_place(place: CatalogPlace) -> bool:
-    if any(word in place.name + place.category for word in ("アイスクリーム", "ソフトクリーム", "和菓子", "洋菓子", "口福堂", "ドーナツ", "コンビニ", "セブンイレブン", "セブンーイレブン", "ファミリーマート", "ローソン", "キヨスク", "KIOSK")):
-        return False
-    if re.search(r"カフェ|喫茶|caf[eé]",place.name,re.I) and not any(word in place.name + place.category for word in ("レストラン", "食堂", "定食")):
-        return False
-    return "food" in place_themes(place) and (place.genre_code.startswith("01") or any(
-        word in place.name + place.category for word in ("飲食", "レストラン", "食堂", "料理", "冷麺", "そば", "麺", "寿司", "焼肉", "グルメ"))) and not any(
-        word in place.category for word in ("カフェ", "喫茶", "市場", "商店街"))
+    return is_meal_place(place)
+
+
+def visit_minutes(request, place):
+    return 30 if is_cafe(place) else min(stay_minutes(request), 75) if "food" in place_themes(place) else stay_minutes(request)
 
 
 def preserves_choices(request: DiscoverRequest, nearby, available) -> bool:
-    if any(wish_score(request.priority_text, p) for p in available) and not any(wish_score(request.priority_text, p) for p in nearby):
+    if wish_coverage(request.priority_text, nearby) < wish_coverage(request.priority_text, available):
         return False
     required_meals = len(request.meals) if request.meals is not None else int(request.course == "full_day")
     if sum(dinner_place(p) for p in nearby) < required_meals:
@@ -107,6 +106,8 @@ def arrange_meals(request, places):
     choices = sorted(request.meals, key=lambda m: list(defaults).index(m.kind))
     venues = [p for p in places if dinner_place(p)]
     pending = [p for p in places if not dinner_place(p)]
+    if len(pending) > 1 and is_cafe(pending[0]):
+        pending.insert(1, pending.pop(0))
     if len(venues) != len(choices):
         return None
     def minute(m):
@@ -124,10 +125,10 @@ def arrange_meals(request, places):
         start = max(start, ceil((finish - 720) / 15) * 15)
     now, cursor, ordered, roles, anchors = start, request.origin, [], {}, {}
     def travel(a, b): return ceil(distance_km(a, b) / 25 * 60) + 10
-    def dwell(p): return min(stay_minutes(request), 75) if "food" in place_themes(p) else stay_minutes(request)
+    def dwell(p): return visit_minutes(request, p)
     for meal, venue in zip(choices, venues):
         target = minute(meal)
-        while pending and now + travel(cursor, pending[0]) + dwell(pending[0]) + travel(pending[0], venue) <= target:
+        while pending and not (is_cafe(pending[0]) and not ordered) and now + travel(cursor, pending[0]) + dwell(pending[0]) + travel(pending[0], venue) <= target:
             p = pending.pop(0)
             now += travel(cursor, p) + dwell(p)
             ordered.append(p)
@@ -153,6 +154,8 @@ def arrange_meals(request, places):
 def recommendation_reason(request: DiscoverRequest, ordered: list[CatalogPlace]) -> str:
     categories = "・".join(dict.fromkeys(p.category for p in ordered))
     reason = f"{PACE_LABELS[traveler_pace(request)]}ペースで{len(ordered)}か所、観光は各{stay_minutes(request)}分、食事は最大75分（目安）。{categories}を巡ります。"
+    if any(is_cafe(p) for p in ordered):
+        reason += "カフェでは30分ほどひと休みします。"
     if request.traveler and any(traveler_priority(request, p) for p in ordered):
         label = {"family": "家族", "friends": "友人", "couple": "カップル", "solo": "ひとり旅"}[request.traveler.companion]
         matched = "・".join(dict.fromkeys(p.category for p in ordered if traveler_priority(request, p)))
@@ -179,6 +182,8 @@ def distance_km(a, b) -> float:
 
 
 def place_themes(place: CatalogPlace) -> list[Theme]:
+    if is_cafe(place) or is_meal_place(place):
+        return ["food"]
     text = place.name + " " + place.category
     themes: set[Theme] = set()
     if any(word in text for word in ("寺", "神社", "神宮", "大社", "観音", "教会")):
@@ -237,9 +242,15 @@ def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ..
 def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
                    reasons: dict[str, str] | None = None, *, source: str = "rules") -> dict | None:
     """Compute a round trip independently; reject AI selections over the time cap."""
-    if not ordered or len(ordered) > max_stops(request):
+    if not ordered or sum(not is_cafe(p) for p in ordered) > max_stops(request):
         return None
     ordered = list(ordered)
+    cafes = [p for p in ordered if is_cafe(p)]
+    if len(cafes) > 1:
+        return None
+    # A cafe is a break after a visit, not the main sightseeing anchor.
+    if len(ordered) > 1 and is_cafe(ordered[0]):
+        ordered.insert(1, ordered.pop(0))
     meal_plan = next((plan for venues in permutations([p for p in ordered if dinner_place(p)])
         if (plan:=arrange_meals(request,[*[p for p in ordered if not dinner_place(p)],*venues])) is not None),None) if request.meals is not None else None
     if request.meals is not None and meal_plan is None:
@@ -251,18 +262,18 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
         if dinner is None:
             return None
         ordered.remove(dinner)
-        other_meals = [p for p in ordered if "food" in place_themes(p)]
+        other_meals = [p for p in ordered if "food" in place_themes(p) and not is_cafe(p)]
         ordered = [p for p in ordered if p not in other_meals]
         ordered[1:1] = other_meals
         ordered.append(dinner)
-    food = [p for p in ordered if "food" in place_themes(p)]
+    food = [p for p in ordered if "food" in place_themes(p) and not is_cafe(p)]
     meal_limit = max(2, len(request.meals or []))
-    if request.theme == "food" and (not food or len(food) > meal_limit):
+    if request.theme == "food" and (not any("food" in place_themes(p) for p in ordered) or len(food) > meal_limit):
         return None
     if request.course == "full_day" and (len(ordered) < 4 or len(food) > meal_limit):
         return None
     stay = stay_minutes(request)
-    stays = [min(stay, 75) if "food" in place_themes(p) else stay for p in ordered]
+    stays = [visit_minutes(request, p) for p in ordered]
     points = [request.origin, *ordered, request.origin]
     legs = [{"from": a.name, "to": b.name, "distance_km": round(distance_km(a, b), 2),
              "mode": "public_transport", "minutes": ceil(distance_km(a, b) / 25 * 60) + 10}
@@ -294,9 +305,9 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
             "total_score": len(ordered), "center": [request.origin.latitude, request.origin.longitude],
             "recommendation_source": source,
             "recommendation_reason": recommendation_reason(request, ordered),
-            "spots": [{"place_id": p.id, "name": p.name, "category": p.category, "lat": p.latitude, "lng": p.longitude,
+            "spots": [{"place_id": p.id, "name": p.name, "category": "カフェ" if is_cafe(p) else p.category, "lat": p.latitude, "lng": p.longitude,
                        "address": p.address, "tags": p.tags,
-                       "stay_minutes": stays[index], "score": 1, "role": meal_plan[1].get(p.id, "stop") if meal_plan else "dinner" if p == dinner else "stop", "reason": reasons[p.id],
+                       "stay_minutes": stays[index], "score": 1, "role": "break" if is_cafe(p) else meal_plan[1].get(p.id, "stop") if meal_plan else "dinner" if p == dinner else "stop", "reason": reasons[p.id],
                        **({"meal_time": meal_plan[2][p.id]} if meal_plan and p.id in meal_plan[2] else {})} for index, p in enumerate(ordered)],
             "coordinates": [[p.latitude, p.longitude] for p in points]}
 
@@ -315,7 +326,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         if len(nearby) >= max(6, max_stops(request)) and preserves_choices(request, nearby, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in nearby)) and not any((regional_score(request.origin, p) or wish_score(request.priority_text, p)) and p not in nearby for p in candidates):
             candidates, effective_radius = nearby, radius
             break
-    candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -scenic_priority(p) if 'nature' in selected_themes(request) else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
+    candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -scenic_priority(p) if 'nature' in selected_themes(request) else 0, -int("有名" in request.preference_text and bool(p.tags.get("wikipedia") or p.tags.get("wikidata"))), -traveler_priority(request, p), distance_km(request.origin, p), p.id))
     routes, seen, venue_use = [], set(), {}
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
@@ -343,7 +354,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         if request.theme == "food":
             preferred = next((p for p in dining if "food" in place_themes(p)), None)
             if preferred and preferred not in ordered:
-                foods = [p for p in ordered if "food" in place_themes(p)]
+                foods = [p for p in ordered if "food" in place_themes(p) and not is_cafe(p)]
                 if not foods:
                     ordered.append(preferred)
                     remaining.remove(preferred)
@@ -354,12 +365,16 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
                     remaining.remove(preferred)
                     remaining.append(replaced)
                     cursor = preferred
-        while remaining and len(ordered) < max_stops(request):
-            options = [p for p in remaining if (request.meals is None or not dinner_place(p)) and ("food" not in place_themes(p) or (sum("food" in place_themes(q) for q in ordered) < max(2, len(request.meals or [])) and "food" not in place_themes(cursor)))]
+        while remaining and len(ordered) < max_stops(request) + 1:
+            options = [p for p in remaining if (request.meals is None or not dinner_place(p))
+                       and (not is_cafe(p) or not any(is_cafe(q) for q in ordered))
+                       and (is_cafe(p) or sum(not is_cafe(q) for q in ordered) < max_stops(request))
+                       and (is_cafe(p) or "food" not in place_themes(p) or (sum("food" in place_themes(q) and not is_cafe(q) for q in ordered) < max(2, len(request.meals or [])) and "food" not in place_themes(cursor)))]
             if not options:
                 break
             missing = selected_themes(request) - {t for q in ordered for t in place_themes(q)}
-            nearest = min(options, key=lambda p: (-wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            covered = set().union(*(wish_matches(request.priority_text, q) for q in ordered))
+            nearest = min(options, key=lambda p: (-len(wish_matches(request.priority_text, p) - covered), -wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -381,7 +396,9 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         note += "候補が少ないため、見つかったスポット数で提案しています。"
     if not routes and request.course == "full_day":
         note += "希望の食事・時刻に合う1日コース（4か所以上・最大12時間）を組める候補が不足しています。食事や時間の条件、観光範囲を見直してください。"
-    note += f"{PACE_LABELS[traveler_pace(request)]}ペースで最大{max_stops(request)}か所、観光は各{stay_minutes(request)}分、食事は最大75分の滞在です。"
+    note += f"{PACE_LABELS[traveler_pace(request)]}ペースで観光・食事は最大{max_stops(request)}か所、カフェ休憩は1回まで。観光は各{stay_minutes(request)}分、食事は最大75分の滞在です。"
+    lookup = {p.id:p for p in candidates}
+    routes.sort(key=lambda route: -wish_coverage(request.priority_text, [lookup[s["place_id"]] for s in route["spots"]]))
     return {"routes": routes, "note": note + "移動時間は推定です。", "source": "OpenStreetMap"}
 
 
@@ -502,8 +519,8 @@ async def _select_discover_routes(request, fallback, pool):
     result["catalog"] = fallback["catalog"]
     by_id = {p.id: p for p in pool}
     def route_wish_score(route):
-        return sum(wish_score(request.priority_text, by_id[spot["place_id"]])
-                   for spot in route["spots"] if spot["place_id"] in by_id)
+        return wish_coverage(request.priority_text, [by_id[spot["place_id"]]
+                   for spot in route["spots"] if spot["place_id"] in by_id])
     if request.priority_text:
         # A model omission must not erase a feasible explicit wish already found
         # by the bounded deterministic composer.

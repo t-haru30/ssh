@@ -15,16 +15,16 @@ function genre(spot: DatasetSpot, info?: GoogleVenueInfo) {
 export function journeyOverview(route: DatasetRoute, infos: GoogleVenueInfo[] = []): string {
   return route.spots.map((spot, index) => {
     const kind = genre(spot, infos.find(info => info.place_id === spot.place_id)), experience = experiences[kind];
-    const meal = spot.role !== "stop" ? mealLabels[spot.role] : null;
+    const meal = spot.role !== "stop" && spot.role !== "break" ? mealLabels[spot.role] : null;
     const lead = spot.role === "breakfast" ? "朝は" : spot.role === "lunch" ? "お昼は" : spot.role === "dinner" ? "一日の締めくくりは" : index === 0 ? "まずは" : "続いて";
-    return meal ? `${lead}${spot.name}で${kind === "飲食店" ? meal : `${experience}を楽しむ${meal}`}。`
+    return spot.role === "break" ? `${lead}${spot.name}で30分ほどひと休みします。` : meal ? `${lead}${spot.name}で${kind === "飲食店" ? meal : `${experience}を楽しむ${meal}`}。`
       : `${lead}${spot.name}で${experience}を楽しみます。`;
   }).join("");
 }
 export function stopRecommendation(route: DatasetRoute, index: number, info?: GoogleVenueInfo): { fit: string; facts: string; unconfirmed: boolean } {
   const spot = route.spots[index], kind = genre(spot, info);
   const previous = route.spots[index - 1], next = route.spots[index + 1];
-  const meal = spot.role !== "stop" ? mealLabels[spot.role] : null;
+  const meal = spot.role !== "stop" && spot.role !== "break" ? mealLabels[spot.role] : null;
   const fit = meal
     ? `${kind === "飲食店" ? "観光と食事をどちらも楽しむための" : `${experiences[kind]}を楽しみたい方の`}${meal}候補です。${previous ? `${previous.name}のあとに食事の時間をとり、` : ""}${next ? `${next.name}へつなぐ組み合わせです。` : "食事で一日を締めくくる組み合わせです。"}`
     : `${experiences[kind]}を楽しむ立ち寄り先として選びました。${next ? `このあとは${next.name}へ。違う楽しみをつなぎ、一日を組み立てています。` : "最後の立ち寄りまで、その土地らしい時間を楽しむプランです。"}`;

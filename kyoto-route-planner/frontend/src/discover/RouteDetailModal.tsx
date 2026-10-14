@@ -58,7 +58,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   const estimatedTimeline = useMemo(() => "spots" in route ? buildRouteTimeline(currentOrigin ?? start, places, route.departure_time ?? "09:00", currentOrigin ? null : route.estimated_minutes, currentOrigin ? undefined : {
     legs: route.legs, stayMinutes: route.spots.map(spot => spot.stay_minutes), spotDetails: route.spots.map(spot => spot.reason),
     mealTimes: route.spots.map(s => s.meal_time),
-    mealLabels: route.spots.map(s => ({breakfast:"朝ごはん",lunch:"昼ごはん",dinner:"夜ごはん",stop:undefined})[s.role]),
+    mealLabels: route.spots.map(s => ({breakfast:"朝ごはん",lunch:"昼ごはん",dinner:"夜ごはん",break:"カフェ休憩",stop:undefined})[s.role]),
     dinnerIndexes: route.spots.flatMap((spot, index) => spot.role === "dinner" ? [index] : []),
     lunchIndexes: route.spots.flatMap((spot, index) => spot.role === "lunch" ? [index] : []),
 

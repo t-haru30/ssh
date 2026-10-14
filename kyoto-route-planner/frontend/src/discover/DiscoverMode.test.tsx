@@ -24,7 +24,6 @@ function enterMood() {
 }
 function goMood() {
   enterMood();
-  fireEvent.click(within(screen.getByRole("group", { name: /今回の旅で|家族で|食の寄り道/ })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
 }
 function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ })); fireEvent.change(screen.getByLabelText("出発地点"), { target: { value: "京都駅|34.985849|135.758766" } }); }
@@ -67,10 +66,30 @@ it("explains missing answers and orders departure before prefecture and gateway"
   expect(prefecture.compareDocumentPosition(gateway) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
 
+it("combines interests in step one and sends written wishes ahead of optional tags", async () => {
+  mount(); revealThemes();
+  fireEvent.click(screen.getByRole("button",{name:"自然・景色"}));
+  fireEvent.click(screen.getByRole("button",{name:"名所・定番"}));
+  enterMood();
+  expect(screen.queryByRole("button",{name:"自然を楽しみたい"})).toBeNull();
+  expect(screen.queryByRole("button",{name:"ゆっくり過ごしたい"})).toBeNull();
+  expect(screen.getByRole("group",{name:"どれくらい楽しむ？"})).toBeTruthy();
+  fireEvent.click(screen.getByRole("button",{name:"半日"}));
+  fireEvent.click(screen.getByRole("button",{name:"提案タグを選択"}));
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"庭園とカフェに寄りたい"}});
+  expect(screen.getByText("旅程で優先：カフェ・庭園")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button",{name:/行き先を選ぶ/}));
+  fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
+  await waitFor(()=>expect(vi.mocked(fetch).mock.calls.some(([url])=>url==="/api/discover")).toBe(true));
+  const body=JSON.parse(String(vi.mocked(fetch).mock.calls.find(([url])=>url==="/api/discover")![1]?.body));
+  expect(body.priority_text).toBe("庭園とカフェに寄りたい");
+  expect(body.preference_text).toContain("有名な場所を巡りたい");
+  expect(body.preference_text).toContain("庭園でひと休み");
+});
+
 it("asks about meals after duration and sends optional times only for selected meals", async () => {
   mount(); enterMood();
   expect(screen.queryByRole("button", {name:"朝ごはん"})).toBeNull();
-  fireEvent.click(within(screen.getByRole("group", { name: /今回の旅で/ })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: "1日" }));
   fireEvent.click(screen.getByRole("button", { name:"昼ごはん" }));
   fireEvent.change(screen.getByLabelText("昼ごはんの時間（任意）"), {target:{value:"13:00"}});
@@ -195,7 +214,8 @@ describe("sequential discovery", () => {
     revealThemes(); fireEvent.click(screen.getByRole("button", { name: "自然・景色" }));
     goMood();
     expect(screen.queryByRole("button", { name: "家族と" })).toBeNull();
-    expect(screen.getByRole("group", { name: "家族でどんな時間を過ごしたい？" })).toBeTruthy();
+    expect(screen.queryByRole("group", { name: /今回の旅で|家族でどんな/ })).toBeNull();
+    expect(screen.getByRole("group", { name: "どれくらい楽しむ？" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText(/旅に加えたいことはありますか？/), { target: { value: "庭園で休みたい" } });
     fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
     expect(screen.queryByRole("textbox")).toBeNull();
@@ -207,8 +227,8 @@ describe("sequential discovery", () => {
     const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => url.startsWith("/api/stations/search") ? { ok: true, json: async () => [{ name: "二条駅", latitude: 35.01, longitude: 135.74, code: "1", prefecture: "京都府", lines: [] }] } : url === "/api/discover" ? { ok: false } : noPhoto);
     vi.stubGlobal("fetch", fetchMock); mount();
     revealThemes(); fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
+    fireEvent.click(screen.getByRole("button", { name: "ゆったり" }));
     goMood();
-    fireEvent.click(screen.getByRole("button", { name: "ゆっくり過ごしたい" }));
     fireEvent.click(screen.getByRole("button", { name: "半日" }));
     fireEvent.change(screen.getByLabelText(/旅に加えたいことはありますか？/), { target: { value: "庭園で休みたい" } });
     fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
@@ -218,7 +238,7 @@ describe("sequential discovery", () => {
     fireEvent.click(await screen.findByRole("button", { name: /二条駅 京都府/ }));
     await generate();
     const request = fetchMock.mock.calls.find(([url]) => url === "/api/discover")![1];
-    expect(JSON.parse(String(request?.body))).toMatchObject({ theme: "history", course: "half_day", traveler: { pace: "relaxed" }, priority_text: "庭園で休みたい", preference_text: "ゆっくり過ごしたい。庭園で休みたい", origin: { latitude: 34.985849, longitude: 135.758766 } });
+    expect(JSON.parse(String(request?.body))).toMatchObject({ theme: "history", course: "half_day", traveler: { pace: "relaxed" }, priority_text: "庭園で休みたい", preference_text: "庭園で休みたい", origin: { latitude: 34.985849, longitude: 135.758766 } });
     expect(screen.queryByLabelText("出発地点")).toBeNull();
   });
   it("likes save and advance, passes do not save, and a liked itinerary opens the same route for editing", async () => {
@@ -310,7 +330,7 @@ it("changes destination directly while retaining profile, mood and free-text ans
   fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ }));
   await waitFor(() => expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(2));
   const request = vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")[1][1];
-  expect(JSON.parse(String(request?.body))).toMatchObject({ area: "aomori", theme: "history", course: "half_day", traveler: { companion: "family" }, preference_text: "おまかせ。博物館に寄りたい", origin: { name: departure } });
+  expect(JSON.parse(String(request?.body))).toMatchObject({ area: "aomori", theme: "history", course: "half_day", traveler: { companion: "family" }, preference_text: "博物館に寄りたい", origin: { name: departure } });
 });
 
 it("includes selected AI tags in the next screen and recommendation request", async () => {
@@ -349,18 +369,16 @@ it("reveals each profile question only after the preceding choice", () => {
 
 it("reveals mood questions one by one and keeps answers when returning", () => {
   mount(); enterMood();
-  expect(screen.queryByRole("group", { name: "どれくらい楽しむ？" })).toBeNull();
+  expect(screen.getByRole("group", { name: "どれくらい楽しむ？" })).toBeTruthy();
   expect(screen.getByRole("textbox")).toBeTruthy();
   expect((screen.getByRole("button", { name: /行き先を選ぶ/ }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByRole("button", { name: "← 戻る" })).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "有名な場所を巡りたい" }));
-  expect(screen.getByRole("group", { name: "どれくらい楽しむ？" })).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "有名な場所を巡りたい" })).toBeNull();
   expect(screen.getByRole("textbox")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "半日" }));
   expect(screen.getByRole("textbox")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   fireEvent.click(screen.getByRole("button", { name: "← 戻る" }));
-  expect(screen.getByRole("button", { name: "有名な場所を巡りたい" }).getAttribute("aria-pressed")).toBe("true");
   expect(screen.getByRole("button", { name: "半日" }).getAttribute("aria-pressed")).toBe("true");
 });
 
@@ -377,7 +395,7 @@ it("allows returning users to jump to 02 with their saved preferences and shows 
   expect(screen.getByText("歴史・街歩き")).toBeTruthy();
   expect(screen.getByText("ゆったり")).toBeTruthy();
   const tags = screen.getByRole("button", { name: "提案タグを選択" });
-  const question = screen.getByRole("group", { name: "家族でどんな時間を過ごしたい？" });
+  const question = screen.getByRole("group", { name: "どれくらい楽しむ？" });
   expect(tags.compareDocumentPosition(question) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
 
