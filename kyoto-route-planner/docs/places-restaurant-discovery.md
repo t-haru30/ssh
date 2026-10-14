@@ -31,6 +31,11 @@ boundary input. Production needs neither development scripts nor the 62 MB raw i
 
 Only OSM records are cached (six hours, 64 entries, `osm_restaurants.sqlite3`).
 Docker sets `OSM_RESTAURANTS_CACHE_PATH` to the writable `/tmp/conciergo` directory.
+Each public Overpass endpoint is bounded to six seconds. If both are unavailable,
+independently acquired OSM seed records are filtered to the requested radius and
+prefecture. Seeds do not bypass the fresh Google identity/location/business-status
+match. Unavailable Google and unavailable OSM are distinguishable in diagnostics;
+logs contain candidate counts, never keys, precise origins or personal preferences.
 Google response content is request-local and never enters OSM storage,
 recommendation caches/prompts, reviews or saved journeys. Existing Google detail
 and photo views retrieve their display information on demand, with attribution.
