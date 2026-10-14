@@ -10,7 +10,8 @@ OpenStreetMapから加工したデータは<a href="https://opendatacommons.org/
 <p>候補は全国の施設を網羅していません。登録済みの情報や分類が不正確・古い場合があります。営業時間、休業、料金、実際の交通経路は出発前に確認してください。</p>
 <ul><li><a href="/data/osm-routes.json" download>旅の候補データ（JSON）</a></li>
 <li><a href="/data/osm-places.json" download>施設データ（JSON）</a></li>
-<li><a href="/data/osm-manifest.json" download>加工元・版・ファイル検証情報（JSON）</a></li></ul></section>
+<li><a href="/data/osm-manifest.json" download>加工元・版・ファイル検証情報（JSON）</a></li>
+<li><a href="https://github.com/t-haru30/ssh/blob/main/kyoto-route-planner/backend/app/data/osm_restaurant_seeds.json">OSMの飲食店補完データ（ODbL 1.0）</a></li></ul></section>
 <section><h2>地図と経路</h2><p>OpenPOI APIから追加する施設の座標と住所の照合には<a href="https://maps.gsi.go.jp/">国土地理院</a>の逆ジオコーディングによる市区町村・町域情報を使用します。県境の判定には<a href="https://github.com/wmgeolab/geoBoundaries/blob/9469f09/releaseData/gbOpen/JPN/ADM1/geoBoundaries-JPN-ADM1.geojson">geoBoundaries JPN ADM1</a>（ODbL 1.0、2017年）の最大陸域を簡略化して使用します。加工データは<a href="https://github.com/t-haru30/ssh/blob/main/kyoto-route-planner/backend/app/data/prefecture_boundaries.json">ソースリポジトリ</a>で提供します。</p><p>Google Placesの施設情報・評価・写真はGoogleの出典表示とともに表示し、施設DBや保存する旅程へはコピーしません。Googleの情報を中心に見る地図にはGoogle Maps、経路線にはRoutes APIを使用します。Google地図を利用できない場合はMapLibre / OpenFreeMapを使用します。公共交通経路の検索には駅すぱあとAPIを使用します。
 事前候補の移動時間と地図の直線は目安で、交通経路を検索した結果とは異なります。</p></section>
 <section><h2>AIによる説明</h2><p>有効な環境ではGemini APIを使用します。施設の要約はボタンを押したときにGoogle検索で調べ、確認できた根拠へのリンクとともに表示します。

@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app.discovery import DiscoverRequest, assemble_route, build_discover_routes, diversify_dining_routes, discover_routes
-from app.restaurant_discovery import RestaurantDiscovery, discover_restaurants, parse_osm_restaurant, _osm_cache, _google_candidates
+from app.restaurant_discovery import RestaurantDiscovery, discover_restaurants, parse_osm_restaurant, _osm_cache, _google_candidates, _osm_restaurants
 from app.models import CatalogPlace
 
 
@@ -50,6 +50,20 @@ class RestaurantParsingTests(unittest.TestCase):
 
 
 class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
+    async def test_overpass_failure_uses_only_independent_osm_seeds_in_the_requested_region(self):
+        client = type("Client",(),{"get":AsyncMock(side_effect=httpx.ReadTimeout("unavailable"))})()
+        with patch("app.restaurant_discovery._osm_cache",return_value=None), \
+             patch("app.restaurant_discovery._in_prefecture",side_effect=lambda req,lat,lon:lat<36), \
+             patch("pathlib.Path.read_text",return_value=json.dumps({"license":"ODbL-1.0","places":[place(1).model_dump(),place(2,lat=37).model_dump()]})):
+            result = await _osm_restaurants(client,request(),6)
+        self.assertEqual([p.id for p in result],["osm-node-1"])
+        self.assertEqual(client.get.await_count,2)
+        self.assertTrue(all(call.kwargs["timeout"]==6 for call in client.get.call_args_list))
+
+    async def test_unavailable_google_or_osm_is_distinguished_without_private_diagnostics(self):
+        self.assertEqual((await self.run_provider([], (place(1),))).status,"google_unavailable")
+        self.assertEqual((await self.run_provider([{"id":"g"}], ())).status,"osm_unavailable")
+
     async def run_provider(self, google, venues):
         with patch.dict(os.environ,{"GOOGLE_RESTAURANTS_ENABLED":"1"}), patch("app.restaurant_discovery.google_api_key",return_value="server-key"), \
                 patch("app.restaurant_discovery._google_candidates",new=AsyncMock(return_value=(google,[]))), \

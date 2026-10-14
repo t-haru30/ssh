@@ -10,6 +10,7 @@ from contextlib import closing
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+import logging
 import os
 from pathlib import Path
 import sqlite3
@@ -27,6 +28,8 @@ OVERPASS_URLS = ("https://overpass-api.de/api/interpreter", "https://overpass.pr
 OSM_CACHE_PATH = Path(os.getenv("OSM_RESTAURANTS_CACHE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "osm_restaurants.sqlite3")))
 OSM_TAGS = {"name", "name:ja", "name:en", "official_name", "amenity", "cuisine", "website", "contact:website", "opening_hours", "addr:full", "addr:province", "addr:city", "addr:suburb", "addr:street", "addr:housenumber", "brand", "brand:wikidata"}
 _slots = asyncio.Semaphore(2)
+logger = logging.getLogger(__name__)
+OSM_SEEDS_PATH = Path(__file__).resolve().parent / "data" / "osm_restaurant_seeds.json"
 
 
 @dataclass
@@ -106,7 +109,7 @@ async def _osm_restaurants(client, request, radius):
              '["amenity"~"^(restaurant|fast_food|food_court)$"]["name"];out center tags 2500;')
     for endpoint in OVERPASS_URLS:
         try:
-            response = await client.get(endpoint, params={"data":query}, timeout=12)
+            response = await client.get(endpoint, params={"data":query}, timeout=6)
             if response.status_code != 200 or len(response.content) > 3_000_000:
                 continue
             data = response.json()
@@ -118,7 +121,22 @@ async def _osm_restaurants(client, request, radius):
                 return places
         except (httpx.HTTPError, ValueError, TypeError):
             continue
-    return ()
+    # Public Overpass endpoints can throttle cloud-hosted callers. Independently
+    # acquired OSM seed records remain useful because every addition must still
+    # match a fresh, operational Google result by full identity and position.
+    try:
+        data = json.loads(OSM_SEEDS_PATH.read_text(encoding="utf-8"))
+        if data.get("license") != "ODbL-1.0":
+            return ()
+        places = tuple(CatalogPlace.model_validate(row) for row in data["places"])
+        places = tuple(p for p in places if p.tags.get("source") == "OpenStreetMap"
+            and p.id.startswith(("osm-node-","osm-way-","osm-relation-"))
+            and distance_km(request.origin,p) <= radius and _in_prefecture(request,p.latitude,p.longitude))
+        if places:
+            _osm_cache(request,radius,places)
+        return places
+    except (OSError, ValueError, TypeError, KeyError):
+        return ()
 
 
 async def _google_candidates(client, request, radius, key):
@@ -172,6 +190,10 @@ async def discover_restaurants(request) -> RestaurantDiscovery:
     # hours, names and coordinates cannot enter AI prompts or saved plans here.
     local, nearby = groups
     google = [*local,*nearby]
+    if not google or not osm:
+        status = "google_unavailable" if not google else "osm_unavailable"
+        logger.warning("Dining lookup %s: Google candidates=%d, independent OSM candidates=%d",status,len(google),len(osm))
+        return RestaurantDiscovery(status=status)
     local_google_ids = {item.get("id") for item in local if isinstance(item.get("id"),str)}
     found, blocked, local_ids, used_google = [], [], [], set()
     def matches(place, item):
