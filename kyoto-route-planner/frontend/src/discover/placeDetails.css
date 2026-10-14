@@ -1,9 +1,11 @@
 .swipe-cover-theme-label { position: absolute; z-index: 2; left: 0; bottom: 0; width: 100%; padding: 35px 18px 15px; color: #fff; background: linear-gradient(transparent, #20392bd9); font-family: "Yu Mincho", serif; font-size: 18px; font-weight: 600; letter-spacing: .06em; pointer-events: none; }
 .discover-mode .swipe-spot-list { overflow: visible; }
 .discover-mode .swipe-spot-list li:has(.swipe-spot-open) { padding: 0; background: transparent; }
-.swipe-spot-open { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 58px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px; text-align: left; background: var(--surface-muted); color: var(--ink); cursor: pointer; touch-action: pan-y; transition: background .15s, border-color .15s; }
+.swipe-spot-open { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; max-width: 100%; min-width: 0; min-height: 58px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px; text-align: left; background: var(--surface-muted); color: var(--ink); cursor: pointer; touch-action: pan-y; transition: background .15s, border-color .15s; }
 .swipe-spot-open:hover { border-color: var(--forest); background: color-mix(in srgb, var(--forest) 7%, var(--paper)); }
-.swipe-spot-open .swipe-spot-copy { display: grid; gap: 4px; min-width: 0; flex: 1; }
+.swipe-spot-open .swipe-spot-copy { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; max-width: 100%; }
+.swipe-spot-open .swipe-spot-copy > * { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.swipe-spot-open .swipe-spot-appeal { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .swipe-spot-open .swipe-spot-copy strong { white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
 .swipe-spot-open .swipe-spot-copy small { color: var(--muted); font-size: 11px; }
 .swipe-spot-detail-label { flex: none; color: var(--forest); font-size: 11px; white-space: nowrap; }

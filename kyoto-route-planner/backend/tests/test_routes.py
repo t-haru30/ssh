@@ -743,6 +743,7 @@ class RoutePlannerTests(unittest.TestCase):
         self.assertEqual(len(response.json()["routes"][0]["places"]), 1)
         self.assertIn("Yahoo", response.json()["routes"][0]["note"])
 
+    @patch.dict("os.environ", {"PLACE_SEARCH_PROVIDER": "yahoo"})
     def test_health_origins_and_place_status_are_available(self):
         client = TestClient(app)
 

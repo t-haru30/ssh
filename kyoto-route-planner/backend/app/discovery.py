@@ -76,6 +76,10 @@ def selected_themes(request: DiscoverRequest) -> set[str]:
 
 
 def dinner_place(place: CatalogPlace) -> bool:
+    if any(word in place.name + place.category for word in ("アイスクリーム", "ソフトクリーム", "和菓子", "洋菓子", "口福堂", "ドーナツ", "コンビニ", "セブンイレブン", "セブンーイレブン", "ファミリーマート", "ローソン", "キヨスク", "KIOSK")):
+        return False
+    if re.search(r"カフェ|喫茶|caf[eé]",place.name,re.I) and not any(word in place.name + place.category for word in ("レストラン", "食堂", "定食")):
+        return False
     return "food" in place_themes(place) and (place.genre_code.startswith("01") or any(
         word in place.name + place.category for word in ("飲食", "レストラン", "食堂", "料理", "冷麺", "そば", "麺", "寿司", "焼肉", "グルメ"))) and not any(
         word in place.category for word in ("カフェ", "喫茶", "市場", "商店街"))
@@ -286,8 +290,8 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         seed = candidates[(index + request.variation) % len(candidates)]
         ordered, remaining, cursor = [seed], [p for p in candidates if p.id != seed.id], seed
         # Vary dining venues across the deck, retaining local-specialty priority.
-        dining = sorted(candidates, key=lambda p: (-regional_score(request.origin, p) if request.theme == "food" else 0,
-                        venue_use.get(p.id, 0), distance_km(seed, p), p.id))
+        dining = sorted(candidates, key=lambda p: (8 * venue_use.get(p.id, 0) - (2 * regional_score(request.origin, p) if request.theme == "food" else 0),
+                        distance_km(seed, p), p.id))
         if request.meals is not None:
             for meal in (p for p in dining if dinner_place(p) and p not in ordered):
                 if sum(dinner_place(p) for p in ordered) >= len(request.meals):
@@ -393,9 +397,10 @@ async def _base_discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[
 
 async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[CatalogPlace, ...]]:
     from app.openpoi import enrich_candidates
-    from app.restaurant_discovery import discover_restaurants
+    from app.restaurant_discovery import discover_restaurants, match_independent_restaurants
     (fallback, base), restaurants = await asyncio.gather(_base_discover_catalog(request), discover_restaurants(request))
     pool, status = await enrich_candidates(request, base)
+    restaurants = match_independent_restaurants(restaurants, eligible_candidates(request, pool))
     added = sum(p.id.startswith("openpoi-") for p in pool)
     if added:
         fallback = build_discover_routes(request, pool)
@@ -415,10 +420,11 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
         previous_source = fallback["source"]
         fallback = build_discover_routes(request, pool)
         fallback["source"] = previous_source + " / Google Places"
-        fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSMの店名・位置と照合して候補を増やしています。営業時間・メニューは訪問前にご確認ください。"
+        fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
     fallback["catalog"] = {"openpoi_status": status, "openpoi_added": added, "base_count": len(base),
         "restaurants_status":restaurants.status,"restaurants_found":len(restaurants.places),"restaurants_added":restaurant_added,
         "restaurants_verified":restaurants.verified_count,
+        "verified_dining_ids":[p.id for p in restaurants.places],
         "local_dining_ids":list(restaurants.local_match_ids)}
     return fallback, pool
 
@@ -430,17 +436,17 @@ async def discover_routes(request: DiscoverRequest) -> dict:
     result = await recommend_routes(request, eligible_candidates(request, pool), fallback)
     result["catalog"] = fallback["catalog"]
     result["routes"] = diversify_dining_routes(request,result["routes"],pool,
-        set(fallback["catalog"].get("local_dining_ids",[])))
+        set(fallback["catalog"].get("local_dining_ids",[])),set(fallback["catalog"].get("verified_dining_ids",[])))
     from app.discovery_review import review_journeys
     result["review"] = await review_journeys(request, result, pool)
     return result
 
 
-def diversify_dining_routes(request, routes: list[dict], pool, preferred_ids: set[str] | None = None) -> list[dict]:
+def diversify_dining_routes(request, routes: list[dict], pool, preferred_ids: set[str] | None = None, verified_ids: set[str] | None = None) -> list[dict]:
     """Balance meal reuse after AI selection, rechecking every resulting route.
 
     Regional search matches are a ranking hint, not proof of a particular menu.
-    All display facts and saved identities continue to come from the OSM pool.
+    Display facts and saved identities remain with the independent catalog providers.
     """
     if request.meals == []:
         return routes
@@ -454,6 +460,7 @@ def diversify_dining_routes(request, routes: list[dict], pool, preferred_ids: se
     for p in dining:
         if p.id in request.viewed_dining_ids and brand(p): used_brands[brand(p)] = 1
     preferred_ids = preferred_ids or set()
+    prefer_verified = len(verified_ids or ()) >= 3
     for original in routes:
         if any(s["place_id"] not in allowed for s in original["spots"]):
             result.append(original)
@@ -466,6 +473,7 @@ def diversify_dining_routes(request, routes: list[dict], pool, preferred_ids: se
             others = {p.id for i,p in enumerate(places) if i != index}
             priority = lambda p: 2 * regional_score(request.origin,p) + 3 * int(p.id in preferred_ids)
             ranked = sorted((p for p in dining if p.id not in others), key=lambda p: (
+                prefer_verified and p.id not in verified_ids,
                 8 * (used.get(p.id,0) + used_brands.get(brand(p),0)) - priority(p), distance_km(current,p), p.id))
             for choice in ranked:
                 proposed = [*places[:index],choice,*places[index+1:]]

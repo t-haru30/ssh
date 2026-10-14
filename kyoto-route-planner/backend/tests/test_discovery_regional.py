@@ -11,8 +11,9 @@ class RegionalTests(unittest.TestCase):
         pool = tuple([self.place(0, "普通のレストラン", "レストラン"), self.place(1, "盛岡冷麺の店", "飲食店", lat=39.72)] + [self.place(i, f"博物館{i}", lat=39.703+i*.001) for i in range(2, 8)])
         routes = build_discover_routes(req, pool)["routes"]
         self.assertTrue(routes)
+        self.assertIn("1", [p["place_id"] for p in routes[0]["spots"]])
+        self.assertTrue(any("1" in [p["place_id"] for p in route["spots"]] for route in routes))
         for route in routes:
-            self.assertIn("1", [p["place_id"] for p in route["spots"]])
             self.assertGreaterEqual(len(route["spots"]), 4)
             self.assertGreaterEqual(route["estimated_minutes"], 360)
             self.assertLessEqual(route["estimated_minutes"], 720)
@@ -24,3 +25,14 @@ class RegionalTests(unittest.TestCase):
         local = [self.place(i, f"岐阜の博物館{i}", region="岐阜県", lat=35.42+i*.001, lon=136.757) for i in range(6)]
         other = self.place(9, "名古屋の施設", region="愛知県", lat=35.182, lon=136.882)
         self.assertNotIn(other, eligible_candidates(req, tuple([other, *local])))
+
+    def test_regional_queries_rotate_distinct_dishes_without_more_api_calls(self):
+        from app.regional_food import specialty_queries
+        morioka=Origin(name="盛岡駅",latitude=39.7013,longitude=141.1363)
+        kanazawa=Origin(name="金沢駅",latitude=36.5781,longitude=136.6478)
+        gifu=Origin(name="岐阜駅",latitude=35.4097,longitude=136.7564)
+        self.assertEqual(specialty_queries(morioka),["盛岡冷麺","わんこそば"])
+        self.assertEqual(specialty_queries(morioka,1),["わんこそば","じゃじゃ麺"])
+        self.assertEqual(specialty_queries(gifu),["鮎料理","飛騨牛"])
+        self.assertIn("金沢カレー",specialty_queries(kanazawa,3))
+        self.assertLessEqual(len(specialty_queries(kanazawa,4)),2)
