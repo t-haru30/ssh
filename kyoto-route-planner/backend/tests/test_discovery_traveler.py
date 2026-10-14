@@ -43,7 +43,9 @@ class TravelerTests(unittest.TestCase):
         family = build_discover_routes(request(traveler={"companion": "family"}), pool)["routes"][0]
         couple = build_discover_routes(request(traveler={"companion": "couple"}), pool)["routes"][0]
         self.assertEqual(family["spots"][0]["place_id"], "park")
-        self.assertEqual(couple["spots"][0]["place_id"], "cafe")
+        self.assertIn("cafe", [s["place_id"] for s in couple["spots"]])
+        self.assertNotEqual(couple["spots"][0]["place_id"], "cafe")
+        self.assertEqual(next(s["stay_minutes"] for s in couple["spots"] if s["place_id"] == "cafe"), 30)
         female = build_discover_routes(request(traveler={"gender": "female"}), pool)
         male = build_discover_routes(request(traveler={"gender": "male"}), pool)
         self.assertEqual(female, male)

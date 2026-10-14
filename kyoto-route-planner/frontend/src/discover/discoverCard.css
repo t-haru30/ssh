@@ -1,29 +1,39 @@
 /* Photo and title lead the swipe view. Full information lives in the route dialog. */
+.discover-mode .discover-stack:has(.swipe-card-visual) { height:580px; min-height:0; }
+.discover-mode .swipe-card.swipe-card-visual { position:absolute; inset:0; height:100%; min-height:0; max-height:100%; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
 .discover-mode .swipe-card.swipe-card-visual .swipe-cover {
   width: calc(100% - 20px);
   margin: 10px 10px 0;
-  aspect-ratio: 4 / 3;
+  height: 62%;
+  aspect-ratio: auto;
   max-height: none;
   border-radius: 12px;
 }
 .discover-mode .swipe-card.swipe-card-visual .swipe-card-copy {
-  padding: 22px 24px 26px;
-  gap: 12px;
+  flex:1 1 0;
+  min-height:0;
+  overflow:hidden;
+  padding: 16px 20px 18px;
+  gap: 8px;
 }
 .discover-mode .swipe-card.swipe-card-visual h3 {
   margin: 0;
-  font-size: clamp(24px, 3vw, 32px);
-  line-height: 1.5;
-  display: block;
-  overflow: visible;
-  -webkit-line-clamp: unset;
+  font-size: clamp(20px, 2.5vw, 26px);
+  line-height: 1.4;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
+.discover-mode .swipe-card.swipe-card-visual h3[data-long-title="true"] { font-size:20px; }
+.discover-mode .swipe-card.swipe-card-visual .swipe-title-part { display:inline; white-space:normal; }
 .discover-mode .swipe-card.swipe-card-visual .swipe-distance { margin: 0; font-size: 13px; color: var(--muted); }
 .discover-mode .swipe-card-visual .swipe-plan-course { align-self: flex-start; padding: 4px 9px; border-radius: 6px; background: var(--surface-muted); color: var(--control-text); font-size: 11px; }
 .discover-mode .swipe-card-visual.is-behind .swipe-cover,
 .discover-mode .swipe-card-visual.is-behind .swipe-card-copy { visibility: hidden; }
 @media (max-width: 520px) {
-  .discover-mode .swipe-card.swipe-card-visual .swipe-cover { aspect-ratio: 1; }
-  .discover-mode .swipe-card.swipe-card-visual .swipe-card-copy { padding: 18px 18px 22px; }
-  .discover-mode .swipe-card.swipe-card-visual h3 { font-size: 25px; }
+  .discover-mode .discover-stack:has(.swipe-card-visual) { height:520px; }
+  .discover-mode .swipe-card.swipe-card-visual .swipe-card-copy { padding:14px 16px 16px; }
+  .discover-mode .swipe-card.swipe-card-visual h3 { font-size:22px; }
+  .discover-mode .swipe-card.swipe-card-visual h3[data-long-title="true"] { font-size:18px; }
 }

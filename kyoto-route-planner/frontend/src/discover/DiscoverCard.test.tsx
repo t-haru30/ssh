@@ -137,10 +137,9 @@ describe("DiscoverCard", () => {
   it("keeps all destination photos while cards behind the top card remain inert", () => {
     const longerRoute = { ...route, spots: Array.from({ length: 5 }, (_, i) => ({ ...route.spots[0], place_id: `spot-${i}`, name: `行き先${i}` })) };
     const view = render(<DiscoverCard route={longerRoute} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
-    expect(view.container.querySelectorAll(".route-photo-tile")).toHaveLength(1);
-    fireEvent.click(screen.getByRole("button",{name:"次の施設の写真"}));
+    expect(view.container.querySelectorAll(".route-photo-tile")).toHaveLength(4);
     expect(screen.getByRole("button",{name:"行き先1の詳細を見る"})).toBeTruthy();
-    for(let i=0;i<3;i++)fireEvent.click(screen.getByRole("button",{name:"次の施設の写真"}));
+    fireEvent.click(screen.getByRole("button",{name:"次の写真ページ"}));
     expect(screen.getByRole("button",{name:"行き先4の詳細を見る"})).toBeTruthy();
     expect(screen.queryByRole("button", {name:/の説明を見る/})).toBeNull();
     view.rerender(<DiscoverCard route={longerRoute} depth={1} exitDirection="like" onSwipe={vi.fn()} />);
@@ -169,15 +168,14 @@ describe("DiscoverCard", () => {
     const image = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "ready", place_id: "second", place_name: "庭園", image_url: image, author_name: "Photographer", source_url: "https://commons.wikimedia.org/wiki/File:Test.jpg", license_name: "CC BY-SA 4.0", license_url: "https://creativecommons.org/licenses/by-sa/4.0/", image_verified: true, ai_checked: true, note: "" }) }));
     const { container } = render(<DiscoverCard route={{ ...route, spots: [...route.spots, { ...route.spots[0], place_id: "second", name: "庭園" }] }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button",{name:"次の施設の写真"}));
     await waitFor(() => expect(container.querySelector("img")?.getAttribute("src")).toBe(image));
     expect(screen.getByRole("img", { name: "庭園" })).toBeTruthy();
-    expect(container.querySelectorAll(".route-photo-tile")).toHaveLength(1);
+    expect(container.querySelectorAll(".route-photo-tile")).toHaveLength(2);
     expect(screen.getByRole("figure", { name: "庭園の写真" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Photographer" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "CC BY-SA 4.0" })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "Photographer" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "CC BY-SA 4.0" }).length).toBeGreaterThan(0);
     fireEvent.error(container.querySelector("img")!);
-    expect(container.querySelector("img")).toBeNull();
+    expect(screen.queryByRole("img", {name:"庭園"})).toBeNull();
     expect(screen.queryByText(/AI.*イラスト/)).toBeNull();
   });
 });

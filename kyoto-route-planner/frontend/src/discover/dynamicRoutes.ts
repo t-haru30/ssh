@@ -1,10 +1,10 @@
-import { wishScore } from "../travelWishes";
+import { wishScore, wishMatches, wishCoverage } from "../travelWishes";
 import { planMeals, type MealChoice } from "../mealPlanning";
 import { isReasonSources } from "./reasonSources";
 import { distanceKm } from "../dayTrip";
 import { localPlaces } from "../localPlaces";
 import { distinctVenues } from "../venueIdentity";
-import { facilityThemes, isUnsuitablePlace, scenicPriority } from "../placeThemes";
+import { facilityThemes, isUnsuitablePlace, scenicPriority, isCafe, isMealPlace } from "../placeThemes";
 import { normalizeTravelPace, PACE_OPTIONS, PACE_SETTINGS, type TravelerProfile } from "../travelerProfile";
 import type { Origin, Place, Theme } from "../types";
 import type { DatasetRoute, RouteDatasetIndexEntry } from "./datasetTypes";
@@ -17,7 +17,7 @@ const themeTitles: Record<Theme, string> = { all: "街歩き", history: "歴史�
 /** Offline composition from deduplicated facilities, with a hard geographic cap. */
 export function composeLocalRoutes({ entry, origin, theme, themes: selected = [theme], meals, course, radius, crossPrefecture, variation, traveler, preferenceText = "", priorityText = "" }: DiscoverConditions, pool = localPlaces): DatasetRoute[] {
   const wants = selected.filter(t => t !== "all");
-  const dinnerPlace = (p: (typeof pool)[number]) => /飲食|レストラン|食堂|料理|冷麺|そば|麺|寿司|焼肉|グルメ/.test(p.name + p.category) && !/カフェ|喫茶|市場|商店街/.test(p.category);
+  const dinnerPlace = isMealPlace;
   let candidates = distinctVenues(pool.filter(p => !isUnsuitablePlace(p) && (crossPrefecture || p.tags?.area === entry.id)
     && (!wants.length || wishScore(priorityText, p) > 0 || theme === "food" || wants.some(t => facilityThemes(p).includes(t)) || (meals?.length || meals === undefined && course === "full_day") && dinnerPlace(p)) && (meals?.length !== 0 || !dinnerPlace(p)) && !/ホテル|旅館|宿泊/.test(p.category)
     && distanceKm(origin, p) <= radius).sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id)));
@@ -26,7 +26,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
   const food = (p: (typeof candidates)[number]) => facilityThemes(p).includes("food") || /冷麺|わんこそば|じゃじゃ麺|焼肉|寿司/.test(p.name);
   const preservesChoices = (nearby: Place[], available: Place[]) => {
     const requiredMeals = meals === undefined ? Number(course === "full_day") : meals.length;
-    return (!available.some(p => wishScore(priorityText, p)) || nearby.some(p => wishScore(priorityText, p))) && nearby.filter(dinnerPlace).length >= requiredMeals
+    return wishCoverage(priorityText, nearby) >= wishCoverage(priorityText, available) && nearby.filter(dinnerPlace).length >= requiredMeals
       && wants.filter(t => available.some(p => facilityThemes(p).includes(t))).every(t => nearby.some(p => facilityThemes(p).includes(t)));
   };
   const local = candidates.filter(p => p.tags?.area === entry.id);
@@ -50,7 +50,8 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
   const settings = PACE_SETTINGS[pace];
   const stay = course === "full_day" ? settings.fullDayStay : settings.stay;
   const maxStops = settings.maxStops + (course === "full_day" ? 2 : 0);
-  const dwell = (p: (typeof candidates)[number]) => food(p) ? Math.min(stay, 75) : stay;
+  const dwell = (p: (typeof candidates)[number]) => isCafe(p) ? 30 : food(p) ? Math.min(stay, 75) : stay;
+  const mealFood = (p: Place) => food(p) && !isCafe(p);
   for (let i = 0; i < Math.min(candidates.length, 80); i++) {
     const seed = candidates[(i + variation) % candidates.length];
     const ordered = [seed], remaining = candidates.filter(p => p.id !== seed.id);
@@ -69,7 +70,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
     if (theme === "food") {
       const preferred = dining.find(food);
       if (preferred && !ordered.includes(preferred)) {
-        const foods = ordered.filter(food);
+        const foods = ordered.filter(mealFood);
         if (!foods.length) { ordered.push(preferred); remaining.splice(remaining.indexOf(preferred), 1); }
         else if (regionalScore(preferred) > Math.max(...foods.map(regionalScore))) {
           const replaced = foods[0]; ordered[ordered.indexOf(replaced)] = preferred;
@@ -77,18 +78,22 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
         }
       }
     }
-    while (ordered.length < maxStops && remaining.length) {
+    while (ordered.length < maxStops + 1 && remaining.length) {
       const missing = wants.filter(t => !ordered.some(p => facilityThemes(p).includes(t)));
-      remaining.sort((a, b) => wishScore(priorityText, b) - wishScore(priorityText, a) || missing.filter(t => facilityThemes(b).includes(t)).length - missing.filter(t => facilityThemes(a).includes(t)).length || distanceKm(ordered[ordered.length - 1], a) - distanceKm(ordered[ordered.length - 1], b) || a.id.localeCompare(b.id));
-      const next = remaining.findIndex(p => (meals === undefined || !dinnerPlace(p)) && (!food(p) || (ordered.filter(food).length < Math.max(2, meals?.length ?? 0) && !food(ordered[ordered.length - 1]))));
+      const covered = new Set(ordered.flatMap(p => wishMatches(priorityText, p)));
+      const missingWish = (p: Place) => wishMatches(priorityText, p).filter(match => !covered.has(match)).length;
+      remaining.sort((a, b) => missingWish(b) - missingWish(a) || wishScore(priorityText, b) - wishScore(priorityText, a) || missing.filter(t => facilityThemes(b).includes(t)).length - missing.filter(t => facilityThemes(a).includes(t)).length || distanceKm(ordered[ordered.length - 1], a) - distanceKm(ordered[ordered.length - 1], b) || a.id.localeCompare(b.id));
+      const next = remaining.findIndex(p => (meals === undefined || !dinnerPlace(p)) && (!isCafe(p) || !ordered.some(isCafe)) && (isCafe(p) || ordered.filter(q=>!isCafe(q)).length < maxStops) && (isCafe(p) || !food(p) || (ordered.filter(mealFood).length < Math.max(2, meals?.length ?? 0) && !food(ordered[ordered.length - 1]))));
       if (next < 0) break;
       ordered.push(remaining.splice(next, 1)[0]);
     }
+    if (ordered.length > 1 && isCafe(ordered[0])) ordered.splice(1, 0, ordered.shift()!);
+    if (ordered.filter(isCafe).length > 1) continue;
     const dinner = meals === undefined && course === "full_day" ? [...ordered].reverse().find(dinnerPlace) : undefined;
     if (meals === undefined && course === "full_day" && !dinner) continue;
     if (dinner) {
-      const others = ordered.filter(p => p !== dinner && !food(p));
-      others.splice(1, 0, ...ordered.filter(p => p !== dinner && food(p)));
+      const others = ordered.filter(p => p !== dinner && !mealFood(p));
+      others.splice(1, 0, ...ordered.filter(p => p !== dinner && mealFood(p)));
       ordered.splice(0, ordered.length, ...others, dinner);
     }
     const mealPlan = meals !== undefined ? planMeals(ordered, meals, origin, course, dwell, dinnerPlace) : null;
@@ -114,20 +119,20 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
       minutes += Math.max(0, 540 - (minutes - dwell(dinner) - legs[legs.length - 1].minutes));
       if (minutes > 720) continue;
     }
-    if (theme === "food" && (!ordered.some(food) || ordered.filter(food).length > Math.max(2, meals?.length ?? 0))) continue;
-    if (course === "full_day" && (ordered.length < 4 || minutes < 360 || ordered.filter(food).length > Math.max(2, meals?.length ?? 0))) continue;
+    if (theme === "food" && (!ordered.some(food) || ordered.filter(mealFood).length > Math.max(2, meals?.length ?? 0))) continue;
+    if (course === "full_day" && (ordered.length < 4 || minutes < 360 || ordered.filter(mealFood).length > Math.max(2, meals?.length ?? 0))) continue;
     const pattern = course === "full_day" || minutes > 300 ? "full_day" : "half_day";
     routes.push({ id: `local-${entry.id}-${stay}-${ordered.map(p => p.id).join("-")}`, area: entry.id, theme, course: pattern, pattern,
-      recommendation_source: "rules", recommendation_reason: `${PACE_OPTIONS.find(option => option.value === pace)!.label}のペースで${ordered.length}か所、観光は各${stay}分、食事は最大75分（目安）。${[...new Set(ordered.map(p => p.category))].join("・")}を巡ります。`,
+      recommendation_source: "rules", recommendation_reason: `${PACE_OPTIONS.find(option => option.value === pace)!.label}のペースで${ordered.length}か所、観光は各${stay}分、食事は最大75分（目安）。${[...new Set(ordered.map(p => p.category))].join("・")}を巡ります。${ordered.some(isCafe) ? "カフェでは30分ほどひと休みします。" : ""}`,
       title: `${ordered[0].name}から、${themeTitles[theme]}を楽しむ旅`, estimated_minutes: minutes, departure_time: mealPlan?.departure ?? "09:00", legs, total_score: ordered.length,
       start: { name: origin.name, lat: origin.latitude, lng: origin.longitude, to_first_km: legs[0].distance_km, from_last_km: legs[legs.length - 1].distance_km },
       center: [origin.latitude, origin.longitude], coordinates: [origin, ...ordered, origin].map(p => [p.latitude, p.longitude]),
-      spots: ordered.map(p => ({ place_id: p.id, name: p.name, category: p.category, lat: p.latitude, lng: p.longitude, address: p.address, tags: p.tags, stay_minutes: dwell(p), role: mealPlan?.roles[p.id] ?? (p === dinner ? "dinner" : "stop"), meal_time: mealPlan?.anchors[p.id], score: 1, reason: p.description || p.address })) });
+      spots: ordered.map(p => ({ place_id: p.id, name: p.name, category: isCafe(p) ? "カフェ" : p.category, lat: p.latitude, lng: p.longitude, address: p.address, tags: p.tags, stay_minutes: dwell(p), role: isCafe(p) ? "break" : mealPlan?.roles[p.id] ?? (p === dinner ? "dinner" : "stop"), meal_time: mealPlan?.anchors[p.id], score: 1, reason: p.description || p.address })) });
     for (const p of ordered) venueUse.set(p.id, (venueUse.get(p.id) ?? 0) + 1);
     if (routes.length === 12) break;
   }
   const lookup = new Map(candidates.map(p => [p.id, p]));
-  return routes.sort((a, b) => b.spots.reduce((n, s) => n + (lookup.has(s.place_id) ? wishScore(priorityText, lookup.get(s.place_id)!) : 0), 0) - a.spots.reduce((n, s) => n + (lookup.has(s.place_id) ? wishScore(priorityText, lookup.get(s.place_id)!) : 0), 0));
+  return routes.sort((a, b) => wishCoverage(priorityText, b.spots.map(s => lookup.get(s.place_id)!)) - wishCoverage(priorityText, a.spots.map(s => lookup.get(s.place_id)!)));
 }
 
 export type DiscoveryAgent = { status: "ready" | "unavailable"; message: string };

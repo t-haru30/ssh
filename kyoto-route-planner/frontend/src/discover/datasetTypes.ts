@@ -12,7 +12,7 @@ export type DatasetSpot = {
   lng: number;
   stay_minutes: number;
   score: number;
-  role: "stop" | "breakfast" | "lunch" | "dinner";
+  role: "stop" | "break" | "breakfast" | "lunch" | "dinner";
   meal_time?: string;
   reason?: string;
   reason_sources?: ReasonSource[];

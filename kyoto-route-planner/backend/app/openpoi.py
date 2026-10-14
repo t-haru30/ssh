@@ -183,7 +183,9 @@ async def _search(request, query: str = "") -> tuple[CatalogPlace, ...]:
         params = {"center": f"{request.origin.longitude},{request.origin.latitude}",
                   "radius": request.radius_km * 1000, "limit": 200}
         from app.regional_food import specialties
-        queries = [query] if query else [*((specialties(request.origin)[:1] or (f"{request.prefecture_name} 郷土料理",)) if request.theme == "food" else ()), "", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
+        from app.travel_wishes import wish_queries
+        queries = [query] if query else [*wish_queries(getattr(request, "priority_text", "")), *((specialties(request.origin)[:1] or (f"{request.prefecture_name} 郷土料理",)) if request.theme == "food" else ()), "", "カフェ 喫茶 レストラン", "博物館 美術館 庭園 公園 水族館 動物園"]
+        queries = list(dict.fromkeys(queries))
         responses = await asyncio.gather(*(_json(client, SEARCH_URL, {**params, "q": q}) for q in queries), return_exceptions=True)
         pools = []
         for data in responses:
@@ -221,7 +223,8 @@ async def enrich_candidates(request, osm: tuple[CatalogPlace, ...], query: str =
     if os.getenv("OPENPOI_ENABLED", "1" if os.getenv("PLACE_SEARCH_PROVIDER") == "public_catalog" else "0") != "1":
         return osm, "disabled"
     key = (request.origin.latitude, request.origin.longitude, request.radius_km,
-           request.prefecture_name, request.cross_prefecture, request.theme, normalized(query))
+           request.prefecture_name, request.cross_prefecture, request.theme, normalized(query),
+           normalized(getattr(request, "priority_text", "")) if not query else "")
     cached = _cache.get(key)
     if cached and cached[0] > time.monotonic():
         return merge_candidates(osm, cached[1]), cached[2]
