@@ -11,7 +11,7 @@ export function LazyMapView(props: MapViewProps) {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || props.visible===false) return;
     if (!("IntersectionObserver" in window)) {
       setShouldLoad(true);
       return;
@@ -25,7 +25,7 @@ export function LazyMapView(props: MapViewProps) {
     }, { rootMargin: "240px" });
     observer.observe(container);
     return () => observer.disconnect();
-  }, []);
+  }, [props.visible]);
 
   return (
     <div ref={containerRef}>

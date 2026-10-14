@@ -52,6 +52,27 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
+  it("opens the tapped facility and does not mistake a horizontal drag for a tap", async () => {
+    vi.stubGlobal("PointerEvent",MouseEvent);
+    const onSwipe=vi.fn();
+    render(<DiscoverCard route={route} depth={0} exitDirection="like" onSwipe={onSwipe} />);
+    const image=screen.getByRole("button",{name:"清水寺の詳細を見る"});
+    fireEvent.pointerDown(image,{clientX:100,clientY:100});
+    fireEvent.pointerMove(image,{clientX:240,clientY:103});
+    fireEvent.pointerUp(image,{clientX:240,clientY:103});
+    fireEvent.click(image,{detail:1});
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(()=>gesture.end?.({},{offset:{x:150}}));
+    expect(onSwipe).toHaveBeenCalledWith("like");
+    fireEvent.pointerDown(image,{clientX:100,clientY:100});
+    fireEvent.pointerUp(image,{clientX:102,clientY:100});
+    image.focus();
+    fireEvent.click(image,{detail:1});
+    expect(await screen.findByRole("dialog",{name:"清水寺"})).toBeTruthy();
+    fireEvent.click(screen.getByRole("button",{name:"ダイアログを閉じる"}));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(image);
+  });
   it("leads with the plan title and photos while hiding recommendation and facility details", async () => {
     const fetchMock = vi.mocked(fetch);
     const { container } = render(<DiscoverCard route={{ ...route, recommendation_source: "gemini", recommendation_reason: "舞台から街を見渡せます。", spots: [{...route.spots[0],reason:"四季の景色を楽しめます。"}] }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);

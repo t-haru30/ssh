@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from app.models import Origin
-from app.travel_candidates import TravelCandidatesRequest, extra_stations, google_candidates, parse_place, suggest_travel_candidates
+from app.travel_candidates import TravelCandidatesRequest, extra_stations, google_candidates, parse_place, suggest_travel_candidates, independent_stations, _station_cache
 from app.station_search import StationCandidate
 from app.travel_wishes import wish_score
 from app.discovery import DiscoverRequest, assemble_route, build_discover_routes, discover_routes, eligible_candidates
@@ -18,6 +18,20 @@ def row(name="岐阜", kind="station", lat=35.4097, lon=136.7564):
 
 
 class TravelCandidateTests(unittest.IsolatedAsyncioTestCase):
+    async def test_expanded_station_lookup_works_without_google_and_stays_in_prefecture(self):
+        _station_cache.clear()
+        valid=StationCandidate(name="高山駅",code="takayama",prefecture="岐阜県",latitude=36.1408,longitude=137.2513)
+        outside=StationCandidate(name="名古屋駅",code="nagoya",prefecture="愛知県",latitude=35.1709,longitude=136.8815)
+        lookup=AsyncMock(return_value=[valid,outside])
+        with patch("app.travel_candidates.search_stations",new=lookup):
+            initial=await independent_stations(ORIGIN,"gifu",False)
+            expanded=await independent_stations(ORIGIN,"gifu",True)
+        self.assertEqual(initial,[])
+        self.assertEqual({p.name for p in expanded},{"高山駅"})
+        self.assertTrue(all(call.args[1]=="21" for call in lookup.call_args_list))
+        self.assertIn("高山",[call.args[0] for call in lookup.call_args_list])
+        _station_cache.clear()
+
     async def test_ai_omission_does_not_erase_a_feasible_written_wish(self):
         def place(i, name, category):
             return CatalogPlace(id=f"w{i}", name=name, category=category, region="岐阜県", address="", latitude=35.41,

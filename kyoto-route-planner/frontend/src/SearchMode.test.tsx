@@ -184,12 +184,8 @@ describe("SearchMode nearby departures", () => {
     fireEvent.click(await screen.findByRole("button", { name: /交通経路を再検索/ }));
     await waitFor(() => expect(submittedRequest).not.toBeNull());
     expect(submittedRequest).toMatchObject({
-      origin: "周辺地下鉄駅",
-      origin_latitude: 34.987,
-      origin_longitude: 135.76,
-      return_to: "周辺地下鉄駅",
-      return_latitude: 34.987,
-      return_longitude: 135.76,
+      origin: {name:"周辺地下鉄駅",latitude:34.987,longitude:135.76},
+      return_to: {name:"周辺地下鉄駅",latitude:34.987,longitude:135.76},
     });
   });
 
@@ -198,7 +194,7 @@ describe("SearchMode nearby departures", () => {
     const routeRequests = vi.fn();
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.split("?")[0] === "/api/routes") {
+      if (url.split("?")[0] === "/api/routes/preview") {
         routeRequests();
         return { ok: true, json: async () => ({ routes: [] }) } as Response;
       }
@@ -218,8 +214,9 @@ describe("SearchMode nearby departures", () => {
     fireEvent.click(search);
     expect((await screen.findByRole("alert")).textContent).toContain("スポットが見つかりませんでした");
 
+    const previousCount=routeRequests.mock.calls.length;
     fireEvent.click(screen.getByRole("button", { name: "再試行" }));
-    await waitFor(() => expect(routeRequests).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(routeRequests.mock.calls.length).toBeGreaterThan(previousCount));
   });
 
   it("restores a saved route and form, then persists form changes", async () => {
@@ -308,7 +305,7 @@ describe("SearchMode local initial proposal", () => {
   it("applies initial constraints, multiple preferences and destination before any transit request", async () => {
     let submitted: Record<string, unknown> | null = null;
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (String(input) === "/api/routes") {
+      if (String(input) === "/api/routes/preview") {
         submitted = JSON.parse(String(init?.body));
         return { ok: false, json: async () => ({ detail: "test complete" }) };
       }
@@ -334,8 +331,8 @@ describe("SearchMode local initial proposal", () => {
     expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);
     fireEvent.click(screen.getByRole("button", { name: /交通経路を再検索/ }));
     await waitFor(() => expect(submitted).not.toBeNull());
-    expect(submitted).toMatchObject({ return_to: "帰着駅", return_latitude: 34.99, return_longitude: 135.763 });
-    expect((submitted as unknown as { selected_places: { id: string }[] }).selected_places.some(place => place.id === "local-cafe")).toBe(false);
+    expect(submitted).toMatchObject({ return_to: {name:"帰着駅",latitude:34.99,longitude:135.763} });
+    expect((submitted as unknown as { places: { id: string }[] }).places.some(place => place.id === "local-cafe")).toBe(false);
   });
   it("keeps the form and entered conditions when no feasible initial proposal exists", async () => {
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => origins }));
@@ -353,6 +350,32 @@ describe("SearchMode local initial proposal", () => {
 });
 
 describe("SearchMode selected route", () => {
+  it("refreshes a future journey by segments while preserving all seven visits and meal anchors",async()=>{
+    const origin={name:"京都駅",latitude:34.9858,longitude:135.7588};
+    const picked=Array.from({length:7},(_,i)=>({...origin,id:`future-${i}`,name:`未来の施設${i}`,category:"公園",description:"",access_point:"",themes:[] as []}));
+    const calls:{url:string;body:Record<string,unknown>}[]=[];
+    vi.stubGlobal("fetch",vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      const url=String(input);
+      if(url.startsWith("/api/routes")){
+        calls.push({url,body:JSON.parse(String(init?.body))});
+        return {ok:true,json:async()=>({...savedRoute,origin,return_to:origin,places:picked,departure_time:"10:00",arrival_time:"22:00",total_minutes:720})};
+      }
+      return {ok:true,json:async()=>url==="/api/origins"?[origin]:[]};
+    }));
+    render(<SearchMode active preset={{theme:"nature",stopCount:7,nonce:33,places:picked,origin,title:"未来の旅",departureTime:"10:00",dwellMinutes:{"future-1":75,"future-5":75},anchorTimes:{"future-1":"12:30","future-5":"20:30"}}} />);
+    await screen.findByRole("heading",{name:"未来の施設0"});
+    fireEvent.click(screen.getByRole("button",{name:"条件を変更する"}));
+    fireEvent.change(screen.getByLabelText("出発日"),{target:{value:"2099-10-14"}});
+    const refresh=screen.getByRole("button",{name:/交通経路を再検索/});
+    await waitFor(()=>expect(refresh).toHaveProperty("disabled",false));
+    fireEvent.click(refresh);
+    await waitFor(()=>expect(calls.some(call=>call.body.departure_date==="2099-10-14")).toBe(true));
+    const request=calls.find(call=>call.body.departure_date==="2099-10-14")!;
+    expect(request.url).toBe("/api/routes/preview");
+    expect(request.body).toMatchObject({origin,return_to:origin,places:picked,departure_time:"10:00",meal_times:{"future-1":"12:30","future-5":"20:30"}});
+    expect((request.body.stay_minutes as number[])[1]).toBe(75);
+    await waitFor(()=>expect(readJourneyDraft()?.plan.stops).toHaveLength(7));
+  });
   it("previews JSON without replacing the journey, then restores completed visits and independent return without external search", async () => {
     const origin = { name: "出発駅", latitude: 34.9858, longitude: 135.7588 };
     const returnTo = { name: "帰る駅", latitude: 34.99, longitude: 135.763 };
@@ -399,7 +422,7 @@ describe("SearchMode selected route", () => {
         { name: "大久保駅", latitude: 35.7, longitude: 139.7, code: "1", prefecture: "東京都", lines: [] },
         { name: "大久保駅", latitude: 34.87, longitude: 135.77, code: "2", prefecture: "京都府", lines: [] },
       ] };
-      if (url === "/api/routes") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
+      if (url === "/api/routes/preview") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
       return { ok: true, json: async () => [origin] };
     }); vi.stubGlobal("fetch", fetchMock);
     render(<SearchMode active preset={{ theme: "nature", stopCount: 1, nonce: 8, places: [place], origin, title: "公園の旅", dwellMinutes: {} }} />);
@@ -414,7 +437,7 @@ describe("SearchMode selected route", () => {
     fireEvent.click(await within(picker).findByRole("button", { name: /大久保駅.*京都府/ }));
     fireEvent.click(screen.getByRole("button", { name: /交通経路を再検索/ }));
     await waitFor(() => expect(submitted).not.toBeNull());
-    expect(submitted).toMatchObject({ return_to: "大久保駅（京都府）", return_latitude: 34.87, return_longitude: 135.77 });
+    expect(submitted).toMatchObject({ return_to: {name:"大久保駅（京都府）",latitude:34.87,longitude:135.77} });
   });
   it("retains the last valid saved schedule while departure date or time is cleared", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [{ name: "京都駅", latitude: 34.9858, longitude: 135.7588 }] })));
@@ -439,7 +462,7 @@ describe("SearchMode selected route", () => {
     let submitted: Record<string, unknown> | null = null;
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url === "/api/routes") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
+      if (url === "/api/routes/preview") { submitted = JSON.parse(String(init?.body)); return { ok: false, json: async () => ({ detail: "test complete" }) }; }
       const data = url === "/api/origins" ? [{ name: "京都駅", latitude: 35, longitude: 135 }] : url === "/api/places/status" ? { warning: null, state: "success" } : [];
       return { ok: true, json: async () => data };
     }));
@@ -447,7 +470,7 @@ describe("SearchMode selected route", () => {
     const refresh = await screen.findByRole("button", { name: /交通経路を再検索/ });
     await waitFor(() => expect((refresh as HTMLButtonElement).disabled).toBe(false));
     await waitFor(() => expect(submitted).not.toBeNull());
-    expect(submitted).toMatchObject({ origin: "東京都・エリア中心", origin_latitude: 35.68, origin_longitude: 139.76, selected_places: picked });
+    expect(submitted).toMatchObject({ origin: {name:"東京都・エリア中心",latitude:35.68,longitude:139.76}, places:picked, stay_minutes:[45,90] });
     expect(screen.getByRole("heading", { name: "上野公園" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
     fireEvent.click(screen.getByRole("button", { name: "上野公園を固定" }));

@@ -23,7 +23,7 @@ import httpx
 from app.models import CatalogPlace
 from app.discovery import distance_km, distinct_venues, selected_themes
 from app.google_place_photos import BASE, google_api_key, reserve_lookup, same_google_venue
-from app.regional_food import specialty_queries
+from app.regional_food import specialty_queries, regional_score
 
 OVERPASS_URLS = ("https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter")
 OSM_CACHE_PATH = Path(os.getenv("OSM_RESTAURANTS_CACHE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "osm_restaurants.sqlite3")))
@@ -202,7 +202,14 @@ async def discover_restaurants(request) -> RestaurantDiscovery:
     google = [*local,*nearby]
     if not google:
         logger.warning("Dining lookup: Google candidates unavailable; independent OSM candidates=%d",len(osm))
-        return RestaurantDiscovery(status="google_unavailable")
+        # Independent OSM facilities can still form a draft. Do not claim that
+        # Google verified them; business status must be checked before departure.
+        # Bound the composition pool before its pairwise identity checks. A large
+        # city may return thousands of restaurants and must not block other pages.
+        seen=set(request.viewed_dining_ids)
+        ranked=sorted(osm,key=lambda p:(p.id in seen,-regional_score(request.origin,p),distance_km(request.origin,p),p.id))
+        bounded=distinct_venues(ranked[:80])[:60]
+        return RestaurantDiscovery(places=tuple(bounded),status="osm_only_unconfirmed",result_count=len(osm))
     result = RestaurantDiscovery(status="osm_unavailable", google_results=tuple(google),
         regional_google_ids=frozenset(item["id"] for item in local if isinstance(item.get("id"),str)))
     return match_independent_restaurants(result, osm)

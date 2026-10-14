@@ -377,3 +377,22 @@ it("keeps destination stations inside the selected prefecture", async () => {
   expect((screen.getByLabelText("県をまたぐ候補も含める") as HTMLInputElement).checked).toBe(false);
   expect(field.querySelector(".station-current-selection")?.textContent).toContain("岐阜");
 });
+it("regenerates for a new prefecture and station after returning through the mood screen",async()=>{
+  const gifu={name:"大垣駅",latitude:35.367,longitude:136.617};
+  const requests:Record<string,unknown>[]=[];
+  vi.stubGlobal("fetch",vi.fn(async(url:string,init?:RequestInit)=>{
+    if(url==="/api/discover") {requests.push(JSON.parse(String(init?.body)));return {ok:false};}
+    if(url==="/api/destination-gateways") return {ok:true,json:async()=>({places:[gifu]})};
+    return noPhoto;
+  }));
+  mount();next();await generate();
+  fireEvent.click(screen.getByRole("button",{name:"行き先を選び直す"}));
+  fireEvent.click(screen.getByRole("button",{name:"02 旅の気分へ"}));
+  fireEvent.click(screen.getByRole("button",{name:/行き先を選ぶ/}));
+  fireEvent.change(screen.getByLabelText("行き先の都道府県"),{target:{value:"gifu"}});
+  fireEvent.click(await screen.findByRole("button",{name:"大垣駅"}));
+  fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
+  await waitFor(()=>expect(requests).toHaveLength(2));
+  expect(requests[0].area).toBe("kyoto");
+  expect(requests[1]).toMatchObject({area:"gifu",prefecture_name:"岐阜県",origin:gifu});
+});

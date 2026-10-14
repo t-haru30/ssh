@@ -112,6 +112,11 @@ def arrange_meals(request, places):
     start = max(0, min(540, minute(choices[0]) - 30)) if choices else 540
     if request.course == "half_day" and choices:
         start = max(0, minute(choices[0]) - (30 if choices[0].kind == "breakfast" else 120))
+    elif request.course == "all" and choices:
+        start = max(0, minute(choices[0]) - (30 if choices[0].kind == "breakfast" else 120))
+    if request.course == "full_day" and choices:
+        finish = minute(choices[-1]) + min(stay_minutes(request), 75) + ceil(distance_km(venues[-1], request.origin) / 25 * 60) + 10
+        start = max(start, ceil((finish - 720) / 15) * 15)
     now, cursor, ordered, roles, anchors = start, request.origin, [], {}, {}
     def travel(a, b): return ceil(distance_km(a, b) / 25 * 60) + 10
     def dwell(p): return min(stay_minutes(request), 75) if "food" in place_themes(p) else stay_minutes(request)
@@ -255,7 +260,7 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
         # Start at 09:00; free time before dinner is waiting, never inflated visit duration.
         arrival = minutes - stays[-1] - legs[-1]["minutes"]
         minutes += max(0, 9 * 60 - arrival)
-    if minutes > (300 if request.course == "half_day" else 720 if request.course == "full_day" else 600) or (request.course == "full_day" and minutes < 360):
+    if minutes > (300 if request.course == "half_day" else 720 if request.course == "full_day" or request.meals else 600) or (request.course == "full_day" and minutes < 360):
         return None
     course = "full_day" if request.course == "full_day" or minutes > 300 else "half_day"
     reasons = reasons or {p.id: f"{p.category}の候補で、出発地から直線約{distance_km(request.origin, p):.1f}kmです。" for p in ordered}
@@ -424,12 +429,16 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
     if restaurants.places or blocked:
         previous_source = fallback["source"]
         fallback = build_discover_routes(request, pool)
-        fallback["source"] = previous_source + " / Google Places"
-        fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
+        if restaurants.status == "osm_only_unconfirmed":
+            fallback["source"] = previous_source
+            fallback["note"] = "周辺の飲食店をOpenStreetMapの候補で補っています。営業状況・営業時間・メニューは未確認です。"
+        else:
+            fallback["source"] = previous_source + " / Google Places"
+            fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
     fallback["catalog"] = {"openpoi_status": status, "openpoi_added": added, "base_count": len(base),
         "restaurants_status":restaurants.status,"restaurants_found":len(restaurants.places),"restaurants_added":restaurant_added,
         "restaurants_verified":restaurants.verified_count,
-        "verified_dining_ids":[p.id for p in restaurants.places],
+        "verified_dining_ids":[p.id for p in restaurants.places] if restaurants.verified_count else [],
         "local_dining_ids":list(restaurants.local_match_ids)}
     return fallback, pool
 

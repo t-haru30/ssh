@@ -1,6 +1,7 @@
 export type LatLng = { lat: number; lng: number };
 type MapInstance = { fitBounds: (bounds: unknown, padding?: number) => void; panTo: (point: LatLng) => void; setZoom: (zoom: number) => void };
 export type GoogleMapsApi = {
+  event?: { trigger: (instance: unknown, event: string) => void };
   mapId?: string;
   routeProvider?: "google" | "ekispert";
   Map: new (container: HTMLElement, options: Record<string, unknown>) => MapInstance;

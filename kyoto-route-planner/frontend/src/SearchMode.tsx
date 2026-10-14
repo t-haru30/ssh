@@ -25,7 +25,7 @@ import { fetchWithTimeout, readApiError as readError } from "./apiClient";
 import "./dayTrip.css";
 import { toFriendlyMessage } from "./friendlyError";
 import { OVERNIGHT_STEPS, ProgressStatus, ROUTE_STEPS } from "./ProgressStatus";
-import { isOrigin, isOvernightItinerary, isRecord, isRouteSuggestions, normalizeOvernightItinerary } from "./apiValidation";
+import { isOrigin, isOvernightItinerary, isRecord, isRouteSuggestion, isRouteSuggestions, normalizeOvernightItinerary } from "./apiValidation";
 import type { Origin, Preference, RouteSuggestion, RouteSuggestionRequest, Theme, OvernightItineraryRequest, OvernightItinerarySuggestion } from "./types";
 
 
@@ -419,17 +419,23 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       };
 
       try {
-        const response = await fetchWithTimeout("/api/routes", {
+        const response = await fetchWithTimeout(dayTripPlan ? "/api/routes/preview" : "/api/routes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(request),
+          body: JSON.stringify(dayTripPlan ? {
+            origin, return_to:returnTo, places:dayTripPlan.stops.map(stop=>stop.place),
+            stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
+            meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
+            departure_date:departureDate,departure_time:departureTime,
+          } : request),
           signal: controller.signal,
         }, REQUEST_TIMEOUT_MS);
         if (!response.ok) {
           throw new Error(await readError(response));
         }
 
-        const payload: unknown = await response.json();
+        const rawPayload: unknown = await response.json();
+        const payload:unknown = dayTripPlan && isRouteSuggestion(rawPayload) ? {routes:[rawPayload]} : rawPayload;
         if (!isRouteSuggestions(payload)) {
           throw new Error("ルートAPIから有効な候補が返されませんでした。");
         }
@@ -486,14 +492,20 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       selected_places: dayTripPlan?.stops.map(stop => stop.place) ?? suggestions[0].places,
     };
     try {
-      const response = await fetchWithTimeout("/api/routes", {
+      const response = await fetchWithTimeout(dayTripPlan ? "/api/routes/preview" : "/api/routes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(request),
+        body: JSON.stringify(dayTripPlan ? {
+          origin, return_to:returnTo, places:dayTripPlan.stops.map(stop=>stop.place),
+          stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
+          meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
+          departure_date:departureDate,departure_time:departureTime,
+        } : request),
         signal: controller.signal,
       }, REQUEST_TIMEOUT_MS);
       if (!response.ok) throw new Error(await readError(response));
-      const payload: unknown = await response.json();
+      const rawPayload: unknown = await response.json();
+      const payload:unknown = dayTripPlan && isRouteSuggestion(rawPayload) ? {routes:[rawPayload]} : rawPayload;
       if (!isRouteSuggestions(payload)) {
         throw new Error("ルートAPIから有効な候補が返されませんでした。");
       }
@@ -548,6 +560,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       {hasResult && (
         <div className="hero-map" id="journey-map">
           <LazyMapView
+            visible={active}
             places={mapPlaces}
             origin={isOvernight ? overnightSuggestion?.origin ?? origin : dayTripPlan?.origin ?? origin}
             returnTo={isOvernight ? null : dayTripPlan?.returnTo ?? returnTo}

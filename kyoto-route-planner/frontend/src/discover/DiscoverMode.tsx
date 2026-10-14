@@ -211,7 +211,10 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const stack = routes.slice(index, index + 3);
   const areaName = entry.name;
 
-  function chooseArea(nextArea: string) { setArea(nextArea); const place = indexEntries.find(item => item.id === nextArea)!; setDestination(localOrigins[nextArea] ?? { name: `${place.name}・エリア中心`, latitude: place.center[0], longitude: place.center[1] }); }
+  function invalidateDestinationResults() {
+    requestRef.current?.abort(); requestRef.current=null; cancelAdvance();setGenerating(false);setRemote(null);setSelected(null);setNotice(null);setCollections({});
+  }
+  function chooseArea(nextArea: string) { invalidateDestinationResults();setArea(nextArea); const place = indexEntries.find(item => item.id === nextArea)!; setDestination(localOrigins[nextArea] ?? { name: `${place.name}・エリア中心`, latitude: place.center[0], longitude: place.center[1] }); }
   function updateCollection(next: BrowseState) { setCollections(current => ({ ...current, [collectionKey]: next })); }
   function undo() {
     cancelAdvance();
@@ -290,7 +293,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           {(locationMessage || departure.name === "現在地") && <p role="status" aria-live="polite">{locationMessage || "現在地を出発地点に設定しました。"}</p>}
         </div>
         <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-        <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={(station, prefecture) => { setDestination(station); const stationArea = indexEntries.find(item => item.name === prefecture) ?? indexEntries.find(item => localOrigins[item.id]?.latitude === station.latitude && localOrigins[item.id]?.longitude === station.longitude); if (stationArea) { setArea(stationArea.id); setCrossPrefecture(false); } }} />
+        <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={station => { invalidateDestinationResults();setDestination(station);setCrossPrefecture(false); }} />
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}
       <footer className="discovery-question-footer">

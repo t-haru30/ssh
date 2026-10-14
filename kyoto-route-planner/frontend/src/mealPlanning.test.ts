@@ -28,3 +28,21 @@ it("rejects impossible times instead of silently changing the request", () => {
   const result=planMeals([pool[0],pool[1]],[{kind:"lunch",time:"15:00"},{kind:"dinner",time:"14:00"}],origin,"full_day",()=>75,()=>true);
   expect(result).toBeNull();
 });
+it("keeps lunch at 12:30 and dinner at 20:30 by starting the full day later", () => {
+  const routes=composeLocalRoutes({...conditions,meals:[{kind:"lunch",time:"12:30"},{kind:"dinner",time:"20:30"}]},pool);
+  expect(routes.length).toBeGreaterThan(0);
+  for(const route of routes){
+    const preset=routeSelection(route);
+    const lunch=route.spots.find(s=>s.role==="lunch")!,dinner=route.spots.find(s=>s.role==="dinner")!;
+    expect(preset.anchorTimes?.[lunch.place_id]).toBe("12:30");
+    expect(preset.anchorTimes?.[dinner.place_id]).toBe("20:30");
+    expect(preset.departureTime! > "09:00").toBe(true);
+    expect(route.estimated_minutes).toBeLessThanOrEqual(720);
+  }
+});
+it("can recommend an unspecified duration around a late dinner", () => {
+  const routes=composeLocalRoutes({...conditions,course:"all",meals:[{kind:"dinner",time:"20:30"}]},pool);
+  expect(routes.length).toBeGreaterThan(0);
+  expect(routes[0].spots.some(s=>s.role==="dinner")).toBe(true);
+  expect(routes[0].estimated_minutes).toBeLessThanOrEqual(720);
+});

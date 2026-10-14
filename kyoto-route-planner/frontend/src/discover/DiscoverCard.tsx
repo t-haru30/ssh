@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { SharedSwipeCard } from "../SharedSwipeCard";
 import type { SharedSwipeDirection } from "../SharedSwipeCard";
 import type { RouteIdea } from "../SwipeCard";
@@ -7,6 +7,8 @@ import { routeSelection } from "../routeSelection";
 import "./routePhoto.css";
 import { RoutePhotoGrid } from "./RoutePhotoGrid";
 import "./discoverCard.css";
+import { PlaceDetailsDialog } from "./PlaceDetails";
+import { placeRecommendation } from "./placeRecommendation";
 
 export type DiscoverDirection = "like" | "pass";
 
@@ -40,9 +42,11 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
   const selection = useMemo(() => routeSelection(route), [route]);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const selectedPlace=selection.places.find(place=>place.id===selectedPlaceId);
 
   return (
-    <SharedSwipeCard
+    <><SharedSwipeCard
       presentation="visual"
       theme={route.theme}
       title={route.title}
@@ -50,18 +54,21 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
         ? `${route.places.length}か所を巡る旅のプラン`
         : `${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
       spots={[]}
-      coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} /> : undefined}
+      coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} onPlaceSelect={active && depth===0 && !preparingNext ? setSelectedPlaceId : undefined} /> : undefined}
       coverBadge={isIdea
         ? `${route.places.length}か所`
         : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
-      isProcessing={!active || preparingNext}
-      swipeEnabled={active}
+      isProcessing={!active || preparingNext || Boolean(selectedPlace)}
+      swipeEnabled={active && !selectedPlace}
       acceptLabel="いいね"
       skipLabel="今回は見送る"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
-    />
+    />{depth===0 && selectedPlace && <PlaceDetailsDialog key={selectedPlace.id} place={selectedPlace} stayMinutes={selection.dwellMinutes[selectedPlace.id]}
+      recommendations={!isIdea && route.spots.find(spot=>spot.place_id===selectedPlace.id)?.reason ? [route.spots.find(spot=>spot.place_id===selectedPlace.id)!.reason!]
+        : placeRecommendation(selectedPlace,{places:selection.places,origin:selection.origin,theme:route.theme,stayMinutes:selection.dwellMinutes[selectedPlace.id]})}
+      reasonSources={!isIdea ? route.spots.find(spot=>spot.place_id===selectedPlace.id)?.reason_sources : undefined} onClose={()=>setSelectedPlaceId(null)} />}</>
   );
 }
