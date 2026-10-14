@@ -9,7 +9,7 @@ input, select, textarea { max-width: 100%; min-width: 0; }
 .brand { flex: 0 0 auto; letter-spacing: -.04em; font-family: "Segoe UI", sans-serif; }
 .brand-mark { position: relative; font-family: inherit; border-radius: 13px; font-size: 27px; line-height: 1; }
 .brand-mark > span { position: absolute; right: 4px; top: 1px; font-size: 13px; }
-.brand-light { font-family: "Yu Gothic", sans-serif; letter-spacing: .06em; }
+.brand-light { font-family: "Noto Sans JP Variable", "Yu Gothic", sans-serif; letter-spacing: .06em; }
 .topbar-tools { flex: 0 0 auto; }
 .favorites-open-button { flex: 0 0 auto; white-space: nowrap; word-break: keep-all; }
 .mode-tabs button { white-space: nowrap; flex-direction: column; gap: 2px; align-items: center; line-height: 1.5; }

@@ -1,7 +1,7 @@
 ﻿@import "maplibre-gl/dist/maplibre-gl.css";
 
 :root {
-  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-family: "Noto Sans JP Variable", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   color: var(--ink);
   background: var(--canvas);
   font-synthesis: none;
