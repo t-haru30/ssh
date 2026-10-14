@@ -46,7 +46,11 @@ async def named_landmarks(client,query,origin=None):
         places=distinct_venues([Place(**p) for p in rows])
         if origin:places.sort(key=lambda p:distance_km(origin,p))
         return [record(p) for p in places[:16]]
-    found=[record(p) for p in load_public_places() if norm in _normalized(p.name)]
+    try:
+        catalog=load_public_places()
+    except (OSError,ValueError,KeyError):
+        catalog=()
+    found=[record(p) for p in catalog if norm in _normalized(p.name)]
     found.extend(seed_records(norm))
     exact=[p for p in found if _normalized(p['name'])==norm]
     if exact:return ranked(exact)

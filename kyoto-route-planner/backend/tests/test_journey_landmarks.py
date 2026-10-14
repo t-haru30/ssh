@@ -22,8 +22,9 @@ class NamedPlaceTests(unittest.IsolatedAsyncioTestCase):
         from unittest.mock import AsyncMock
         client=AsyncMock()
         origin=Origin(name='京都駅',latitude=34.98585,longitude=135.75877)
-        horyuji=await landmarks.named_landmarks(client,'法隆寺',origin)
-        kiyomizu=await landmarks.named_landmarks(client,'清水寺',origin)
+        with patch.object(landmarks,'load_public_places',side_effect=FileNotFoundError):
+            horyuji=await landmarks.named_landmarks(client,'法隆寺',origin)
+            kiyomizu=await landmarks.named_landmarks(client,'清水寺',origin)
         self.assertEqual(horyuji[0]['id'],'osm-way-43549741')
         self.assertEqual(kiyomizu[0]['name'],'清水寺')
         self.assertLess(abs(kiyomizu[0]['latitude']-35),.1)
