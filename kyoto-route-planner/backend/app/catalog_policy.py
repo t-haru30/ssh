@@ -72,3 +72,10 @@ def mix(request, places):
 
 def score(request, place):
     return ({'classic':1,'regional':2,'hidden':3} if hidden_requested(request) else {'classic':3,'regional':2,'hidden':1})[tier(place)]
+
+
+def few_landmarks(request, places):
+    """Use the eligible local pool, not the nationwide master, for coverage."""
+    from app.discovery import max_stops
+    from app.facility_quality import dining
+    return sum(tier(p) == 'classic' and not dining(p) for p in places) < max(3, max_stops(request))

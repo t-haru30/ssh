@@ -9,7 +9,7 @@ import math
 import re
 import ssl
 import httpx
-from app.catalog_policy import tier
+from app.catalog_policy import tier, mix, few_landmarks
 
 MIN_RATING = 4.2
 MIN_REVIEWS = 50
@@ -74,10 +74,22 @@ async def filter_quality(request, candidates, existing_google=()):
         async with httpx.AsyncClient(timeout=10,trust_env=False,verify=ssl.create_default_context()) as client:
             groups=await asyncio.gather(*(search(client,k) for k in kinds))
             google.extend(p for group in groups for p in group)
-            # Popularity search can return only chains or differently named
-            # branches. Check a small independent OSM shortlist by full name.
-            if request.meals!=[] and not any(dining(p) for p in select_reviewed(nearby,google)):
-                shortlist=sorted((p for p in nearby if dining(p)),key=lambda p:(-bool(p.tags.get('wikipedia')),distance_km(request.origin,p),p.id))[:6]
+            # Popularity results may omit local sights. In sparse landmark areas,
+            # verify regional/hidden candidates by name too; never waive reviews.
+            selected_now=select_reviewed(nearby,google)
+            selected_ids={p.id for p in selected_now}
+            food=sorted((p for p in nearby if dining(p)),key=lambda p:(-bool(p.tags.get('wikipedia')),distance_km(request.origin,p),p.id)) if request.meals!=[] and not any(dining(p) for p in selected_now) else []
+            sights=mix(request, sorted((p for p in nearby if not dining(p) and tier(p)!='classic' and p.id not in selected_ids),key=lambda p:(distance_km(request.origin,p),p.id))) if few_landmarks(request,nearby) else []
+            # Round-robin tiers gives hidden sights a chance within the small budget.
+            regional=[p for p in sights if tier(p)=='regional']
+            hidden=[p for p in sights if tier(p)=='hidden']
+            groups=[g for g in (food,regional,hidden) if g]
+            shortlist=[]
+            while groups and len(shortlist)<6:
+                for group in groups:
+                    if group and len(shortlist)<6:shortlist.append(group.pop(0))
+                groups=[g for g in groups if g]
+            if shortlist:
                 slots=asyncio.Semaphore(3)
                 async def exact(p):
                     if not reserve_lookup():return []

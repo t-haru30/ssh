@@ -22,7 +22,7 @@ from app.regional_food import regional_score
 from app.travel_wishes import wish_score, wish_matches, wish_coverage
 from app.place_kinds import is_cafe, is_meal_place
 from app.venue_hours import visit_fits
-from app.catalog_policy import kind as facility_kind, tier, mix, score as tier_score, LABELS, allowed
+from app.catalog_policy import kind as facility_kind, tier, mix, score as tier_score, LABELS, allowed, few_landmarks
 
 
 PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
@@ -334,6 +334,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
             break
     candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -scenic_priority(p) if 'nature' in selected_themes(request) else 0, -int("有名" in request.preference_text and bool(p.tags.get("wikipedia") or p.tags.get("wikidata"))), -traveler_priority(request, p), distance_km(request.origin, p), p.id))
     candidates = mix(request, candidates)
+    broaden = few_landmarks(request, candidates)
     routes, seen, venue_use = [], set(), {}
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
@@ -381,7 +382,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
                 break
             missing = selected_themes(request) - {t for q in ordered for t in place_themes(q)}
             covered = set().union(*(wish_matches(request.priority_text, q) for q in ordered))
-            nearest = min(options, key=lambda p: (-len(wish_matches(request.priority_text, p) - covered), -wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -tier_score(request, p), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            nearest = min(options, key=lambda p: (-len(wish_matches(request.priority_text, p) - covered), -wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), venue_use.get(p.id, 0) if broaden else 0, -tier_score(request, p), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -401,6 +402,8 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         note += "候補が少ないため検索範囲を広げました。"
     if len(candidates) < 3:
         note += "候補が少ないため、見つかったスポット数で提案しています。"
+    if broaden:
+        note += "範囲内の定番が少ないため、地域の見どころ・穴場も含めて組み合わせています。"
     if not routes and request.course == "full_day":
         note += "希望の食事・時刻に合う1日コース（4か所以上・最大12時間）を組める候補が不足しています。食事や時間の条件、観光範囲を見直してください。"
     note += f"{PACE_LABELS[traveler_pace(request)]}ペースで観光・食事は最大{max_stops(request)}か所、カフェ休憩は1回まで。観光は各{stay_minutes(request)}分、食事は最大75分の滞在です。"

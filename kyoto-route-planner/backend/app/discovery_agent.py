@@ -314,7 +314,8 @@ async def _run(request: DiscoverRequest, candidates: list[CatalogPlace], key: st
     constraints = {"request": request.model_dump(mode="json"), "requested_count": min(request.count, MAX_GENERATED_ROUTES),
                    "max_minutes": 300 if request.course == "half_day" else 720 if request.course == "full_day" else 600, "selected_themes": request.themes or [request.theme], "meals": [m.model_dump() for m in request.meals] if request.meals is not None else None,
                    "stay_minutes": stay_minutes(request), "max_stops": max_stops(request), "max_total_stops": max_stops(request) + 1, "max_cafe_breaks": 1,
-                   "regional_food_search_hints": specialties(request.origin) if request.theme == "food" else (), "min_minutes": 360 if request.course == "full_day" else 0, "food_stay_minutes": min(75, stay_minutes(request)), "candidate_count": len(candidates), "opening_status": "unknown"}
+                   "regional_food_search_hints": specialties(request.origin) if request.theme == "food" else (), "min_minutes": 360 if request.course == "full_day" else 0, "food_stay_minutes": min(75, stay_minutes(request)), "candidate_count": len(candidates), "opening_status": "unknown",
+                   "sightseeing_diversity": "Regional and hidden sights in these candidates are allowed. Do not require a classic landmark in every route or repeat the same landmark across all routes; offer varied combinations while respecting explicit requests."}
     contents = [{"role": "user", "parts": [{"text": json.dumps(constraints, ensure_ascii=False)
         + "\nSearch the catalog now; an empty query is usually appropriate."}]}]
     async with httpx.AsyncClient(timeout=httpx.Timeout(30, connect=3), follow_redirects=False,
