@@ -285,7 +285,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「今岡美術館」から徒歩目安約18分です。"
+          "reason": "次の予定地「今岡美術館」から徒歩目安約18分です。",
+          "tags": {
+            "amenity": "fast_food"
+          }
         },
         {
           "place_id": "osm-node-1423608640",

@@ -188,7 +188,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「長浜旧開知学校」から徒歩目安約1分です。"
+          "reason": "次の予定地「長浜旧開知学校」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-5502988829",
@@ -411,7 +414,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「埋木舎」から徒歩目安約3分です。"
+          "reason": "次の予定地「埋木舎」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-582527746",
@@ -551,7 +557,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「松原寺」から徒歩目安約8分です。"
+          "reason": "次の予定地「松原寺」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "fast_food"
+          }
         },
         {
           "place_id": "osm-node-10285356609",

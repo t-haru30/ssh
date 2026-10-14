@@ -101,7 +101,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「倉吉歴史民俗資料館」から徒歩目安約5分です。"
+          "reason": "次の予定地「倉吉歴史民俗資料館」から徒歩目安約5分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "noodle"
+          }
         }
       ],
       "coordinates": [
@@ -425,13 +429,16 @@
         {
           "place_id": "osm-node-6272488390",
           "name": "ひすとりあ",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.4987936,
           "lng": 134.243797,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「太閤ヶ平」から徒歩目安約23分です。"
+          "reason": "次の予定地「太閤ヶ平」から徒歩目安約23分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         }
       ],
       "coordinates": [
@@ -571,7 +578,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「土師百井廃寺跡」から徒歩目安約21分です。"
+          "reason": "次の予定地「土師百井廃寺跡」から徒歩目安約21分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         }
       ],
       "coordinates": [

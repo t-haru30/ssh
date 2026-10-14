@@ -269,13 +269,16 @@
         {
           "place_id": "osm-node-2237754361",
           "name": "蓬莱観",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 33.6054026,
           "lng": 131.1849817,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「中津城」から徒歩目安約3分です。"
+          "reason": "次の予定地「中津城」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-1423861515",
@@ -421,7 +424,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「二階堂美術館」から徒歩目安約11分です。"
+          "reason": "次の予定地「二階堂美術館」から徒歩目安約11分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "name:en": "tekizansou"
+          }
         },
         {
           "place_id": "osm-node-1423861848",
@@ -561,7 +568,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「大分市美術館」から徒歩目安約10分です。"
+          "reason": "次の予定地「大分市美術館」から徒歩目安約10分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-1423865896",

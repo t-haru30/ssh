@@ -431,7 +431,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「富山県埋蔵文化財センター」から徒歩目安約8分です。"
+          "reason": "次の予定地「富山県埋蔵文化財センター」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese;noodle"
+          }
         }
       ],
       "coordinates": [
@@ -571,7 +575,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「富山ガラス工房」から徒歩目安約6分です。"
+          "reason": "次の予定地「富山ガラス工房」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese;sushi"
+          }
         }
       ],
       "coordinates": [

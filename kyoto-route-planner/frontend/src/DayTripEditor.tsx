@@ -9,7 +9,8 @@ import type { TripPlan, TripStop } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import { VenueEvidence } from "./VenueEvidence";
 import { JourneyReview } from "./JourneyReview";
-import { isRecord } from "./apiValidation";
+import { ItineraryAudit } from "./ItineraryAudit";
+import { isRouteSuggestion, isRecord } from "./apiValidation";
 import { toFriendlyMessage } from "./friendlyError";
 
 const yen = (amount: number) => `${amount.toLocaleString("ja-JP")}円`;
@@ -89,23 +90,25 @@ type Props = {
   departureTime: string;
   candidates: Place[];
   initialDwellMinutes?: Record<string, number>;
+  initialAnchorTimes?: Record<string, string>;
+  initialAvailableMinutes?: number;
   initialPlan?: TripPlan | null;
   busy?: boolean;
   onPlanChange: (plan: TripPlan) => void;
 };
 
-export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialPlan, busy, onPlanChange }: Props) {
+export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialAnchorTimes, initialAvailableMinutes, initialPlan, busy, onPlanChange }: Props) {
   const destination = returnTo ?? initialPlan?.returnTo ?? origin;
   const currentPreferences = preferences ?? initialPlan?.input.preferences;
   const preferenceKey = JSON.stringify(currentPreferences ?? []);
   const originKey = JSON.stringify(origin);
   const destinationKey = JSON.stringify(destination);
-  const [minutes, setMinutes] = useState(String(initialPlan?.input.availableMinutes ?? 360));
+  const [minutes, setMinutes] = useState(String(initialPlan?.input.availableMinutes ?? initialAvailableMinutes ?? 360));
   const [budget, setBudget] = useState(String(initialPlan?.input.budget ?? 5000));
   const [transportCost, setTransportCost] = useState(initialPlan?.transportEstimate == null ? "" : String(initialPlan.transportEstimate));
   const [plan, setPlan] = useState(() => initialPlan ?? scheduleTrip(
-    { departureTime, availableMinutes: 360, budget: 5000, preferences: currentPreferences }, origin, date,
-    source.places.map(place => newTripStop(place, initialDwellMinutes?.[place.id])),
+    { departureTime, availableMinutes: initialAvailableMinutes ?? 360, budget: 5000, preferences: currentPreferences }, origin, date,
+    source.places.map(place => ({ ...newTripStop(place, initialDwellMinutes?.[place.id]), anchorTime: initialAnchorTimes?.[place.id] ?? null })),
     { route: source, date: sourceDate, time: sourceTime }, null, destination,
   ));
   const [preview, setPreview] = useState<TripPlan | null>(null);
@@ -116,6 +119,10 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const [searching, setSearching] = useState(false);
   const [searchedPlaces, setSearchedPlaces] = useState<Place[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
+  const [relatedPlaces, setRelatedPlaces] = useState<Place[]>([]);
+  const [candidateSuggestions, setCandidateSuggestions] = useState<string[]>([]);
+  const [relatedNote, setRelatedNote] = useState("");
+  const [relatedAvailable, setRelatedAvailable] = useState(false);
   const [candidateNote, setCandidateNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -157,6 +164,41 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   }, [originKey, destinationKey, date, departureTime, preferenceKey]);
   useEffect(() => { onPlanChange(plan); }, [plan, onPlanChange]);
   useEffect(() => () => candidateRequest.current?.abort(), []);
+  useEffect(() => {
+    candidateRequest.current?.abort(); candidateRequest.current = null;
+    setSearching(false); setCandidateNote(""); setRelatedPlaces([]); setCandidateSuggestions([]); setRelatedNote(""); setRelatedAvailable(false);
+  }, [search]);
+  const transitKey = JSON.stringify([plan.origin, plan.returnTo, plan.date, plan.input.departureTime,
+    plan.stops.map(stop => [stop.place, stop.dwellMinutes, stop.anchorTime, stop.completed])]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const snapshot = plan;
+    const timer = window.setTimeout(async () => {
+      setNotice("全区間の交通経路・運賃を確認中です…");
+      let timedOut = false;
+      const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, 55000);
+      try {
+        const response = await fetch("/api/routes/preview", { method: "POST", signal: controller.signal,
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+            origin: snapshot.origin, return_to: snapshot.returnTo, places: snapshot.stops.map(stop => stop.place),
+            stay_minutes: snapshot.stops.map(stop => stop.dwellMinutes),
+            meal_times: Object.fromEntries(snapshot.stops.filter(stop => stop.anchorTime).map(stop => [stop.place.id, stop.anchorTime])),
+            departure_date: snapshot.date, departure_time: snapshot.input.departureTime,
+          }) });
+        if (!response.ok) throw new Error("交通検索を取得できませんでした。");
+        const route: unknown = await response.json();
+        if (!isRouteSuggestion(route)) throw new Error("交通検索の応答を確認できませんでした。");
+        if (controller.signal.aborted) return;
+        setPlan(current => ({ ...scheduleTrip(current.input, current.origin, current.date, current.stops,
+          { route, date: current.date, time: current.input.departureTime }, current.transportEstimate, current.returnTo),
+          planningEstimates: current.planningEstimates }));
+        setNotice("全区間の交通経路・概算運賃を反映しました。");
+      } catch {
+        if (!controller.signal.aborted || timedOut) setNotice("交通経路を確認できませんでした。現在の旅程を保持しています。各区間から再検索できます。");
+      } finally { window.clearTimeout(timeout); }
+    }, 300);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [transitKey]);
   const candidateCenter = plan.stops.find(stop => stop.place.id === "trip-arrival")?.place ?? plan.stops[0]?.place ?? plan.origin;
   const options = useMemo(() => {
     const unique = new Map([...candidates, ...source.places, ...searchedPlaces].map(place => [place.id, place]));
@@ -226,7 +268,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     } catch (cause) { setError(toFriendlyMessage(cause)); }
   }
   function closeChooser() { candidateRequest.current?.abort(); candidateRequest.current = null; setSearching(false); setChooser(null); }
-  async function findCandidates(event: FormEvent) {
+  async function findCandidates(event: FormEvent, includeRelated = false) {
     event.preventDefault();
     if (!search.trim() || searching) return;
     const controller = new AbortController();
@@ -235,12 +277,13 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     setSearching(true); setCandidateNote("");
     try {
       const response = await fetch("/api/search/places", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: search.trim(), center_latitude: candidateCenter.latitude, center_longitude: candidateCenter.longitude }), signal: controller.signal });
+        body: JSON.stringify({ query: search.trim(), center_latitude: candidateCenter.latitude, center_longitude: candidateCenter.longitude, include_related: includeRelated }), signal: controller.signal });
       const data: unknown = await response.json();
       if (!response.ok) throw new Error(isRecord(data) && typeof data.detail === "string" ? data.detail : "候補を取得できませんでした。");
       if (!isRecord(data) || !Array.isArray(data.results)) throw new Error("候補の形式を確認できませんでした。");
+      function readCandidates(hits: unknown[]): Place[] {
       const found: Place[] = [];
-      for (const hit of data.results) {
+      for (const hit of hits) {
         if (!isRecord(hit) || !isRecord(hit.place)) continue;
         const place = hit.place;
         if (typeof place.id !== "string" || typeof place.name !== "string" || typeof place.latitude !== "number" || typeof place.longitude !== "number"
@@ -248,13 +291,27 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
         found.push({ id: place.id, name: place.name, latitude: place.latitude, longitude: place.longitude, category: typeof place.category === "string" ? place.category : "",
           address: typeof place.address === "string" ? place.address : "", description: typeof place.description === "string" ? place.description : "", access_point: "", themes: [], tags: isRecord(place.tags) ? Object.fromEntries(Object.entries(place.tags).filter((entry): entry is [string, string] => typeof entry[1] === "string")) : undefined });
       }
+      return found;
+      }
+      const found = readCandidates(data.results);
       if (controller.signal.aborted || candidateRequest.current !== controller) return;
       setSearchedPlaces(found);
+      setRelatedPlaces(Array.isArray(data.related_results) ? readCandidates(data.related_results) : []);
+      setRelatedNote(typeof data.related_note === "string" ? data.related_note : "");
+      setRelatedAvailable(data.related_available === true);
+      setCandidateSuggestions(Array.isArray(data.suggestions) ? data.suggestions.filter((s): s is string => typeof s === "string").slice(0, 3) : []);
       setSearchedQuery(search.trim());
-      setCandidateNote((found.length ? "検索した候補を追加しました。施設・飲食費は未確認です。" : "候補が見つかりませんでした。検索語を変えてください。") + (typeof data.note === "string" ? ` ${data.note}` : ""));
+      setCandidateNote(found.length ? `${found.length}件見つかりました。` : "候補が見つかりませんでした。検索語を変えてみてください。");
     } catch (cause) {
       if (candidateRequest.current === controller) setCandidateNote(controller.signal.aborted ? "候補の検索がタイムアウトしました。再度検索できます。" : toFriendlyMessage(cause));
     } finally { window.clearTimeout(timer); if (candidateRequest.current === controller) { candidateRequest.current = null; setSearching(false); } }
+  }
+  function chooseCandidate(place: Place) {
+    if (!chooser) return;
+    const next = newTripStop(place);
+    const stops = chooser.swapId ? plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop) : [...plan.stops];
+    if (!chooser.swapId) { const returnIndex = stops.findIndex(stop => stop.place.id === "trip-return"); stops.splice(returnIndex < 0 ? stops.length : returnIndex, 0, next); }
+    closeChooser(); setPreview(compute(stops, null));
   }
   const lockedCount = plan.stops.filter(stop => stop.locked).length;
   const completedCount = completedStopCount(plan.stops);
@@ -299,11 +356,12 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <details className="trip-method-details"><summary>移動・費用の見積もりについて</summary><div>
     <p className="trip-travel-note">{plan.estimatedTravel ? "移動は直線距離からの徒歩概算です。予定の入れ替え・削除後は交通経路を再検索してください。" : "取得済みの区間は交通検索の所要時間を使用しています。区間情報がない場合は合計時間からの概算です。"} 営業時間・実際の発着時刻は未確認です。</p>
     <p className="trip-travel-note">{isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：{plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃・未取得区間は仮置き" : "利用者見積もり"}）`}</p>
-    <p className="trip-travel-note">旅程の再計算は追加通信なしで行います。施設・飲食費は利用者の見積もりで、無料と確認できた予定には0円を入力してください。</p>
+    <p className="trip-travel-note">旅程を開いたときや行き先・日時・滞在時間を変えたときに交通経路を確認します。施設・飲食費は利用者の見積もりで、無料と確認できた予定には0円を入力してください。</p>
     <p className="trip-travel-note">おすすめの理由は、登録ジャンル・名称・テーマと好みを照合した説明です。営業時間や体験の評価は含みません。</p>
-    {!plan.estimatedTravel && source.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{source.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}
+    {!plan.estimatedTravel && plan.transport.route.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{plan.transport.route.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}
     </div></details>
-    <JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} />
+    <details className="trip-check-toggle"><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
+    <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
     <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong><span>ここから、今日の寄り道へ</span></div><span aria-hidden="true">START</span></div>
     {!plan.stops.length && <div className="trip-empty"><span aria-hidden="true">＋</span><h4>次の寄り道を、ひとつ。</h4><p>下の「寄り道を追加」から行き先を選べます。<br />変更案を確認して、旅程に加えましょう。</p></div>}
@@ -358,16 +416,13 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       <div className="trip-dialog-actions"><button type="button" className="trip-primary" disabled={!previewFitsTime} onClick={() => adopt(preview)}>この変更を反映</button><button type="button" onClick={() => setPreview(null)}>現在の旅程を残す</button></div>
     </TripDialog>}
     {chooser && <TripDialog title={chooser.swapId ? "寄り道を入れ替える" : "寄り道を追加する"} onClose={closeChooser}>
-      <p>旅程に追加できる候補です。名前やジャンルを入力すると、候補を絞り込めます。</p>
+      <p>施設名やジャンルで、周辺の寄り道を探せます。</p>
       <form className="trip-candidate-search" onSubmit={findCandidates}><label>候補を検索<input value={search} onChange={event => setSearch(event.target.value)} placeholder="例：カフェ、美術館、公園" maxLength={500} required /></label><button type="submit" aria-label="候補を検索" disabled={searching}>{searching ? "検索中…" : "ほかの候補も検索"}</button>{search && <button type="button" onClick={() => setSearch("")}>クリア</button>}</form>
-      <p className="trip-travel-note">表示中の候補は、そのまま選べます。「ほかの候補も検索」を押すと、周辺の施設を追加で検索します。</p><p role="status">{candidateNote || `${visibleOptions.length}件の候補`}</p>
-      <div className="trip-candidates">{visibleOptions.map(place => <button type="button" key={place.id} onClick={() => {
-        const next = newTripStop(place);
-        const stops = chooser.swapId ? plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop) : [...plan.stops];
-        if (!chooser.swapId) { const returnIndex = stops.findIndex(stop => stop.place.id === "trip-return"); stops.splice(returnIndex < 0 ? stops.length : returnIndex, 0, next); }
-        closeChooser(); setPreview(compute(stops, null));
-      }}><strong>{place.name}</strong><small>{place.address || place.category || "施設・料金は未確認"} · 観光の起点から直線約{distanceKm(candidateCenter, place).toFixed(1)}km</small><span>この候補を選ぶ →</span></button>)}</div>
-      {!visibleOptions.length && <p>一致する候補がありません。検索語を変えるか、「ほかの候補も検索」で周辺の施設を探せます。</p>}
+      <p role="status">{candidateNote || `${visibleOptions.length}件の候補`}</p>
+      {searchedQuery === search.trim() && candidateSuggestions.length > 0 && <aside className="trip-search-help"><strong>候補が少ないときは</strong><ul>{candidateSuggestions.filter(text => !text.includes("近隣の関連候補")).map(text => <li key={text}>{text}</li>)}</ul>{relatedAvailable && <button type="button" disabled={searching} onClick={event => void findCandidates(event, true)}>近隣の関連候補も探す</button>}</aside>}
+      <div className="trip-candidates">{visibleOptions.map(place => <button type="button" key={place.id} onClick={() => chooseCandidate(place)}><strong>{place.name}</strong><small>{place.address || place.category || "施設・料金は未確認"} · 観光の起点から直線約{distanceKm(candidateCenter, place).toFixed(1)}km</small><span>この候補を選ぶ →</span></button>)}</div>
+      {searchedQuery === search.trim() && relatedNote && <section className="trip-related-candidates" aria-label="近隣の関連候補"><h3>近隣の関連候補</h3><p className="trip-travel-note">{relatedNote}</p><div className="trip-candidates">{relatedPlaces.filter(place => !plan.stops.some(stop => stop.place.id === place.id) && !visibleOptions.some(item => item.id === place.id)).map(place => <button type="button" key={place.id} onClick={() => chooseCandidate(place)}><strong>{place.name}</strong><small>{place.address || place.category} · 関連候補</small><span>この候補を選ぶ →</span></button>)}</div>{!relatedPlaces.length && <p>近隣の関連候補も見つかりませんでした。地域やジャンルを変えてみてください。</p>}</section>}
+      {!visibleOptions.length && !candidateNote && <p>一致する候補がありません。「ほかの候補も検索」で周辺を探せます。</p>}
     </TripDialog>}
   </fieldset></section>;
 }

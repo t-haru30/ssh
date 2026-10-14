@@ -43,7 +43,7 @@ def _genre(place: CatalogPlace) -> str:
         if any(term in place.name for term in ("寺", "観音堂")):
             return "0424001"
     for terms, code in ((('レストラン', 'カフェ', '飲食', '食堂', 'グルメ', 'ラーメン', '喫茶', '料理'), '01'),
-                        (('ホテル', '旅館', '宿泊'), '0304'), (('神社',), '0424002'), (('寺院', '寺'), '0424001'),
+                        (('ホテル', '旅館', '宿泊'), '0304'), (('神社', '神宮', '大社'), '0424002'), (('寺院', '寺'), '0424001'),
                         (('美術館',), '0305002'), (('博物館', '科学館', '史跡', '記念館'), '0305003'),
                         (('動物園',), '0303002'), (('水族館',), '0303003'), (('植物園',), '0303004'),
                         (('公園', '自然', '庭園', '展望', '山', '海'), '0305007')):
@@ -87,7 +87,8 @@ def search_public_catalog(intent: ParsedPlaceQuery, query_text: str, limit: int,
             continue
         name = _normalized(place.name)
         searchable = _normalized(place.name + place.category + place.address)
-        if keywords and not any(word in searchable for word in keywords):
+        if keywords and not any(word in searchable or (word == "神社" and code == "0424002")
+                                or (word in {"寺", "寺院"} and code == "0424001") for word in keywords):
             continue
         distance = round(_distance_m(intent.center_latitude, intent.center_longitude,
                                     place.latitude, place.longitude)) if has_center else None

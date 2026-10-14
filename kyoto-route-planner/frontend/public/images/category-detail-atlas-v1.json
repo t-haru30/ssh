@@ -1,0 +1,27 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "generate",
+  "asset": "category-detail-atlas-v1.png",
+  "layout": "4 columns, 4 rows; row-major",
+  "categories": [
+    "和食・日本料理",
+    "天ぷら",
+    "寿司",
+    "ラーメン",
+    "そば",
+    "焼肉",
+    "カフェ",
+    "和菓子・甘味",
+    "博物館",
+    "美術館",
+    "寺院",
+    "神社",
+    "日本庭園",
+    "自然・公園",
+    "城・史跡",
+    "街歩き"
+  ],
+  "prompt": "Use case: stylized-concept. Asset type: one square 4-column by 4-row sprite atlas for fallback category images in a Japanese travel planning web app. Create ONE cohesive square canvas with exactly 16 equally sized square panels, edge to edge, NO gutters, NO borders, NO text, NO letters, NO numbers, NO labels, NO logos. Each panel is an independent centered scene and is easy to recognize when cropped as a small card. Elegant warm editorial watercolor illustration with realistic recognizable food and architecture, muted forest green, cream, warm wood, varied appetizing natural food colors. No identifiable real businesses or real landmarks, no people. Exact row-major panel subjects: Row1 column1 Japanese washoku teishoku set meal with rice bowl, miso soup, grilled fish, small vegetable dishes on a tray; row1 col2 crisp shrimp and seasonal vegetable TEMPURA on a Japanese ceramic plate with dipping sauce, close view; row1 col3 assorted nigiri SUSHI on a wooden tray; row1 col4 steaming Japanese RAMEN bowl with noodles, egg, broth. Row2 col1 buckwheat SOBA noodles on a bamboo seiro tray with dipping sauce; row2 col2 YAKINIKU barbecue grill with neatly arranged small cuts of meat and vegetables; row2 col3 cozy CAFE with coffee cup and inviting table; row2 col4 JAPANESE SWEETS wagashi and matcha on a small plate. Row3 col1 HISTORY/ARCHAEOLOGY MUSEUM gallery with pottery and excavated artifacts in cases; row3 col2 ART MUSEUM gallery with framed paintings and sculpture; row3 col3 BUDDHIST TEMPLE wooden hondo and modest pagoda, explicitly no torii gate; row3 col4 SHINTO SHRINE with red torii gate and shrine building, explicitly no Buddhist pagoda. Row4 col1 landscaped JAPANESE GARDEN with pond, stone path and carefully pruned trees; row4 col2 NATURE with green mountains, river and walking path; row4 col3 JAPANESE CASTLE with white walls, tiled roofs and stone foundation; row4 col4 charming JAPANESE TOWN STREET with traditional shops and walking lane. Keep each food subject visually dominant, centered with useful edge clearance. This is category art, not a depiction of any particular facility. Deliver only the single square atlas image.",
+  "display_label": "AI生成・ジャンルイメージ",
+  "matching": "Use venue name, category and cuisine metadata; keep a generic restaurant image when cuisine is unknown."
+}

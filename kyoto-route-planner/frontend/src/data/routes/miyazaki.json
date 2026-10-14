@@ -389,7 +389,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「早馬神社」から徒歩目安約6分です。"
+          "reason": "次の予定地「早馬神社」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "chinese"
+          }
         },
         {
           "place_id": "osm-node-5172494101",
@@ -529,7 +533,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「水久保甚作翁之像」から徒歩目安約4分です。"
+          "reason": "次の予定地「水久保甚作翁之像」から徒歩目安約4分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "donut",
+            "name:en": "Mister Donut",
+            "name:ja": "ミスタードーナツ"
+          }
         },
         {
           "place_id": "osm-node-13006724058",

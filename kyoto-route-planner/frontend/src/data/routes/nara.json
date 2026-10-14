@@ -393,13 +393,17 @@
         {
           "place_id": "osm-node-3743670144",
           "name": "オランダ屋",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 34.6915841,
           "lng": 135.7039521,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「生駒ふるさとミュージアム」から徒歩目安約2分です。"
+          "reason": "次の予定地「生駒ふるさとミュージアム」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe",
+            "name:en": "Oranda-ya"
+          }
         },
         {
           "place_id": "osm-node-2863583647",
@@ -529,7 +533,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「十二柱神社」から徒歩目安約8分です。"
+          "reason": "次の予定地「十二柱神社」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "name:en": "Kakinohazushi Yamato"
+          }
         },
         {
           "place_id": "osm-node-10844891315",

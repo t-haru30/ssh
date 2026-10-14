@@ -15,7 +15,7 @@ class RegionalTests(unittest.TestCase):
             self.assertIn("1", [p["place_id"] for p in route["spots"]])
             self.assertGreaterEqual(len(route["spots"]), 4)
             self.assertGreaterEqual(route["estimated_minutes"], 360)
-            self.assertLessEqual(route["estimated_minutes"], 600)
+            self.assertLessEqual(route["estimated_minutes"], 720)
             self.assertLessEqual(sum(p["category"] in ("飲食店", "レストラン") for p in route["spots"]), 2)
         self.assertIsNone(assemble_route(req, list(pool[:2])))
 

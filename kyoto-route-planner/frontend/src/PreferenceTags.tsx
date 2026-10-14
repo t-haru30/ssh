@@ -6,6 +6,7 @@ export function PreferenceTags({ theme, traveler, selected, onChange }: { theme:
   const [tags, setTags] = useState<string[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [failure, setFailure] = useState("");
+  const [slow, setSlow] = useState(false);
   const previousContext = useRef("");
   const [page, setPage] = useState<{ context: string; exclude: string[] } | null>(null);
   const [exhausted, setExhausted] = useState(false);
@@ -15,8 +16,13 @@ export function PreferenceTags({ theme, traveler, selected, onChange }: { theme:
     const controller = new AbortController();
     if (previousContext.current !== context) { setTags([]); setPage(null); previousContext.current = context; }
     const excluded = page?.context === context ? page.exclude : [];
-    setStatus("loading"); setFailure(""); setExhausted(false);
-    const timeout = window.setTimeout(() => controller.abort(), 25000);
+    setStatus("loading"); setFailure(""); setExhausted(false); setSlow(false);
+    const slowTimer = window.setTimeout(() => setSlow(true), 6000);
+    const timeout = window.setTimeout(() => {
+      controller.abort();
+      setFailure("AIの応答が時間内に届きませんでした。");
+      setStatus("error");
+    }, 25000);
     const debounce = window.setTimeout(async () => {
       try {
         const response = await fetch("/api/preference-tags", { method: "POST", headers: { "Content-Type": "application/json" }, body: excluded.length ? JSON.stringify({ ...JSON.parse(context), exclude_tags: excluded }) : context, signal: controller.signal });
@@ -33,17 +39,17 @@ export function PreferenceTags({ theme, traveler, selected, onChange }: { theme:
         if (!response.ok || data.source !== "ai" || !Array.isArray(data.tags) || data.tags.length > 6 || !data.tags.every((tag: unknown) => typeof tag === "string" && tag.trim().length >= 2 && tag.length <= 20)) throw new Error();
         if (!controller.signal.aborted) { const fresh = (data.tags as string[]).filter(tag => !excluded.includes(tag)); setTags(current => [...new Set([...current, ...fresh])].slice(0, 60)); setExhausted(fresh.length === 0); setStatus("ready"); }
       } catch { if (!disposed) setStatus("error"); }
-      finally { window.clearTimeout(timeout); }
+      finally { window.clearTimeout(timeout); window.clearTimeout(slowTimer); }
     }, 700);
     let disposed = false;
-    return () => { disposed = true; window.clearTimeout(debounce); window.clearTimeout(timeout); controller.abort(); };
+    return () => { disposed = true; window.clearTimeout(debounce); window.clearTimeout(timeout); window.clearTimeout(slowTimer); controller.abort(); };
   }, [context, retry, page]);
   return <fieldset className="discover-filter-group preference-ai-tags"><legend>✦ AIの提案タグ</legend>
-    <p className="preference-tags-note">気になるものを選んで、おすすめに追加できます（4つまで）。</p>
-    <div className="discover-theme-options">{[...new Set([...selected, ...tags])].map(tag => <button type="button" key={tag} aria-pressed={selected.includes(tag)} disabled={!selected.includes(tag) && selected.length >= 4} onClick={() => onChange(selected.includes(tag) ? selected.filter(item => item !== tag) : [...selected, tag])}>{selected.includes(tag) ? "✓ " : "＋ "}{tag}</button>)}</div>
+    <p className="preference-tags-note">気になる楽しみ方を追加できます（任意・4つまで）。</p>
+    <div className="discover-theme-options">{[...new Set([...tags, ...selected])].map(tag => <button type="button" key={tag} aria-pressed={selected.includes(tag)} disabled={!selected.includes(tag) && selected.length >= 4} onClick={() => onChange(selected.includes(tag) ? selected.filter(item => item !== tag) : [...selected, tag])}>{selected.includes(tag) ? "✓ " : "＋ "}{tag}</button>)}</div>
     {status === "ready" && !exhausted && tags.length < 60 && <button type="button" className="preference-tags-more" onClick={() => setPage({ context, exclude: [...new Set([...selected, ...tags])] })}>＋ もっと提案を見る</button>}
     {status === "ready" && (exhausted || tags.length >= 60) && <p className="preference-tags-note" role="status">{exhausted ? "新しい提案タグは見つかりませんでした。好みを変えると別の提案を探せます。" : "60件のタグを表示しています。好みを変えると別の提案を探せます。"}</p>}
-    {status === "loading" && <p className="preference-tags-note" role="status">選んだ好みからタグを考えています… このまま次へ進むこともできます。</p>}
-    {status === "error" && <div className="preference-tags-note" role="status">{failure || "AIのタグを取得できませんでした。"}今の選択で進めます。<button type="button" onClick={() => setRetry(value => value + 1)}>もう一度提案する</button></div>}
+    {status === "loading" && <div className="preference-tags-note" role="status">{slow ? "AIの応答に時間がかかっています。タグを選ばずに次へ進めます。" : "旅の気分に合うタグを考えています… このまま次へ進めます。"}{slow && <button type="button" onClick={() => setRetry(value => value + 1)}>もう一度提案する</button>}</div>}
+    {status === "error" && <div className="preference-tags-note" role="status">{failure || "AIのタグを取得できませんでした。"}タグを選ばずに、または今の選択で次へ進めます。<button type="button" onClick={() => setRetry(value => value + 1)}>もう一度提案する</button></div>}
   </fieldset>;
 }

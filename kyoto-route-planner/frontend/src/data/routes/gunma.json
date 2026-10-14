@@ -411,7 +411,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「愛宕祠」から徒歩目安約4分です。"
+          "reason": "次の予定地「愛宕祠」から徒歩目安約4分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "ramen"
+          }
         },
         {
           "place_id": "osm-node-6185321719",
@@ -551,7 +555,12 @@
           "stay_minutes": 60,
           "score": 40.0,
           "role": "lunch",
-          "reason": "次の予定地「正田稲荷神社」から徒歩目安約3分です。"
+          "reason": "次の予定地「正田稲荷神社」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "wikidata": "Q130633260"
+          }
         },
         {
           "place_id": "osm-node-12281663914",

@@ -8,7 +8,7 @@ import {
   setWorkerUrl,
 } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
-import type { Origin, Place, RouteLeg } from "./types";
+import type { Origin, Place, RouteLeg, RouteTimelineItem } from "./types";
 import type { GeoJSONSource } from "maplibre-gl";
 import { googleMapsUrl } from "./mapLinks";
 import "./mapLinks.css";
@@ -24,6 +24,10 @@ export type MapViewProps = {
   legs?: RouteLeg[];
   fitDuration?: number;
   activeSpotId?: string | null;
+  mapTokens?: string[];
+  timeline?: RouteTimelineItem[];
+  journeyDate?: string;
+  routeLoading?: boolean;
 };
 
 type MarkerLocation = {
@@ -448,7 +452,7 @@ export function MapView({
     <div className="map-frame">
       <div className="map-canvas" ref={containerRef} aria-label="旅程のスポット地図" />
       <div className="map-toolbar"><span>⌖ {places.length}か所の行き先</span><button type="button" onClick={() => syncMapRef.current?.()}>全体を見る</button></div>
-      <div className="map-disclaimer">ピンは検索結果のスポット座標です。選択すると住所を確認できます。線はスポット間の目安で、実際の交通経路とは異なります。</div>
+      <div className="map-disclaimer">線は移動の目安です。ピンを押すと場所の情報を見られます。</div>
     </div>
   );
 }

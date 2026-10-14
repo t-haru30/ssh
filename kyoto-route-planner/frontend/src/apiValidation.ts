@@ -98,6 +98,7 @@ export function isRouteTimelineItem(value: unknown): value is RouteTimelineItem 
     && (typeof value.duration_minutes === "number" || value.duration_minutes === null)
     && typeof value.is_estimate === "boolean"
     && (value.fare_yen == null || (typeof value.fare_yen === "number" && Number.isInteger(value.fare_yen) && value.fare_yen >= 0))
+    && (value.map_token == null || typeof value.map_token === "string" && /^[a-f0-9]{32}$/.test(value.map_token))
     && (value.legs === undefined || (Array.isArray(value.legs) && value.legs.every(isRouteLeg)));
 }
 

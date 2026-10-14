@@ -188,7 +188,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「長久手市郷土資料室」から徒歩目安約8分です。"
+          "reason": "次の予定地「長久手市郷土資料室」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "chinese"
+          }
         },
         {
           "place_id": "osm-node-1319911990",
@@ -307,7 +311,12 @@
           "stay_minutes": 60,
           "score": 50.0,
           "role": "lunch",
-          "reason": "次の予定地「東海市立平洲記念館・東海市立郷土資料館」から徒歩目安約19分です。"
+          "reason": "次の予定地「東海市立平洲記念館・東海市立郷土資料館」から徒歩目安約19分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "wikidata": "Q11352515",
+            "wikipedia": "ja:一太郎翁とまと記念館"
+          }
         },
         {
           "place_id": "osm-node-1423988291",
@@ -437,13 +446,21 @@
         {
           "place_id": "osm-node-10267397257",
           "name": "スターバックス",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.1891439,
           "lng": 136.9037813,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「下水道科学館」から徒歩目安約5分です。"
+          "reason": "次の予定地「下水道科学館」から徒歩目安約5分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop",
+            "name:en": "Starbucks",
+            "name:ja": "スターバックス",
+            "official_name": "スターバックスコーヒー",
+            "website": "https://store.starbucks.co.jp/detail-1479/"
+          }
         },
         {
           "place_id": "osm-node-1423948145",
@@ -583,7 +600,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「名古屋市市政資料館」から徒歩目安約2分です。"
+          "reason": "次の予定地「名古屋市市政資料館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "italian"
+          }
         },
         {
           "place_id": "osm-node-1423950532",

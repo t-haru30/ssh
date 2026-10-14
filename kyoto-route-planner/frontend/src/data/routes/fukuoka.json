@@ -409,7 +409,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「穴観音 (興宗寺)」から徒歩目安約8分です。"
+          "reason": "次の予定地「穴観音 (興宗寺)」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "fast_food"
+          }
         }
       ],
       "coordinates": [
@@ -549,7 +552,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「南公園西展望台」から徒歩目安約9分です。"
+          "reason": "次の予定地「南公園西展望台」から徒歩目安約9分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         }
       ],
       "coordinates": [

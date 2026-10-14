@@ -7,6 +7,19 @@ const origin = { name: "駅", latitude: 35, longitude: 135 };
 const conditions = { entry, origin, theme: "all" as const, course: "all" as const, radius: 3, crossPrefecture: false, variation: 0 };
 function place(id: string, lat: number, area = "kyoto", category = "公園"): Place { return { id, name: id, latitude: lat, longitude: 135, category, themes: ["nature"], description: "", access_point: "", tags: { area } }; }
 describe("local facility composition", () => {
+  it("varies the lunch venue across candidates without adding a second restaurant", () => {
+    const pool = [...Array.from({length:5}, (_,i) => place(`博物館${i}`,35 + i * .001,"kyoto","博物館")),
+      ...Array.from({length:3}, (_,i) => place(`食堂${i}`,35.002 + i * .001,"kyoto","飲食店"))];
+    const routes = composeLocalRoutes({...conditions,theme:"food",course:"half_day",meals:[{kind:"lunch"}]},pool);
+    expect(new Set(routes.flatMap(r => r.spots.filter(s => s.role === "lunch").map(s => s.place_id))).size).toBe(3);
+    for (const route of routes) expect(route.spots.filter(s => s.role === "lunch")).toHaveLength(1);
+  });
+  it("retains a restaurant beyond the initial 5km window when lunch and dinner are requested", () => {
+    const pool = [...Array.from({length: 8}, (_, i) => place(`公園${i}`, 35 + i * .002)), place("昼食の店", 35.004, "kyoto", "飲食店"), place("夕食の店", 35.055, "kyoto", "飲食店")];
+    const routes = composeLocalRoutes({...conditions, radius: 30, theme: "food", course: "full_day", meals: [{kind:"lunch"}, {kind:"dinner"}]}, pool);
+    expect(routes.length).toBeGreaterThan(0);
+    for (const route of routes) expect(route.spots.filter(s => s.role !== "stop").map(s => s.role)).toEqual(["lunch", "dinner"]);
+  });
   it("accepts grounded AI reasons and rejects malformed source or agent metadata", () => {
     const route = { ...composeLocalRoutes(conditions, [place("博物館", 35.001)])[0], recommendation_source: "gemini", recommendation_reason: "歴史を巡る候補です。" };
     const response = { routes: [route], note: "推定時間", agent: { status: "ready", message: "AIが行き先を選びました。" } };
@@ -71,10 +84,12 @@ it("uses explicit pace independently of age, gender and companion", () => {
      expect(route.spots).toHaveLength(count);
      expect(route.spots.every(spot => spot.stay_minutes === stay)).toBe(true);
      expect(route.estimated_minutes).toBeLessThanOrEqual(300);
-     const full = composeLocalRoutes({ ...conditions, course: "full_day", traveler }, pool)[0];
+     const full = composeLocalRoutes({ ...conditions, course: "full_day", traveler }, [...pool.slice(0, 5), place("夕食の店",35.003,"kyoto","レストラン")])[0];
      expect(full.spots).toHaveLength(Math.min(pool.length, count + 2));
      expect(full.spots[0].stay_minutes).toBe(fullStay);
-     expect(full.estimated_minutes).toBeLessThanOrEqual(600);
+     expect(full.estimated_minutes).toBeLessThanOrEqual(720);
+     expect(full.estimated_minutes).toBeGreaterThanOrEqual(615);
+     expect(full.spots.at(-1)?.role).toBe("dinner");
      expect(route.recommendation_reason).toContain(`${count}か所`);
    }
  }

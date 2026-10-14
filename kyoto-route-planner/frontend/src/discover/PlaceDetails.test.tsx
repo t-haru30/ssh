@@ -32,6 +32,31 @@ function toggle(details: HTMLDetailsElement, open: boolean) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("destination introductions", () => {
+  it("fills sparse OSM details with matched Places information and the facility's own introduction", async () => {
+    const info = {place_id:place.id,status:"ready",summary:"",category:"カフェ・喫茶",primary_type:"cafe",rating:4.3,rating_count:108,
+      business_status:"operational",opening_hours:["月曜日: 10:00〜17:30"],source_url:"https://maps.google.com/?cid=1",display_name:"氵庵 -sanzuian-",
+      address:"京都市左京区銀閣寺町45",website_url:"https://venue.example.jp/",official:{...official,opening_hours:null,closed_days:null,admission:null}};
+    const fetcher = vi.fn(async (url: string) => response(url.startsWith("/api/places/google-info") ? {places:[info]} : null));
+    vi.stubGlobal("fetch",fetcher);
+    render(<PlaceIntroduction place={place} />);
+    await screen.findByText(official.description);
+    expect(screen.getByText("氵庵 -sanzuian-")).toBeTruthy();
+    expect(screen.getByText(info.opening_hours[0])).toBeTruthy();
+    expect(screen.getByRole("link",{name:"Google Maps掲載情報"}).getAttribute("href")).toBe(info.source_url);
+    expect(screen.queryByText(/詳しい説明は、現在確認できません/)).toBeNull();
+    expect(screen.getAllByText("未確認")).toHaveLength(2);
+    expect(fetcher.mock.calls.some(([url]) => url.includes("include_official=true"))).toBe(true);
+  });
+
+  it("always distinguishes unconfirmed hours and fees from closure, with facility source", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => response(null)));
+    render(<PlaceIntroduction place={{ ...place, id: "osm-node-123" }} />);
+    await screen.findByText(/詳しい説明は、現在確認できません/);
+    expect(screen.getAllByText("未確認")).toHaveLength(3);
+    expect(screen.getByText(/未確認は、休業・閉館や無料を意味しません/)).toBeTruthy();
+    expect(screen.getByText(/施設データ：OpenStreetMap/)).toBeTruthy();
+  });
+
   it("shows a route recommendation once with its official source while keeping distinct legacy notes", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
     const reason = "池を中心に巡る庭園で、水面に映る景色を楽しめます。";
@@ -180,7 +205,7 @@ describe("destination introductions", () => {
     expect(screen.getByText("京都市")).toBeTruthy();
     expect(screen.getByRole("link", { name: /地図で場所を確認する/ }).getAttribute("href")).toContain("mlat=35&mlon=135");
     const google = screen.getByRole("link", { name: "Google Mapsで開く" });
-    expect(google.getAttribute("href")).toBe("https://www.google.com/maps/search/?api=1&query=35%2C135");
+    expect(new URL(google.getAttribute("href")!).searchParams.get("query")).toBe("散策庭園 京都市");
     expect(google.getAttribute("target")).toBe("_blank");
     expect(google.getAttribute("rel")).toBe("noopener noreferrer");
     expect(screen.queryByRole("status")).toBeNull();

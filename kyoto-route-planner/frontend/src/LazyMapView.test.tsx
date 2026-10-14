@@ -8,8 +8,8 @@ const observerState = vi.hoisted(() => ({
   disconnect: vi.fn(),
 }));
 
-vi.mock("./MapView", () => ({
-  MapView: (props: MapViewProps) => (
+vi.mock("./GoogleJourneyMap", () => ({
+  GoogleJourneyMap: (props: MapViewProps) => (
     <div data-testid="loaded-map" data-return-name={props.returnTo?.name}>{props.places[0]?.name ?? "empty-map"}</div>
   ),
 }));

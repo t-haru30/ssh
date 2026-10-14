@@ -108,6 +108,9 @@ export type TimelinePlan = {
   legs: Array<{ mode: "public_transport" | "car" | "walk"; minutes: number }>;
   stayMinutes: number[];
   lunchIndexes?: number[];
+  dinnerIndexes?: number[];
+  mealTimes?: Array<string | undefined>;
+  mealLabels?: Array<string | undefined>;
   spotDetails?: Array<string | undefined>;
   returnByMinutes?: number;
 };
@@ -166,6 +169,11 @@ export function buildRouteTimeline(
       is_estimate: true,
       summary: legSummary(index, duration),
     });
+    const isDinner = usePlan && plan.dinnerIndexes?.includes(index) === true;
+    const specifiedMeal = usePlan ? plan.mealTimes?.[index] : undefined;
+    const mealMinute = specifiedMeal ? Number(specifiedMeal.slice(0,2)) * 60 + Number(specifiedMeal.slice(3)) : isDinner ? 1080 : null;
+    const freeMinutes = mealMinute !== null && currentMinutes !== null ? Math.max(0, mealMinute - currentMinutes) : 0;
+    if (currentMinutes !== null) currentMinutes += freeMinutes;
     const stay = usePlan ? plan.stayMinutes[index] : 90;
     const isLunch = usePlan && plan.lunchIndexes?.includes(index) === true;
     const lunchDetails = isLunch
@@ -186,7 +194,9 @@ export function buildRouteTimeline(
       stay_minutes: stay,
       departure_time: currentMinutes === null ? null : formatTime(currentMinutes + stay),
       ...(isLunch ? { label: "昼食", detail: lunchDetails } : {}),
+      ...(isDinner ? { label: "夕食", detail: `${freeMinutes ? `夕食まで自由時間 約${freeMinutes}分。` : ""}営業時間は出発前にご確認ください。` } : {}),
     });
+    if (usePlan && plan.mealLabels?.[index]) Object.assign(items[items.length - 1], {label: plan.mealLabels[index], detail: `${freeMinutes ? `食事まで自由時間 約${freeMinutes}分。` : ""}営業時間は要確認です。`});
     if (currentMinutes !== null) currentMinutes += stay;
   });
 

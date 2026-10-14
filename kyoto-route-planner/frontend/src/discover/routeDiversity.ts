@@ -10,9 +10,8 @@ const sameSpot = (a: Spot, b: Spot) => a.place_id === b.place_id || sameNearbyVe
 /** Different IDs or visit orders must not disguise the same trip. */
 export function similarTrip(a: DatasetRoute, b: DatasetRoute): boolean {
   if (!a.spots.length || !b.spots.length) return false;
-  if (sameSpot(a.spots[0], b.spots[0])) return true;
   const shared = a.spots.filter(spot => b.spots.some(other => sameSpot(spot, other))).length;
-  return shared / Math.min(a.spots.length, b.spots.length) >= 2 / 3;
+  return a.spots.length === b.spots.length && shared === a.spots.length;
 }
 
 /** Keep distinct trips in recommendation order, preferring unseen facilities next. */
@@ -22,7 +21,8 @@ export function diverseRoutes(candidates: DatasetRoute[], seen: DatasetRoute[] =
   while (remaining.length) {
     const used = result.flatMap(route => route.spots);
     let best = 0;
-    const novelty = (route: DatasetRoute) => route.spots.filter(spot => !used.some(other => sameSpot(spot, other))).length / route.spots.length;
+    const novelty = (route: DatasetRoute) => route.spots.filter(spot => !used.some(other => sameSpot(spot, other))).length / route.spots.length
+      + .5 * route.spots.filter(spot => spot.role && spot.role !== "stop" && !used.some(other => sameSpot(spot, other))).length;
     for (let i = 1; i < remaining.length; i++) if (novelty(remaining[i]) > novelty(remaining[best])) best = i;
     const [next] = remaining.splice(best, 1);
     if (!result.some(previous => similarTrip(next, previous))) result.push(next);

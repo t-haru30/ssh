@@ -415,13 +415,16 @@
         {
           "place_id": "osm-node-13255275201",
           "name": "BONNY BUTTERFLY",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 36.5716844,
           "lng": 136.6670698,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「徳田秋聲記念館」から徒歩目安約2分です。"
+          "reason": "次の予定地「徳田秋聲記念館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-2143998216",
@@ -565,13 +568,17 @@
         {
           "place_id": "osm-node-6393674786",
           "name": "古都美",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 36.5615278,
           "lng": 136.6582875,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「金沢能楽美術館」から徒歩目安約1分です。"
+          "reason": "次の予定地「金沢能楽美術館」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "cafe",
+            "name:en": "Kotomi"
+          }
         }
       ],
       "coordinates": [

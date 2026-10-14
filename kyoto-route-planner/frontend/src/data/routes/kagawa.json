@@ -409,7 +409,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「厄除不動明王院」から徒歩目安約11分です。"
+          "reason": "次の予定地「厄除不動明王院」から徒歩目安約11分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "noodle;ramen;japanese"
+          }
         }
       ],
       "coordinates": [
@@ -549,7 +553,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「別格19 寶幢山 香西寺」から徒歩目安約6分です。"
+          "reason": "次の予定地「別格19 寶幢山 香西寺」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         }
       ],
       "coordinates": [

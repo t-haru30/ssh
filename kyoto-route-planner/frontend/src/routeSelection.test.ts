@@ -18,5 +18,10 @@ describe("Discover route handoff", () => {
     expect(fullTrip.returnTo).toEqual(departure);
     expect(fullTrip.places.map(place => place.name)).toEqual(["上野駅", "上野公園", "庭園", "上野駅"]);
     expect(new Set(fullTrip.places.map(place => place.id)).size).toBe(4);
+    const evening: DatasetRoute = { ...route, course: "full_day", spots: [...route.spots, { ...route.spots[0], place_id: "dinner", name: "食堂", category: "飲食店", stay_minutes: 75, role: "dinner" }] };
+    const eveningPreset = routeSelection(evening);
+    expect(eveningPreset.anchorTimes).toEqual({ dinner: "18:00" });
+    expect(eveningPreset.availableMinutes).toBe(720);
+    expect(eveningPreset.dwellMinutes.dinner).toBe(75);
   });
 });

@@ -15,7 +15,7 @@ it("sends changed traveler conditions, cancels stale recommendations and restore
   const mount = () => render(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
   const view = mount();
   fireEvent.click(screen.getByRole("button", { name: "家族と" }));
-  fireEvent.click(screen.getByText("年代・性別を追加する（任意）"));
+  fireEvent.click(screen.getByText("年代・性別（任意）"));
   fireEvent.change(screen.getByLabelText("年代"), { target: { value: "65_plus" } });
   fireEvent.change(screen.getByLabelText("性別"), { target: { value: "female" } });
   fireEvent.click(screen.getByRole("button", { name: "たくさん巡る" }));

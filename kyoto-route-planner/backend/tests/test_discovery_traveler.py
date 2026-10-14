@@ -22,6 +22,14 @@ def place(identifier, category, latitude=35.001, region="京都府"):
 
 
 class TravelerTests(unittest.TestCase):
+    def test_lunch_venues_vary_without_inserting_extra_meals(self):
+        pool = [place(f"museum-{i}","博物館",35 + i * .001) for i in range(5)] + [place(f"restaurant-{i}","飲食店",35.002 + i * .001) for i in range(3)]
+        options = request(theme="food", course="half_day", meals=[{"kind":"lunch"}]).model_copy(update={"count":8})
+        routes = build_discover_routes(options,tuple(pool))["routes"]
+        self.assertGreaterEqual(len({s["place_id"] for r in routes for s in r["spots"] if s["role"] == "lunch"}),3)
+        for route in routes:
+            self.assertEqual(sum(s["role"] == "lunch" for s in route["spots"]),1)
+
     def test_optional_and_validated(self):
         self.assertIsNone(request().traveler)
         self.assertEqual(request(traveler={}).traveler.gender, "unspecified")
@@ -59,7 +67,7 @@ class TravelerTests(unittest.TestCase):
                 req = request(course=course, traveler={"pace": pace, "age_group": "65_plus", "companion": "family"})
                 self.assertEqual(max_stops(req), count + (2 if course == "full_day" else 0))
                 self.assertEqual(stay_minutes(req), stay)
-                route = build_discover_routes(req, pool)["routes"][0]
+                route = build_discover_routes(req, (*pool[:-1], place("dinner", "レストラン"), place("extra", "公園")) if course == "full_day" else pool)["routes"][0]
                 self.assertEqual(len(route["spots"]), count + (2 if course == "full_day" else 0))
                 self.assertIn(f"観光は各{stay}分", route["recommendation_reason"])
                 self.assertIn("公園", route["recommendation_reason"])
@@ -81,7 +89,7 @@ class TravelerTests(unittest.TestCase):
         grounded = agent._select(args, inspected, official_facts, request(traveler={"pace": "packed"}), sources)[0]
         self.assertTrue(grounded["recommendation_reason"].startswith(pool[0].name + "："))
         self.assertIn("たくさん巡る", grounded["recommendation_reason"])
-        self.assertEqual(len(grounded["reason_sources"]), 2)
+        self.assertEqual(len(grounded["reason_sources"]), len(pool))
         self.assertTrue(all(spot["reason_sources"] and "庭園" in spot["reason"] for spot in grounded["spots"]))
         for pace in ("standard", "relaxed"):
             with self.assertRaises(ValueError):

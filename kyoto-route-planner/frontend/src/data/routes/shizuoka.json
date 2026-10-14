@@ -178,7 +178,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「浄感寺長八記念館」から徒歩目安約1分です。"
+          "reason": "次の予定地「浄感寺長八記念館」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "name:en": "Sakura"
+          }
         },
         {
           "place_id": "osm-node-1421001638",
@@ -301,13 +306,16 @@
         {
           "place_id": "osm-node-14234268252",
           "name": "明治茶館",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.1208471,
           "lng": 138.8570984,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「沼津市明治史料館」から徒歩目安約2分です。"
+          "reason": "次の予定地「沼津市明治史料館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-1420991053",
@@ -433,7 +441,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「劔刀石床別命神社」から徒歩目安約2分です。"
+          "reason": "次の予定地「劔刀石床別命神社」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "name:en": "Fujimi Unagi"
+          }
         },
         {
           "place_id": "osm-node-11014938543",
@@ -573,7 +586,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「重ね福銭」から徒歩目安約1分です。"
+          "reason": "次の予定地「重ね福銭」から徒歩目安約1分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "name:ja": "季と"
+          }
         },
         {
           "place_id": "osm-node-10314125309",

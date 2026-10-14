@@ -423,7 +423,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「中山道ひし屋資料館」から徒歩目安約7分です。"
+          "reason": "次の予定地「中山道ひし屋資料館」から徒歩目安約7分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-9555784768",
@@ -557,13 +560,19 @@
         {
           "place_id": "osm-node-10105881640",
           "name": "あまから",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.4542423,
           "lng": 137.4079404,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「長栄寺」から徒歩目安約6分です。"
+          "reason": "次の予定地「長栄寺」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "japanese;regional",
+            "name:en": "Amakara",
+            "website": "https://amakaragoheimochi.jimdofree.com/"
+          }
         },
         {
           "place_id": "osm-node-9739276058",

@@ -30,13 +30,14 @@ export function JourneyReview({ report, onAdopt, onRestore }: { report: JourneyR
       setMessage("選択を判断履歴に記録しました。");
     } catch { setMessage("操作は反映しました。判断履歴は保存できませんでした。"); }
   }
-  return <section className="journey-review" aria-label="旅程の点検と変更案">
+  return <details className="journey-review" aria-label="旅程の点検と変更案">
+    <summary>{report.status === "proposal" ? "旅程の変更案を見る" : report.status === "unresolved" ? "確認が必要な条件を見る" : "旅程の確認情報"}</summary>
     <h3>{report.status === "passed" ? "旅程を点検しました" : report.status === "proposal" ? "条件に合う変更案があります" : "確認できなかった条件があります"}</h3>
     <p>{report.status === "passed" ? "観光範囲・構成・概算時間の条件を満たしています。" : "元の旅程を残しています。変更内容を確認して選んでください。"}</p>
     <details><summary>点検した内容と判断理由</summary>
       {report.issues.map(text => <p key={text}>{text}</p>)}
       {report.actions.map(text => <p key={text}>{text}</p>)}
-      <p>追加検索は最大1回・8秒まで。履歴は最大2,000件。次回点検時に30日を超えた履歴を削除します。</p>
+
       {!report.recorded && <p>今回の点検履歴を保存できませんでした。</p>}
     </details>
     {report.proposals.map(p => <article key={p.route.id}>
@@ -49,5 +50,5 @@ export function JourneyReview({ report, onAdopt, onRestore }: { report: JourneyR
     {report.proposals.length > 0 && <button type="button" onClick={() => { onRestore(); setAdopted(null); void record("keep"); }}>元の旅程を使う</button>}
     {report.unresolved.length > 0 && <p role="status">未解決：{report.unresolved.join(" ")} 条件を変更するか、元の候補を確認してください。</p>}
     {message && <p role="status">{message}</p>}
-  </section>;
+  </details>;
 }

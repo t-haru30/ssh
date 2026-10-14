@@ -23,7 +23,7 @@
 .discover-photo-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; padding: 12px; color: var(--muted); font-size: 13px; }
 .discover-photo-pending button { color: var(--accent); background: transparent; border: 0; padding: 8px; font: inherit; text-decoration: underline; cursor: pointer; }
 .discover-photo-pending button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-.discover-recommendation-label { display: inline-flex; align-self: flex-start; gap: 6px; padding: 5px 10px; border-radius: 20px; background: #edf4ef; color: #285642; font-size: 12px; font-weight: 700; line-height: 1.5; }
+.discover-recommendation-label { display: inline-flex; align-self: flex-start; gap: 6px; padding: 5px 10px; border-radius: 20px; background: var(--surface-muted); color: var(--forest); font-size: 12px; font-weight: 700; line-height: 1.5; }
 .discover-agent-status { margin: 12px 0 16px; color: var(--muted); font-size: 13px; line-height: 1.7; }
 .discover-agent-status[data-ready="true"] { color: #285642; }
 .discover-modal-recommendation { margin: 16px 0; padding: 16px 20px; border-radius: 12px; background: #f0f5f1; line-height: 1.8; }
@@ -39,8 +39,22 @@
 .route-photo-tile-credit a { color:white; text-decoration:underline; }
 .route-photo-tile-credit a:focus-visible { outline:2px solid white; }
 
-.route-category-image { position:absolute; inset:0; background-image:url("/images/category-atlas.png"); background-size:300% 200%; }
-.route-category-image > span, .route-category-image > small { position:absolute; left:6px; top:6px; padding:3px 5px; color:#fff; background:#183a2be6; border-radius:4px; font-size:9px; }
-.route-category-image > small { top:28px; }
+.route-category-image { position:absolute; inset:0; }
+.route-category-art { display:block; width:100%; height:100%; }
+.route-category-badge { position:absolute; right:6px; top:6px; max-width:calc(100% - 12px); padding:4px 6px; color:#fff; background:#183a2be6; border-radius:4px; font-size:9px; line-height:1.4; text-align:right; }
+.route-category-badge > span, .route-category-badge > b { display:block; }
+.route-category-badge > b { font-size:10px; font-weight:600; }
 .google-place-photo .google-maps-attribution { display:inline-block; color:#fff; font:400 12px/1.5 Arial,sans-serif; white-space:nowrap; margin:4px 6px 4px 0; }
 .google-place-photo .google-photo-source { display:block; color:#fff; font-size:10px; }
+.journey-reasons { margin:14px 0; padding-left:22px; line-height:1.8; }
+.journey-reasons li { margin:14px 0; }
+.journey-reasons li > strong { display:block; color:var(--forest); }
+.journey-reasons p { margin:6px 0; }
+.journey-reasons small, .journey-selection-note { color:var(--muted); font-size:12px; }
+.google-venue-summary { margin:10px 0; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); font-size:13px; line-height:1.7; }
+.google-venue-attribution { display:inline-block; margin-right:10px; font:400 12px/1.5 Arial,sans-serif; color:var(--muted); white-space:nowrap; }
+.google-venue-category { font-size:12px; }
+.google-venue-summary > strong { display:block; margin:6px 0 3px; color:var(--forest); font-size:14px; }
+.google-venue-summary > a:last-child { display:inline-block; margin-top:10px; }
+.google-venue-summary p { margin:7px 0 0; }
+.google-venue-rating, .google-venue-summary small { color:var(--muted); font-size:12px; }

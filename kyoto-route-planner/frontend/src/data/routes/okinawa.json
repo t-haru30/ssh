@@ -409,7 +409,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「玉城朝薫の墓」から徒歩目安約5分です。"
+          "reason": "次の予定地「玉城朝薫の墓」から徒歩目安約5分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "name:en": "Oishimun",
+            "name:ja": "おいしむん"
+          }
         }
       ],
       "coordinates": [
@@ -543,13 +548,17 @@
         {
           "place_id": "osm-node-11414778932",
           "name": "ビリオン珈琲",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 26.2585306,
           "lng": 127.7116198,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「浦添市美術館」から徒歩目安約16分です。"
+          "reason": "次の予定地「浦添市美術館」から徒歩目安約16分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop"
+          }
         }
       ],
       "coordinates": [

@@ -23,7 +23,7 @@ LABELS = {
 }
 
 
-def audit(request, route, pool):
+def audit(request, route, pool, *, check_regional=True):
     if route is None:
         return ["empty"]
     catalog = {p.id: p for p in pool}
@@ -44,14 +44,14 @@ def audit(request, route, pool):
     if len({p.id for p in places}) != len(places):
         issues.append("duplicates")
     meals = ["food" in place_themes(p) for p in places]
-    if sum(meals) > 2 or any(a and b for a, b in zip(meals, meals[1:])):
+    if sum(meals) > max(2, len(request.meals or [])) or request.meals is None and any(a and b for a, b in zip(meals, meals[1:])):
         issues.append("meals")
-    if request.theme == "food" and not any(regional_score(request.origin, p) and "food" in place_themes(p) for p in places):
+    if check_regional and request.theme == "food" and not any(regional_score(request.origin, p) and "food" in place_themes(p) for p in places):
         issues.append("regional_food")
     points = [request.origin, *places, request.origin]
     computed = sum(ceil(distance_km(a, b) / 25 * 60) + 10 for a, b in zip(points, points[1:])) + sum(s.get("stay_minutes", 0) for s in spots)
     minutes = max(route.get("estimated_minutes", 0), computed)
-    if minutes <= 0 or minutes > (300 if request.course == "half_day" else 600) or (request.course == "full_day" and (minutes < 360 or computed < 360 or len(spots) < 4)):
+    if minutes <= 0 or minutes > (300 if request.course == "half_day" else 720 if request.course == "full_day" else 600) or (request.course == "full_day" and (minutes < 360 or computed < 360 or len(spots) < 4)):
         issues.append("duration")
     return list(dict.fromkeys(issues))
 
@@ -96,11 +96,20 @@ def record_decision(identifier, decision):
 async def review_journeys(request, result, pool):
     from app.openpoi import enrich_candidates
     originals = result["routes"]
-    reports = [(route, audit(request, route, pool)) for route in originals] or [(None, ["empty"])]
+    # Regional food is a deck preference. Requiring the same lone specialty in
+    # every alternative defeats dining diversity; require a grounded option in
+    # the deck while still auditing all hard conditions in each itinerary.
+    regional_ids = {p.id for p in pool if regional_score(request.origin,p) and "food" in place_themes(p)}
+    # A regional-food search match fulfils the soft discovery preference, but
+    # never confirms a dish or opening time. Only server-matched OSM IDs qualify.
+    hinted = result.get("catalog",{}).get("local_dining_ids",[])
+    regional_ids.update(p.id for p in pool if p.id in hinted and "food" in place_themes(p))
+    has_regional_route = any(s["place_id"] in regional_ids for route in originals for s in route["spots"])
+    reports = [(route, audit(request, route, pool, check_regional=not has_regional_route)) for route in originals] or [(None, ["empty"])]
     codes = list(dict.fromkeys(code for _, issues in reports for code in issues))
     report = {"id": uuid4().hex, "status": "passed", "issues": [LABELS[c] for c in codes],
               "actions": [], "proposals": [], "unresolved": [],
-              "limitations": "観光範囲・構成・概算時間の点検です。営業日・営業時間、実際の交通経路、往復移動は未確認です。"}
+              "limitations": "観光範囲・構成・概算時間の点検です。メニュー・営業日・営業時間、実際の交通経路、往復移動は未確認です。"}
     if codes:
         candidates = eligible_candidates(request, tuple(pool))
         has_regional = any(regional_score(request.origin, p) and "food" in place_themes(p) for p in candidates)

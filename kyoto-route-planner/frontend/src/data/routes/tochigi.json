@@ -188,7 +188,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「報徳二宮神社」から徒歩目安約3分です。"
+          "reason": "次の予定地「報徳二宮神社」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-4100075935",
@@ -307,7 +310,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「那須とりっくあーとぴあ」から徒歩目安約14分です。"
+          "reason": "次の予定地「那須とりっくあーとぴあ」から徒歩目安約14分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-5913206351",
@@ -567,13 +573,16 @@
         {
           "place_id": "osm-node-2285448127",
           "name": "大日茶屋",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 36.3368254,
           "lng": 139.4518383,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「出世稲荷大権現」から徒歩目安約2分です。"
+          "reason": "次の予定地「出世稲荷大権現」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-10185073887",

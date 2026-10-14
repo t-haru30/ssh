@@ -182,13 +182,16 @@
         {
           "place_id": "osm-node-2179440714",
           "name": "コーヒーむぎ",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 38.4283106,
           "lng": 141.3060915,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「震災遺構門脇小学校」から徒歩目安約10分です。"
+          "reason": "次の予定地「震災遺構門脇小学校」から徒歩目安約10分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-6956586991",
@@ -453,7 +456,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「塩竈市杉村惇美術館」から徒歩目安約6分です。"
+          "reason": "次の予定地「塩竈市杉村惇美術館」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         }
       ],
       "coordinates": [
@@ -593,7 +599,14 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「菅野美術館」から徒歩目安約12分です。"
+          "reason": "次の予定地「菅野美術館」から徒歩目安約12分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "ramen",
+            "name:en": "Nagamachi Ramen",
+            "name:ja": "長町ラーメン",
+            "website": "https://naga-rah.com/"
+          }
         }
       ],
       "coordinates": [

@@ -6,8 +6,10 @@ import { newTripStop, scheduleTrip } from "./dayTrip";
 import type { RouteIdea } from "./SwipeCard";
 import type { Place, RouteSuggestion } from "./types";
 import type { SearchPreset } from "./routeSelection";
+import { savedJourney } from "./savedJourney";
+import type { FavoriteRoute } from "./useFavorites";
 
-const { searchRender } = vi.hoisted(() => ({ searchRender: vi.fn() }));
+const { searchRender, savedState } = vi.hoisted(() => ({ searchRender: vi.fn(), savedState: { favorites: [] as FavoriteRoute[] } }));
 
 vi.mock("./discover/DiscoverMode", () => ({
   DiscoverMode: ({ active, onPlanInSearch }: { active: boolean; onPlanInSearch: (route: RouteIdea) => void }) => (
@@ -24,7 +26,7 @@ vi.mock("./SearchMode", () => ({
   },
 }));
 vi.mock("./SavedRoutesList", () => ({ SavedRoutesList: () => null }));
-vi.mock("./useFavorites", () => ({ useFavorites: () => ({ favorites: [], error: null }) }));
+vi.mock("./useFavorites", () => ({ useFavorites: () => ({ favorites: savedState.favorites, error: null }) }));
 vi.mock("./ThemeSwitcher", () => ({ ThemeSwitcher: () => null }));
 vi.mock("./Onboarding", () => ({
   Onboarding: () => null,
@@ -49,6 +51,7 @@ const newRoute: RouteIdea = { ...existingRoute, title: "美術館の旅", places
 beforeEach(() => {
   window.localStorage.clear();
   searchRender.mockClear();
+  savedState.favorites=[];
   vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
   const source: RouteSuggestion = {
     origin, places: [garden], title: existingRoute.title, story: null, total_minutes: 30,
@@ -69,6 +72,18 @@ afterEach(() => {
 });
 
 describe("App journey replacement confirmation", () => {
+  it("reopens the edited saved plan from its original liked card even after its name and venues changed", () => {
+    const original=readJourneyDraft()!.plan;
+    const edited=scheduleTrip({...original.input,budget:8000},origin,original.date,[newTripStop(museum,60)],original.transport);
+    savedState.favorites=[{...savedJourney(edited,"nature","編集した美術館の旅"),id:"26:garden",prefecture_code:"26",prefecture_name:"京都府",edited:true,tags:{},saved_at:"2026-10-14T00:00:00Z"}];
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab",{name:/見つける/}));
+    fireEvent.click(screen.getByRole("button",{name:"同じルートを採用"}));
+    const dialog=screen.getByRole("dialog",{name:"編集中のしおりを置き換えますか？"});
+    expect(within(dialog).getByText("編集した美術館の旅")).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button",{name:"新しいルートで編集する"}));
+    expect(searchRender).toHaveBeenLastCalledWith(expect.objectContaining({preset:expect.objectContaining({sourceFavoriteId:"26:garden",title:"編集した美術館の旅",tripPlan:expect.objectContaining({input:expect.objectContaining({budget:8000}),stops:[expect.objectContaining({place:museum})]})})}));
+  });
   it("keeps the draft on cancellation and passes the replacement preset only after explicit approval", () => {
     const originalStorage = window.localStorage.getItem(JOURNEY_DRAFT_KEY);
     render(<App />);

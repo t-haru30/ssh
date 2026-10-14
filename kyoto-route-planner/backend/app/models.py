@@ -76,13 +76,17 @@ class RouteSuggestionRequest(BaseModel):
 
 class RoutePreviewRequest(BaseModel):
     origin: Origin
+    return_to: Origin | None = None
     places: list[Place] = Field(min_length=1, max_length=8)
     stay_minutes: list[Annotated[int, Field(ge=15, le=360)]] | None = Field(default=None, max_length=8)
     departure_date: date
     departure_time: time
+    meal_times: dict[str, Annotated[str, Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")]] = Field(default_factory=dict, max_length=3)
 
     @model_validator(mode="after")
     def validate_stays(self):
+        if any(key not in {p.id for p in self.places} for key in self.meal_times):
+            raise ValueError("食事の時刻は選んだ施設に指定してください。")
         if self.stay_minutes is not None and len(self.stay_minutes) != len(self.places):
             raise ValueError("各スポットの滞在時間を指定してください。")
         return self
@@ -117,6 +121,7 @@ class RouteTimelineTransit(BaseModel):
     is_estimate: bool = True
     fare_yen: int | None = Field(default=None, ge=0)
     legs: list[RouteLeg] = Field(default_factory=list)
+    map_token: str | None = Field(default=None, pattern=r"^[a-f0-9]{32}$")
 
 RouteTimelineItem = Annotated[
     Union[RouteTimelineSpot, RouteTimelineTransit],
@@ -211,6 +216,7 @@ class ParsedPlaceQuery(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 class PlaceSearchRequest(BaseModel):
+    include_related: bool = False
     query: str = Field(min_length=1, max_length=500)
     center_latitude: Latitude | None = None
     center_longitude: Longitude | None = None
@@ -243,6 +249,10 @@ class PlaceSearchResponse(BaseModel):
     query: ParsedPlaceQuery
     results: list[PlaceSearchHit]
     note: str
+    related_results: list[PlaceSearchHit] = Field(default_factory=list)
+    suggestions: list[str] = Field(default_factory=list)
+    related_note: str | None = None
+    related_available: bool = False
 
 class ItineraryRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)

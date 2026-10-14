@@ -12,7 +12,8 @@ export type DatasetSpot = {
   lng: number;
   stay_minutes: number;
   score: number;
-  role: "stop" | "lunch";
+  role: "stop" | "breakfast" | "lunch" | "dinner";
+  meal_time?: string;
   reason?: string;
   reason_sources?: ReasonSource[];
 };
@@ -35,6 +36,7 @@ export type DatasetLeg = {
 
 // backend/scripts の dataset.json と同じ形式
 export type DatasetRoute = {
+  departure_time?: string;
   travel_origin?: import("../types").Origin;
   id: string;
   area: string;

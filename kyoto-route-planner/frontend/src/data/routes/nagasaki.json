@@ -583,7 +583,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「天正遣欧少年使節顕彰之像」から徒歩目安約3分です。"
+          "reason": "次の予定地「天正遣欧少年使節顕彰之像」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "italian"
+          }
         },
         {
           "place_id": "osm-node-10277027895",

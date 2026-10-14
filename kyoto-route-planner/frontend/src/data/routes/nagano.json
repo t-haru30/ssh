@@ -188,7 +188,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「田崎美術館」から徒歩目安約8分です。"
+          "reason": "次の予定地「田崎美術館」から徒歩目安約8分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "name:ja": "川上庵"
+          }
         },
         {
           "place_id": "osm-node-5861593127",
@@ -297,7 +301,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「田淵行男記念館」から徒歩目安約6分です。"
+          "reason": "次の予定地「田淵行男記念館」から徒歩目安約6分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "noodle"
+          }
         },
         {
           "place_id": "osm-node-2191766495",
@@ -453,7 +461,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「松代城」から徒歩目安約3分です。"
+          "reason": "次の予定地「松代城」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         }
       ],
       "coordinates": [
@@ -583,7 +594,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「荒砥城」から徒歩目安約5分です。"
+          "reason": "次の予定地「荒砥城」から徒歩目安約5分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "name:en": "Shichifuku"
+          }
         },
         {
           "place_id": "osm-node-2501633997",

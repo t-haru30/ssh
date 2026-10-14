@@ -65,14 +65,13 @@
 .discover-mode .prefecture-picker, .discover-filter-group legend, .discover-filter-group button { font-size: 13px; }
 .discover-filter-group button { min-height: 44px; }
 .discover-destinations { margin-bottom: 20px; }
-.journey-view-switch { display: none; }
 .search-mode--result > .route-copy-banner { padding: 20px 26px; }
 .search-mode--result > .route-copy-banner h2 { font-size: clamp(20px, 2.5vw, 28px); line-height: 1.6; }
 .search-mode--result .journey-file-controls { margin-top: 0; }
 .trip-stop-reasons, .trip-stop-actions, .trip-stop-meta { font-size: 13px; }
 .trip-stop-actions button { min-width: 44px; min-height: 44px; }
 .trip-summary small, .journey-save-status, .route-swipe-hint { font-size: 13px; line-height: 1.8; }
-.discover-mode button:focus-visible, .journey-view-switch button:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.discover-mode button:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
 
 @media (max-width: 900px) {
   .search-mode--result { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -80,15 +79,9 @@
   .search-mode--result > .hero { order: 0; }
   .search-mode--result > .journey-file-controls { order: 1; }
   .search-mode--result > .route-copy-banner { order: 2; margin: 0; }
-  .search-mode--result > .journey-view-switch { order: 3; display: flex; gap: 6px; padding: 5px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-muted); }
-  .journey-view-switch button { flex: 1; min-height: 46px; border: 0; border-radius: 9px; font-size: 14px; background: transparent; color: var(--control-text); }
-  .journey-view-switch button[aria-pressed="true"] { background: var(--forest); color: var(--on-accent); font-weight: 700; }
-  .search-mode--result > .search-stage { order: 4; margin: 0; }
-  .search-mode--result > .timeline-area { order: 5; }
-  .search-mode--result > .hero-map { order: 6; margin: 0; height: min(65vh, 520px); min-height: 320px; }
-  .search-mode--result[data-result-view="timeline"] > .hero-map { display: none; }
-  .search-mode--result[data-result-view="map"] > .timeline-area { display: none; }
-  .search-mode--result[data-result-view="map"] > .search-stage { display: none; }
+  .search-mode--result > .hero-map, .search-mode--result:has(.trip-editor) > .hero-map { order: 4; position: sticky; top: 0; z-index: 20; height: 30dvh; min-height: 160px; max-height: 280px; margin: 0; }
+  .search-mode--result > .search-stage { order: 5; margin: 0; }
+  .search-mode--result > .timeline-area { order: 6; width: 100%; }
   .search-mode--result .results-section { margin-top: 12px; }
   .search-mode--result > .route-copy-banner { padding: 18px 20px; }
 }

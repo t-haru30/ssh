@@ -1,5 +1,5 @@
 import { usePrefecture } from "./PrefectureContext";
-import { distanceKm } from "./dayTrip";
+import { distanceKm, transportMatches } from "./dayTrip";
 import { currentLocation } from "./currentLocation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
@@ -93,6 +93,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     setReturnSame(!preset.returnTo || preset.origin.latitude === preset.returnTo.latitude && preset.origin.longitude === preset.returnTo.longitude);
     if (preset.returnTo) { setCustomReturn(preset.returnTo); setReturnName(preset.returnTo.name); }
     setPreferences(preset.theme === "nature" ? ["nature"] : preset.theme === "food" ? ["food"] : preset.theme === "all" ? [] : ["culture"]);
+    if (preset.departureTime && !preset.tripPlan) setDepartureTime(preset.departureTime);
     setIsOvernight(false);
     setOvernightSuggestion(null);
     setDayTripPlan(preset.tripPlan ?? null);
@@ -242,17 +243,11 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   const editorTime = validTime ? departureTime : dayTripPlan?.input.departureTime ?? "09:00";
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
-  const [resultView, setResultView] = useState<"timeline" | "map">("timeline");
   const timelineAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFormCollapsed(hasResult);
-    setResultView("timeline");
   }, [hasResult]);
-
-  useEffect(() => {
-    if (resultView === "map") window.dispatchEvent(new Event("resize"));
-  }, [resultView]);
 
   // Scroll Spy: 画面中央の帯に入ったスポットをハイライトする
   useEffect(() => {
@@ -526,7 +521,6 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   return (
     <div
       className={`tab-panel search-mode${hasResult ? " search-mode--result" : ""}`}
-      data-result-view={resultView}
       id="panel-search"
       role="tabpanel"
       aria-labelledby="tab-search"
@@ -552,13 +546,6 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       )}
 
       {hasResult && (
-        <div className="journey-view-switch" role="group" aria-label="旅程と地図の表示切り替え">
-          <button type="button" aria-pressed={resultView === "timeline"} aria-controls="journey-timeline" onClick={() => setResultView("timeline")}>旅程を見る</button>
-          <button type="button" aria-pressed={resultView === "map"} aria-controls="journey-map" onClick={() => setResultView("map")}>地図を見る</button>
-        </div>
-      )}
-
-      {hasResult && (
         <div className="hero-map" id="journey-map">
           <LazyMapView
             places={mapPlaces}
@@ -566,6 +553,9 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             returnTo={isOvernight ? null : dayTripPlan?.returnTo ?? returnTo}
             coordinates={mapCoordinates}
             legs={mapLegs}
+            journeyDate={dayTripPlan?.date ?? departureDate}
+            timeline={dayTripPlan ? transportMatches(dayTripPlan) ? dayTripPlan.transport.route.timeline ?? [] : [] : suggestions[0]?.timeline ?? []}
+            mapTokens={(dayTripPlan ? transportMatches(dayTripPlan) ? dayTripPlan.transport.route.timeline ?? [] : [] : suggestions[0]?.timeline ?? []).flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])}
             fitDuration={1200}
             activeSpotId={activeSpotId}
           />
@@ -800,7 +790,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           <div className="route-options">
             <DayTripEditor key={tripSession} source={suggestions[0]} sourceDate={transportStamp.date} sourceTime={transportStamp.time}
               origin={origin ?? suggestions[0].origin} returnTo={returnTo ?? origin ?? suggestions[0].origin} preferences={preferences} date={editorDate} departureTime={editorTime} candidates={editingCandidates}
-              initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
+              initialAnchorTimes={preset?.nonce === tripSession ? preset.anchorTimes : undefined} initialAvailableMinutes={preset?.nonce === tripSession ? preset.availableMinutes : undefined} initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
             <div className="route-swipe-controls">
               <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading || !validDeparture || dayTripPlan?.stops.length === 0}>
                 {searching ? <><span className="button-spinner" /> 交通経路を検索しています</> : <>交通経路を再検索 <span>↻</span></>}

@@ -22,6 +22,7 @@ from app.database import database_path, initialize_database
 from app.ai_settings import configure_ai_environment
 from app.preference_tags import PreferenceTagsRequest, suggest_tags
 from app.destination_suggestion import DestinationRequest, suggest_destination
+from app.itinerary_audit import AuditRequest, audit as audit_itinerary
 from app.discovery import DiscoverRequest, discover_routes
 from app.copywriting import generate_route_copywriting
 from app.ekispert import (
@@ -100,6 +101,7 @@ def _build_route_timeline(
     total_minutes: int | None,
     return_to: Origin | None = None,
     stay_minutes: list[int] | None = None,
+    meal_times: dict[str, str] | None = None,
 ) -> list[RouteTimelineItem]:
     destination = return_to or origin
     departure = datetime_time.fromisoformat(departure_time)
@@ -153,6 +155,8 @@ def _build_route_timeline(
                 duration_minutes=duration,
             )
         )
+        if meal_times and place.id in meal_times:
+            current_minutes = max(current_minutes, _clock_minutes(meal_times[place.id]) or 0)
         timeline.append(
             RouteTimelineSpot(
                 role="stop",
@@ -241,6 +245,7 @@ async def _correct_route_timeline(
     *,
     timeout: float,
     return_to: Origin | None = None,
+    meal_times: dict[str, str] | None = None,
 ) -> list[RouteTimelineItem]:
     transits = [item for item in timeline if isinstance(item, RouteTimelineTransit)]
     if not transits:
@@ -303,6 +308,7 @@ async def _correct_route_timeline(
         corrected.append(item.model_copy(update={
             "transit_line": " / ".join(line_names) or "公共交通機関",
             "fare_yen": getattr(result, "fare_yen", None),
+            "map_token": getattr(result, "map_token", None),
             "legs": legs,
             "start_time": actual_departure,
             "end_time": actual_arrival,
@@ -335,10 +341,81 @@ async def _correct_route_timeline(
                 if item.role == "start"
                 else latest_arrival or item.time
             )
+            if meal_times and item.place_id in meal_times and spot_time:
+                spot_time = _format_timeline_time(max(_clock_minutes(spot_time) or 0, _clock_minutes(meal_times[item.place_id]) or 0))
             synchronized.append(item.model_copy(update={"time": spot_time}))
         else:
             synchronized.append(item)
     return synchronized
+
+
+async def _preview_sequential_timeline(payload: RoutePreviewRequest, deadline: float) -> list[RouteTimelineItem]:
+    """Search each departure after the actual prior arrival and requested stay.
+
+    Once a segment is unknown, later timetable results cannot establish journey
+    clock times. Retain their routes/fares but label downstream times unconfirmed.
+    """
+    destination = payload.return_to or payload.origin
+    points = [payload.origin, *payload.places, destination]
+    current = payload.departure_time.hour * 60 + payload.departure_time.minute
+    clock_known = True
+    timeline: list[RouteTimelineItem] = [RouteTimelineSpot(role="start", name=payload.origin.name,
+        category="出発地", time=_format_timeline_time(current))]
+    for index, (start, end) in enumerate(zip(points, points[1:])):
+        segment = RouteTimelineTransit(from_name=start.name, to_name=end.name)
+        same_point = start.latitude == end.latitude and start.longitude == end.longitude
+        if same_point:
+            segment = segment.model_copy(update={"duration_minutes": 0, "fare_yen": 0,
+                "transit_line": "同じ地点（移動なし）", "is_estimate": False,
+                "start_time": _format_timeline_time(current) if clock_known else None,
+                "end_time": _format_timeline_time(current) if clock_known else None})
+        elif deadline > time.monotonic():
+            try:
+                query_date = (datetime.combine(payload.departure_date, datetime_time()) + timedelta(days=current // 1440)).date().isoformat()
+                result = await asyncio.wait_for(_search_route_segment(
+                    f"{start.latitude},{start.longitude}", f"{end.latitude},{end.longitude}",
+                    query_date, _format_timeline_time(current)), timeout=max(0.001, deadline - time.monotonic()))
+                legs, minutes, departure, arrival = result
+                departure_clock, arrival_clock = _clock_minutes(departure), _clock_minutes(arrival)
+                confirmed = departure_clock is not None and arrival_clock is not None
+                if confirmed:
+                    depart = current // 1440 * 1440 + departure_clock
+                    if depart < current:
+                        depart += 1440
+                    duration = (arrival_clock - departure_clock) % 1440
+                    arrival_minute = depart + duration
+                    if "T" in (getattr(result, "departure_at", None) or "") and "T" in (getattr(result, "arrival_at", None) or ""):
+                        actual_start = datetime.fromisoformat(result.departure_at)
+                        actual_end = datetime.fromisoformat(result.arrival_at)
+                        depart = (actual_start.date() - payload.departure_date).days * 1440 + actual_start.hour * 60 + actual_start.minute
+                        arrival_minute = (actual_end.date() - payload.departure_date).days * 1440 + actual_end.hour * 60 + actual_end.minute
+                    segment = segment.model_copy(update={"duration_minutes": arrival_minute - current,
+                        "start_time": _format_timeline_time(depart) if clock_known else None,
+                        "end_time": _format_timeline_time(arrival_minute) if clock_known else None,
+                        "is_estimate": not clock_known})
+                    current = arrival_minute
+                else:
+                    clock_known = False
+                segment = segment.model_copy(update={"legs": legs, "fare_yen": getattr(result, "fare_yen", None), "map_token": getattr(result, "map_token", None),
+                    "transit_line": " / ".join(dict.fromkeys(leg.line_name for leg in legs)) or None})
+            except (HTTPException, asyncio.TimeoutError):
+                clock_known = False
+        else:
+            clock_known = False
+        timeline.append(segment)
+        if index < len(payload.places):
+            place = payload.places[index]
+            anchor = _clock_minutes(payload.meal_times.get(place.id))
+            if anchor is not None:
+                current = max(current, current // 1440 * 1440 + anchor)
+            stay = payload.stay_minutes[index] if payload.stay_minutes is not None else ROUTE_STOP_STAY_MINUTES
+            timeline.append(RouteTimelineSpot(role="stop", place_id=place.id, name=place.name,
+                category=place.category, time=_format_timeline_time(current) if clock_known else None, stay_minutes=stay))
+            current += stay
+        else:
+            timeline.append(RouteTimelineSpot(role="finish", name=destination.name, category="帰着",
+                time=_format_timeline_time(current) if clock_known else None))
+    return timeline
 
 
 @asynccontextmanager
@@ -619,7 +696,14 @@ async def transit_segment(request: Request, payload: TransitSegmentRequest):
     return RouteTimelineTransit(from_name=origin.name, to_name=destination.name,
         transit_line=" / ".join(dict.fromkeys(leg.line_name for leg in legs)) or "公共交通機関",
         duration_minutes=minutes, start_time=departure or None, end_time=arrival or None,
-        is_estimate=minutes is None, fare_yen=getattr(result, "fare_yen", None), legs=legs)
+        is_estimate=minutes is None, fare_yen=getattr(result, "fare_yen", None), legs=legs, map_token=getattr(result,"map_token",None))
+
+
+@app.post("/api/routes/map-path")
+@limiter.limit("10/minute")
+async def route_map_path(request: Request, tokens: Annotated[list[Annotated[str, Field(pattern=r"^[a-f0-9]{32}$")]], Field(min_length=1, max_length=9)]):
+    from app.route_shapes import fetch_shapes
+    return JSONResponse(await fetch_shapes(tokens), headers={"Cache-Control":"no-store, private"})
 
 
 @app.post("/api/places/google-photo")
@@ -628,6 +712,53 @@ async def google_place_photo(request: Request, payload: Place):
     from app.google_place_photos import fetch_google_photo
     result = await fetch_google_photo(payload)
     return JSONResponse(result.model_dump(), headers={"Cache-Control":"no-store, private"})
+
+
+@app.post("/api/places/google-info")
+@limiter.limit("10/minute")
+async def google_place_info(request: Request, payload: Annotated[list[Place], Field(min_length=1, max_length=8)], include_official: bool = False):
+    from app.google_place_info import fetch_google_infos
+    results = await fetch_google_infos(payload, include_official=include_official)
+    return JSONResponse({"places":[result.model_dump() for result in results]}, headers={"Cache-Control":"no-store, private"})
+
+
+@app.get("/api/maps/config")
+async def maps_config():
+    from app.google_place_photos import google_api_key
+    google_api_key()  # Load local dotenv without exposing the server key.
+    browser_key = os.getenv("GOOGLE_MAPS_BROWSER_API_KEY", "").strip()
+    # A mistaken copy of the unrestricted server key must never reach the browser.
+    if browser_key == os.getenv("GOOGLE_PLACES_API_KEY", "").strip():
+        browser_key = ""
+    return JSONResponse({"browser_key":browser_key or None,"map_id":os.getenv("GOOGLE_MAPS_MAP_ID", "DEMO_MAP_ID"),"route_provider":os.getenv("GOOGLE_MAPS_ROUTE_PROVIDER", "google")}, headers={"Cache-Control":"no-store, private"})
+
+
+@app.post("/api/maps/route-budget")
+@limiter.limit("10/minute")
+async def maps_route_budget(request: Request, count: Annotated[int, Query(ge=1, le=9)]):
+    from app.google_place_photos import reserve_lookup
+    granted = 0
+    for _ in range(count):
+        if not reserve_lookup():
+            break
+        granted += 1
+    return JSONResponse({"granted":granted}, headers={"Cache-Control":"no-store, private"})
+
+
+_audit_slot = asyncio.Semaphore(1)
+
+
+@app.post("/api/itinerary/audit")
+@limiter.limit("2/minute")
+async def itinerary_audit(request: Request, payload: AuditRequest):
+    try:
+        await asyncio.wait_for(_audit_slot.acquire(), .1)
+    except TimeoutError:
+        raise HTTPException(429, "ほかの旅程を確認中です。少し待って再実行してください。") from None
+    try:
+        return JSONResponse(await audit_itinerary(payload), headers={"Cache-Control":"no-store, private"})
+    finally:
+        _audit_slot.release()
 
 
 @app.post("/api/routes/photo", response_model=PhotoResponse)
@@ -715,29 +846,8 @@ async def search_place_catalog(
     request: Request,
     payload: PlaceSearchRequest,
 ) -> PlaceSearchResponse:
-    center = (payload.center_latitude, payload.center_longitude) if payload.center_latitude is not None else None
-    if center is None:
-        return await search_yahoo_catalog(payload.query)
-    base = await search_yahoo_catalog(payload.query, center=center, radius_m=20_000)
-    if os.getenv("PLACE_SEARCH_PROVIDER") != "public_catalog":
-        return base
-    from app.openpoi import enrich_candidates, normalized
-    request_scope = DiscoverRequest(area="editor", prefecture_name=base.query.region or "全国",
-        origin=Origin(name="観光の起点", latitude=center[0], longitude=center[1]), radius_km=20)
-    pool, status = await enrich_candidates(request_scope, tuple(hit.place for hit in base.results), query=payload.query)
-    hits = list(base.results)
-    existing = {hit.place.id for hit in hits}
-    for place in pool:
-        if place.id in existing:
-            continue
-        # Direct text search is independent of the original route's proposed stops.
-        if base.query.region and place.region != base.query.region:
-            continue
-        hits.append(PlaceSearchHit(place=place, score=100 if normalized(payload.query) in normalized(place.name) else 50,
-            distance_m=round(_distance_km(center, (place.latitude, place.longitude)) * 1000)))
-    hits.sort(key=lambda hit: (-hit.score, hit.distance_m or 0))
-    note = "OpenStreetMapとOpenPOIの候補を検索しました。営業時間・料金は未確認です。" if status == "ready" else "外部の追加候補を取得できなかったため、登録済みの施設を表示しています。"
-    return PlaceSearchResponse(query=base.query, results=hits[:20], note=note)
+    from app.place_search_service import search_catalog
+    return await search_catalog(payload, search=search_yahoo_catalog)
 
 
 
@@ -787,11 +897,12 @@ async def preview_route(
     payload: RoutePreviewRequest,
 ) -> RouteSuggestion:
     deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
+    destination = payload.return_to or payload.origin
     departure_time = payload.departure_time.strftime("%H:%M")
     via_points = [
         f"{payload.origin.latitude},{payload.origin.longitude}",
         *(f"{place.latitude},{place.longitude}" for place in payload.places),
-        f"{payload.origin.latitude},{payload.origin.longitude}",
+        f"{destination.latitude},{destination.longitude}",
     ]
     try:
         legs, total_minutes, actual_departure, actual_arrival = await asyncio.wait_for(
@@ -802,45 +913,35 @@ async def preview_route(
             ),
             timeout=max(0.001, deadline - time.monotonic()),
         )
+    except HTTPException as error:
+        if error.status_code != 404:
+            raise
+        legs, total_minutes, actual_departure, actual_arrival = [], None, None, None
     except asyncio.TimeoutError as error:
         raise HTTPException(
             status_code=504,
             detail="経路検索がタイムアウトしました。時間をおいて再度お試しください。",
         ) from error
 
-    timeline = _build_route_timeline(
-        payload.origin,
-        payload.places,
-        actual_departure or departure_time,
-        total_minutes,
-        stay_minutes=payload.stay_minutes,
-    )
-    remaining_seconds = deadline - time.monotonic()
-    if remaining_seconds > 0:
-        timeline = await _correct_route_timeline(
-            timeline,
-            payload.origin,
-            payload.places,
-            payload.departure_date.isoformat(),
-            timeout=remaining_seconds,
-        )
-    else:
-        logger.warning(
-            "Ekispert preview correction skipped: request budget exhausted"
-        )
+    timeline = await _preview_sequential_timeline(payload, deadline)
 
+    segments = [item for item in timeline if isinstance(item, RouteTimelineTransit)]
+    corrected_legs = [leg for item in segments for leg in item.legs]
+    fare = sum(item.fare_yen for item in segments) if segments and all(item.fare_yen is not None for item in segments) else None
     return RouteSuggestion(
         places=payload.places,
         origin=payload.origin,
-        legs=legs,
-        total_minutes=total_minutes,
-        departure_time=actual_departure or departure_time,
-        arrival_time=actual_arrival,
+        return_to=destination,
+        fare_yen=fare,
+        legs=corrected_legs or legs,
+        total_minutes=sum(item.duration_minutes for item in segments) if segments and all(not item.is_estimate and item.duration_minutes is not None for item in segments) else None,
+        departure_time=departure_time,
+        arrival_time=timeline[-1].time,
         timeline=timeline,
         coordinates=[
             [payload.origin.latitude, payload.origin.longitude],
             *[[place.latitude, place.longitude] for place in payload.places],
-            [payload.origin.latitude, payload.origin.longitude],
+            [destination.latitude, destination.longitude],
         ],
         note=(
             "区間ごとの路線名・発着時刻は駅すぱあとAPIの検索結果です。"

@@ -52,20 +52,21 @@ const route: DatasetRoute = {
 };
 
 describe("DiscoverCard", () => {
-  it("shows one concrete sentence and preserves the full explanation and its sources on demand", () => {
+  it("covers every stop in the overview and explains each venue with its own sources", () => {
     const source = { title: "清水寺の公式紹介", url: "https://www.kiyomizudera.or.jp/about/" };
     const otherSource = { title: "庭園の公式紹介", url: "https://example.com/garden" };
     const first = "清水寺：舞台から京都の街並みを見渡せます。";
     const full = `${first} 庭園：季節の花を楽しめます。ゆっくりペースで2か所、各60分滞在（目安）。`;
     const onSwipe = vi.fn();
-    const { container } = render(<DiscoverCard route={{ ...route, recommendation_reason: full, reason_sources: [source, otherSource], spots: [{ ...route.spots[0], reason: first, reason_sources: [source] }] }} depth={0} exitDirection="like" onSwipe={onSwipe} />);
-    expect(screen.getByRole("region", { name: "おすすめ理由" }).textContent).toBe(`おすすめ理由${first}`);
-    const details = container.querySelector("details")!;
+    render(<DiscoverCard route={{ ...route, recommendation_reason: full, reason_sources: [source, otherSource], spots: [{ ...route.spots[0], reason: first, reason_sources: [source] }, {...route.spots[0],place_id:"garden",name:"庭園",category:"庭園",reason:"季節の花を楽しめます。",reason_sources:[otherSource]}] }} depth={0} exitDirection="like" onSwipe={onSwipe} />);
+    expect(screen.getByRole("region", { name: "この旅の楽しみ" }).textContent).toContain("清水寺");
+    expect(screen.getByRole("region", { name: "この旅の楽しみ" }).textContent).toContain("庭園");
+    const details = screen.getByText("おすすめ理由の全文・出典").closest("details")!;
     expect(details.open).toBe(false);
     fireEvent.click(screen.getByText("おすすめ理由の全文・出典"));
-    expect(details.textContent).toContain(full);
+    expect(details.textContent).toContain(first);
+    expect(details.textContent).toContain("季節の花を楽しめます。");
     expect(details.querySelectorAll("a")).toHaveLength(2);
-    expect(container.querySelector(".recommendation-sources")?.textContent).not.toContain(otherSource.title);
     expect(onSwipe).not.toHaveBeenCalled();
   });
   it.each([[-150, "pass"], [150, "like"]] as const)("supports a %s swipe and locks while waiting for the next card", (offset, direction) => {
@@ -98,16 +99,16 @@ describe("DiscoverCard", () => {
     expect(screen.getByRole("link", { name: source.title }).getAttribute("href")).toBe(source.url);
     fireEvent.click(screen.getByRole("button", { name: "清水寺の説明を見る" }));
     expect(screen.getAllByRole("link", { name: source.title })).toHaveLength(2);
-    expect(screen.getAllByText(reason)).toHaveLength(2);
+    expect(screen.getAllByText(reason)).toHaveLength(3);
     expect(screen.queryByText("旅のポイント")).toBeNull();
     expect(onSwipe).not.toHaveBeenCalled();
   });
   it("displays the actual AI recommendation and keeps rule candidates unlabeled", () => {
     const view = render(<DiscoverCard route={{ ...route, recommendation_source: "gemini", recommendation_reason: "寺社めぐりの気分に合う、近くの寺院を選びました。" }} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
-    expect(screen.getByText(/AIが選んだおすすめ/)).toBeTruthy();
-    expect(screen.getByText("寺社めぐりの気分に合う、近くの寺院を選びました。")).toBeTruthy();
+    expect(screen.getByText(/あなたへのおすすめ/)).toBeTruthy();
+    expect(screen.getByRole("region",{name:"この旅の楽しみ"}).textContent).toContain("清水寺");
     view.rerender(<DiscoverCard route={route} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
-    expect(screen.queryByText(/AIが選んだおすすめ/)).toBeNull();
+    expect(screen.queryByText(/あなたへのおすすめ/)).toBeNull();
   });
   it("renders Discover data through the shared card layout", () => {
     const { container } = render(
@@ -125,12 +126,12 @@ describe("DiscoverCard", () => {
     expect(screen.queryByText("AIテーマイラスト")).toBeNull();
     expect(screen.queryByText("清水寺の写真")).toBeNull();
     expect(screen.getByText("半日コース")).toBeTruthy();
-    expect(screen.getByText("⏱ 総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
+      expect(screen.getByText("総所要時間 約2時間30分", { selector: ".swipe-distance" })).toBeTruthy();
     expect(screen.getAllByText("清水寺", { selector: "strong" })[0]).toBeTruthy();
-    expect(screen.getByText("寺院")).toBeTruthy();
+    expect(screen.getByText("寺院",{selector:".swipe-spot-copy small"})).toBeTruthy();
     expect(screen.getByText("いいね")).toBeTruthy();
     expect(screen.getByText("今回は見送る")).toBeTruthy();
-    expect(screen.getByRole("region", { name: "おすすめ理由" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "この旅の楽しみ" })).toBeTruthy();
   });
 
   it("opens a destination without saving or swiping the route, and restores focus on Escape", async () => {
@@ -168,7 +169,8 @@ describe("DiscoverCard", () => {
     view.rerender(<DiscoverCard route={route} depth={0} active={false} exitDirection="like" onSwipe={vi.fn()} />);
     expect(fetchMock).not.toHaveBeenCalled();
     view.rerender(<DiscoverCard route={route} depth={2} active exitDirection="like" onSwipe={vi.fn()} />);
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    await waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => url === "/api/routes/photo")).toHaveLength(1));
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/places/google-info")).toHaveLength(0);
     expect(fetchMock.mock.calls[0][0]).toBe("/api/routes/photo");
   });
 

@@ -178,7 +178,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「みちのく民俗村」から徒歩目安約17分です。"
+          "reason": "次の予定地「みちのく民俗村」から徒歩目安約17分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-2706219580",
@@ -307,7 +310,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「南部神社」から徒歩目安約4分です。"
+          "reason": "次の予定地「南部神社」から徒歩目安約4分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "soba;udon",
+            "name:en": "Itoke"
+          }
         },
         {
           "place_id": "osm-node-2985340551",
@@ -453,7 +461,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「湯舟沢環状列石」から徒歩目安約18分です。"
+          "reason": "次の予定地「湯舟沢環状列石」から徒歩目安約18分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "ramen"
+          }
         }
       ],
       "coordinates": [
@@ -593,7 +605,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「高水寺城」から徒歩目安約13分です。"
+          "reason": "次の予定地「高水寺城」から徒歩目安約13分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "korean"
+          }
         }
       ],
       "coordinates": [

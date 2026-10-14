@@ -15,6 +15,29 @@ const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, f
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
+it("offers related nearby places only on request and preserves the plan until adoption", async () => {
+  const shrine = { ...places[0], id: "shrine", name: "近所の神社", category: "神社" };
+  const temple = { ...places[0], id: "temple", name: "近所のお寺", category: "寺院" };
+  const fetcher = vi.fn(async (url: string, init?: RequestInit) => url === "/api/search/places"
+    ? { ok: true, json: async () => ({ results: [{ place: shrine }], suggestions: ["地域名や距離条件を変えて再検索してください。"], related_available: true, related_results: JSON.parse(String(init?.body)).include_related ? [{ place: temple }] : [], related_note: JSON.parse(String(init?.body)).include_related ? "寺院も含む関連候補です。" : null }) }
+    : { ok: false });
+  vi.stubGlobal("fetch", fetcher);
+  const changed = vi.fn(); render(<DayTripEditor {...props} onPlanChange={changed} />);
+  fireEvent.click(screen.getByRole("button", { name: "＋ 寄り道を追加" }));
+  fireEvent.change(screen.getByRole("textbox", { name: "候補を検索" }), { target: { value: "京都 神社" } });
+  fireEvent.click(screen.getByRole("button", { name: "候補を検索" }));
+  await screen.findByText("候補が少ないときは");
+  expect(screen.queryByRole("button", { name: /近所のお寺/ })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "近隣の関連候補も探す" }));
+  const related = await screen.findByRole("button", { name: /近所のお寺/ });
+  expect(screen.getByRole("region", { name: "近隣の関連候補" }).contains(related)).toBe(true);
+  expect(changed.mock.calls.at(-1)?.[0].stops).toHaveLength(2);
+  fireEvent.click(related);
+  expect(changed.mock.calls.at(-1)?.[0].stops).toHaveLength(2);
+  fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
+  expect(changed.mock.calls.at(-1)?.[0].stops.at(-1).place.id).toBe("temple");
+});
+
 it("keeps a manually added distant stop even if it exceeds the time budget", () => {
   const changed = vi.fn();
   const distant = { ...places[0], id:"distant", name:"遠方の庭園", latitude:36 };
@@ -246,4 +269,16 @@ it("leaves the original plan intact when a shorter time cannot fit fixed stays",
   fireEvent.click(screen.getByRole("button", { name: "現在の旅程を残す" }));
   expect(changed.mock.calls.at(-1)?.[0].input.availableMinutes).toBe(360);
   expect(changed.mock.calls.at(-1)?.[0].stops.map((s: { dwellMinutes: number }) => s.dwellMinutes)).toEqual([90, 90]);
+});
+
+it("automatically previews return destination and preserves stops on failure", async () => {
+  const fetch = vi.fn().mockResolvedValue({ ok: false }); vi.stubGlobal("fetch", fetch);
+  const changed = vi.fn();
+  const returnTo = { ...origin, name: "宿泊先", latitude: 35.2 };
+  render(<DayTripEditor {...props} returnTo={returnTo} onPlanChange={changed} />);
+  await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/routes/preview", expect.anything()));
+  const request = fetch.mock.calls.find(call => call[0] === "/api/routes/preview")!;
+  expect(JSON.parse(request[1].body)).toMatchObject({ return_to: returnTo, stay_minutes: [90, 90] });
+  await screen.findByText(/交通経路を確認できませんでした。現在の旅程を保持/);
+  expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
 });

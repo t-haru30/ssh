@@ -1,4 +1,5 @@
 ﻿import json
+from datetime import datetime, time as datetime_time
 import logging
 import os
 import ssl
@@ -279,6 +280,35 @@ def _course_list(payload: object) -> list[dict]:
     return []
 
 
+def _timetable_datetime(value: object) -> str | None:
+    text = _text(value)
+    # Plain (non-timetable) responses can carry a date only; it is not a time.
+    if not re.search(r"(?:T|^)\d{2}:\d{2}", text):
+        return None
+    try:
+        datetime.fromisoformat(text) if "T" in text else datetime_time.fromisoformat(text)
+    except ValueError:
+        return None
+    return text
+
+
+def _course_endpoint_times(course: dict) -> tuple[str | None, str | None]:
+    route = course.get("Route")
+    lines = _as_list(route.get("Line")) if isinstance(route, dict) else []
+    def endpoint(line: dict, state: str) -> str | None:
+        value = line.get(state)
+        return _timetable_datetime(value.get("Datetime")) if isinstance(value, dict) else None
+    # Include first/last walking lines: internal train times omit facility access.
+    return (endpoint(lines[0], "DepartureState"), endpoint(lines[-1], "ArrivalState")) if lines else (None, None)
+
+
+def _clock_from_timetable(value: str | None) -> str | None:
+    if not value:
+        return None
+    parsed = datetime.fromisoformat(value).time() if "T" in value else datetime_time.fromisoformat(value)
+    return parsed.strftime("%H:%M")
+
+
 def _parse_legs(course: dict) -> tuple[list[RouteLeg], int | None]:
     route = course.get("Route")
     if not isinstance(route, dict):
@@ -363,9 +393,12 @@ def _parse_fare_yen(course: dict) -> int | None:
 
 class RouteSearchResult(tuple):
     """Keep the four-value route interface while retaining the same course fare."""
-    def __new__(cls, legs, minutes, departure, arrival, fare_yen):
+    def __new__(cls, legs, minutes, departure, arrival, fare_yen, departure_at=None, arrival_at=None, map_token=None):
         result = super().__new__(cls, (legs, minutes, departure, arrival))
         result.fare_yen = fare_yen
+        result.departure_at = departure_at
+        result.arrival_at = arrival_at
+        result.map_token = map_token
         return result
 
 
@@ -438,9 +471,15 @@ async def search_route(
 
     course = courses[0]
     legs, total_minutes = _parse_legs(course)
+    departure_at, arrival_at = _course_endpoint_times(course)
+    if departure_at and arrival_at and "T" in departure_at and "T" in arrival_at:
+        elapsed = (datetime.fromisoformat(arrival_at) - datetime.fromisoformat(departure_at)).total_seconds() / 60
+        if elapsed >= 0:
+            total_minutes = int(elapsed)
+    from app.route_shapes import register_course
     return RouteSearchResult(
-        legs, total_minutes, _text(course.get("departureState")),
-        _text(course.get("arrivalState")), _parse_fare_yen(course),
+        legs, total_minutes, _clock_from_timetable(departure_at),
+        _clock_from_timetable(arrival_at), _parse_fare_yen(course), departure_at, arrival_at, register_course(course),
     )
 
 

@@ -421,7 +421,12 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「小樽市立 小樽美術館」から徒歩目安約3分です。"
+          "reason": "次の予定地「小樽市立 小樽美術館」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "indian",
+            "name:en": "Century soup curry & Indian Nepalese curry"
+          }
         },
         {
           "place_id": "osm-node-462763881",
@@ -565,13 +570,20 @@
         {
           "place_id": "osm-node-1669503980",
           "name": "ドトールコーヒーショップ",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 43.0646819,
           "lng": 141.3466597,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「宮部金吾記念館」から徒歩目安約3分です。"
+          "reason": "次の予定地「宮部金吾記念館」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop",
+            "name:en": "Doutor Coffee Shop",
+            "name:ja": "ドトールコーヒーショップ",
+            "website": "https://www.doutor.co.jp/"
+          }
         }
       ],
       "coordinates": [

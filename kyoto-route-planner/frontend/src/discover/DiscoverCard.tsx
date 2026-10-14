@@ -10,19 +10,21 @@ import { PlaceDetailsDialog } from "./PlaceDetails";
 import { placeRecommendation } from "./placeRecommendation";
 import "./routePhoto.css";
 import { RoutePhotoGrid } from "./RoutePhotoGrid";
+import { journeyOverview } from "./journeyStory";
+import { JourneyReasons } from "./JourneyReasons";
+import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
+import { GoogleVenueSummary } from "./GoogleVenueSummary";
 
 export type DiscoverDirection = "like" | "pass";
 
-const categoryIcons: Record<string, string> = {
-  寺院: "🏯",
-  神社: "⛩️",
-  自然: "🌿",
-  グルメ: "🍵",
-  名所: "📍",
-};
-
 export function categoryIcon(category: string) {
-  return categoryIcons[category] ?? "📍";
+  const path = /グルメ|飲食|カフェ|レストラン/.test(category)
+    ? "M7 3v7m-3-7v4a3 3 0 0 0 6 0V3M7 10v11m10-18v18m0-18c-3 2-4 5-4 8h4"
+    : /神社|寺院/.test(category) ? "M3 6h18M5 9h14M7 6v15m10-15v15M4 3h16"
+    : /自然|公園/.test(category) ? "M4 20C4 9 11 4 20 4c0 10-5 16-12 16m-4 0L16 8"
+    : /博物館|美術館/.test(category) ? "m3 9 9-6 9 6H3Zm2 3v7m5-7v7m4-7v7m5-7v7M3 21h18"
+    : "M12 21s7-7 7-12A7 7 0 0 0 5 9c0 5 7 12 7 12Zm0-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z";
+  return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg>;
 }
 
 export function formatMinutes(minutes: number) {
@@ -46,12 +48,9 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
   const isIdea = "places" in route;
   const aiRecommended = !isIdea && route.recommendation_source === "gemini";
   const fullReason = isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`;
-  const shortReason = conciseReason(fullReason);
-  const summaryPlace = !isIdea && route.spots.find(spot => shortReason.startsWith(`${spot.name}：`));
-  const summarySources = !isIdea ? (summaryPlace
-    ? route.reason_sources?.filter(source => summaryPlace.reason_sources?.some(item => item.url === source.url))
-    : shortReason === fullReason ? route.reason_sources : undefined) : undefined;
   const selection = useMemo(() => routeSelection(route), [route]);
+  const googleInfos = useGoogleVenueInfo(selection.places, active && depth === 0);
+  const shortReason = isIdea ? fullReason : journeyOverview(route, googleInfos);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
 
@@ -60,19 +59,19 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       theme={route.theme}
       title={route.title}
       description={shortReason}
-      descriptionLabel="おすすめ理由"
+      descriptionLabel="この旅の楽しみ"
+      descriptionSupplement={googleInfos.filter(info => info.summary).map(info => <div key={info.place_id}><strong>{selection.places.find(place => place.id === info.place_id)?.name}</strong><GoogleVenueSummary info={info} /></div>)}
       recommendationSources={<>
-        <ReasonSources sources={summarySources} />
-        {shortReason !== fullReason && <details className="place-description-toggle" onPointerDown={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+        <details className="place-description-toggle" onPointerDown={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
           <summary>おすすめ理由の全文・出典</summary>
-          <p>{fullReason}</p>
-          {!isIdea && <ReasonSources sources={route.reason_sources} />}
-        </details>}
+          <p>{shortReason}</p>
+          {!isIdea && <><JourneyReasons route={route} googleInfos={googleInfos} /><ReasonSources sources={route.reason_sources?.filter(source => !route.spots.some(spot => spot.reason_sources?.some(item => item.url === source.url)))} /></>}
+        </details>
       </>}
-      recommendationLabel={aiRecommended ? "AIが選んだおすすめ" : undefined}
+      recommendationLabel={aiRecommended ? "あなたへのおすすめ" : undefined}
       summary={isIdea
         ? `${route.places.length}か所を巡る旅のプラン`
-        : `⏱ ${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
+        : `${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
       spots={isIdea
         ? route.places.map((place) => ({
           id: place.id,
@@ -83,7 +82,8 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
         : route.spots.map((spot) => ({
           id: spot.place_id,
           name: spot.name,
-          category: spot.category,
+          category: spot.role !== "stop" ? `${({breakfast:"朝ごはん",lunch:"昼ごはん",dinner:"夜ごはん"})[spot.role]} ${spot.meal_time ?? ""} · 営業時間は要確認` : spot.category,
+          appeal: spot.reason && !/直線約|公式情報を確認できていません/.test(spot.reason) && !shortReason.includes(conciseReason(spot.reason)) ? conciseReason(spot.reason) : undefined,
           icon: categoryIcon(spot.category),
         }))}
       coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} /> : undefined}

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { MapViewProps } from "./MapView";
 
-const MapView = lazy(() => import("./MapView").then(({ MapView: Component }) => ({
+const MapView = lazy(() => import("./GoogleJourneyMap").then(({ GoogleJourneyMap: Component }) => ({
   default: Component,
 })));
 

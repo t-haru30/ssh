@@ -1,5 +1,28 @@
 # Official facility information
 
+## Places supplement (2026-10-14)
+
+Opened facility details request `/api/places/google-info?include_official=true`.
+The server matches the complete venue name and position, then supplies localized
+name, category, address, rating, regular hours and a website link. Explicitly
+delimited bilingual names (for example `氵庵 -sanzuian-` / `Sanzuian`) match only
+within 100 m; branch suffixes and ambiguous results remain rejected. This same
+matcher enables photos. Google data stays in the mounted view, outside the OSM
+catalog, saved journeys and recommendation caches.
+
+When a matched Places result contains a website, details can read it through the
+existing public-DNS, pinned-IP, redirect, size and page-name checks. Client URLs
+cannot trigger this path. These results are not cached. Official-site facts and
+Google-published hours keep separate source labels; missing fees remain unknown.
+The existing reviewed official source list remains available for introductions.
+
+The bundled 108 food venues were checked against their OSM node identities on
+2026-10-14. All matched; 25 `amenity=cafe` records are now classified as cafes,
+not generic meal venues. Source-language aliases, amenity and cuisine tags are
+retained. Future route generation also preserves this classification and tags.
+The route composer balances dining venue reuse across alternatives while keeping
+regional specialties and requested meal counts, times, radius and duration.
+
 `backend/app/official_place_info.py` exports `async fetch_official_place_info(place: Place) -> OfficialPlaceInfo`. It requires no API key and performs no paid requests. Wikipedia is a separate provider.
 
 ## Response contract

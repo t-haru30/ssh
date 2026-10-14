@@ -2,6 +2,20 @@
   "version": 1,
   "places": [
     {
+      "id": "osm-node-12405995146",
+      "name": "Sanzuian",
+      "latitude": 35.0272937,
+      "longitude": 135.7970871,
+      "url": "https://suu.ooo/pages/sanzuian",
+      "reviewed_at": "2026-10-14",
+      "description": "銀閣寺の門前にある、茶屋を改装したカフェ兼ギャラリー「氵庵 -sanzuian-」です。コーヒーやお茶、地元の作り手の菓子を楽しめます。庭を望む奥座敷には作品展示もあり、参拝や散策の途中にひと息つける場所です。",
+      "description_source_url": "https://suu.ooo/pages/sanzuian",
+      "highlights": [
+        "古い柱や建具を残した茶屋の空間と、庭を望む奥座敷が特徴です。",
+        "京都珈琲焙煎所 旅の音によるコーヒーや、7T＋によるお茶を提供しています。"
+      ]
+    },
+    {
       "id": "osm-node-5889244368",
       "name": "本願寺長野別院",
       "latitude": 36.6538416,

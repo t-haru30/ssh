@@ -393,13 +393,20 @@
         {
           "place_id": "osm-node-2209790395",
           "name": "スターバックス",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.627822,
           "lng": 140.073608,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「稲毛記念館」から徒歩目安約19分です。"
+          "reason": "次の予定地「稲毛記念館」から徒歩目安約19分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop",
+            "name:en": "Starbucks",
+            "name:ja": "スターバックス",
+            "official_name": "スターバックスコーヒー"
+          }
         },
         {
           "place_id": "osm-node-1566648053",
@@ -533,13 +540,17 @@
         {
           "place_id": "osm-node-11597969161",
           "name": "フレッシュロースター珈琲問屋",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.6070476,
           "lng": 140.125095,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「お茶の水」から徒歩目安約2分です。"
+          "reason": "次の予定地「お茶の水」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop"
+          }
         },
         {
           "place_id": "osm-node-4437117898",

@@ -279,13 +279,21 @@
         {
           "place_id": "osm-node-1947772626",
           "name": "スターバックス",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 36.082757,
           "lng": 140.1114135,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「茨城県つくば美術館」から徒歩目安約3分です。"
+          "reason": "次の予定地「茨城県つくば美術館」から徒歩目安約3分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop",
+            "name:en": "Starbucks",
+            "name:ja": "スターバックス",
+            "official_name": "スターバックスコーヒー",
+            "website": "https://www.starbucks.co.jp/"
+          }
         },
         {
           "place_id": "osm-node-5470739382",
@@ -411,7 +419,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「剣聖塚原卜傳先生像」から徒歩目安約11分です。"
+          "reason": "次の予定地「剣聖塚原卜傳先生像」から徒歩目安約11分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese"
+          }
         },
         {
           "place_id": "osm-node-4353347387",
@@ -551,7 +563,10 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「稲荷神社」から徒歩目安約20分です。"
+          "reason": "次の予定地「稲荷神社」から徒歩目安約20分です。",
+          "tags": {
+            "amenity": "restaurant"
+          }
         },
         {
           "place_id": "osm-node-12669559036",

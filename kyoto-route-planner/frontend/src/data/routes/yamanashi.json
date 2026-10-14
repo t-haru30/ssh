@@ -421,7 +421,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「都留市博物館ミュージアム都留」から徒歩目安約4分です。"
+          "reason": "次の予定地「都留市博物館ミュージアム都留」から徒歩目安約4分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "name:en": "Yumean",
+            "name:ja": "夢庵"
+          }
         },
         {
           "place_id": "osm-node-1420934794",
@@ -561,7 +567,13 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「都留市商家資料館」から徒歩目安約7分です。"
+          "reason": "次の予定地「都留市商家資料館」から徒歩目安約7分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese",
+            "name:en": "Yumean",
+            "name:ja": "夢庵"
+          }
         },
         {
           "place_id": "osm-node-1420934796",

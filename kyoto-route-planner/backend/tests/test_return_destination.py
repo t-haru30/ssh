@@ -168,7 +168,95 @@ class ReturnDestinationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         timeline = response.json()["timeline"]
         self.assertEqual([item["stay_minutes"] for item in timeline if item.get("role") == "stop"], [45, 60])
-        self.assertEqual(timeline[-1]["time"], "11:25")
+        self.assertIsNone(timeline[-1]["time"])
         for stays in ([45], [0, 60], [45, 361]):
             with self.subTest(stays=stays), self.assertRaises(ValidationError):
                 RoutePreviewRequest(**dict(payload, stay_minutes=stays))
+
+    def test_preview_preserves_independent_return_destination(self):
+        destination = dict(name="宿泊先", latitude=0, longitude=4)
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), return_to=destination,
+                       places=selected_places(), departure_date="2026-10-12", departure_time="09:00", stay_minutes=[45, 60])
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        result = response.json()
+        self.assertEqual(self.search.await_args.kwargs["via_points"][-1], "0.0,4.0")
+        self.assertEqual(self.segment_search.await_args_list[-1].args[1], "0.0,4.0")
+        self.assertEqual(result["return_to"], destination)
+        self.assertEqual(result["coordinates"][-1], [0, 4])
+        self.assertEqual(result["timeline"][-1]["name"], "宿泊先")
+
+    def test_preview_retains_corrected_segment_legs_and_sums_fares(self):
+        from app.ekispert import RouteSearchResult
+        from app.models import RouteLeg
+        leg = RouteLeg(from_name="駅A", to_name="駅B", line_name="地下鉄", mode="train", duration_minutes=10)
+        async def segment(_start, _end, _date, departure):
+            from datetime import datetime, timedelta
+            arrival = (datetime.strptime(departure, "%H:%M") + timedelta(minutes=10)).strftime("%H:%M")
+            return RouteSearchResult([leg], 10, departure, arrival, 230)
+        self.segment_search.side_effect = segment
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=selected_places(),
+                       departure_date="2026-10-12", departure_time="09:00")
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        result = response.json()
+        self.assertEqual(len(result["legs"]), 3)
+        self.assertEqual(result["fare_yen"], 690)
+        self.assertEqual(result["total_minutes"], 30)
+
+    def test_preview_via_404_still_searches_segments_after_actual_arrival_and_stay(self):
+        from app.ekispert import RouteSearchResult
+        from app.models import RouteLeg
+        self.search.side_effect = HTTPException(status_code=404, detail="whole route unavailable")
+        leg = RouteLeg(from_name="駅A", to_name="駅B", line_name="鉄道", mode="train", duration_minutes=20)
+        self.segment_search.side_effect = [
+            RouteSearchResult([leg], 20, "09:05", "09:25", 200),
+            RouteSearchResult([leg], 20, "10:15", "10:35", 300),
+            RouteSearchResult([leg], 20, "11:40", "12:00", 400),
+        ]
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=selected_places(),
+                       departure_date="2026-10-12", departure_time="09:00", stay_minutes=[45, 60])
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual([call.args[3] for call in self.segment_search.await_args_list], ["09:00", "10:10", "11:35"])
+        result = response.json()
+        self.assertEqual(result["arrival_time"], "12:00")
+        self.assertEqual(result["timeline"][-1]["time"], "12:00")
+        self.assertEqual(result["fare_yen"], 900)
+
+    def test_preview_unknown_leg_leaves_later_clock_times_unconfirmed(self):
+        self.search.side_effect = HTTPException(status_code=404)
+        self.segment_search.side_effect = [HTTPException(status_code=404), ([], 10, "10:30", "10:40"), ([], 10, "12:10", "12:20")]
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=selected_places(),
+                       departure_date="2026-10-12", departure_time="09:00")
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        result = response.json()
+        self.assertIsNone(result["arrival_time"])
+        self.assertIsNone(result["total_minutes"])
+        self.assertTrue(all(item["time"] is None for item in result["timeline"] if item.get("role") in ("stop", "finish")))
+
+    def test_preview_same_location_is_zero_without_lookup(self):
+        places = [dict(selected_places()[0], latitude=0, longitude=0)]
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=places,
+                       departure_date="2026-10-12", departure_time="09:00", stay_minutes=[45])
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.segment_search.assert_not_awaited()
+        self.assertEqual(response.json()["arrival_time"], "09:45")
+        self.assertEqual(response.json()["fare_yen"], 0)
+
+    def test_preview_uses_provider_dates_across_midnight(self):
+        from app.ekispert import RouteSearchResult
+        self.search.side_effect = HTTPException(status_code=404)
+        self.segment_search.side_effect = [
+            RouteSearchResult([], 20, "23:55", "00:15", 200, "2026-10-12T23:55:00+09:00", "2026-10-13T00:15:00+09:00"),
+            RouteSearchResult([], 20, "00:45", "01:05", 200, "2026-10-13T00:45:00+09:00", "2026-10-13T01:05:00+09:00"),
+        ]
+        payload = dict(origin=dict(name="出発駅", latitude=0, longitude=0), places=selected_places()[:1],
+                       departure_date="2026-10-12", departure_time="23:50", stay_minutes=[30])
+        response = self.client.post("/api/routes/preview", json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(self.segment_search.await_args_list[1].args[2:], ("2026-10-13", "00:45"))
+        self.assertEqual(response.json()["arrival_time"], "01:05")
+        self.assertEqual(response.json()["total_minutes"], 45)

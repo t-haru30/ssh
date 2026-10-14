@@ -40,8 +40,9 @@ export function useGooglePlacePhoto(place: Place, enabled: boolean) {
   const payload = JSON.stringify({ id: place.id, name: place.name, latitude: place.latitude, longitude: place.longitude, address: place.address || "", category: "", description: "", access_point: "", themes: [] });
   const [state, setState] = useState<{ payload: string; photo: Photo | null } | null>(null);
   useEffect(() => {
-    setState(null);
-    if (!enabled) return;
+    // A dialog or hidden tab does not change facility identity. Keep its current
+    // display data in this mounted component, without a shared/persistent cache.
+    if (!enabled || state?.payload === payload && state.photo) return;
     let alive = true;
     const job = acquire(payload, place.id);
     void job.promise.then(photo => { if (alive) setState({ payload, photo }); });

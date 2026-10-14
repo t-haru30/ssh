@@ -1,0 +1,29 @@
+.google-journey-map { position:relative; display:flex; flex-direction:column; min-height:285px; background:var(--paper); }
+.google-journey-map .map-canvas { flex:none; min-height:240px; height:240px; }
+.journey-map-controls { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:8px; }
+.journey-map-controls > div { display:flex; gap:4px; }
+.journey-map-controls button { border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); padding:8px 10px; font:inherit; font-size:12px; min-height:40px; cursor:pointer; }
+.journey-map-controls button[aria-pressed="true"] { background:var(--forest); color:var(--paper); border-color:var(--forest); }
+.journey-map-controls button:focus-visible, .google-journey-pin:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+.journey-map-legend { margin:0; padding:6px 10px; color:var(--muted); font-size:11px; line-height:1.5; }
+.journey-map-placeholder { position:absolute; inset:90px 14px 36px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; font-size:13px; background:var(--surface-muted); border-radius:10px; }
+.journey-map-placeholder button { padding:8px 12px; color:var(--forest); background:var(--paper); border:1px solid var(--line); border-radius:8px; }
+.google-journey-pin { min-width:32px; height:32px; padding:4px 7px; color:#fff; background:#244c3d; border:2px solid white; border-radius:18px; box-shadow:0 2px 5px #0005; font-weight:700; cursor:pointer; }
+.google-journey-pin.is-active { background:#b36a51; transform:scale(1.15); }
+.google-journey-popup { display:grid; gap:8px; color:#22352c; font:13px/1.6 sans-serif; }
+.google-journey-popup a { color:#285741; }
+.discover-route-modal .route-modal-map:has(.google-journey-map) { height:auto; }
+.discover-route-modal .route-modal-map .google-journey-map { height:auto; min-height:0; }
+.hero-map .google-journey-map { height:auto; min-height:0; }
+.journey-map-warnings { padding:0 10px 8px; font-size:11px; color:var(--muted); }
+.journey-map-legend button { margin-left:8px; border:1px solid var(--line); border-radius:6px; color:var(--forest); background:var(--paper); padding:6px 10px; }
+.journey-transit-links { padding:0 10px 10px; font-size:12px; }
+.journey-transit-links summary { cursor:pointer; padding:8px 0; }
+.journey-transit-links a { display:grid; gap:3px; padding:9px 0; color:var(--forest); border-top:1px solid var(--line); }
+.journey-transit-links small { color:var(--muted); overflow-wrap:anywhere; }
+.search-mode.search-mode--result:has(.trip-editor) > .hero-map:has(.google-journey-map) { height:auto; min-height:0; max-height:none; overflow:visible; }
+.hero-map .google-journey-map .map-canvas { height:clamp(240px,45vh,480px); }
+@media (max-width:900px) {
+  .search-mode.search-mode--result:has(.trip-editor) > .hero-map:has(.google-journey-map) { position:relative; top:auto; }
+  .hero-map .google-journey-map .map-canvas { height:240px; }
+}

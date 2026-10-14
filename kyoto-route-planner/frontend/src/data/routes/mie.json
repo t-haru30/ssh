@@ -81,7 +81,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「伊勢現代美術館」から徒歩目安約11分です。"
+          "reason": "次の予定地「伊勢現代美術館」から徒歩目安約11分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "fish"
+          }
         },
         {
           "place_id": "osm-node-1420977064",
@@ -210,7 +214,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「澄懐堂美術館」から徒歩目安約2分です。"
+          "reason": "次の予定地「澄懐堂美術館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "fast_food",
+            "cuisine": "burger"
+          }
         },
         {
           "place_id": "osm-node-1420993937",
@@ -443,7 +451,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「伊勢河崎商人館」から徒歩目安約2分です。"
+          "reason": "次の予定地「伊勢河崎商人館」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "noodle"
+          }
         },
         {
           "place_id": "osm-node-2028461919",

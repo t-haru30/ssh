@@ -394,13 +394,16 @@
         {
           "place_id": "osm-node-12405995146",
           "name": "Sanzuian",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.0272937,
           "lng": 135.7970871,
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「史蹟及名勝 銀閣寺慈照寺庭園」から徒歩目安約2分です。"
+          "reason": "次の予定地「史蹟及名勝 銀閣寺慈照寺庭園」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "cafe"
+          }
         },
         {
           "place_id": "osm-node-3608486269",
@@ -540,7 +543,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「平安神宮神苑」から徒歩目安約2分です。"
+          "reason": "次の予定地「平安神宮神苑」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "japanese"
+          }
         },
         {
           "place_id": "osm-node-4271849912",

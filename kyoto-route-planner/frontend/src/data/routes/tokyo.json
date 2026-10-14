@@ -399,7 +399,11 @@
           "stay_minutes": 60,
           "score": 30.0,
           "role": "lunch",
-          "reason": "次の予定地「本妙院」から徒歩目安約2分です。"
+          "reason": "次の予定地「本妙院」から徒歩目安約2分です。",
+          "tags": {
+            "amenity": "restaurant",
+            "cuisine": "soba"
+          }
         },
         {
           "place_id": "osm-node-10218932134",
@@ -526,13 +530,22 @@
         {
           "place_id": "osm-node-3626069601",
           "name": "タリーズコーヒー",
-          "category": "飲食店",
+          "category": "カフェ",
           "lat": 35.6627158,
           "lng": 139.7329488,
           "stay_minutes": 60,
           "score": 50.0,
           "role": "lunch",
-          "reason": "次の予定地「TOTOギャラリー・間」から徒歩目安約10分です。"
+          "reason": "次の予定地「TOTOギャラリー・間」から徒歩目安約10分です。",
+          "tags": {
+            "amenity": "cafe",
+            "cuisine": "coffee_shop",
+            "name:en": "Tully's Coffee",
+            "name:ja": "タリーズコーヒー",
+            "website": "https://www.tullys.co.jp/",
+            "wikidata": "Q11316408",
+            "wikipedia": "ja:タリーズコーヒージャパン"
+          }
         }
       ],
       "coordinates": [
