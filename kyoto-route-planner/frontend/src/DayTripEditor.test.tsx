@@ -5,7 +5,8 @@ import { DayTripEditor } from "./DayTripEditor";
 import { newTripStop, scheduleTrip } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import type { RouteSuggestion } from "./types";
-// Editing is local; facility photo requests are tested independently.
+// External map and photo loading are tested independently of itinerary editing.
+vi.mock("./LazyMapView", () => ({ LazyMapView: () => null }));
 vi.mock("./FacilityPhoto", () => ({ FacilityPhoto: () => null }));
 
 function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold").forEach(item => { item.open = true; }); return view; }
@@ -272,3 +273,4 @@ it("automatically previews return destination and preserves stops on failure", a
   await screen.findByText(/交通経路を確認できませんでした。現在の旅程を保持/);
   expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
 });
+

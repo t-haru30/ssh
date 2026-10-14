@@ -557,7 +557,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         </section>
       )}
 
-      {hasResult && (
+      {hasResult && !isOvernight && <div id="journey-workspace-slot" className="journey-workspace-slot" />}
+      {hasResult && (isOvernight || !dayTripPlan) && (
         <div className="hero-map" id="journey-map">
           <LazyMapView
             visible={active}
@@ -826,3 +827,4 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     </div>
   );
 }
+

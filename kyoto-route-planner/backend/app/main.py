@@ -1,3 +1,4 @@
+from app.journey_chat import ChatRequest, ChatResponse, chat_journey
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -893,6 +894,12 @@ async def recommend_overnight_itinerary(
 
 
 
+@app.post("/api/journey/chat", response_model=ChatResponse)
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("3/minute")
+async def edit_journey_chat(request: Request, payload: ChatRequest) -> ChatResponse:
+    return await chat_journey(payload)
+
 @app.post("/api/journey/review", response_model=JourneyReviewResponse)
 @limiter.shared_limit("20/minute", scope="paid-external-api")
 @limiter.limit("2/minute")
@@ -1364,3 +1371,4 @@ async def _recommend_routes(
 frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 if frontend_dist.is_dir():
     app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+

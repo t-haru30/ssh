@@ -1,3 +1,4 @@
+import { JourneyChat } from "./JourneyChat";
 import { FacilityPhoto } from "./FacilityPhoto";
 import { TripTransit } from "./TripTransit";
 import { OvernightSuggestion } from "./OvernightSuggestion";
@@ -357,6 +358,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     {!plan.estimatedTravel && plan.transport.route.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{plan.transport.route.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}
     </div></details>
     <details className="trip-check-toggle"><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
+    <JourneyChat plan={plan} candidates={options} disabled={busy || preview !== null} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
     <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
     <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong></div><span aria-hidden="true">START</span></div>
@@ -422,3 +424,4 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     </TripDialog>}
   </fieldset></section>;
 }
+
