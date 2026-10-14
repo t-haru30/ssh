@@ -17,6 +17,7 @@ from app.models import CatalogPlace, Origin, Theme
 from app.places import is_unsuitable_place
 from app.public_catalog import load_public_places
 from app.regional_food import regional_score
+from app.travel_wishes import wish_score
 
 
 PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
@@ -55,6 +56,7 @@ class DiscoverRequest(BaseModel):
     count: int = Field(default=12, ge=1, le=20)
     traveler: Traveler | None = None
     preference_text: str = Field(default="", max_length=600)
+    priority_text: str = Field(default="", max_length=500)
     viewed_dining_ids: list[Annotated[str, Field(min_length=1, max_length=200)]] = Field(default_factory=list, max_length=60)
 
 
@@ -86,6 +88,8 @@ def dinner_place(place: CatalogPlace) -> bool:
 
 
 def preserves_choices(request: DiscoverRequest, nearby, available) -> bool:
+    if any(wish_score(request.priority_text, p) for p in available) and not any(wish_score(request.priority_text, p) for p in nearby):
+        return False
     required_meals = len(request.meals) if request.meals is not None else int(request.course == "full_day")
     if sum(dinner_place(p) for p in nearby) < required_meals:
         return False
@@ -198,12 +202,13 @@ def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ..
     candidates = sorted((place for place in places
         if (request.cross_prefecture or place.region == request.prefecture_name)
         and (not selected_themes(request) or bool(selected_themes(request) & set(place_themes(place)))
+             or wish_score(request.priority_text, place) > 0
              or request.theme == "food" or (request.meals or request.meals is None and request.course == "full_day") and dinner_place(place))
         and (request.meals != [] or not dinner_place(place))
         and not any(word in place.category for word in ("ホテル", "旅館", "宿泊"))
         and not is_unsuitable_place(place)
         and distance_km(request.origin, place) <= request.radius_km),
-        key=lambda place: (place.region != request.prefecture_name, -regional_score(request.origin, place) if request.theme == "food" else 0, distance_km(request.origin, place), place.id))
+        key=lambda place: (place.region != request.prefecture_name, -wish_score(request.priority_text, place), -regional_score(request.origin, place) if request.theme == "food" else 0, distance_km(request.origin, place), place.id))
     candidates = distinct_venues(candidates)
     local = [p for p in candidates if p.region == request.prefecture_name]
     if len(local) >= max_stops(request) and preserves_choices(request, local, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in local)):
@@ -281,16 +286,16 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
     effective_radius = radii[-1]
     for radius in radii:
         nearby = [place for place in candidates if distance_km(request.origin, place) <= radius]
-        if len(nearby) >= max(6, max_stops(request)) and preserves_choices(request, nearby, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in nearby)) and not any(regional_score(request.origin, p) and p not in nearby for p in candidates):
+        if len(nearby) >= max(6, max_stops(request)) and preserves_choices(request, nearby, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in nearby)) and not any((regional_score(request.origin, p) or wish_score(request.priority_text, p)) and p not in nearby for p in candidates):
             candidates, effective_radius = nearby, radius
             break
-    candidates.sort(key=lambda p: (-regional_score(request.origin, p) if request.theme == "food" else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
+    candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
     routes, seen, venue_use = [], set(), {}
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
         ordered, remaining, cursor = [seed], [p for p in candidates if p.id != seed.id], seed
         # Vary dining venues across the deck, retaining local-specialty priority.
-        dining = sorted(candidates, key=lambda p: (8 * venue_use.get(p.id, 0) - (2 * regional_score(request.origin, p) if request.theme == "food" else 0),
+        dining = sorted(candidates, key=lambda p: (8 * venue_use.get(p.id, 0) - 10 * wish_score(request.priority_text, p) - (2 * regional_score(request.origin, p) if request.theme == "food" else 0),
                         distance_km(seed, p), p.id))
         if request.meals is not None:
             for meal in (p for p in dining if dinner_place(p) and p not in ordered):
@@ -322,7 +327,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
             if not options:
                 break
             missing = selected_themes(request) - {t for q in ordered for t in place_themes(q)}
-            nearest = min(options, key=lambda p: (-len(missing & set(place_themes(p))), distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            nearest = min(options, key=lambda p: (-wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -435,8 +440,21 @@ async def discover_routes(request: DiscoverRequest) -> dict:
     fallback, pool = await _discover_catalog(request)
     result = await recommend_routes(request, eligible_candidates(request, pool), fallback)
     result["catalog"] = fallback["catalog"]
+    by_id = {p.id: p for p in pool}
+    def route_wish_score(route):
+        return sum(wish_score(request.priority_text, by_id[spot["place_id"]])
+                   for spot in route["spots"] if spot["place_id"] in by_id)
+    if request.priority_text:
+        # A model omission must not erase a feasible explicit wish already found
+        # by the bounded deterministic composer.
+        choices = sorted([*result["routes"], *(r for r in fallback["routes"] if route_wish_score(r))], key=lambda r: -route_wish_score(r))
+        unique = {}
+        for route in choices:
+            unique.setdefault(tuple(sorted(s["place_id"] for s in route["spots"])), route)
+        result["routes"] = list(unique.values())[:request.count]
     result["routes"] = diversify_dining_routes(request,result["routes"],pool,
         set(fallback["catalog"].get("local_dining_ids",[])),set(fallback["catalog"].get("verified_dining_ids",[])))
+    result["routes"].sort(key=lambda route: -route_wish_score(route))
     from app.discovery_review import review_journeys
     result["review"] = await review_journeys(request, result, pool)
     return result
@@ -471,8 +489,9 @@ def diversify_dining_routes(request, routes: list[dict], pool, preferred_ids: se
             if not dinner_place(current):
                 continue
             others = {p.id for i,p in enumerate(places) if i != index}
-            priority = lambda p: 2 * regional_score(request.origin,p) + 3 * int(p.id in preferred_ids)
+            priority = lambda p: 10 * wish_score(request.priority_text, p) + 2 * regional_score(request.origin,p) + 3 * int(p.id in preferred_ids)
             ranked = sorted((p for p in dining if p.id not in others), key=lambda p: (
+                -wish_score(request.priority_text, p),
                 prefer_verified and p.id not in verified_ids,
                 8 * (used.get(p.id,0) + used_brands.get(brand(p),0)) - priority(p), distance_km(current,p), p.id))
             for choice in ranked:

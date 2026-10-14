@@ -12,7 +12,7 @@ export const EMPTY_TRAVELER_PROFILE: TravelerProfile = { age_group: "unspecified
 export const TRAVELER_PROFILE_KEY = "traveler-profile-v1";
 export const AGE_OPTIONS = [{ value: "unspecified", label: "指定しない" }, { value: "under_18", label: "18歳未満" }, { value: "18_29", label: "18〜29歳" }, { value: "30_49", label: "30〜49歳" }, { value: "50_64", label: "50〜64歳" }, { value: "65_plus", label: "65歳以上" }] as const;
 export const GENDER_OPTIONS = [{ value: "unspecified", label: "指定しない" }, { value: "female", label: "女性" }, { value: "male", label: "男性" }, { value: "other", label: "その他" }] as const;
-export const COMPANION_OPTIONS = [{ value: "unspecified", label: "指定しない" }, { value: "family", label: "家族と" }, { value: "friends", label: "友人と" }, { value: "couple", label: "パートナーと" }, { value: "solo", label: "ひとりで" }] as const;
+export const COMPANION_OPTIONS = [{ value: "family", label: "家族と" }, { value: "friends", label: "友人と" }, { value: "couple", label: "パートナーと" }, { value: "solo", label: "ひとりで" }, { value: "unspecified", label: "指定しない" }] as const;
 function validate(value: unknown): TravelerProfile | null {
   if (!value || typeof value !== "object") return null;
   const p = value as TravelerProfile;

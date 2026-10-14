@@ -105,7 +105,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     setDraftRestored(false);
     setTripSession(preset.nonce);
     setSuggestions([{ origin: preset.origin, places: preset.places, legs: [], total_minutes: null,
-      departure_time: null, arrival_time: null, fare_yen: null, title: preset.title, story: "選んだ行き先を引き継ぎました。予定を編集してから交通経路を検索できます。", note: "交通経路は未検索です。" }]);
+      departure_time: null, arrival_time: null, fare_yen: null, title: preset.title, story: "選んだ行き先を引き継ぎ、交通経路を自動で確認します。", note: "交通経路を確認しています。" }]);
     setTransportStamp({ date: "", time: "" });
     setError(null);
   }, [preset]);

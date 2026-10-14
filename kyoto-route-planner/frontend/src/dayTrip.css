@@ -183,3 +183,10 @@
 .trip-search-help button { min-height: 44px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--forest); background: var(--paper); font: inherit; }
 .trip-related-candidates { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
 .trip-related-candidates h3 { font-size: 16px; }
+.trip-route-status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; padding: 12px 16px; border-radius: 12px; background: var(--surface-muted); line-height: 1.6; }
+.trip-route-status button { min-height: 44px; }
+.trip-overnight-suggestion { margin: 16px 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.trip-overnight-suggestion h4 { margin: 0 0 8px; }
+.trip-overnight-suggestion ul { list-style: none; padding: 0; display: grid; gap: 10px; }
+.trip-overnight-suggestion li { display: grid; gap: 4px; overflow-wrap: anywhere; }
+.trip-overnight-suggestion > a { display: inline-block; padding: 12px 0; }

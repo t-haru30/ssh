@@ -18,8 +18,8 @@ import "./discoverPersonalized.css";
 import { PreferenceTags } from "../PreferenceTags";
 import { TravelerPreferences } from "../TravelerPreferences";
 import { StationSearch } from "../StationSearch";
+import { DestinationGatewaySearch } from "../DestinationGatewaySearch";
 import type { Origin } from "../types";
-import { isOrigin, isRecord } from "../apiValidation";
 import "./discoveryFlow.css";
 import { readTravelerProfile, saveTravelerProfile, travelerProfileSummary, PACE_OPTIONS, normalizeTravelPace } from "../travelerProfile";
 import { TravelRangeControl } from "../TravelRangeControl";
@@ -44,7 +44,7 @@ function readCompletedTheme(): ThemeFilter | null {
     return themes.find(item => item.id === saved)?.id ?? null;
   } catch { return null; }
 }
-type Conditions = { area: string; theme: ThemeFilter; themes: ThemeFilter[]; meals: MealChoice[]; pattern: "all" | "half_day" | "full_day"; radius: number; crossPrefecture: boolean; variation: number; origin: Origin; departure: Origin; preference_text: string; traveler: ReturnType<typeof readTravelerProfile> };
+type Conditions = { area: string; theme: ThemeFilter; themes: ThemeFilter[]; meals: MealChoice[]; pattern: "all" | "half_day" | "full_day"; radius: number; crossPrefecture: boolean; variation: number; origin: Origin; departure: Origin; preference_text: string; priority_text: string; traveler: ReturnType<typeof readTravelerProfile> };
 const conditionsId = (c: Conditions) => JSON.stringify(c);
 const preferenceId = (c: Conditions) => conditionsId({ ...c, variation: 0 });
 type BrowseState = { index: number; history: number[] };
@@ -63,31 +63,6 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const [moodStage, setMoodStage] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [preferenceText, setPreferenceText] = useState("");
-  const [destinationBusy, setDestinationBusy] = useState(false);
-  const [destinationNote, setDestinationNote] = useState("");
-  const destinationRequest = useRef<AbortController | null>(null);
-  useEffect(() => { destinationRequest.current?.abort(); destinationRequest.current = null; setDestinationBusy(false); return () => { destinationRequest.current?.abort(); destinationRequest.current = null; }; }, [step, active, preferenceText]);
-  async function proposeDestination() {
-    if (!preferenceText.trim() || destinationBusy) return;
-    const controller = new AbortController(); destinationRequest.current = controller;
-    const timer = window.setTimeout(() => controller.abort(), 45000);
-    setDestinationBusy(true); setDestinationNote("");
-    try {
-      const response = await fetch("/api/destination-suggestion", { method:"POST", headers:{"Content-Type":"application/json"}, signal:controller.signal, body:JSON.stringify({ text:preferenceText.trim() }) });
-      const data: unknown = await response.json();
-      if (!response.ok) throw new Error(isRecord(data) && typeof data.detail === "string" ? data.detail : "行き先を提案できませんでした。");
-      if (!isRecord(data) || !isOrigin(data.origin)) throw new Error("行き先の位置を確認できませんでした。");
-      const nextArea = indexEntries.find(item => item.name === data.prefecture);
-      if (!nextArea) throw new Error("都道府県を確認できませんでした。");
-      if (controller.signal.aborted) return;
-      setArea(nextArea.id); setDestination(data.origin); setMoodStage(2);
-      setDestinationNote(`${nextArea.name}${typeof data.municipality === "string" ? `・${data.municipality}` : ""}の${data.origin.name}を提案しました。行き先は変更できます。`);
-      setStep(2);
-    } catch (error) {
-      if (destinationRequest.current === controller && !controller.signal.aborted) setDestinationNote(error instanceof Error ? error.message : "行き先を取得できませんでした。");
-      else if (destinationRequest.current === controller) setDestinationNote("取得を中止しました。もう一度試すか、駅を選んでください。");
-    } finally { window.clearTimeout(timer); if (destinationRequest.current === controller) setDestinationBusy(false); }
-  }
   const [wish, setWish] = useState("おまかせ");
   const [departure, setDeparture] = useState<Origin>(() => ({ name: "名古屋駅", latitude: 35.1709, longitude: 136.8815 }));
   const [destination, setDestination] = useState<Origin>(() => localOrigins[area] ?? { name: `${prefecture.name}・エリア中心`, latitude: indexEntries.find(item => item.id === area)!.center[0], longitude: indexEntries.find(item => item.id === area)!.center[1] });
@@ -150,8 +125,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: JourneyReviewData; originalRoutes?: DatasetRoute[] } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const seenRoutes = useRef<Record<string, DatasetRoute[]>>({});
-  const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` }));
-  const draft = { area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` };
+  const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` }));
+  const draft = { area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` };
   const dirty = conditionsId(draft) !== conditionsId(applied);
   const advanceRef = useRef<AbortController | null>(null);
   const [preparingNext, setPreparingNext] = useState(false);
@@ -161,7 +136,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const entry = indexEntries.find(item => item.id === applied.area)!;
   const origin = applied.origin;
   const conditionsKey = conditionsId(applied);
-  const localRoutes = useMemo(() => diverseRoutes(composeLocalRoutes({ entry, origin, theme: applied.theme, themes: applied.themes, meals: applied.meals, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler, preferenceText: applied.preference_text })), [entry, origin, applied]);
+  const localRoutes = useMemo(() => diverseRoutes(composeLocalRoutes({ entry, origin, theme: applied.theme, themes: applied.themes, meals: applied.meals, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler, priorityText: applied.priority_text, preferenceText: applied.preference_text })), [entry, origin, applied]);
   const routes = useMemo(() => (remote?.key === conditionsKey ? remote.routes : localRoutes).map(route => ({ ...route, travel_origin: applied.departure })), [remote, conditionsKey, localRoutes, applied.departure]);
   const collectionKey = `${conditionsKey}:${remote?.key === conditionsKey ? "api" : "local"}`;
   useEffect(() => {
@@ -196,7 +171,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     if (!excludeViewed) seenRoutes.current[preferenceId(next)] = [];
     const excluded = excludeViewed ? [...(seenRoutes.current[preferenceId(next)] ?? [])] : [];
     const viewedDiningIds = [...new Set(excluded.flatMap(route => route.spots.filter(spot => spot.role !== "stop").map(spot => spot.place_id)))].slice(-60);
-    const fallback = diverseRoutes(composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler, preferenceText: next.preference_text }), excluded);
+    const fallback = diverseRoutes(composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler, priorityText: next.priority_text, preferenceText: next.preference_text }), excluded);
     setDeckEpoch(value => value + 1);
     cancelAdvance(); setApplied(next); setSelected(null);
     setRemote({ key: nextKey, routes: fallback, note: "条件に合う未閲覧の候補です。移動時間は推定です。" });
@@ -209,7 +184,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     setGenerating(true); setNotice(null);
     try {
       const response = await fetch("/api/discover", { method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-        body: JSON.stringify({ area: next.area, prefecture_name: nextEntry.name, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius_km: next.radius, cross_prefecture: next.crossPrefecture, variation: next.variation, count: 12, traveler: next.traveler, preference_text: next.preference_text, viewed_dining_ids: viewedDiningIds }) });
+        body: JSON.stringify({ area: next.area, prefecture_name: nextEntry.name, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius_km: next.radius, cross_prefecture: next.crossPrefecture, variation: next.variation, count: 12, traveler: next.traveler, preference_text: next.preference_text.slice(0, 600), priority_text: next.priority_text, viewed_dining_ids: viewedDiningIds }) });
       if (!response.ok) throw new Error("候補を取得できませんでした。");
       const data: unknown = await response.json();
       if (!isDiscoverResponse(data)) throw new Error("候補データの形式が正しくありません。");
@@ -228,6 +203,10 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
       }
     } finally { window.clearTimeout(timer); if (requestRef.current === controller) { requestRef.current = null; setGenerating(false); } }
   }
+  const nextBlockedReason = step === 0 && profileStage < 3
+    ? ["誰と出かけるかを選んでください。「指定しない」でも進めます。", "旅のペースを選んでください。", "好きな過ごし方を1つ以上選んでください。"][profileStage]
+    : step === 1 && moodStage < 2 ? moodStage === 0 ? "今回の旅で大切にしたいことを選んでください。" : "どれくらい楽しむかを選んでください。"
+    : step > 0 && step < 3 && mealWarning ? mealWarning : step === 2 && locating ? "現在地を取得中です。取得が終わるまでお待ちください。" : "";
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);
   const areaName = entry.name;
@@ -301,23 +280,22 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           {mealWarning && <p role="alert">{mealWarning}</p>}
         </fieldset></div>}
         <div className="profile-reveal"><label className="discovery-free-text">ほかに、やってみたいことは？（任意）<textarea value={preferenceText} onChange={event => setPreferenceText(event.target.value)} maxLength={500} rows={3} placeholder="例：金沢で庭園を歩いて、カフェに寄りたい" /></label>
-          <div className="discovery-destination-assist"><strong>行き先に迷ったら</strong><button type="button" disabled={destinationBusy || !preferenceText.trim() || Boolean(mealWarning) || moodStage < 2} onClick={() => void proposeDestination()}>{destinationBusy ? "行き先を提案中…" : "AIで行き先を提案"}</button></div>
-          {destinationNote && <p role="status">{destinationNote}</p>}
+          <small>入力した希望を、旅程づくりで優先します。</small>
         </div>
       </>}
-      {step === 2 && <><p role="status">{destinationNote}</p>
-        <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      {step === 2 && <>
         <StationSearch label="出発地点" value={departure} options={[localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }]} onChange={setDeparture} />
         <div className="departure-location">
           <button type="button" disabled={locating} onClick={useCurrentLocation}>{locating ? "現在地を取得中…" : "現在地を使う"}</button>
           {(locationMessage || departure.name === "現在地") && <p role="status" aria-live="polite">{locationMessage || "現在地を出発地点に設定しました。"}</p>}
         </div>
-        <StationSearch key={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} label="行き先の駅・観光の起点" value={destination} options={[localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }]} onChange={(station, prefecture) => { setDestination(station); const stationArea = indexEntries.find(item => item.name === prefecture) ?? indexEntries.find(item => localOrigins[item.id]?.latitude === station.latitude && localOrigins[item.id]?.longitude === station.longitude); if (stationArea) { setArea(stationArea.id); setCrossPrefecture(false); } }} />
+        <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{indexEntries.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={(station, prefecture) => { setDestination(station); const stationArea = indexEntries.find(item => item.name === prefecture) ?? indexEntries.find(item => localOrigins[item.id]?.latitude === station.latitude && localOrigins[item.id]?.longitude === station.longitude); if (stationArea) { setArea(stationArea.id); setCrossPrefecture(false); } }} />
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}
       <footer className="discovery-question-footer">
-        <p className="discovery-next-hint" role="status">{step === 0 ? profileStage >= 3 ? "好みの設定が完了しました。" : `あと${3 - profileStage}項目を選んでください。` : step === 1 ? moodStage < 2 ? "旅の気分と長さを選ぶと次へ進めます。" : "行き先は次の画面で選べます。" : "この条件で旅程を探します。"}</p>
-        <div className="discovery-next">{step > 0 && <button type="button" onClick={() => setStep(step - 1)}>← 戻る</button>}<button type="button" className="idea-primary-button" disabled={step === 0 && profileStage < 3 || step === 1 && moodStage < 2 || Boolean(mealWarning) || step === 2 && locating} onClick={() => step === 2 ? void generate() : setStep(step + 1)}>{step === 2 ? "おすすめ旅程を見る" : step === 0 ? "次へ：旅の気分を選ぶ" : "次へ：行き先を選ぶ"} →</button></div>
+        <p id="discovery-next-hint" className="discovery-next-hint" role="status" aria-live="polite">{nextBlockedReason || (step === 0 ? profileStage >= 3 ? "好みの設定が完了しました。" : `あと${3 - profileStage}項目を選んでください。` : step === 1 ? moodStage < 2 ? "旅の気分と長さを選ぶと次へ進めます。" : "行き先は次の画面で選べます。" : "この条件で旅程を探します。")}</p>
+        <div className="discovery-next">{step > 0 && <button type="button" onClick={() => setStep(step - 1)}>← 戻る</button>}<button type="button" className="idea-primary-button" aria-describedby="discovery-next-hint" disabled={Boolean(nextBlockedReason)} onClick={() => step === 2 ? void generate() : setStep(step + 1)}>{step === 2 ? "おすすめ旅程を見る" : step === 0 ? "次へ：旅の気分を選ぶ" : "次へ：行き先を選ぶ"} →</button></div>
       </footer>
     </section>}
     {step === 3 && <section className="discover-workspace discovery-deck" aria-label="旅の候補を探す">

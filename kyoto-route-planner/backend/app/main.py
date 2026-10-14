@@ -45,6 +45,7 @@ from app.route_illustrations import (
 from app.venue_evidence import EvidenceRequest, VenueEvidence, evidence_status, fetch_venue_evidence
 from app.official_place_info import known_official_url
 from app.station_search import StationCandidate, search_stations
+from app.travel_candidates import TravelCandidatesRequest, suggest_travel_candidates
 from app.models import (
     TransitSegmentRequest,
     ItineraryRequest,
@@ -828,6 +829,26 @@ async def stations_search(request: Request, q: Annotated[str, Query(min_length=1
         raise HTTPException(504, "駅検索がタイムアウトしました。駅名を詳しくして再度お試しください。") from None
 
 
+@app.post("/api/destination-gateways")
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("6/minute")
+async def destination_gateways(request: Request, payload: TravelCandidatesRequest):
+    try:
+        return await suggest_travel_candidates(payload, "station")
+    except TimeoutError:
+        return {"places": [], "note": "周辺の駅を取得できませんでした。駅名で検索できます。"}
+
+
+@app.post("/api/lodging/suggestions")
+@limiter.shared_limit("20/minute", scope="paid-external-api")
+@limiter.limit("6/minute")
+async def lodging_suggestions(request: Request, payload: TravelCandidatesRequest):
+    try:
+        return await suggest_travel_candidates(payload, "lodging")
+    except TimeoutError:
+        return {"places": [], "note": "宿泊候補を取得できませんでした。行き先周辺の宿泊施設を確認してください。"}
+
+
 @app.post("/api/recommendations/evidence", response_model=VenueEvidence)
 @limiter.limit("6/minute")
 async def recommendations_evidence(request: Request, body: EvidenceRequest):
@@ -899,30 +920,8 @@ async def preview_route(
     deadline = time.monotonic() + ROUTE_REQUEST_BUDGET_SECONDS
     destination = payload.return_to or payload.origin
     departure_time = payload.departure_time.strftime("%H:%M")
-    via_points = [
-        f"{payload.origin.latitude},{payload.origin.longitude}",
-        *(f"{place.latitude},{place.longitude}" for place in payload.places),
-        f"{destination.latitude},{destination.longitude}",
-    ]
-    try:
-        legs, total_minutes, actual_departure, actual_arrival = await asyncio.wait_for(
-            search_route(
-                via_points=via_points,
-                departure_date=payload.departure_date.isoformat(),
-                departure_time=departure_time,
-            ),
-            timeout=max(0.001, deadline - time.monotonic()),
-        )
-    except HTTPException as error:
-        if error.status_code != 404:
-            raise
-        legs, total_minutes, actual_departure, actual_arrival = [], None, None, None
-    except asyncio.TimeoutError as error:
-        raise HTTPException(
-            status_code=504,
-            detail="経路検索がタイムアウトしました。時間をおいて再度お試しください。",
-        ) from error
-
+    # Query each segment after the previous visit. A whole-trip lookup can fail
+    # for too many via points and consume the budget before segment searches.
     timeline = await _preview_sequential_timeline(payload, deadline)
 
     segments = [item for item in timeline if isinstance(item, RouteTimelineTransit)]
@@ -933,7 +932,7 @@ async def preview_route(
         origin=payload.origin,
         return_to=destination,
         fare_yen=fare,
-        legs=corrected_legs or legs,
+        legs=corrected_legs,
         total_minutes=sum(item.duration_minutes for item in segments) if segments and all(not item.is_estimate and item.duration_minutes is not None for item in segments) else None,
         departure_time=departure_time,
         arrival_time=timeline[-1].time,

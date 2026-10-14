@@ -11,7 +11,7 @@ vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: () => null }));
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
 it("sends changed traveler conditions, cancels stale recommendations and restores the selection", async () => {
   const requests: RequestInit[] = [];
-  vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => { requests.push(init); return new Promise(() => {}); }));
+  vi.stubGlobal("fetch", vi.fn((url: string, init: RequestInit) => { if (url === "/api/discover") requests.push(init); return new Promise(() => {}); }));
   const mount = () => render(<PrefectureProvider><FavoritesProvider><DiscoverMode active /></FavoritesProvider></PrefectureProvider>);
   const view = mount();
   fireEvent.click(screen.getByRole("button", { name: "家族と" }));

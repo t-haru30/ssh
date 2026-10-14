@@ -7,6 +7,7 @@ are unavailable from these endpoints, so lines stays empty rather than adding
 five more provider calls. No provider responses or keys are logged.
 """
 import os
+import ssl
 import unicodedata
 
 import httpx
@@ -56,7 +57,7 @@ async def search_stations(query: str, prefecture_code: str | None = None) -> lis
     if not key:
         raise HTTPException(503, "駅検索には駅すぱあとAPIキーの設定が必要です。")
     referer = os.getenv("EKISPERT_APPLICATION_URL", "http://127.0.0.1:8000").strip()
-    async with httpx.AsyncClient(timeout=provider_timeout(8), follow_redirects=False,
+    async with httpx.AsyncClient(timeout=provider_timeout(8), follow_redirects=False, trust_env=False, verify=ssl.create_default_context(),
                                  headers={"Referer": referer} if referer else {}) as client:
         light = await _get(client, "station/light", key, name=query, nameMatchType="partial", type="train",
                            **({"prefectureCode": str(int(prefecture_code))} if prefecture_code else {}))

@@ -180,7 +180,7 @@ class ReturnDestinationTests(unittest.TestCase):
         response = self.client.post("/api/routes/preview", json=payload)
         self.assertEqual(response.status_code, 200, response.text)
         result = response.json()
-        self.assertEqual(self.search.await_args.kwargs["via_points"][-1], "0.0,4.0")
+        self.search.assert_not_awaited()
         self.assertEqual(self.segment_search.await_args_list[-1].args[1], "0.0,4.0")
         self.assertEqual(result["return_to"], destination)
         self.assertEqual(result["coordinates"][-1], [0, 4])
