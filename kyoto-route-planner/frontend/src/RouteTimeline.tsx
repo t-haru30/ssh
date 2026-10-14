@@ -135,8 +135,9 @@ export function buildRouteTimeline(
     ? plan.legs.map((leg) => leg.minutes)
     : buildDistanceSegments(origin, places, totalMinutes);
   const legSummary = (index: number, duration: number | null) => {
-    if (usePlan) return `${PLAN_MODE_LABEL[plan.legs[index].mode]}で約${formatDuration(duration)}`;
-    return duration === null ? "公共交通・徒歩で移動" : `公共交通・徒歩で約${formatDuration(duration)}`;
+    if (duration === null) return "経路未確認";
+    if (!usePlan || plan.legs[index].mode === "public_transport") return `約${formatDuration(duration)}`;
+    return `${PLAN_MODE_LABEL[plan.legs[index].mode]}で約${formatDuration(duration)}`;
   };
   const legMode = (index: number) => (usePlan ? plan.legs[index].mode : "public_transport" as const);
   const formatTime = (minutes: number | null) => (
@@ -244,8 +245,8 @@ export function withRouteLegs(
       return {
         ...item,
         summary: item.duration_minutes === null
-          ? "移動"
-          : `移動 約${formatDuration(item.duration_minutes)}`,
+          ? "経路未確認"
+          : `約${formatDuration(item.duration_minutes)}`,
         legs,
         detailsLabel: "全区間の駅すぱあと経路詳細",
       };
@@ -287,8 +288,8 @@ export function buildDayTimeline(
         duration_minutes: duration,
         is_estimate: true,
         summary: duration === null
-          ? "移動"
-          : `移動 約${formatDuration(duration)}`,
+          ? "経路未確認"
+          : `約${formatDuration(duration)}`,
         detail: scheduleItem.detail,
       };
       if (!assignedLegs && day.legs.length > 0) {
@@ -416,7 +417,7 @@ export function RouteTimeline({ items }: RouteTimelineProps) {
                   )}
                   {minutes !== null && minutes > 0 && (
                     <span className="timeline-transit-duration">
-                      {item.is_estimate ? "移動 約" : "所要"}{formatDuration(minutes)}
+                      {item.is_estimate ? "目安 約" : "所要"}{formatDuration(minutes)}
                     </span>
                   )}
                   {item.detail && <small>{item.detail}</small>}

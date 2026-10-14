@@ -10,7 +10,7 @@ export function PreviewTransit({from,to,minutes,unknown,loading,transit,places}:
   const legs=transit?.legs ?? [];
   return <li className="journey-between-stops" aria-label={`プレビューの移動：${from}から${to}`}>
     <div className="preview-transit">
-      <div className="preview-transit-heading"><strong>{unknown ? "移動時間未確認" : `移動 約${minutes}分`}</strong>{transit?.fare_yen != null && <span>概算 {transit.fare_yen.toLocaleString("ja-JP")}円</span>}</div>
+      <div className="preview-transit-heading"><strong>{unknown ? "所要時間未確認" : `約${minutes}分`}</strong>{transit?.fare_yen != null && <span>概算 {transit.fare_yen.toLocaleString("ja-JP")}円</span>}</div>
       {legs.length > 0 && <div className="preview-transit-modes" aria-label="移動手段の順番">{legs.map((leg,index) => <span key={index}>{index > 0 && <span className="preview-transit-arrow" aria-hidden="true">›</span>}<span className={`preview-mode preview-mode--${leg.mode}`}>{modeLabel(leg.mode)}</span></span>)}</div>}
       {!transit && <p className="preview-transit-note">{loading ? "交通経路を検索中…" : "距離からの徒歩概算"}</p>}
       {transit && <details className="preview-transit-details"><summary>経路・乗換を見る</summary>

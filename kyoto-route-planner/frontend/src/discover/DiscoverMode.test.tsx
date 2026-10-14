@@ -31,6 +31,25 @@ function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /
 async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false)); }
 function saved() { return JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]"); }
 
+it("connects journey steps and marks completed steps with checkmarks", () => {
+  mount();
+  const progress = screen.getByRole("navigation", { name: "旅選びのステップ" });
+  let steps = progress.querySelectorAll(".discovery-progress-step");
+  expect(steps).toHaveLength(4);
+  expect(steps[0].querySelector("b")?.textContent).toBe("01");
+  expect(steps[0].querySelector(".discovery-progress-connector")).toBeTruthy();
+  expect(steps[0].getAttribute("data-complete")).toBe("false");
+
+  goMood();
+  fireEvent.click(screen.getByRole("button", { name: /次へ：行き先/ }));
+  steps = progress.querySelectorAll(".discovery-progress-step");
+  expect(steps[0].querySelector("b")?.textContent).toBe("✓");
+  expect(steps[1].querySelector("b")?.textContent).toBe("✓");
+  expect(steps[0].getAttribute("data-complete")).toBe("true");
+  expect(steps[1].getAttribute("data-complete")).toBe("true");
+  expect(steps[2].querySelector("b")?.textContent).toBe("03");
+});
+
 it.each([false,true])("shows streamed cards before AI completes, preserving a deck after interaction=%s",async(interact)=>{
   const native=await vi.importActual<{TextDecoder:typeof globalThis.TextDecoder;TextEncoder:typeof globalThis.TextEncoder}>("node:util");
   vi.stubGlobal("TextDecoder",native.TextDecoder);
@@ -92,7 +111,7 @@ it("treats unanswered gourmet meals as automatic and keeps explicit no-meals sep
   await waitFor(() => expect(vi.mocked(fetch).mock.calls.some(([url]) => url === "/api/discover")).toBe(true));
   const requests = () => vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover");
   expect(JSON.parse(String(requests()[0][1]?.body)).meals).toEqual([{kind:"lunch"}, {kind:"dinner"}]);
-  fireEvent.click(screen.getByRole("button", {name:"02 旅の気分へ"}));
+  fireEvent.click(screen.getByRole("button", {name:"02 気分へ"}));
   fireEvent.click(screen.getByRole("button", {name:"食事なし"}));
   fireEvent.click(screen.getByRole("button", {name:/行き先を選ぶ/}));
   fireEvent.click(screen.getByRole("button", {name:/おすすめ旅程を見る/}));
@@ -136,9 +155,9 @@ it("prioritizes written wishes without a destination suggestion button and suppo
   fireEvent.click(screen.getByRole("button", {name:/次へ：行き先を選ぶ/}));
   await screen.findByRole("heading", {name:"どこから、どこへ？"});
   expect((screen.getByLabelText("行き先の都道府県") as HTMLSelectElement).value).toBe("kyoto");
-  fireEvent.click(screen.getByRole("button", {name:"01 あなたの好みへ"}));
+  fireEvent.click(screen.getByRole("button", {name:"01 好みへ"}));
   expect(screen.getByRole("heading", {name:"まずは、あなたのこと。"})).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", {name:"03 行き先へ"}));
+  fireEvent.click(screen.getByRole("button", {name:"03 行先へ"}));
   fireEvent.click(screen.getByText(/到着後の観光範囲/));
   fireEvent.click(screen.getByLabelText("距離を制限しない"));
   expect(screen.getByText("到着後の観光範囲 · 制限なし")).toBeTruthy();
@@ -366,13 +385,13 @@ it("reveals mood questions one by one and keeps answers when returning", () => {
 
 it("allows returning users to jump to 02 with their saved preferences and shows AI tags before the mood question", () => {
   const first = mount();
-  expect(screen.queryByRole("button", { name: "02 旅の気分へ" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "02 気分へ" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "家族と" }));
   fireEvent.click(screen.getByRole("button", { name: "ゆったり" }));
   fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
   first.unmount();
   mount();
-  fireEvent.click(screen.getByRole("button", { name: "02 旅の気分へ" }));
+  fireEvent.click(screen.getByRole("button", { name: "02 気分へ" }));
   expect(screen.getByRole("heading", { name: "どんな一日にしたい？" })).toBeTruthy();
   expect(screen.getByText("歴史・街歩き")).toBeTruthy();
   expect(screen.getByText("ゆったり")).toBeTruthy();
@@ -417,7 +436,7 @@ it("regenerates for a new prefecture and station after returning through the moo
   }));
   mount();next();await generate();
   fireEvent.click(screen.getByRole("button",{name:"行き先を選び直す"}));
-  fireEvent.click(screen.getByRole("button",{name:"02 旅の気分へ"}));
+  fireEvent.click(screen.getByRole("button",{name:"02 気分へ"}));
   fireEvent.click(screen.getByRole("button",{name:/行き先を選ぶ/}));
   fireEvent.change(screen.getByLabelText("行き先の都道府県"),{target:{value:"gifu"}});
   fireEvent.click(await screen.findByRole("button",{name:"大垣駅"}));

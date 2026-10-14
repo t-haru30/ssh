@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRouteTimeline } from "./RouteTimeline";
+import { buildRouteTimeline, withRouteLegs } from "./RouteTimeline";
 import type { Place } from "./types";
 
 const place = (id: string): Place => ({
@@ -39,9 +39,53 @@ describe("buildRouteTimeline with a plan", () => {
     expect(spots[3]).toMatchObject({ role: "finish", time: "11:45" });
   });
 
+  it("omits generic movement wording from attached route details", () => {
+    const items = buildRouteTimeline(
+      { name: "駅", latitude: 35, longitude: 135 },
+      [place("a")],
+      "09:00",
+      null,
+      {
+        legs: [
+          { mode: "public_transport", minutes: 20 },
+          { mode: "public_transport", minutes: 15 },
+        ],
+        stayMinutes: [45],
+      },
+    );
+    const withLegs = withRouteLegs(items, [{
+      from_name: "駅",
+      to_name: "駅A",
+      line_name: "地下鉄",
+      mode: "public_transport",
+      duration_minutes: 20,
+    }]);
+    expect(withLegs[1]).toMatchObject({ summary: "約20分" });
+  });
+
   it("keeps the distance-based fallback without a plan", () => {
     const items = buildRouteTimeline({ name: "駅", latitude: 35, longitude: 135 }, [place("a")], "09:00", 100);
-    expect(items.filter((item) => item.type === "transit")).toHaveLength(2);
+    const transits = items.filter((item) => item.type === "transit");
+    expect(transits).toHaveLength(2);
+    expect(transits.every((item) => item.type !== "transit" || !/公共交通|徒歩で|移動/.test(item.summary ?? ""))).toBe(true);
+    expect(transits[0]).toMatchObject({ summary: expect.stringMatching(/^約/) });
+  });
+
+  it("omits the public-transport prefix while retaining route duration", () => {
+    const items = buildRouteTimeline(
+      { name: "駅", latitude: 35, longitude: 135 },
+      [place("a")],
+      "09:00",
+      null,
+      {
+        legs: [
+          { mode: "public_transport", minutes: 20 },
+          { mode: "public_transport", minutes: 15 },
+        ],
+        stayMinutes: [45],
+      },
+    );
+    expect(items[1]).toMatchObject({ summary: "約20分", duration_minutes: 20 });
   });
 
   it("shows lunch reasons, arrival and departure times, and late-day warnings", () => {

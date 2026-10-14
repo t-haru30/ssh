@@ -1,25 +1,29 @@
 /* Quiet surfaces, clear controls, and one visual language across the journey. */
-:root { --muted: #616e66; --control-text: #4f6055; }
+:root { --muted: #505b54; --control-text: #414c45; }
+[data-theme="dark"] { --muted: #c0c9c0; --control-text: #d0d8d0; }
+[data-theme="earth"] { --muted: #625847; --control-text: #514738; }
+[data-theme="sunset"] { --muted: #6e5155; --control-text: #5a4145; }
 html { scroll-behavior: smooth; scroll-padding-top: 22px; }
 button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
 button, input, select, summary { touch-action: manipulation; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
 button:disabled { cursor: not-allowed; }
+.app-shell small { font-size: max(12px, 0.82em) !important; line-height: 1.5; }
 .app-shell { max-width: 1280px; padding-bottom: 28px; }
 .topbar { min-height: 90px; height: auto; gap: 16px; padding: 18px 0; }
 .brand { padding: 0; border: 0; color: var(--ink); background: none; text-align: left; font-size: 22px; letter-spacing: .08em; }
 .brand-mark { width: 42px; height: 42px; border-radius: 15px 15px 15px 5px; font-size: 23px; }
-.brand-light { display: block; margin-top: 3px; font-size: 10px; letter-spacing: .08em; font-weight: 400; }
+.brand-light { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; letter-spacing: .08em; font-weight: 400; }
 .topbar-tools { gap: 12px; }
-.favorites-open-button { min-height: 44px; padding: 9px 15px; font-size: 12px; }
+.favorites-open-button { min-height: 44px; padding: 9px 15px; font-size: 13px; }
 .help-button { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); color: var(--forest); background: var(--paper); font-weight: 700; }
 .theme-switcher > span { display: none; }
 .theme-select-wrap { min-height: 38px; padding: 5px 8px; }
-.theme-select-wrap select { min-height: 26px; font-size: 11px; }
+.theme-select-wrap select { min-height: 26px; font-size: 13px; }
 .mode-tabs { max-width: 440px; margin: 24px auto 22px; padding: 5px; border-color: transparent; background: color-mix(in srgb, var(--forest) 6%, var(--paper)); }
 .mode-tabs button { min-height: 46px; font-size: 14px; gap: 9px; }
 .mode-tabs button.active { box-shadow: 0 3px 8px color-mix(in srgb, var(--forest) 17%, transparent); }
-.mode-tabs button small { font-size: 10px; }
+.mode-tabs button small { font-size: 12px; }
 .search-mode .hero { min-height: 260px; border-radius: 24px; padding: 36px 6%; margin-top: 10px; }
 .search-mode .hero h1 { font-size: clamp(28px, 3.8vw, 43px); }
 .search-mode .hero-description { color: var(--control-text); font-size: 13px; }
@@ -32,7 +36,7 @@ button:disabled { cursor: not-allowed; }
 .theme-picker legend { font-size: 13px; }
 .theme-chip { min-height: 42px; padding: 9px 13px; font-size: 12px; border-radius: 999px; }
 .submit-button, .random-button-primary { min-height: 52px; border-radius: 11px; font-size: 14px; }
-.form-footnote { font-size: 10px; line-height: 1.7; color: var(--muted); }
+.form-footnote { font-size: 12px; line-height: 1.7; color: var(--muted); }
 .location-button { min-height: 44px; border-radius: 9px; }
 .route-copy-banner { border-radius: 20px; border-color: var(--line); padding: 26px 30px; background: color-mix(in srgb, var(--forest) 5%, var(--paper)); }
 .route-copy-banner h2 { color: var(--ink); }
@@ -43,9 +47,9 @@ button:disabled { cursor: not-allowed; }
 .results-section { margin-top: 28px; }
 .results-heading { gap: 12px; }
 .result-date { font-size: 12px; }
-.footer { margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); line-height: 1.8; }
+.footer { margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); line-height: 1.8; }
 .footer .footer-signature { color: var(--ink); font-size: 15px; font-weight: 700; letter-spacing: .06em; }
-.footer-signature span { margin-left: 10px; font-size: 11px; color: var(--muted); font-weight: 400; }
+.footer-signature span { margin-left: 10px; font-size: 13px; color: var(--muted); font-weight: 400; }
 .footer details { max-width: 760px; margin: 12px auto 0; }
 .mobile-preferences { display: none; }
 .footer summary { display: inline-block; cursor: pointer; padding: 6px 10px; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; }
