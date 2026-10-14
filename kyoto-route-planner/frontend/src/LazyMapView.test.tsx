@@ -1,6 +1,7 @@
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LazyMapView } from "./LazyMapView";
+import { JourneyMap, LazyMapView } from "./LazyMapView";
+import * as mapLoader from "./mapLoader";
 import type { MapViewProps } from "./MapView";
 
 const observerState = vi.hoisted(() => ({
@@ -27,12 +28,27 @@ class TestIntersectionObserver {
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
   observerState.callback = null;
   observerState.disconnect.mockClear();
 });
 
 describe("LazyMapView", () => {
+  it("contains a failed map chunk without removing the trip, then retries the import", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const load = vi.spyOn(mapLoader, "loadJourneyMap")
+      .mockRejectedValueOnce(new TypeError("Failed to fetch dynamically imported module: /assets/old-map.js"))
+      .mockResolvedValueOnce({ default: () => <div>復旧した地図</div> });
+    render(<><h1>編集中の旅程</h1><JourneyMap places={[]} origin={{name:"京都駅",latitude:35,longitude:135}} /></>);
+    expect((await screen.findByRole("alert")).textContent).toContain("旅程の編集は続けられます");
+    expect(screen.getByRole("heading", {name:"編集中の旅程"})).toBeTruthy();
+    expect(screen.getByRole("link", {name:"Google Mapsで場所を確認"}).getAttribute("href")).toContain(encodeURIComponent("京都駅"));
+    fireEvent.click(screen.getByRole("button", {name:"地図を再読み込み"}));
+    await screen.findByText("復旧した地図");
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(load).toHaveBeenCalledTimes(2);
+  });
   it("loads the map only after its container approaches the viewport", async () => {
     vi.stubGlobal("IntersectionObserver", TestIntersectionObserver);
     render(

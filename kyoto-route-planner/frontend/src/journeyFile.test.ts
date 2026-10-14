@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { newTripStop, scheduleTrip } from "./dayTrip";
 import { MAX_JOURNEY_FILE_BYTES, parseJourneyFile, serializeJourneyFile } from "./journeyFile";
+import { readJourneyDraft, saveJourneyDraft } from "./journeyDraft";
+import { savedJourney } from "./savedJourney";
 import type { Place, RouteSuggestion } from "./types";
 const origin = { name: "京都駅", latitude: 34.98, longitude: 135.76 };
 const place: Place = { id: "garden", name: "庭園", category: "自然", latitude: 35, longitude: 135.76,
@@ -16,6 +18,17 @@ function plan() {
 }
 const raw = () => JSON.parse(serializeJourneyFile(plan(), "庭園の旅"));
 describe("portable journey JSON", () => {
+  it("exports and saves a readable legacy draft whose facility themes contain duplicates", () => {
+    const original = plan();
+    original.stops[0].place = {...original.stops[0].place,themes:["nature","nature","all","food","history","temple","all"]};
+    expect(saveJourneyDraft(original,"旧形式の旅程")).toBe(true);
+    const restored=readJourneyDraft()!.plan;
+    const before=JSON.stringify(restored);
+    const exported=parseJourneyFile(serializeJourneyFile(restored,"旧形式の旅程"));
+    expect(exported.plan.stops[0].place.themes).toEqual(["nature","all","food","history","temple"]);
+    expect(parseJourneyFile(savedJourney(restored,"all").journey_file!).plan.stops).toHaveLength(1);
+    expect(JSON.stringify(restored)).toBe(before);
+  });
   it("roundtrips local intent and actual coordinates while invalidating transport and omitting provider data", () => {
     const original = plan();
     const text = serializeJourneyFile(original, "庭園の旅");

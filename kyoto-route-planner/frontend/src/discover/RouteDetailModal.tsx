@@ -1,7 +1,8 @@
 import { transitModeLabel } from "../TripTransit";
 import { FacilityPhoto } from "../FacilityPhoto";
 import { lockBodyScroll } from "../bodyScrollLock";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { JourneyMap } from "../LazyMapView";
 import type { RouteIdea } from "../SwipeCard";
 import { routeSelection } from "../routeSelection";
 import { buildRouteTimeline } from "../RouteTimeline";
@@ -19,7 +20,6 @@ import { JourneyReasons } from "./JourneyReasons";
 import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
 import { openingConflict } from "../venueHours";
 
-const MapView = lazy(() => import("../GoogleJourneyMap").then(({ GoogleJourneyMap: Component }) => ({ default: Component })));
 type RouteDetailModalProps = { route: DatasetRoute | RouteIdea; onClose: () => void; onPlanInSearch?: (route: DatasetRoute | RouteIdea) => void };
 
 function addMinutes(time: string | null, minutes: number) {
@@ -235,7 +235,7 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
       <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
         {includesTransfers && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
       </div>
-      <div className="route-modal-map"><Suspense fallback={<div className="map-canvas map-canvas-placeholder" role="status">地図を読み込んでいます…</div>}><MapView places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></Suspense></div>
+      <div className="route-modal-map"><JourneyMap places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></div>
       {"spots" in route && <div className="discover-modal-recommendation"><strong>この旅の楽しみ</strong><p>{journeyOverview(route,googleInfos)}</p><details><summary>立ち寄り先ごとのおすすめ理由</summary><JourneyReasons route={route} googleInfos={googleInfos} /></details></div>}
       <div className="discover-modal-section-heading"><h3>この旅で訪れる場所</h3><span>{places.length} SPOTS</span></div>
       <p className="discover-modal-origin">観光の起点：{start.name}</p>
