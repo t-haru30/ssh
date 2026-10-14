@@ -81,3 +81,11 @@ class ReviewTests(unittest.IsolatedAsyncioTestCase):
         search.assert_not_awaited()
         self.assertEqual(review["status"], "passed")
         self.assertFalse(review["recorded"])
+
+    async def test_repair_cannot_add_a_restaurant_that_fails_review_gate(self):
+        original = assemble_route(self.req, list(self.pool[:5]))
+        noodle = place(8, "飲食店", "盛岡冷麺の店")
+        with patch("app.openpoi.enrich_candidates",new=AsyncMock(return_value=((*self.pool,noodle),"ready"))), patch("app.facility_quality.filter_quality",new=AsyncMock(return_value=((),{"status":"ready"}))) as gate:
+            report=await review_journeys(self.req,{"routes":[original],"catalog":{"quality":{"status":"ready"}}},self.pool)
+        gate.assert_awaited_once()
+        self.assertNotIn(noodle.id,[s["place_id"] for p in report["proposals"] for s in p["route"]["spots"]])

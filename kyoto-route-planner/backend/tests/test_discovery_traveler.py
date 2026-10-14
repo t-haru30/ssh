@@ -81,8 +81,7 @@ class TravelerTests(unittest.TestCase):
         pool = [place(str(i), "公園", 35.001 + i * .001) for i in range(4)]
         inspected = {p.id: p for p in pool}
         facts = {p.id: {"category": p.category} for p in pool}
-        args = {"routes": [{"places": [{"id": p.id, "name": p.name, "latitude": p.latitude,
-            "longitude": p.longitude, "fact_ids": ["category"], "fit": "distance"} for p in pool]}]}
+        args = {"routes": [{"places": [{"id": p.id, "fact_ids": ["category"], "fit": "distance"} for p in pool]}]}
         route = agent._select(args, inspected, facts, request(traveler={"pace": "packed"}))[0]
         self.assertEqual(len(route["spots"]), 4)
         self.assertIn("たくさん巡る", route["recommendation_reason"])

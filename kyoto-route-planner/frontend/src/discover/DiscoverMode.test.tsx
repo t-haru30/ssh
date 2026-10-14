@@ -5,12 +5,15 @@ import { PrefectureProvider } from "../PrefectureContext";
 import { FavoritesProvider } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
-import { similarTrip } from "./routeDiversity";
+import { composeLocalRoutes } from "./dynamicRoutes";
+import index from "../data/routes/index.json";
+import type { RouteDatasetIndex } from "./datasetTypes";
 import kyotoDataset from "../data/routes/kyoto.json";
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: ({ route, onClose }: { route: { title: string }; onClose: () => void }) => <div role="dialog" aria-label={route.title}><button onClick={onClose}>閉じる</button></div> }));
 vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 } }, localPlaces: Array.from({ length: 18 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
 const noPhoto = { ok: true, json: async () => ({ status: "unavailable", key: "a".repeat(64), image_url: null, note: "fixture" }) };
-beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? { ok: false } : noPhoto)); });
+const fixtureRoutes = () => composeLocalRoutes({ entry: (index as RouteDatasetIndex).prefectures.find(p => p.id === "kyoto")!, origin: {name:"京都駅",latitude:34.985849,longitude:135.758766}, theme:"all", meals:[], course:"all", radius:30, crossPrefecture:true, variation:0 });
+beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? {ok:true,json:async()=>({routes:fixtureRoutes(),note:"verified fixture"})} : noPhoto)); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
 function mount(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function revealThemes() {
@@ -27,7 +30,7 @@ function goMood() {
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
 }
 function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ })); fireEvent.change(screen.getByLabelText("出発地点"), { target: { value: "京都駅|34.985849|135.758766" } }); }
-async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect((screen.getByRole("button", { name: "いいね ♥" }) as HTMLButtonElement).disabled).toBe(false)); }
+async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect(screen.queryByRole("button", {name:"検索を中止する"})).toBeNull()); }
 function saved() { return JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]"); }
 
 it("connects journey steps and marks completed steps with checkmarks", () => {
@@ -138,11 +141,11 @@ it("treats unanswered gourmet meals as automatic and keeps explicit no-meals sep
   expect(JSON.parse(String(requests()[1][1]?.body)).meals).toEqual([]);
 });
 
-it("keeps valid local candidates when the online response contains no routes", async () => {
+it("never fills an empty verified response from local data", async () => {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? {ok:true, json:async () => ({routes:[], note:"候補なし"})} : noPhoto));
   mount(); next(); await generate();
-  expect(screen.getByText(/^[1-9][0-9]*件の候補$/)).toBeTruthy();
-  expect(screen.queryByText("この条件で新しく提案できる旅程はありません")).toBeNull();
+  expect(screen.getByText("0件の候補")).toBeTruthy();
+  expect(screen.getByText("この条件で新しく提案できる旅程はありません")).toBeTruthy();
 });
 
 it("does not reintroduce local cards rejected by known opening hours",async()=>{
@@ -298,10 +301,11 @@ describe("sequential discovery", () => {
     expect(screen.queryByText("stale result")).toBeNull();
     expect(screen.getByRole("heading", { name: heading })).toBeTruthy();
   });
-  it("shows local fallback on failure and regenerates with a new variation", async () => {
+  it("keeps failures empty and supports retry", async () => {
+    vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/discover"?{ok:false}:noPhoto));
     mount(); next(); await generate();
-    expect(screen.getByText(/AIの提案を取得できませんでした/)).toBeTruthy();
-    expect(screen.getByText(/^[1-9][0-9]*件の候補$/)).toBeTruthy();
+    expect(screen.getByText(/施設の条件を確認できませんでした/)).toBeTruthy();
+    expect(screen.getByText("0件の候補")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "別の組み合わせ" }));
     await waitFor(() => expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(2));
     const body = vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")[1][1]?.body;
@@ -327,10 +331,8 @@ it("excludes the visible and passed trips when asking for another combination", 
   vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover"
     ? { ok: true, json: async () => ({ routes: [{ ...first, id: "new-id-same-trip" }], note: "repeat" }) } : noPhoto));
   fireEvent.click(screen.getByRole("button", { name: "別の組み合わせ" }));
-  await waitFor(() => expect(screen.getByText(/^[1-9][0-9]*件の候補$/)).toBeTruthy());
-  onPlan.mockClear();
-  fireEvent.click(screen.getByRole("button", { name: /この旅程を選んで編集する/ }));
-  expect(similarTrip(first, onPlan.mock.calls[0][0])).toBe(false);
+  await waitFor(() => expect(screen.getByText("0件の候補")).toBeTruthy());
+  expect((screen.getByRole("button",{name:/この旅程を選んで編集する/}) as HTMLButtonElement).disabled).toBe(true);
 });
 
 it("changes destination directly while retaining profile, mood and free-text answers", async () => {
@@ -462,4 +464,15 @@ it("regenerates for a new prefecture and station after returning through the moo
   await waitFor(()=>expect(requests).toHaveLength(2));
   expect(requests[0].area).toBe("kyoto");
   expect(requests[1]).toMatchObject({area:"gifu",prefecture_name:"岐阜県",origin:{name:gifu.name}});
+});
+it("does not fill a single verified route from local data", async () => {
+  vi.stubGlobal("fetch", vi.fn(async (url:string) => url === "/api/discover" ? {ok:true,json:async()=>({routes:fixtureRoutes().slice(0,1),note:"verified"})} : noPhoto));
+  mount(); next(); await generate();
+  expect(screen.getByText("1件の候補")).toBeTruthy();
+});
+it("cancellation never exposes unchecked candidates", async () => {
+  vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+  mount(); next(); fireEvent.click(screen.getByRole("button", {name:/おすすめ旅程を見る/}));
+  fireEvent.click(screen.getByRole("button", {name:"検索を中止する"}));
+  expect(screen.getByText("0件の候補")).toBeTruthy();
 });

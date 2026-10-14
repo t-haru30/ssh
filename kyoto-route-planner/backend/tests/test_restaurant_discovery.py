@@ -215,11 +215,12 @@ class RestaurantFlowTests(unittest.IsolatedAsyncioTestCase):
     async def test_independent_fallback_is_not_presented_as_google_verified(self):
         from app.discovery import _discover_catalog
         base=(place(1,"博物館",food=False),)
-        with patch("app.discovery._base_discover_catalog",new=AsyncMock(return_value=(build_discover_routes(request(),base),base))), \
+        with patch("app.google_place_photos.google_api_key",return_value=""), patch("app.discovery._base_discover_catalog",new=AsyncMock(return_value=(build_discover_routes(request(),base),base))), \
              patch("app.openpoi.enrich_candidates",new=AsyncMock(return_value=(base,"disabled"))), \
              patch("app.restaurant_discovery.discover_restaurants",new=AsyncMock(return_value=RestaurantDiscovery(places=(place(2),place(3)),status="osm_only_unconfirmed"))):
             result,pool=await _discover_catalog(request())
-        self.assertTrue(result["routes"])
+        self.assertEqual(result["routes"], [])
+        self.assertEqual(result["catalog"]["quality"]["status"],"reviews_unavailable")
         self.assertEqual(result["catalog"]["verified_dining_ids"],[])
         self.assertEqual(result["catalog"]["restaurants_verified"],0)
         self.assertNotIn("Google Places",result["source"])
@@ -263,7 +264,9 @@ class RestaurantFlowTests(unittest.IsolatedAsyncioTestCase):
         fallback = build_discover_routes(req,base)
         async def ai(_request,_pool,_fallback):
             return {**_fallback,"routes":[assemble_route(req,[p,old]) for p in sights],"agent":{"status":"ready","message":"AIの候補"}}
-        with patch("app.discovery._base_discover_catalog",new=AsyncMock(return_value=(fallback,base))), \
+        async def verified_fixture(req,candidates,existing_google=()):
+            return tuple(candidates),{'status':'ready'}
+        with patch('app.facility_quality.filter_quality',side_effect=verified_fixture), patch("app.discovery._base_discover_catalog",new=AsyncMock(return_value=(fallback,base))), \
              patch("app.openpoi.enrich_candidates",new=AsyncMock(return_value=(base,"disabled"))), \
              patch("app.restaurant_discovery.discover_restaurants",new=AsyncMock(return_value=RestaurantDiscovery(places=(regional,other),status="ready",local_match_ids=(regional.id,),verified_count=2))), \
              patch("app.discovery_agent.recommend_routes",side_effect=ai),patch("app.discovery_review.record",return_value=False):

@@ -124,7 +124,18 @@ async def review_journeys(request, result, pool):
             query = "博物館 庭園 観光"
         if query:
             try:
-                pool, state = await asyncio.wait_for(enrich_candidates(request, tuple(pool), query=query), timeout=8)
+                expanded, state = await asyncio.wait_for(enrich_candidates(request, tuple(pool), query=query), timeout=8)
+                if result.get("catalog", {}).get("quality") is not None:
+                    # Repair proposals must not bypass the discovery review gate.
+                    from app.facility_quality import filter_quality
+                    known = {p.id: p for p in pool}
+                    additions = tuple(p for p in expanded if p.id not in known)
+                    if additions:
+                        checked, _ = await asyncio.wait_for(filter_quality(request, additions), timeout=20)
+                        known.update({p.id:p for p in checked})
+                    pool = tuple(known.values())
+                else:
+                    pool = expanded
                 report["actions"].append(f"候補不足のため「{query}」の追加検索を試みました。" + ("施設候補を取得しました。" if state == "ready" else "確認済みの追加候補は取得できませんでした。"))
             except (TimeoutError, ValueError, OSError):
                 report["actions"].append("追加検索は時間内に確認できなかったため終了しました。")

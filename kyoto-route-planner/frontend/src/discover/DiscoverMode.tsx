@@ -24,7 +24,6 @@ import type { Origin } from "../types";
 import "./discoveryFlow.css";
 import { readTravelerProfile, saveTravelerProfile, travelerProfileSummary, PACE_OPTIONS, normalizeTravelPace } from "../travelerProfile";
 import { TravelRangeControl } from "../TravelRangeControl";
-import { composeLocalRoutes } from "./dynamicRoutes";
 import type { DiscoveryAgent } from "./dynamicRoutes";
 import { diverseRoutes } from "./routeDiversity";
 import { ProgressStatus } from "../ProgressStatus";
@@ -141,10 +140,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const draftEntry = indexEntries.find(item => item.id === area)!;
   const entry = indexEntries.find(item => item.id === applied.area)!;
-  const origin = applied.origin;
   const conditionsKey = conditionsId(applied);
-  const localRoutes = useMemo(() => diverseRoutes(composeLocalRoutes({ entry, origin, theme: applied.theme, themes: applied.themes, meals: applied.meals, course: applied.pattern, radius: applied.radius, crossPrefecture: applied.crossPrefecture, variation: applied.variation, traveler: applied.traveler, priorityText: applied.priority_text, preferenceText: applied.preference_text }), [], applied.priority_text), [entry, origin, applied]);
-  const routes = useMemo(() => (remote?.key === conditionsKey ? remote.routes : localRoutes).map(route => ({ ...route, travel_origin: applied.departure })), [remote, conditionsKey, localRoutes, applied.departure]);
+  const routes = useMemo(() => (remote?.key === conditionsKey ? remote.routes : []).map(route => ({ ...route, travel_origin: applied.departure })), [remote, conditionsKey, applied.departure]);
   const collectionKey = `${conditionsKey}:${remote?.key === conditionsKey ? "api" : "local"}`;
   useEffect(() => {
     advanceRef.current?.abort(); advanceRef.current = null; setPreparingNext(false);
@@ -162,13 +159,9 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   useEffect(() => { if (homeRequest) returnToConditions(0); }, [homeRequest]);
   function editConditions() { returnToConditions(0); }
   function editDestination() { returnToConditions(2); }
-  function useLocalCandidates(message: string) {
-    setRemote({ key: conditionsKey, routes: diverseRoutes(localRoutes, seenRoutes.current[preferenceId(applied)], applied.priority_text), note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message } });
-    setCollections(current => ({ ...current, [`${conditionsKey}:api`]: EMPTY_BROWSE }));
-  }
   function cancelGeneration() {
     requestRef.current?.abort(); requestRef.current = null; setGenerating(false);
-    useLocalCandidates("AIの提案を中止しました。条件に合う通常の候補を表示しています。");
+    setRemote({ key: conditionsKey, routes: [], note: "検索を中止しました。", agent: { status: "unavailable", message: "検索を中止しました。もう一度検索できます。" } });
   }
   async function generate(next: Conditions = draft, excludeViewed = false) {
     if (!active) return;
@@ -178,10 +171,9 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     if (!excludeViewed) seenRoutes.current[preferenceId(next)] = [];
     const excluded = excludeViewed ? [...(seenRoutes.current[preferenceId(next)] ?? [])] : [];
     const viewedDiningIds = [...new Set(excluded.flatMap(route => route.spots.filter(spot => spot.role !== "stop").map(spot => spot.place_id)))].slice(-60);
-    const fallback = diverseRoutes(composeLocalRoutes({ entry: nextEntry, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius: next.radius, crossPrefecture: next.crossPrefecture, variation: next.variation, traveler: next.traveler, priorityText: next.priority_text, preferenceText: next.preference_text }), excluded, next.priority_text);
     setDeckEpoch(value => value + 1);
     cancelAdvance(); setApplied(next); setSelected(null);
-    setRemote({ key: nextKey, routes: fallback, note: "条件に合う未閲覧の候補です。移動時間は推定です。" });
+    setRemote({ key: nextKey, routes: [], note: "施設の条件を確認しています。" });
     setPrefectureCode(nextEntry.prefecture_code as PrefectureCode);
     setStep(3);
     window.requestAnimationFrame(focusResults);
@@ -200,17 +192,15 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         if (stage==="initial" && !data.routes.length && !availabilityChecked) return;
         if (!controller.signal.aborted && requestRef.current === controller && !(receivedDeck && interactedWithDeck.current)) {
         const received = diverseRoutes(data.routes, excluded, next.priority_text);
-        const combined = !availabilityChecked && received.length < 4 ? diverseRoutes([...received, ...fallback], excluded, next.priority_text).slice(0, 8) : received;
-        const supplement = combined.length > received.length;
-        setRemote({ key: nextKey, ...data, note: supplement ? "条件に合う登録済みの施設から候補を補いました。移動時間は推定です。" : data.note,
-          review: isJourneyReview(data.review) ? data.review : undefined, originalRoutes: combined, routes: combined });
+        // Server results already passed the live review gate; never fill from local samples.
+        setRemote({key:nextKey,...data,review:isJourneyReview(data.review)?data.review:undefined,originalRoutes:received,routes:received});
         setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
         receivedDeck=true;setGenerating(false);
         }
       });
     } catch {
       if (requestRef.current === controller && !receivedDeck) {
-        setRemote({ key: nextKey, routes: fallback, note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message: "AIの提案を取得できませんでした。通常の候補を表示しています。「別の組み合わせ」で再試行できます。" } });
+        setRemote({ key: nextKey, routes: [], note: "施設の条件を確認できなかったため、候補を表示していません。", agent: { status: "unavailable", message: "施設の条件を確認できませんでした。もう一度検索してください。" } });
         setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
       }
     } finally { window.clearTimeout(timer); if (requestRef.current === controller) { requestRef.current = null; setGenerating(false); } }
@@ -322,8 +312,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         {!generating && routes.length > 1 && new Set(routes.flatMap(route => route.spots.filter(spot => spot.role !== "stop").map(spot => spot.place_id))).size === 1
           && <p className="discover-candidate-note">食事先の候補は1店です。別のお店も探すには、行き先・観光範囲を変更できます。</p>}
 
-        {generating && <ProgressStatus title="旅の候補を探しています" steps={DISCOVER_STEPS} onCancel={cancelGeneration} cancelLabel="AIを待たずに候補を見る" />}
-        {!generating && remote?.key === conditionsKey && remote.agent?.status === "unavailable" && <div className="discover-candidate-note" role="status"><p>{!routes.length ? "AIの提案を取得できませんでした。食事や時間の条件を見直して再検索できます。" : remote.agent.message.startsWith("AIの提案を中止") ? "AIを待たずに、条件に合う候補を表示しています。" : "AIの提案を取得できませんでした。条件に合う候補で続けられます。"}</p><button type="button" onClick={() => void generate(applied)}>AIの提案を再試行</button></div>}
+        {generating && <ProgressStatus title="旅の候補を探しています" steps={DISCOVER_STEPS} onCancel={cancelGeneration} cancelLabel="検索を中止する" />}
+        {!generating && remote?.key === conditionsKey && remote.agent?.status === "unavailable" && <div className="discover-candidate-note" role="status"><p>{remote.agent.message}</p><button type="button" onClick={() => void generate(applied)}>AIの提案を再試行</button></div>}
         {!generating && remote?.key === conditionsKey && remote.review && <JourneyReview key={remote.review.id} report={remote.review}
           onAdopt={route => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: [route]} : current); updateCollection(EMPTY_BROWSE); }}
           onRestore={() => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: diverseRoutes(current.originalRoutes ?? [], [], applied.priority_text)} : current); updateCollection(EMPTY_BROWSE); }} />}

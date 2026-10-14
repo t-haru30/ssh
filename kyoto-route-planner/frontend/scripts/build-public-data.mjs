@@ -25,7 +25,7 @@ function validateSpot(spot) {
   }
 }
 
-export async function buildPublicData(sourceDir, outputDir) {
+export async function buildPublicData(sourceDir, outputDir, facilityCatalogPath) {
   const index = JSON.parse(await readFile(path.join(sourceDir, "index.json"), "utf8"));
   if (index.version !== 1 || index.prefectures?.length !== 47) throw new Error("Expected 47 prefectures");
   const datasets = [];
@@ -86,7 +86,10 @@ export async function buildPublicData(sourceDir, outputDir) {
     }
     datasets.push(dataset);
   }
-  const places = [...catalog.values()];
+  const master = facilityCatalogPath ? JSON.parse(await readFile(facilityCatalogPath, "utf8")) : null;
+  const places = master ? master.places : [...catalog.values()];
+  if (master && (master.version !== 1 || master.license?.name !== "ODbL-1.0" || !places?.length)) throw new Error("Invalid facility master");
+  if (master) for (const p of places) validateSpot({place_id:p.id,name:p.name,category:p.category,lat:p.latitude,lng:p.longitude});
   const metadata = { version: 1, generated_at: index.generated_at, license };
   const files = {
     "osm-routes.json": { ...metadata, index, datasets },
@@ -107,6 +110,6 @@ export async function buildPublicData(sourceDir, outputDir) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const manifest = await buildPublicData(path.join(frontend, "src/data/routes"), path.join(frontend, "public/data"));
+  const manifest = await buildPublicData(path.join(frontend, "src/data/routes"), path.join(frontend, "public/data"), path.join(frontend, "../backend/app/data/facility_catalog.json"));
   console.log(`Public OSM data: ${manifest.prefecture_count} prefectures, ${manifest.route_count} routes, ${manifest.place_count} places`);
 }

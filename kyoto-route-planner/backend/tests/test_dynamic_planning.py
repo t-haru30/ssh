@@ -100,6 +100,12 @@ class OvernightBoundsTests(unittest.IsolatedAsyncioTestCase):
 
 
 class LiveDiscoveryTests(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        async def verified_fixture(request, candidates, existing_google=()):
+            return tuple(candidates), {'status':'ready'}
+        gate=patch('app.facility_quality.filter_quality',side_effect=verified_fixture)
+        gate.start();self.addCleanup(gate.stop)
     async def test_public_mode_never_calls_external_provider(self):
         request = DiscoverRequest(area="kyoto", prefecture_name="京都府", origin=Origin(name="駅", latitude=35, longitude=135.7))
         provider = AsyncMock()
@@ -134,6 +140,12 @@ class LiveDiscoveryTests(unittest.IsolatedAsyncioTestCase):
 
 
 class DiscoveryEndpointTests(unittest.TestCase):
+
+    def setUp(self):
+        async def verified_fixture(request, candidates, existing_google=()):
+            return tuple(candidates), {'status':'ready'}
+        gate=patch('app.facility_quality.filter_quality',side_effect=verified_fixture)
+        gate.start();self.addCleanup(gate.stop)
     def test_endpoint_returns_dynamic_response_and_rejects_invalid_radius(self):
         from fastapi.testclient import TestClient
         from app.main import app, limiter

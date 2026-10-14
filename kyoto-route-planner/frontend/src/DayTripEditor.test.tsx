@@ -32,7 +32,7 @@ it("automatically searches all segments and displays total time without showing 
   expect(costHeading?.firstElementChild?.tagName).toBe("STRONG");
   expect(screen.getByText("交通・施設・飲食の合計")).toBeTruthy();
   expect(screen.queryByText(/超過/)).toBeNull();
-  expect(changed.mock.calls.at(-1)?.[0]).toMatchObject({ travelMinutes: 45, returnMinute: 765 });
+  await waitFor(() => expect(changed.mock.calls.at(-1)?.[0]).toMatchObject({ travelMinutes: 45, returnMinute: 765 }));
   expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
 });
 

@@ -9,6 +9,15 @@ import { buildPublicData } from "./build-public-data.mjs";
 
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../src/data/routes");
 
+test("independent facility master includes landmarks absent from sample routes", async t => {
+  const root = await workspace(t);
+  const master = path.resolve(source, "../../../../backend/app/data/facility_catalog.json");
+  await buildPublicData(source, root, master);
+  const places = JSON.parse(await readFile(path.join(root, "osm-places.json"), "utf8"));
+  assert.ok(places.places.some(p => p.name === "東京タワー" && p.tags.recommendation_tier === "classic"));
+  assert.equal(places.places.length, JSON.parse(await readFile(master, "utf8")).places.length);
+});
+
 async function workspace(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), "public-catalog-"));
   t.after(() => rm(root, { recursive: true, force: true }));

@@ -159,3 +159,11 @@ it("mixes regional food with sightseeing for a full day", () => {
    expect(route.estimated_minutes).toBeGreaterThanOrEqual(360);
  }
 });
+
+it("accepts multilingual landmark attributes but still bounds response metadata", () => {
+  const route = composeLocalRoutes(conditions, [place("博物館", 35.001)])[0];
+  const withTags = (tags: Record<string, unknown>) => ({routes:[{...route,spots:[{...route.spots[0],tags}]}],note:"verified"});
+  expect(isDiscoverResponse(withTags(Object.fromEntries(Array.from({length:75},(_,i)=>[`name:lang${i}`,"Museum"]))))).toBe(true);
+  expect(isDiscoverResponse(withTags(Object.fromEntries(Array.from({length:257},(_,i)=>[`tag${i}`,"value"]))))).toBe(false);
+  expect(isDiscoverResponse(withTags({name: {nested:"invalid"}}))).toBe(false);
+});

@@ -16,6 +16,12 @@ def fixture():
 
 
 class DiscoveryStreamTests(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        async def verified_fixture(request, candidates, existing_google=()):
+            return tuple(candidates), {'status':'ready'}
+        gate=patch('app.facility_quality.filter_quality',side_effect=verified_fixture)
+        gate.start();self.addCleanup(gate.stop)
     async def test_first_deck_arrives_before_ai_finishes_without_a_second_catalog_lookup(self):
         request,pool,fallback=fixture()
         started,finish=asyncio.Event(),asyncio.Event()
