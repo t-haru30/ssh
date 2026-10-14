@@ -5,4 +5,7 @@
 #!include:.gitignore
 # Runtime data is generated from the OSM route sources during the build.
 backend/data
-frontend/public/data
+frontend/public/data/*
+!frontend/public/data/gateway-presets.json
+!frontend/public/data/airports.json
+!frontend/public/data/landmark-seeds.json

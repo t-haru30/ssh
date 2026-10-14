@@ -11,6 +11,9 @@
 frontend/dist
 frontend/.vite
 backend/data
-frontend/public/data
+frontend/public/data/*
+!frontend/public/data/gateway-presets.json
+!frontend/public/data/airports.json
+!frontend/public/data/landmark-seeds.json
 **/.test-tmp
 **/test-*.log
