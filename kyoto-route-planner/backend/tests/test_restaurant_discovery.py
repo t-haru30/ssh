@@ -61,8 +61,20 @@ class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(call.kwargs["timeout"]==6 for call in client.get.call_args_list))
 
     async def test_unavailable_google_or_osm_is_distinguished_without_private_diagnostics(self):
-        self.assertEqual((await self.run_provider([], (place(1),))).status,"google_unavailable")
+        result = await self.run_provider([], (place(1),))
+        self.assertEqual(result.status,"osm_only_unconfirmed")
+        self.assertEqual(result.places,(place(1),))
+        self.assertEqual(result.verified_count,0)
+        self.assertEqual(result.local_match_ids,())
         self.assertEqual((await self.run_provider([{"id":"g"}], ())).status,"osm_unavailable")
+
+    async def test_unverified_fallback_is_bounded_and_prioritizes_unseen_regional_shops(self):
+        venues=tuple(place(i,lat=35.001+i*.00001) for i in range(1,101))+(place(101,"京料理の店",lat=35.02),)
+        with patch("app.restaurant_discovery.regional_score",side_effect=lambda origin,p:int(p.id=="osm-node-101")):
+            result=await self.run_provider([],venues)
+        self.assertLessEqual(len(result.places),60)
+        self.assertEqual(result.places[0].id,"osm-node-101")
+        self.assertEqual(result.verified_count,0)
 
     async def run_provider(self, google, venues):
         with patch.dict(os.environ,{"GOOGLE_RESTAURANTS_ENABLED":"1"}), patch("app.restaurant_discovery.google_api_key",return_value="server-key"), \
@@ -132,6 +144,19 @@ class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
 
 
 class DiningDiversityTests(unittest.TestCase):
+    def test_late_meals_preserve_exact_times_and_a_feasible_day(self):
+        pool=tuple([place(i,lat=35.001+i*.001) for i in range(1,4)]+[place(i,f"博物館{i}",food=False,lat=35.001+i*.001) for i in range(4,10)])
+        for course,meals in [("full_day",[{"kind":"lunch","time":"12:30"},{"kind":"dinner","time":"20:30"}]),
+                             ("all",[{"kind":"dinner","time":"20:30"}])]:
+            routes=build_discover_routes(request(course=course,meals=meals),pool)["routes"]
+            self.assertTrue(routes)
+            for route in routes:
+                self.assertLessEqual(route["estimated_minutes"],720)
+                self.assertGreater(route["departure_time"],"09:00")
+                for meal in meals:
+                    spot=next(s for s in route["spots"] if s["role"]==meal["kind"])
+                    self.assertEqual(spot["meal_time"],meal["time"])
+
     def test_half_day_does_not_collapse_to_one_route_when_one_specialty_shop_exists(self):
         req = request()
         sight = place(10,"博物館",food=False)
@@ -188,6 +213,19 @@ class DiningDiversityTests(unittest.TestCase):
 
 
 class RestaurantFlowTests(unittest.IsolatedAsyncioTestCase):
+    async def test_independent_fallback_is_not_presented_as_google_verified(self):
+        from app.discovery import _discover_catalog
+        base=(place(1,"博物館",food=False),)
+        with patch("app.discovery._base_discover_catalog",new=AsyncMock(return_value=(build_discover_routes(request(),base),base))), \
+             patch("app.openpoi.enrich_candidates",new=AsyncMock(return_value=(base,"disabled"))), \
+             patch("app.restaurant_discovery.discover_restaurants",new=AsyncMock(return_value=RestaurantDiscovery(places=(place(2),place(3)),status="osm_only_unconfirmed"))):
+            result,pool=await _discover_catalog(request())
+        self.assertTrue(result["routes"])
+        self.assertEqual(result["catalog"]["verified_dining_ids"],[])
+        self.assertEqual(result["catalog"]["restaurants_verified"],0)
+        self.assertNotIn("Google Places",result["source"])
+        self.assertIn("未確認",result["note"])
+
     async def test_google_can_check_independent_openpoi_records_without_copying_its_facts(self):
         diner=place(1,"金沢おでんの店").model_copy(update={"id":"openpoi-fixture","tags":{"source":"OpenPOI API","licenses":"[]"}})
         google={"id":"google-only-id","displayName":{"text":diner.name},"location":{"latitude":diner.latitude,"longitude":diner.longitude},

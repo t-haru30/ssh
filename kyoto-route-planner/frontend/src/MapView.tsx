@@ -17,6 +17,7 @@ const mapStyle = "https://tiles.openfreemap.org/styles/liberty";
 const kyotoCenter: [number, number] = [135.7681, 35.004];
 
 export type MapViewProps = {
+  visible?: boolean;
   places: Place[];
   origin: Origin | null;
   returnTo?: Origin | null;

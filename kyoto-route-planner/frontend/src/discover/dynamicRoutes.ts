@@ -99,7 +99,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
       return { from: from.name, to: to.name, distance_km: distance, minutes: Math.ceil(distance / 25 * 60) + 10, mode: "public_transport" as const };
     });
     let legs = buildLegs();
-    while (ordered.length && legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.reduce((sum, p) => sum + dwell(p), 0) > (course === "half_day" ? 300 : course === "full_day" ? 720 : 600)) {
+    while (ordered.length && legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.reduce((sum, p) => sum + dwell(p), 0) > (course === "half_day" ? 300 : course === "full_day" || meals?.length ? 720 : 600)) {
       ordered.pop(); legs = buildLegs();
     }
     if (mealPlan && ordered.length !== mealPlan.ordered.length) continue;
@@ -108,7 +108,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
     seen.add(signature);
     let minutes = legs.reduce((sum, leg) => sum + leg.minutes, 0) + ordered.reduce((sum, p) => sum + dwell(p), 0);
     if (mealPlan) minutes = mealPlan.minutes;
-    if (minutes > (course === "half_day" ? 300 : course === "full_day" ? 720 : 600)) continue;
+    if (minutes > (course === "half_day" ? 300 : meals?.length ? 720 : course === "full_day" ? 720 : 600)) continue;
     if (dinner) {
       if (ordered.at(-1) !== dinner) continue;
       minutes += Math.max(0, 540 - (minutes - dwell(dinner) - legs[legs.length - 1].minutes));

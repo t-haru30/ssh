@@ -1,0 +1,331 @@
+{
+  "hokkaido": {
+    "code": "01",
+    "queries": [
+      "小樽",
+      "旭川"
+    ]
+  },
+  "aomori": {
+    "code": "02",
+    "queries": [
+      "八戸",
+      "弘前"
+    ]
+  },
+  "iwate": {
+    "code": "03",
+    "queries": [
+      "花巻",
+      "一ノ関"
+    ]
+  },
+  "miyagi": {
+    "code": "04",
+    "queries": [
+      "石巻",
+      "古川"
+    ]
+  },
+  "akita": {
+    "code": "05",
+    "queries": [
+      "大曲",
+      "角館"
+    ]
+  },
+  "yamagata": {
+    "code": "06",
+    "queries": [
+      "米沢",
+      "鶴岡"
+    ]
+  },
+  "fukushima": {
+    "code": "07",
+    "queries": [
+      "郡山",
+      "会津若松"
+    ]
+  },
+  "ibaraki": {
+    "code": "08",
+    "queries": [
+      "土浦",
+      "勝田"
+    ]
+  },
+  "tochigi": {
+    "code": "09",
+    "queries": [
+      "小山",
+      "日光"
+    ]
+  },
+  "gunma": {
+    "code": "10",
+    "queries": [
+      "高崎",
+      "太田"
+    ]
+  },
+  "saitama": {
+    "code": "11",
+    "queries": [
+      "大宮",
+      "川越"
+    ]
+  },
+  "chiba": {
+    "code": "12",
+    "queries": [
+      "船橋",
+      "成田"
+    ]
+  },
+  "tokyo": {
+    "code": "13",
+    "queries": [
+      "新宿",
+      "上野"
+    ]
+  },
+  "kanagawa": {
+    "code": "14",
+    "queries": [
+      "鎌倉",
+      "小田原"
+    ]
+  },
+  "niigata": {
+    "code": "15",
+    "queries": [
+      "長岡",
+      "上越妙高"
+    ]
+  },
+  "toyama": {
+    "code": "16",
+    "queries": [
+      "高岡",
+      "黒部宇奈月温泉"
+    ]
+  },
+  "ishikawa": {
+    "code": "17",
+    "queries": [
+      "小松",
+      "加賀温泉"
+    ]
+  },
+  "fukui": {
+    "code": "18",
+    "queries": [
+      "敦賀",
+      "芦原温泉"
+    ]
+  },
+  "yamanashi": {
+    "code": "19",
+    "queries": [
+      "大月",
+      "石和温泉"
+    ]
+  },
+  "nagano": {
+    "code": "20",
+    "queries": [
+      "松本",
+      "上田"
+    ]
+  },
+  "gifu": {
+    "code": "21",
+    "queries": [
+      "大垣",
+      "高山"
+    ]
+  },
+  "shizuoka": {
+    "code": "22",
+    "queries": [
+      "浜松",
+      "三島"
+    ]
+  },
+  "aichi": {
+    "code": "23",
+    "queries": [
+      "金山",
+      "豊橋"
+    ]
+  },
+  "mie": {
+    "code": "24",
+    "queries": [
+      "津",
+      "伊勢市"
+    ]
+  },
+  "shiga": {
+    "code": "25",
+    "queries": [
+      "彦根",
+      "近江八幡"
+    ]
+  },
+  "kyoto": {
+    "code": "26",
+    "queries": [
+      "二条",
+      "宇治"
+    ]
+  },
+  "osaka": {
+    "code": "27",
+    "queries": [
+      "天王寺",
+      "新大阪"
+    ]
+  },
+  "hyogo": {
+    "code": "28",
+    "queries": [
+      "姫路",
+      "三ノ宮"
+    ]
+  },
+  "nara": {
+    "code": "29",
+    "queries": [
+      "近鉄奈良",
+      "橿原神宮前"
+    ]
+  },
+  "wakayama": {
+    "code": "30",
+    "queries": [
+      "白浜",
+      "紀伊田辺"
+    ]
+  },
+  "tottori": {
+    "code": "31",
+    "queries": [
+      "米子",
+      "倉吉"
+    ]
+  },
+  "shimane": {
+    "code": "32",
+    "queries": [
+      "出雲市",
+      "浜田"
+    ]
+  },
+  "okayama": {
+    "code": "33",
+    "queries": [
+      "倉敷",
+      "津山"
+    ]
+  },
+  "hiroshima": {
+    "code": "34",
+    "queries": [
+      "福山",
+      "尾道"
+    ]
+  },
+  "yamaguchi": {
+    "code": "35",
+    "queries": [
+      "新山口",
+      "下関"
+    ]
+  },
+  "tokushima": {
+    "code": "36",
+    "queries": [
+      "鳴門",
+      "阿南"
+    ]
+  },
+  "kagawa": {
+    "code": "37",
+    "queries": [
+      "丸亀",
+      "琴平"
+    ]
+  },
+  "ehime": {
+    "code": "38",
+    "queries": [
+      "今治",
+      "伊予西条"
+    ]
+  },
+  "kochi": {
+    "code": "39",
+    "queries": [
+      "土佐山田",
+      "中村"
+    ]
+  },
+  "fukuoka": {
+    "code": "40",
+    "queries": [
+      "博多",
+      "小倉"
+    ]
+  },
+  "saga": {
+    "code": "41",
+    "queries": [
+      "鳥栖",
+      "唐津"
+    ]
+  },
+  "nagasaki": {
+    "code": "42",
+    "queries": [
+      "佐世保",
+      "諫早"
+    ]
+  },
+  "kumamoto": {
+    "code": "43",
+    "queries": [
+      "八代",
+      "阿蘇"
+    ]
+  },
+  "oita": {
+    "code": "44",
+    "queries": [
+      "別府",
+      "由布院"
+    ]
+  },
+  "miyazaki": {
+    "code": "45",
+    "queries": [
+      "都城",
+      "延岡"
+    ]
+  },
+  "kagoshima": {
+    "code": "46",
+    "queries": [
+      "指宿",
+      "霧島神宮"
+    ]
+  },
+  "okinawa": {
+    "code": "47",
+    "queries": [
+      "首里",
+      "おもろまち"
+    ]
+  }
+}

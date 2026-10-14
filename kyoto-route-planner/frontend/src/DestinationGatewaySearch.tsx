@@ -13,10 +13,11 @@ export function DestinationGatewaySearch({ area, prefecture, fallback, value, on
   const [message, setMessage] = useState("");
   const [retry, setRetry] = useState(0);
   const [failed, setFailed] = useState(false);
-  const key = JSON.stringify([area, fallback]);
+  const [expanded,setExpanded]=useState(false);
+  const key = JSON.stringify([area, fallback,expanded]);
   useEffect(() => {
     const cached = candidates.get(key);
-    setOptions(cached ?? [fallback]); setFailed(false);
+    setOptions(current=>cached ?? (expanded ? current : [fallback])); setFailed(false);
     if (cached) { setMessage(""); return; }
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(new DOMException("Timed out", "TimeoutError")), 26_000);
@@ -24,7 +25,7 @@ export function DestinationGatewaySearch({ area, prefecture, fallback, value, on
     void (async () => {
       try {
         const response = await fetch("/api/destination-gateways", { method: "POST", signal: controller.signal,
-          headers: { "Content-Type": "application/json" }, body: JSON.stringify({ area, origin: fallback }) });
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify({ area, origin: fallback, ...(expanded ? {expanded:true} : {}) }) });
         const data: unknown = await response.json();
         if (!response.ok || !isRecord(data) || !Array.isArray(data.places) || !data.places.every(isOrigin)) throw new Error();
         if (controller.signal.aborted) return;
@@ -43,7 +44,7 @@ export function DestinationGatewaySearch({ area, prefecture, fallback, value, on
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [key, retry]);
   return <div className="destination-gateways">
-    <StationSearch label="行き先の駅・観光の起点" optionLayout="buttons" value={value} options={options} prefecture={prefecture} onChange={onChange} />
+    <StationSearch label="行き先の駅・観光の起点" optionLayout="buttons" value={value} options={options} prefecture={prefecture} onChange={onChange} onMoreOptions={()=>setExpanded(true)} />
     {message && <p className="preference-tags-note" role="status">{message}</p>}
     {failed && <button type="button" onClick={() => setRetry(v => v + 1)}>周辺の駅を再検索</button>}
   </div>;

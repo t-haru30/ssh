@@ -21,7 +21,7 @@ function readPaths(data: unknown): { segments: PathSegment[]; missing: boolean }
   }
   return {segments,missing};
 }
-export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId = null,mapTokens = [],timeline = [],journeyDate = "",routeLoading = false}: MapViewProps) {
+export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId = null,mapTokens = [],timeline = [],journeyDate = "",routeLoading = false,visible=true}: MapViewProps) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<InstanceType<GoogleMapsApi["Map"]> | null>(null);
   const fitRef = useRef<(all: boolean) => void>(() => {});
@@ -50,6 +50,21 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
     fittedKey.current = "";
     return () => { mapRef.current = null; };
   },[api]);
+  useEffect(()=>{
+    if (!api || !visible || !container.current) return;
+    let wasVisible=false;
+    const refresh=()=>{
+      const map=mapRef.current, node=container.current;
+      if (!map || !node) return;
+      const shown=node.getBoundingClientRect().width>0 && node.getBoundingClientRect().height>0;
+      if (shown && !wasVisible) {api.event?.trigger(map,"resize");if(!fittedKey.current)fitRef.current(false);}
+      wasVisible=shown;
+    };
+    const frame=requestAnimationFrame(refresh);
+    const observer=typeof ResizeObserver!=="undefined" ? new ResizeObserver(refresh) : null;
+    observer?.observe(container.current);
+    return()=>{cancelAnimationFrame(frame);observer?.disconnect();};
+  },[api,visible]);
   useEffect(() => {
     const map=mapRef.current;
     if (!api?.TransitLayer || !map || mode !== "routes") return;
@@ -113,9 +128,9 @@ export function GoogleJourneyMap({places,origin,returnTo = origin,activeSpotId =
     // Layer changes, fetched paths and scroll-spy highlights must not undo the
     // user's chosen area/zoom. Fit again only when the journey's points change.
     const locationKey=JSON.stringify(direct);
-    if (fittedKey.current !== locationKey) { fittedKey.current=locationKey; fitRef.current(false); }
+    if (visible && fittedKey.current !== locationKey) { fittedKey.current=locationKey; fitRef.current(false); }
     return () => { markers.forEach(marker => {marker.map = null;}); polylines.forEach(line => line.setMap(null)); popups.forEach(p => p.close()); };
-  },[api,origin,returnTo,places,mode,pathState,pathKey,activeSpotId]);
+  },[api,origin,returnTo,places,mode,pathState,pathKey,activeSpotId,visible]);
   const mapPlace = places[0] ?? origin;
   const namedPoints=[...(origin ? [origin] : []),...places,...(returnTo ? [returnTo] : [])];
   const connections=namedPoints.slice(1).flatMap((to,index) => {

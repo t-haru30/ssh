@@ -4,10 +4,10 @@ import { isOrigin, isRecord } from "./apiValidation";
 import "./stationSearch.css";
 
 type Candidate = Origin & { code?: string; prefecture?: string; lines?: string[] };
-type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin, prefecture?: string) => void; disabled?: boolean; prefecture?: { name: string; code: string }; optionLayout?: "select" | "buttons" };
+type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin, prefecture?: string) => void; disabled?: boolean; prefecture?: { name: string; code: string }; optionLayout?: "select" | "buttons"; onMoreOptions?:()=>void };
 const identity = (origin: Origin) => `${origin.name}|${origin.latitude}|${origin.longitude}`;
 
-export function StationSearch({ label, value, options, onChange, disabled = false, prefecture, optionLayout = "select" }: Props) {
+export function StationSearch({ label, value, options, onChange, disabled = false, prefecture, optionLayout = "select",onMoreOptions }: Props) {
   const id = useId();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Candidate[]>([]);
@@ -71,7 +71,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
       </div>}
       <p className="station-current-selection">{value ? <>選択中：<strong>{value.name}</strong></> : "駅を選んでください"}</p>
       <div className="station-choice-actions">
-        <button type="button" aria-expanded={showMore} aria-controls={`${id}-more`} onClick={() => setShowMore(current => !current)}>{showMore ? "候補を閉じる" : "ほかの候補を見る"}</button>
+        <button type="button" aria-expanded={showMore} aria-controls={`${id}-more`} onClick={() => {if(!showMore)onMoreOptions?.();setShowMore(current => !current);}}>{showMore ? "候補を閉じる" : "ほかの候補を見る"}</button>
         <button type="button" aria-expanded={expanded} aria-controls={`${id}-search`} onClick={() => expanded ? cancel() : setExpanded(true)}>駅名で探す</button>
       </div>
     </> : <>

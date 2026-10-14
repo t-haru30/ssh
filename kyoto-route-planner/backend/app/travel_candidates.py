@@ -23,6 +23,7 @@ from app.prefecture_boundary import BOUNDARIES, in_prefecture
 from app.station_search import search_stations
 
 _osm_cache = TTLCache(21600, 64)
+_station_cache = TTLCache(21600, 96)
 _slots = asyncio.Semaphore(2)
 ENDPOINTS = ("https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter")
 SEEDS_PATH = Path(__file__).resolve().parent / "data" / "osm_travel_candidate_seeds.json"
@@ -31,6 +32,32 @@ SEEDS_PATH = Path(__file__).resolve().parent / "data" / "osm_travel_candidate_se
 class TravelCandidatesRequest(BaseModel):
     origin: Origin
     area: str | None = Field(default=None, pattern=r"^[a-z]{1,30}$")
+    expanded: bool = False
+
+
+async def independent_stations(origin, area, expanded):
+    """Use the existing station provider even when the Google budget is exhausted."""
+    hints = json.loads((SEEDS_PATH.parent / 'station_gateway_hints.json').read_text(encoding='utf-8'))
+    entry = hints.get(area)
+    if not entry:
+        return []
+    queries = entry['queries'] if expanded else [origin.name.removesuffix('駅').split('（')[0]]
+    cache_key = json.dumps([area, queries])
+    hit, stations = _station_cache.get(cache_key)
+    if hit:
+        return stations
+    async def resolve(query):
+        try:
+            found = await asyncio.wait_for(search_stations(query, entry['code']), timeout=8)
+        except (HTTPException, TimeoutError, ValueError, httpx.HTTPError):
+            return []
+        return [CatalogPlace(id=f'ekispert-station-{s.code}',name=s.name,category='駅',region=s.prefecture,address=s.prefecture,
+            latitude=s.latitude,longitude=s.longitude,description='',tags={'source':'駅すぱあと','station_code':s.code,'source_url':'https://ekispert.com/'})
+            for s in found if in_prefecture(area,s.latitude,s.longitude) and (expanded or distance_km(origin,s)<=12)]
+    result = [p for group in await asyncio.gather(*(resolve(q) for q in queries[:2])) for p in group]
+    if result:
+        _station_cache.set(cache_key,result)
+    return result
 
 
 def area_at(origin, area=None):
@@ -154,12 +181,16 @@ async def suggest_travel_candidates(payload: TravelCandidatesRequest, kind: Lite
     area = area_at(payload.origin, payload.area)
     if not area:
         return {"places": [], "note": "地域を確認できませんでした。行き先を選び直してください。"}
-    radius = 12 if kind == "station" else 5
+    radius = (50 if payload.expanded else 12) if kind == "station" else 5
     async with _slots, asyncio.timeout(24), httpx.AsyncClient(trust_env=False, verify=ssl.create_default_context(), follow_redirects=False,
             headers={"User-Agent":"ConcierGO/1.0 (facility lookup)", "Accept":"application/json"}) as client:
-        independent, google = await asyncio.gather(osm_candidates(client, payload.origin, area, kind, radius),
-                                                  google_candidates(client, payload.origin, kind, radius))
+        independent, google, station_records = await asyncio.gather(osm_candidates(client, payload.origin, area, kind, radius),
+            google_candidates(client, payload.origin, kind, radius),
+            independent_stations(payload.origin, area, payload.expanded) if kind == "station" else asyncio.sleep(0, result=[]))
         if kind == "station":
+            # Additional candidates are an actual new prefecture-scoped lookup,
+            # rather than reopening the same short list.
+            independent = [*independent, *station_records]
             independent = [*independent, *await extra_stations(google, independent, payload.origin, area, radius)]
     def match(place):
         matches = []

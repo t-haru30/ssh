@@ -23,7 +23,13 @@ export function planMeals(places: Place[], meals: MealChoice[], origin: Origin, 
   if (venues.length !== choices.length || mealError(choices)) return null;
   const first = choices[0];
   const departure = first ? Math.max(0, Math.min(540, minuteOf(mealTime(first)) - 30)) : 540;
-  const start = course === "half_day" && first ? Math.max(0, minuteOf(mealTime(first)) - (first.kind === "breakfast" ? 30 : 120)) : departure;
+  const limit = course === "half_day" ? 300 : 720;
+  const last = choices.at(-1), lastVenue = venues.at(-1);
+  const earliestFinish = last && lastVenue ? minuteOf(mealTime(last)) + dwell(lastVenue) + Math.ceil(distanceKm(lastVenue, origin) / 25 * 60) + 10 : 0;
+  // An unspecified course may start in the afternoon. A full day with a late
+  // dinner can start later instead of counting an unnecessary morning wait.
+  const start = course !== "full_day" && first ? Math.max(0, minuteOf(mealTime(first)) - (first.kind === "breakfast" ? 30 : 120))
+    : Math.max(departure, Math.ceil((earliestFinish - limit) / 15) * 15);
   let cursor: Origin = origin, now = start;
   const ordered: Place[] = [], roles: Record<string, MealChoice["kind"]> = {}, anchors: Record<string, string> = {};
   const travel = (a: Origin, b: Origin) => Math.ceil(distanceKm(a, b) / 25 * 60) + 10;

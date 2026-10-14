@@ -65,3 +65,20 @@ it("preserves the chosen map area when switching the layer or highlighting a tim
   view.rerender(<GoogleJourneyMap {...journey} activeSpotId="museum" />);
   expect(mocks.fit).toHaveBeenCalledTimes(2);
 });
+it("redraws the same map after returning from a hidden screen without another map load",async()=>{
+  const created=vi.fn(),resize=vi.fn();
+  class ReopenedMap extends MapMock {constructor(){super();created();}}
+  mocks.load.mockResolvedValue({Map:ReopenedMap,Polyline:LineMock,AdvancedMarkerElement:MarkerMock,LatLngBounds:BoundsMock,InfoWindow:PopupMock,event:{trigger:resize}});
+  vi.spyOn(HTMLElement.prototype,"getBoundingClientRect").mockReturnValue({width:390,height:320} as DOMRect);
+  const view=render(<GoogleJourneyMap {...props} visible={false} />);
+  await waitFor(()=>expect(created).toHaveBeenCalledTimes(1));
+  expect(resize).not.toHaveBeenCalled();
+  view.rerender(<GoogleJourneyMap {...props} visible />);
+  await waitFor(()=>expect(resize).toHaveBeenCalledWith(expect.any(ReopenedMap),"resize"));
+  view.rerender(<GoogleJourneyMap {...props} visible={false} />);
+  const before=resize.mock.calls.length;
+  view.rerender(<GoogleJourneyMap {...props} visible />);
+  await waitFor(()=>expect(resize.mock.calls.length).toBeGreaterThan(before));
+  expect(created).toHaveBeenCalledTimes(1);
+  vi.restoreAllMocks();
+});
