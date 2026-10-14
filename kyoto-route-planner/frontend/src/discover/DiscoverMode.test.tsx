@@ -40,7 +40,7 @@ it("explains missing answers and orders departure before prefecture and gateway"
   expect(screen.getByText("好きな過ごし方を1つ以上選んでください。")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "歴史・街歩き" }));
   goMood(); fireEvent.click(screen.getByRole("button", { name: /次へ：行き先/ }));
-  const departure = screen.getByLabelText("出発地点"), prefecture = screen.getByLabelText("行き先の都道府県"), gateway = screen.getByLabelText("行き先の駅・観光の起点");
+  const departure = screen.getByLabelText("出発地点"), prefecture = screen.getByLabelText("行き先の都道府県"), gateway = screen.getByRole("group", {name:"行き先の駅・観光の起点"});
   expect(departure.compareDocumentPosition(prefecture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(prefecture.compareDocumentPosition(gateway) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
@@ -276,7 +276,7 @@ it("changes destination directly while retaining profile, mood and free-text ans
   fireEvent.click(screen.getByRole("button", { name: "行き先を選び直す" }));
   expect(screen.getByRole("heading", { name: "どこから、どこへ？" })).toBeTruthy();
   fireEvent.change(screen.getByLabelText("行き先の都道府県"), { target: { value: "aomori" } });
-  const departure = (screen.getByLabelText("行き先の駅・観光の起点") as HTMLSelectElement).selectedOptions[0].textContent;
+  const departure = screen.getByRole("group", {name:"行き先の駅・観光の起点"}).querySelector(".station-current-selection strong")?.textContent;
   fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ }));
   await waitFor(() => expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")).toHaveLength(2));
   const request = vi.mocked(fetch).mock.calls.filter(([url]) => url === "/api/discover")[1][1];
@@ -367,13 +367,13 @@ it("keeps destination stations inside the selected prefecture", async () => {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => url.startsWith("/api/stations/search") ? {ok: true, json: async () => [{name:"岐阜",latitude:35.410,longitude:136.757,code:"gifu",prefecture:"岐阜県",lines:[]}]} : noPhoto));
   mount(); next();
   fireEvent.change(screen.getByLabelText("行き先の都道府県"), {target:{value:"gifu"}});
-  expect(within(screen.getByLabelText("行き先の駅・観光の起点")).queryByRole("option", {name:"京都駅"})).toBeNull();
-  const field = screen.getByLabelText("行き先の駅・観光の起点").closest("fieldset")!;
+  expect(within(screen.getByRole("group", {name:"行き先の駅・観光の起点"})).queryByRole("button", {name:"京都駅"})).toBeNull();
+  const field = screen.getByRole("group", {name:"行き先の駅・観光の起点"});
   fireEvent.click(within(field).getByRole("button", {name:"駅名で探す"}));
   fireEvent.change(within(field).getByLabelText("駅名を入力"), {target:{value:"岐阜"}});
   fireEvent.click(within(field).getByRole("button", {name:"駅を検索"}));
   fireEvent.click(await within(field).findByRole("button", {name:/岐阜.*岐阜県/}));
   expect((screen.getByLabelText("行き先の都道府県") as HTMLSelectElement).value).toBe("gifu");
   expect((screen.getByLabelText("県をまたぐ候補も含める") as HTMLInputElement).checked).toBe(false);
-  expect((screen.getByLabelText("行き先の駅・観光の起点") as HTMLSelectElement).selectedOptions[0].textContent).toContain("岐阜");
+  expect(field.querySelector(".station-current-selection")?.textContent).toContain("岐阜");
 });

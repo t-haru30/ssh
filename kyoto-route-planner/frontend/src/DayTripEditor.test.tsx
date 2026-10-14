@@ -8,7 +8,7 @@ import type { RouteSuggestion } from "./types";
 // Editing is local; facility photo requests are tested independently.
 vi.mock("./FacilityPhoto", () => ({ FacilityPhoto: () => null }));
 
-function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold, .trip-adjustment").forEach(item => { item.open = true; }); return view; }
+function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold").forEach(item => { item.open = true; }); return view; }
 const origin = { name: "京都駅", latitude: 35, longitude: 135 };
 const places = ["公園", "美術館"].map((name, index) => ({ ...origin, id: String(index), name, category: "観光", description: "", access_point: "", themes: [] }));
 const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, fare_yen: 200, departure_time: "09:00", arrival_time: null, title: "選んだ旅", story: null, note: "" };
@@ -96,7 +96,7 @@ describe("DayTripEditor", () => {
     expect((screen.getByRole("button", { name: "ひとつ前に戻す" }) as HTMLButtonElement).disabled).toBe(true);
     expect(changed.mock.calls.at(-1)?.[0].stops[0]).toMatchObject({ completed: false, locked: true });
   });
-  it("records visits in order and protects the original place and times during source refresh and fitting", async () => {
+  it("records visits in order and protects the original place and times during source refresh", async () => {
     const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
     const changed = vi.fn();
     const view = render(<DayTripEditor {...props} onPlanChange={changed} />);
@@ -114,10 +114,6 @@ describe("DayTripEditor", () => {
     view.rerender(<DayTripEditor {...props} onPlanChange={changed} source={{ ...source, places: [{ ...places[0], latitude: 36, name: "変更された名前" }, places[1]] }} />);
     await waitFor(() => expect(changed.mock.calls.at(-1)?.[0].stops[0].place.name).toBe("公園"));
     expect(changed.mock.calls.at(-1)?.[0].stops[0]).toMatchObject({ start: original.start, end: original.end, place: original.place, completed: true });
-    fireEvent.change(screen.getByLabelText("使える時間（時間）"), { target: { value: "2" } });
-    fireEvent.change(screen.getByLabelText("使える時間（分）"), { target: { value: "0" } });
-    fireEvent.click(screen.getByRole("button", { name: "固定以外を調整して確認" }));
-    fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
     expect(changed.mock.calls.at(-1)?.[0].stops[0]).toMatchObject({ start: original.start, end: original.end, dwellMinutes: original.dwellMinutes, completed: true });
     fireEvent.click(screen.getByRole("button", { name: "公園の訪問済みを解除" }));
     fireEvent.click(screen.getByRole("button", { name: "訪問済みを解除する" }));
@@ -133,9 +129,9 @@ describe("DayTripEditor", () => {
     );
     const changed = vi.fn();
     const view = render(<DayTripEditor {...props} initialPlan={initialPlan} onPlanChange={changed} />);
-    expect((screen.getByLabelText("使える時間（時間）") as HTMLInputElement).value).toBe("10");
-    expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("0");
-    expect((screen.getByLabelText("1人あたりの予算（円）") as HTMLInputElement).value).toBe("7000");
+    expect(changed.mock.calls.at(-1)?.[0].input).toMatchObject({availableMinutes:600,budget:7000});
+    expect(screen.queryByLabelText("使える時間（時間）")).toBeNull();
+    expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(screen.queryByText("2026/10/12 · 京都駅発 → 大阪駅着")).toBeNull();
     expect(screen.getByText("2か所の寄り道")).toBeTruthy();
     expect(screen.getByText(/大阪駅に帰着/)).toBeTruthy();
@@ -168,22 +164,16 @@ describe("DayTripEditor", () => {
     expect(screen.getByRole("button", { name: "公園の固定を解除" })).toBeTruthy();
     expect(changed.mock.calls.at(-1)?.[0].stops).toHaveLength(2);
   });
-  it("previews constraints, cancels without changing the itinerary, and applies with no network", async () => {
+  it("previews per-stop edits and cancels without changing the itinerary", async () => {
     const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
     render(<DayTripEditor {...props} />);
-    fireEvent.click(screen.getByRole("button", { name: "公園を固定" }));
-    expect((screen.getByRole("button", { name: "公園を削除" }) as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.change(screen.getByLabelText("使える時間（時間）"), { target: { value: "2" } });
-    fireEvent.change(screen.getByLabelText("使える時間（分）"), { target: { value: "20" } });
-    fireEvent.click(screen.getByRole("button", { name: "固定以外を調整して確認" }));
-    const dialog = await screen.findByRole("dialog", { name: "旅程の変更を確認" });
-    expect(dialog.textContent).toContain("90分 → 30分");
-    fireEvent.click(within(dialog).getByRole("button", { name: "現在の旅程を残す" }));
+    fireEvent.click(screen.getByRole("button", {name:"美術館の時間と費用を編集"}));
+    fireEvent.change(screen.getByLabelText("滞在時間（分）"), {target:{value:"45"}});
+    fireEvent.click(screen.getByRole("button", {name:"変更を確認"}));
+    const dialog = screen.getByRole("dialog", {name:"旅程の変更を確認"});
+    fireEvent.click(within(dialog).getByRole("button", {name:"現在の旅程を残す"}));
     expect(screen.getAllByText(/滞在 90分/)).toHaveLength(2);
-    fireEvent.click(screen.getByRole("button", { name: "固定以外を調整して確認" }));
-    fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
-    expect(screen.getByText(/滞在 30分/)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "公園の固定を解除" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
   });
   it("preserves edits, locks and selected places when departure conditions change", async () => {
@@ -269,20 +259,7 @@ describe("DayTripEditor", () => {
   });
 });
 
-it("leaves the original plan intact when a shorter time cannot fit fixed stays", async () => {
-  const changed = vi.fn();
-  const before = scheduleTrip({ departureTime: "09:00", availableMinutes: 360, budget: 5000 }, origin, props.date,
-    places.map(place => ({ ...newTripStop(place, 90), locked: true })), { route: source, date: props.sourceDate, time: props.sourceTime });
-  render(<DayTripEditor {...props} initialPlan={before} onPlanChange={changed} />);
-  fireEvent.change(screen.getByLabelText("使える時間（時間）"), { target: { value: "0" } });
-  fireEvent.change(screen.getByLabelText("使える時間（分）"), { target: { value: "30" } });
-  fireEvent.click(screen.getByRole("button", { name: "固定以外を調整して確認" }));
-  expect(await screen.findByText(/この時間枠に収まる変更案がありません/)).toBeTruthy();
-  expect((screen.getByRole("button", { name: "この変更を反映" }) as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole("button", { name: "現在の旅程を残す" }));
-  expect(changed.mock.calls.at(-1)?.[0].input.availableMinutes).toBe(360);
-  expect(changed.mock.calls.at(-1)?.[0].stops.map((s: { dwellMinutes: number }) => s.dwellMinutes)).toEqual([90, 90]);
-});
+
 
 it("automatically previews return destination and preserves stops on failure", async () => {
   const fetch = vi.fn().mockResolvedValue({ ok: false }); vi.stubGlobal("fetch", fetch);

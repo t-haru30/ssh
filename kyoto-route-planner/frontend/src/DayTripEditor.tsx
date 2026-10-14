@@ -5,7 +5,7 @@ import { lockBodyScroll } from "./bodyScrollLock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import type { Origin, Place, Preference, RouteSuggestion } from "./types";
-import { facilityAllowance, transportMatches, completeNextStop, completedStopCount, undoLastCompletedStop, distanceKm, minimumDwell, fitTrip, MAX_TRIP_STOPS, newTripStop, readTripNumber, scheduleTrip, tripChanges, tripClock, clockMinutes } from "./dayTrip";
+import { facilityAllowance, transportMatches, completeNextStop, completedStopCount, undoLastCompletedStop, distanceKm, minimumDwell, MAX_TRIP_STOPS, newTripStop, readTripNumber, scheduleTrip, tripChanges, tripClock, clockMinutes } from "./dayTrip";
 import type { TripPlan, TripStop } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import { VenueEvidence } from "./VenueEvidence";
@@ -104,9 +104,6 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const preferenceKey = JSON.stringify(currentPreferences ?? []);
   const originKey = JSON.stringify(origin);
   const destinationKey = JSON.stringify(destination);
-  const [minutes, setMinutes] = useState(String(initialPlan?.input.availableMinutes ?? initialAvailableMinutes ?? 360));
-  const [budget, setBudget] = useState(String(initialPlan?.input.budget ?? 5000));
-  const [transportCost, setTransportCost] = useState(initialPlan?.transportEstimate == null ? "" : String(initialPlan.transportEstimate));
   const [plan, setPlan] = useState(() => initialPlan ?? scheduleTrip(
     { departureTime, availableMinutes: initialAvailableMinutes ?? 360, budget: 5000, preferences: currentPreferences }, origin, date,
     source.places.map(place => ({ ...newTripStop(place, initialDwellMinutes?.[place.id]), anchorTime: initialAnchorTimes?.[place.id] ?? null })),
@@ -256,17 +253,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     const visitRecordChanged = completedStopCount(next.stops) !== completedStopCount(plan.stops);
     setHistory(current => visitRecordChanged ? [] : [...current.slice(-19), plan]);
     setPlan(next); setPreview(null); setEditId(null); setError(null); setNotice(message);
-    setMinutes(String(next.input.availableMinutes)); setBudget(String(next.input.budget));
-    setTransportCost(next.transportEstimate === null ? "" : String(next.transportEstimate));
     window.requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
-  }
-  function recalculate(event: FormEvent) {
-    event.preventDefault();
-    try {
-      const input = { ...plan.input, availableMinutes: readTripNumber(minutes, "使える時間", 30, 720), budget: readTripNumber(budget, "予算", 0, 50000) };
-      const estimate = transportCost.trim() === "" ? null : readTripNumber(transportCost, "交通費の見積もり", 0, 50000);
-      setPreview(fitTrip({ ...scheduleTrip(input, plan.origin, plan.date, plan.stops, plan.transport, estimate, plan.returnTo), planningEstimates: plan.planningEstimates })); setError(null);
-    } catch (cause) { setError(toFriendlyMessage(cause)); }
   }
   function editStop(event: FormEvent<HTMLFormElement>, stop: TripStop) {
     event.preventDefault();
@@ -332,8 +319,6 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const lockedCount = plan.stops.filter(stop => stop.locked).length;
   const completedCount = completedStopCount(plan.stops);
   const deadline = clockMinutes(plan.input.departureTime) + plan.input.availableMinutes;
-  const conditionsChanged = minutes !== String(plan.input.availableMinutes) || budget !== String(plan.input.budget)
-    || transportCost !== (plan.transportEstimate === null ? "" : String(plan.transportEstimate));
   const changes = preview ? tripChanges(plan, preview) : [];
   const unknownTravel = Boolean(plan.unknownTravelSegments?.length);
   const previewFitsTime = !preview || preview.input.availableMinutes === plan.input.availableMinutes || (!preview.unknownTravelSegments?.length && preview.returnMinute <= clockMinutes(preview.input.departureTime) + preview.input.availableMinutes);
@@ -362,16 +347,6 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       <div className={plan.knownCost > plan.input.budget ? "is-over" : ""}><small>1人あたりの費用</small><strong>{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算</em></> : "合計未確認" : yen(plan.totalCost)}</strong><span>予算 {yen(plan.input.budget)} · {plan.totalCost === null ? `合計未確認（残り${plan.unknownCosts}項目）` : "交通・施設・飲食の概算合計"}</span><div className="trip-meter" role="meter" aria-label="予算に対する概算費用" aria-valuemin={0} aria-valuemax={Math.max(1, plan.input.budget)} aria-valuenow={Math.min(plan.knownCost, Math.max(1, plan.input.budget))} aria-valuetext={`概算 ${yen(plan.knownCost)} / 予算 ${yen(plan.input.budget)}${plan.totalCost === null ? "、合計未確認のため予算内かは未判定" : ""}`}><i style={{ width: `${plan.input.budget ? Math.min(100, plan.knownCost / plan.input.budget * 100) : plan.knownCost ? 100 : 0}%` }} /></div><span>{plan.knownCost > plan.input.budget ? `概算だけで ${yen(plan.knownCost - plan.input.budget)}超過` : plan.totalCost === null ? "未確認の費用を含め、予算内かは未判定" : `予算との差 ${yen(plan.input.budget - plan.knownCost)}`}</span></div>
     </div>
     {plan.violations.length > 0 && <details className={`trip-warnings${urgentCount ? " is-urgent" : ""}`} open={urgentCount > 0}><summary>{urgentCount ? `時間・予算の確認が${urgentCount}件あります` : !plan.stops.length ? "寄り道を追加して旅を始めましょう" : `費用の確認が必要です · ${plan.unknownCosts}項目`}</summary><ul>{plan.violations.map(message => <li key={message}>{message}</li>)}</ul>{lockedCount > 0 && <p>固定した予定は保持しています。収まらない場合は、条件や固定内容を見直してください。</p>}</details>}
-    <details className="trip-adjustment"><summary>時間と予算を調整</summary><form className="trip-conditions" onSubmit={recalculate}>
-      <div className="trip-conditions-heading"><h4>時間と予算を調整</h4><span>変更案を見てから反映できます</span></div>
-      <div className="trip-field-grid">
-        <div><span>使える時間</span><div className="trip-duration-input"><label><input aria-label="使える時間（時間）" type="number" min="0" max="12" required value={Math.floor(Number(minutes) / 60)} onChange={event => setMinutes(String(Number(event.target.value) * 60 + Number(minutes) % 60))} />時間</label><label><input aria-label="使える時間（分）" type="number" min="0" max="59" required value={Number(minutes) % 60} onChange={event => setMinutes(String(Math.floor(Number(minutes) / 60) * 60 + Number(event.target.value)))} />分</label></div><small>30分〜12時間 · 観光の滞在は原則30分以上</small></div>
-        <label>1人あたりの予算（円）<input aria-label="1人あたりの予算（円）" type="number" min="0" max="50000" required value={budget} onChange={event => setBudget(event.target.value)} /><small>交通・施設・飲食の合計</small></label>
-      </div>
-      <details className="trip-cost-details"><summary>交通費を自分の見積もりで補う</summary><label>{isRoundTrip(plan) ? "往復の交通費見積もり（円）" : "全区間の交通費見積もり（円）"}<input type="number" min="0" max="50000" placeholder="空欄なら取得した交通費を使用" value={transportCost} onChange={event => setTransportCost(event.target.value)} /></label><p>施設・飲食の費用は各予定の「時間・費用」で入力できます。無料と確認できた予定には0円を入力してください。</p></details>
-      <button type="submit" className="trip-primary">固定以外を調整して確認 <span aria-hidden="true">→</span></button>
-      {conditionsChanged && <p className="trip-pending" role="status">条件を編集中 · 旅程にはまだ反映されていません</p>}
-    </form></details>
     {error && <p className="trip-error" role="alert">{error}</p>}
     <p className={`trip-live-message${notice ? " has-message" : ""}`} role="status" aria-live="polite" aria-atomic="true">{notice}</p>
     <details className="trip-method-details"><summary>移動・費用の見積もりについて</summary><div>
@@ -417,7 +392,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     </ol>
     <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} externalBusy={transitState === "loading"} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
     <p className="trip-return"><span>{plan.unknownTravelSegments?.includes(plan.stops.length) ? "帰りの交通情報は未確認" : `帰りは約${plan.returnTravel}分`}</span><strong><time>{unknownTravel ? "交通経路の確認後" : tripClock(plan.returnMinute)}</time> {plan.returnTo.name}に帰着</strong><small>帰着時刻は目安です</small></p>
-    <div className="trip-footer-actions"><button type="button" disabled={plan.stops.length >= MAX_TRIP_STOPS} onClick={() => { setChooser({ swapId: null }); setCandidateNote(""); }}>＋ 寄り道を追加</button><button type="button" disabled={history.length === 0} onClick={() => { const previous = history[history.length - 1]; if (!previous) return; setHistory(current => current.slice(0, -1)); setPlan(previous); setMinutes(String(previous.input.availableMinutes)); setBudget(String(previous.input.budget)); setTransportCost(previous.transportEstimate === null ? "" : String(previous.transportEstimate)); setNotice("ひとつ前の旅程に戻しました。"); }}>ひとつ前に戻す</button></div>
+    <div className="trip-footer-actions"><button type="button" disabled={plan.stops.length >= MAX_TRIP_STOPS} onClick={() => { setChooser({ swapId: null }); setCandidateNote(""); }}>＋ 寄り道を追加</button><button type="button" disabled={history.length === 0} onClick={() => { const previous = history[history.length - 1]; if (!previous) return; setHistory(current => current.slice(0, -1)); setPlan(previous); setNotice("ひとつ前の旅程に戻しました。"); }}>ひとつ前に戻す</button></div>
     {plan.stops.length >= MAX_TRIP_STOPS && <p className="trip-travel-note">寄り道は8か所までです。入れ替え・削除して調整できます。</p>}
     {visitDialog && <TripDialog title={visitDialog === "complete" ? "訪問済みとして記録" : "訪問済みの記録を解除"} onClose={() => setVisitDialog(null)}>
       {visitDialog === "complete" ? <><p><strong>{plan.stops[completedCount]?.place.name}</strong></p><p>表示中の {tripClock(plan.stops[completedCount]?.start ?? 0)}〜{tripClock(plan.stops[completedCount]?.end ?? 0)} を記録します。以降の再計算では、この場所と時刻・滞在時間を変えません。</p><p>時刻を直す場合は、記録する前に「時間・費用」で調整してください。</p></> : <><p>{plan.stops[completedCount - 1]?.place.name} の訪問済みを解除します。場所と滞在時間の固定は残ります。</p><p>先の記録から順に解除すると、これまでの訪問順を保てます。</p></>}
