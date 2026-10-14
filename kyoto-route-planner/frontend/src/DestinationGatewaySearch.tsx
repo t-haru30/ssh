@@ -43,7 +43,7 @@ export function DestinationGatewaySearch({ area, prefecture, fallback, value, on
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [key, retry]);
   return <div className="destination-gateways">
-    <StationSearch label="行き先の駅・観光の起点" value={value} options={options} prefecture={prefecture} onChange={onChange} />
+    <StationSearch label="行き先の駅・観光の起点" optionLayout="buttons" value={value} options={options} prefecture={prefecture} onChange={onChange} />
     {message && <p className="preference-tags-note" role="status">{message}</p>}
     {failed && <button type="button" onClick={() => setRetry(v => v + 1)}>周辺の駅を再検索</button>}
   </div>;

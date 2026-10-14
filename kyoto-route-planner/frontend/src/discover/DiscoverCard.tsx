@@ -1,19 +1,12 @@
-import { ReasonSources } from "./reasonSources";
-import { conciseReason } from "./conciseReason";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SharedSwipeCard } from "../SharedSwipeCard";
 import type { SharedSwipeDirection } from "../SharedSwipeCard";
 import type { RouteIdea } from "../SwipeCard";
 import type { DatasetRoute } from "./datasetTypes";
 import { routeSelection } from "../routeSelection";
-import { PlaceDetailsDialog } from "./PlaceDetails";
-import { placeRecommendation } from "./placeRecommendation";
 import "./routePhoto.css";
 import { RoutePhotoGrid } from "./RoutePhotoGrid";
-import { journeyOverview } from "./journeyStory";
-import { JourneyReasons } from "./JourneyReasons";
-import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
-import { GoogleVenueSummary } from "./GoogleVenueSummary";
+import "./discoverCard.css";
 
 export type DiscoverDirection = "like" | "pass";
 
@@ -46,69 +39,29 @@ type DiscoverCardProps = {
 export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = true, preparingNext = false }: DiscoverCardProps) {
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
-  const aiRecommended = !isIdea && route.recommendation_source === "gemini";
-  const fullReason = isIdea ? route.story : route.recommendation_reason || `${route.spots.length}か所をつないで、この街を少し深く。`;
   const selection = useMemo(() => routeSelection(route), [route]);
-  const googleInfos = useGoogleVenueInfo(selection.places, active && depth === 0);
-  const shortReason = isIdea ? fullReason : journeyOverview(route, googleInfos);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
-  const selectedPlace = selection.places.find(place => place.id === selectedPlaceId);
 
   return (
-    <><SharedSwipeCard
+    <SharedSwipeCard
+      presentation="visual"
       theme={route.theme}
       title={route.title}
-      description={shortReason}
-      descriptionLabel="この旅の楽しみ"
-      descriptionSupplement={googleInfos.filter(info => info.summary).map(info => <div key={info.place_id}><strong>{selection.places.find(place => place.id === info.place_id)?.name}</strong><GoogleVenueSummary info={info} /></div>)}
-      recommendationSources={<>
-        <details className="place-description-toggle" onPointerDown={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
-          <summary>おすすめ理由の全文・出典</summary>
-          <p>{shortReason}</p>
-          {!isIdea && <><JourneyReasons route={route} googleInfos={googleInfos} /><ReasonSources sources={route.reason_sources?.filter(source => !route.spots.some(spot => spot.reason_sources?.some(item => item.url === source.url)))} /></>}
-        </details>
-      </>}
-      recommendationLabel={aiRecommended ? "あなたへのおすすめ" : undefined}
       summary={isIdea
         ? `${route.places.length}か所を巡る旅のプラン`
         : `${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
-      spots={isIdea
-        ? route.places.map((place) => ({
-          id: place.id,
-          name: place.name,
-          category: place.category,
-          icon: categoryIcon(place.category),
-        }))
-        : route.spots.map((spot) => ({
-          id: spot.place_id,
-          name: spot.name,
-          category: spot.role !== "stop" ? `${({breakfast:"朝ごはん",lunch:"昼ごはん",dinner:"夜ごはん"})[spot.role]} ${spot.meal_time ?? ""} · 営業時間は要確認` : spot.category,
-          appeal: spot.reason && !/直線約|公式情報を確認できていません/.test(spot.reason) && !shortReason.includes(conciseReason(spot.reason)) ? conciseReason(spot.reason) : undefined,
-          icon: categoryIcon(spot.category),
-        }))}
+      spots={[]}
       coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} /> : undefined}
-      onSpotSelect={setSelectedPlaceId}
       coverBadge={isIdea
         ? `${route.places.length}か所`
         : route.course === "full_day" ? "1日コース" : "半日コース"}
       depth={depth}
       isTop={depth === 0}
-      isProcessing={!active || preparingNext || Boolean(selectedPlaceId)}
-      swipeEnabled={active && !selectedPlaceId}
+      isProcessing={!active || preparingNext}
+      swipeEnabled={active}
       acceptLabel="いいね"
       skipLabel="今回は見送る"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
     />
-    {depth === 0 && selectedPlace && <PlaceDetailsDialog
-      key={selectedPlace.id}
-      place={selectedPlace}
-      stayMinutes={selection.dwellMinutes[selectedPlace.id]}
-      reasonSources={!isIdea ? route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason_sources : undefined}
-      recommendations={!isIdea && route.spots.find(spot => spot.place_id === selectedPlace.id)?.reason
-        ? [route.spots.find(spot => spot.place_id === selectedPlace.id)!.reason!]
-        : placeRecommendation(selectedPlace, { places: selection.places, origin: selection.origin, theme: route.theme, stayMinutes: selection.dwellMinutes[selectedPlace.id] })}
-      onClose={() => setSelectedPlaceId(null)}
-    />}</>
   );
 }

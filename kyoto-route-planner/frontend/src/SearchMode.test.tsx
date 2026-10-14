@@ -327,8 +327,8 @@ describe("SearchMode local initial proposal", () => {
     fireEvent.click(screen.getByRole("button", { name: /この条件で旅程を提案する/ }));
     expect(await screen.findByRole("heading", { name: "駅前公園" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "川辺カフェ" })).toBeNull();
-    expect((screen.getByLabelText("使える時間（分）") as HTMLInputElement).value).toBe("20");
-    expect((screen.getByLabelText("1人あたりの予算（円）") as HTMLInputElement).value).toBe("500");
+    expect(readJourneyDraft()?.plan.input).toMatchObject({availableMinutes:140,budget:500});
+    expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(screen.getAllByText(/帰着駅/).length).toBeGreaterThan(0);
     expect(screen.getByText(/登録カテゴリ「公園」.*希望の自然/)).toBeTruthy();
     expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);

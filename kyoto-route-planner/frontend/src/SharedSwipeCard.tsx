@@ -15,6 +15,7 @@ export type SharedSwipeCardSpot = {
 };
 
 export type SharedSwipeCardProps = {
+  presentation?: "full" | "visual";
   theme: Theme;
   title: string;
   description?: string;
@@ -51,6 +52,7 @@ const SWIPE_THRESHOLD = 110;
 const MAX_VISIBLE_SPOTS = 3;
 
 export function SharedSwipeCard({
+  presentation = "full",
   theme,
   title,
   description,
@@ -129,7 +131,7 @@ export function SharedSwipeCard({
 
   return (
     <motion.article
-      className={`swipe-card${isProcessing ? " is-processing" : ""}`}
+      className={`swipe-card${presentation === "visual" ? ` swipe-card-visual${!isTop ? " is-behind" : ""}` : ""}${isProcessing ? " is-processing" : ""}`}
       style={{ x, rotate, opacity, backgroundColor, zIndex: 10 - depth, pointerEvents: isTop && isPresent ? "auto" : "none" }}
       drag={isPresent && swipeEnabled && isTop && !isProcessing ? "x" : false}
       dragMomentum={false}
@@ -194,9 +196,10 @@ export function SharedSwipeCard({
           </>
         )}
         </>}
-        <span className="swipe-cover-badge">{coverBadge}</span>
+        {presentation !== "visual" && <span className="swipe-cover-badge">{coverBadge}</span>}
       </div>
       <div className="swipe-card-copy">
+        {presentation === "visual" && <span className="swipe-plan-course">{coverBadge}</span>}
         {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
         <h3 title={title}>{titleBoundary > 0 ? <>
           <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
@@ -206,7 +209,7 @@ export function SharedSwipeCard({
         {description && (descriptionLabel ? <section className="swipe-reason" aria-label={descriptionLabel}><strong>{descriptionLabel}</strong><p className="swipe-story">{description}</p>{descriptionSupplement}</section> : <p className="swipe-story">{description}</p>)}
         {recommendationSources}
         {summary && <p className="swipe-distance">{summary}</p>}
-        <ul className="swipe-spot-list">
+        {spots.length > 0 && <ul className="swipe-spot-list">
           {(onSpotSelect ? spots : spots.slice(0, MAX_VISIBLE_SPOTS)).map((spot) => (
             <li key={spot.id}>
               {onSpotSelect ? <button
@@ -234,7 +237,7 @@ export function SharedSwipeCard({
           {!onSpotSelect && spots.length > MAX_VISIBLE_SPOTS && (
             <li className="swipe-spot-more">ほか{spots.length - MAX_VISIBLE_SPOTS}か所（詳細で確認）</li>
           )}
-        </ul>
+        </ul>}
         {hasCoverImage && photoPlaceName && <div className="route-photo-credit" aria-label="写真のクレジット" onPointerDown={event => event.stopPropagation()}>
           <span>写真: <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">{authorName}</a></span>
           <a href={sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer">写真の出典</a>

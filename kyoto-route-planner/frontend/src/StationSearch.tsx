@@ -4,16 +4,17 @@ import { isOrigin, isRecord } from "./apiValidation";
 import "./stationSearch.css";
 
 type Candidate = Origin & { code?: string; prefecture?: string; lines?: string[] };
-type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin, prefecture?: string) => void; disabled?: boolean; prefecture?: { name: string; code: string } };
+type Props = { label: string; value: Origin | null; options: Origin[]; onChange: (origin: Origin, prefecture?: string) => void; disabled?: boolean; prefecture?: { name: string; code: string }; optionLayout?: "select" | "buttons" };
 const identity = (origin: Origin) => `${origin.name}|${origin.latitude}|${origin.longitude}`;
 
-export function StationSearch({ label, value, options, onChange, disabled = false, prefecture }: Props) {
+export function StationSearch({ label, value, options, onChange, disabled = false, prefecture, optionLayout = "select" }: Props) {
   const id = useId();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Candidate[]>([]);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
   useEffect(() => () => { generation.current++; controller.current?.abort(); }, []);
@@ -22,7 +23,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
     controller.current?.abort();
     setLoading(false); setQuery(""); setResults([]); setStatus(""); setExpanded(false);
   }
-  useEffect(() => { cancel(); }, [prefecture?.code]);
+  useEffect(() => { cancel(); setShowMore(false); }, [prefecture?.code]);
   async function search() {
     if (!query.trim() || disabled || loading) return;
     const current = ++generation.current;
@@ -49,14 +50,31 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
       if (current === generation.current) setLoading(false);
     }
   }
-  const registered = [...new Map([...(value ? [value] : []), ...options].map(item => [identity(item), item])).values()];
+  const registered = [...new Map([...options, ...(value ? [value] : [])].map(item => [identity(item), item])).values()];
+  const mainOptions = registered.slice(0, 3);
+  const moreOptions = registered.slice(3);
   function choose(candidate: Candidate) {
     const qualified = candidate.prefecture && !candidate.name.includes(candidate.prefecture) ? `${candidate.name}（${candidate.prefecture}）` : candidate.name;
     onChange({ name: qualified.length <= 80 ? qualified : candidate.name, latitude: candidate.latitude, longitude: candidate.longitude }, candidate.prefecture);
     cancel();
   }
-  return <fieldset className="station-search" disabled={disabled}>
+  function stationButton(station: Origin) {
+    return <button type="button" key={identity(station)} aria-pressed={Boolean(value && identity(station) === identity(value))} onClick={() => choose(station)}>{station.name}</button>;
+  }
+  return <fieldset className={`station-search${optionLayout === "buttons" ? " station-search--buttons" : ""}`} disabled={disabled}>
     <legend>{label}</legend>
+    {optionLayout === "buttons" ? <>
+      <div className="station-choice-grid" aria-label="主要駅の候補">{mainOptions.map(stationButton)}</div>
+      {showMore && <div id={`${id}-more`} className="station-more-options">
+        {moreOptions.length ? <div className="station-choice-grid" aria-label="ほかの駅の候補">{moreOptions.map(stationButton)}</div>
+          : <p>追加候補が見つからない場合は、駅名で探せます。</p>}
+      </div>}
+      <p className="station-current-selection">{value ? <>選択中：<strong>{value.name}</strong></> : "駅を選んでください"}</p>
+      <div className="station-choice-actions">
+        <button type="button" aria-expanded={showMore} aria-controls={`${id}-more`} onClick={() => setShowMore(current => !current)}>{showMore ? "候補を閉じる" : "ほかの候補を見る"}</button>
+        <button type="button" aria-expanded={expanded} aria-controls={`${id}-search`} onClick={() => expanded ? cancel() : setExpanded(true)}>駅名で探す</button>
+      </div>
+    </> : <>
     <div className="station-search-default">
       <select aria-label={label} value={value ? identity(value) : ""} onChange={event => { const station = registered.find(item => identity(item) === event.target.value); if (station) choose(station); }}>
         <option value="" disabled>駅を選択してください</option>
@@ -64,6 +82,7 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
       </select>
       <button type="button" aria-expanded={expanded} aria-controls={`${id}-search`} onClick={() => expanded ? cancel() : setExpanded(true)}>駅名で探す</button>
     </div>
+    </>}
     {expanded && <div id={`${id}-search`} className="station-search-panel">
     <label htmlFor={id}>駅名を入力</label>
     <div className="station-search-controls">

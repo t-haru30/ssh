@@ -9,11 +9,25 @@ it("adds independently returned nearby stations and keeps the default available 
   vi.stubGlobal("fetch", fetch);
   const change = vi.fn();
   render(<DestinationGatewaySearch area="kyoto" prefecture={{ name: "京都府", code: "26" }} fallback={origin} value={origin} onChange={change} />);
-  expect(screen.getByRole("option", { name: "京都駅" })).toBeTruthy();
-  await screen.findByRole("option", { name: "二条駅" });
-  fireEvent.change(screen.getByRole("combobox"), { target: { value: "二条駅|35.01|135.74" } });
+  expect(screen.getByRole("button", { name: "京都駅" }).getAttribute("aria-pressed")).toBe("true");
+  fireEvent.click(await screen.findByRole("button", { name: "二条駅" }));
   expect(change.mock.calls.at(-1)?.[0]).toMatchObject({ name: "二条駅", latitude: 35.01 });
   expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ area: "kyoto", origin });
+});
+
+it("reveals more station buttons without changing the selection or repeating a lookup", async () => {
+  const origin = {name:"大阪駅",latitude:34.702,longitude:135.495};
+  const places = ["新大阪", "天王寺", "京橋", "難波"].map((name,i)=>({name,latitude:34.71+i*.01,longitude:135.50}));
+  const fetch = vi.fn().mockResolvedValue({ok:true,json:async()=>({places})}); vi.stubGlobal("fetch",fetch);
+  const change = vi.fn();
+  render(<DestinationGatewaySearch area="osaka" prefecture={{name:"大阪府",code:"27"}} fallback={origin} value={origin} onChange={change} />);
+  await screen.findByRole("button",{name:"天王寺駅"});
+  expect(screen.queryByRole("button",{name:"京橋駅"})).toBeNull();
+  fireEvent.click(screen.getByRole("button",{name:"ほかの候補を見る"}));
+  expect(change).not.toHaveBeenCalled();
+  expect(fetch).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole("button",{name:"京橋駅"}));
+  expect(change.mock.calls.at(-1)?.[0]).toMatchObject({name:"京橋駅",latitude:places[2].latitude});
 });
 
 it("leaves station-name search usable and allows retry after a failed nearby lookup", async () => {

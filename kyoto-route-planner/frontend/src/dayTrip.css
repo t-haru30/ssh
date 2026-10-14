@@ -161,7 +161,7 @@
 .trip-duration-input { display: flex; gap: 12px; }
 .trip-duration-input label { display: flex; align-items: center; gap: 6px; }
 .trip-duration-input input { width: 5em; }
-.trip-adjustment > summary, .journey-review-fold > summary { cursor: pointer; padding: 16px 0; font-weight: 700; }
+.journey-review-fold > summary { cursor: pointer; padding: 16px 0; font-weight: 700; }
 .trip-return-fields .station-search { margin-top: 8px; }
 .trip-same-return { min-height: 48px; }
 
