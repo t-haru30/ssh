@@ -4,7 +4,7 @@ import { isReasonSources } from "./reasonSources";
 import { distanceKm } from "../dayTrip";
 import { localPlaces } from "../localPlaces";
 import { distinctVenues } from "../venueIdentity";
-import { facilityThemes, isUnsuitablePlace } from "../placeThemes";
+import { facilityThemes, isUnsuitablePlace, scenicPriority } from "../placeThemes";
 import { normalizeTravelPace, PACE_OPTIONS, PACE_SETTINGS, type TravelerProfile } from "../travelerProfile";
 import type { Origin, Place, Theme } from "../types";
 import type { DatasetRoute, RouteDatasetIndexEntry } from "./datasetTypes";
@@ -43,7 +43,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
   const preferenceWords = [...new Set([...preferenceText.split(/[\s、。,・]+/).filter(word => word.length > 1 && word !== "おまかせ"), ...["庭園", "公園", "カフェ", "美術館", "博物館", "神社", "寺", "市場", "展望", "温泉"].filter(word => preferenceText.includes(word))])];
   const preferenceScore = (p: (typeof candidates)[number]) => preferenceWords.filter(word => `${p.name} ${p.category} ${p.description}`.includes(word)).length + (/有名/.test(preferenceText) ? Number(Boolean(p.tags?.wikipedia || p.tags?.wikidata)) : 0);
   const priority = (p: (typeof candidates)[number]) => preferenceScore(p) + Number(companionWords[traveler?.companion ?? "unspecified"].some(word => `${p.name} ${p.category}`.includes(word)));
-  candidates.sort((a, b) => wishScore(priorityText, b) - wishScore(priorityText, a) || regionalScore(b) - regionalScore(a) || priority(b) - priority(a) || distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
+  candidates.sort((a, b) => wishScore(priorityText, b) - wishScore(priorityText, a) || regionalScore(b) - regionalScore(a) || (wants.includes("nature") ? scenicPriority(b)-scenicPriority(a) : 0) || priority(b) - priority(a) || distanceKm(origin, a) - distanceKm(origin, b) || a.id.localeCompare(b.id));
   const routes: DatasetRoute[] = [], seen = new Set<string>();
   const venueUse = new Map<string, number>();
   const pace = normalizeTravelPace(traveler?.pace);
@@ -131,7 +131,7 @@ export function composeLocalRoutes({ entry, origin, theme, themes: selected = [t
 }
 
 export type DiscoveryAgent = { status: "ready" | "unavailable"; message: string };
-export type DiscoverResponse = { routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: unknown };
+export type DiscoverResponse = { routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: unknown;catalog?:Record<string,unknown> };
 
 export function isDiscoverResponse(value: unknown): value is DiscoverResponse {
   if (!value || typeof value !== "object") return false;

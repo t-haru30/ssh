@@ -295,4 +295,25 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 600px) {
   .brand-light { font-size: 11px; letter-spacing: .06em; }
   .favorites-open-button { font-size: 13px; }
+  .onboarding h2 { font-size: 23px; line-height: 1.45; }
+  .onboarding-step-tabs button { min-height: 72px; font-size: 13px; line-height: 1.45; }
+  .onboarding-step-panel { gap: 10px; padding: 14px; }
+  .onboarding-demo { min-height: 160px; }
+  .onboarding-search-preview { gap: 10px 12px; }
+  .onboarding-preview-label,
+  .onboarding-preview-chip,
+  .onboarding-preview-button,
+  .onboarding-plan-stop,
+  .onboarding-plan-budget { font-size: 14px; }
+  .onboarding-plan-stop b { font-size: 13px; }
+  .onboarding-demo-controls > button:first-child { min-height: 48px; font-size: 14px; }
+  .onboarding-demo-controls .idea-primary-button { min-height: 48px; font-size: 15px; }
+}
+
+@media (max-width: 390px) {
+  .onboarding { padding: 22px 16px; }
+  .onboarding h2 { font-size: 22px; }
+  .onboarding-step-tabs { gap: 3px; }
+  .onboarding-step-tabs button { min-height: 76px; padding: 9px 5px; font-size: 13px; line-height: 1.4; }
+  .onboarding-step-tabs button span { font-size: 11px; }
 }

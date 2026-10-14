@@ -90,7 +90,7 @@
 .trip-copy-status { color: var(--forest); min-height: 1.8em; }
 .trip-dialog-backdrop { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; padding: 20px; background: rgba(12, 25, 19, .58); }
 .trip-dialog { width: min(620px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; padding: clamp(18px, 4vw, 28px); border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 14px 60px rgba(0, 0, 0, .25); outline: none; }
-.trip-dialog > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.trip-dialog > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; position:sticky; top:calc(-1 * clamp(18px, 4vw, 28px)); z-index:5; background:var(--paper); padding-block:12px; }
 .trip-dialog h3 { margin: 0; font-size: 19px; }
 .trip-dialog p { font-size: 12px; line-height: 1.8; }
 .trip-comparison { background: var(--surface-muted); border-radius: 8px; padding: 14px; font-size: 12px; }
@@ -190,3 +190,8 @@
 .trip-overnight-suggestion ul { list-style: none; padding: 0; display: grid; gap: 10px; }
 .trip-overnight-suggestion li { display: grid; gap: 4px; overflow-wrap: anywhere; }
 .trip-overnight-suggestion > a { display: inline-block; padding: 12px 0; }
+.trip-route-options { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:12px 0; font-size:12px; }
+.trip-route-options label { display:grid; gap:6px; }
+.trip-route-options select { min-height:44px; font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 12px; }
+.trip-route-options .route-airport-option { display:flex; align-items:center; gap:8px; }
+.trip-route-options input[type=checkbox] { width:20px; min-height:20px; margin:0; }

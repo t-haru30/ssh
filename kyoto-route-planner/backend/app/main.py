@@ -1,5 +1,6 @@
 from app.journey_chat import ChatRequest, ChatResponse, chat_journey
 import asyncio
+import json
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, time as datetime_time, timedelta
@@ -11,7 +12,7 @@ import time
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, Request, Path as ApiPath
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
@@ -24,7 +25,8 @@ from app.ai_settings import configure_ai_environment
 from app.preference_tags import PreferenceTagsRequest, suggest_tags
 from app.destination_suggestion import DestinationRequest, suggest_destination
 from app.itinerary_audit import AuditRequest, audit as audit_itinerary
-from app.discovery import DiscoverRequest, discover_routes
+from app.discovery import DiscoverRequest, discover_routes, discover_route_events
+from app.route_preferences import routing_preferences
 from app.copywriting import generate_route_copywriting
 from app.ekispert import (
     estimate_route_fare,
@@ -398,6 +400,7 @@ async def _preview_sequential_timeline(payload: RoutePreviewRequest, deadline: f
                     current = arrival_minute
                 else:
                     clock_known = False
+                legs=[leg.model_copy(update={**({'from_name':start.name} if i==0 else {}),**({'to_name':end.name} if i==len(legs)-1 else {})}) for i,leg in enumerate(legs)]
                 segment = segment.model_copy(update={"legs": legs, "fare_yen": getattr(result, "fare_yen", None), "map_token": getattr(result, "map_token", None),
                     "transit_line": " / ".join(dict.fromkeys(leg.line_name for leg in legs)) or None})
             except (HTTPException, asyncio.TimeoutError):
@@ -668,6 +671,18 @@ async def destination_suggestion(request: Request, payload: DestinationRequest):
 @app.post("/api/discover")
 @limiter.limit("30/minute")
 async def discover(request: Request, payload: DiscoverRequest):
+    if "text/event-stream" in request.headers.get("accept", ""):
+        async def events():
+            try:
+                async for event in discover_route_events(payload):
+                    yield "data: " + json.dumps(event, ensure_ascii=False) + "\n\n"
+            except Exception as error:
+                logging.getLogger(__name__).warning("Discovery stream unavailable (%s)", type(error).__name__)
+                yield 'data: {"stage":"error"}\n\n'
+        # SSE is excluded from compression so middleware does not buffer the
+        # first deck until AI completion. Do not cache personal trip conditions.
+        return StreamingResponse(events(), media_type="text/event-stream",
+            headers={"Cache-Control":"no-cache, no-store", "X-Accel-Buffering":"no"})
     return await discover_routes(payload)
 
 
@@ -687,9 +702,10 @@ async def transit_segment(request: Request, payload: TransitSegmentRequest):
     if (origin.latitude, origin.longitude) == (destination.latitude, destination.longitude):
         return RouteTimelineTransit(from_name=origin.name, to_name=destination.name,
                                     duration_minutes=0, fare_yen=0, is_estimate=False, transit_line="同じ地点")
-    result = await search_route(
-        via_points=[f"{origin.latitude},{origin.longitude}", f"{destination.latitude},{destination.longitude}"],
-        departure_date=payload.departure_date.isoformat(), departure_time=payload.departure_time.strftime("%H:%M"))
+    with routing_preferences(payload.route_priority,payload.prefer_nearby_airport):
+        result = await search_route(
+            via_points=[f"{origin.latitude},{origin.longitude}", f"{destination.latitude},{destination.longitude}"],
+            departure_date=payload.departure_date.isoformat(), departure_time=payload.departure_time.strftime("%H:%M"))
     legs, minutes, departure, arrival = result
     legs = [leg.model_copy(update={
         **({"from_name": origin.name} if i == 0 else {}),
@@ -929,7 +945,8 @@ async def preview_route(
     departure_time = payload.departure_time.strftime("%H:%M")
     # Query each segment after the previous visit. A whole-trip lookup can fail
     # for too many via points and consume the budget before segment searches.
-    timeline = await _preview_sequential_timeline(payload, deadline)
+    with routing_preferences(payload.route_priority,payload.prefer_nearby_airport):
+        timeline = await _preview_sequential_timeline(payload, deadline)
 
     segments = [item for item in timeline if isinstance(item, RouteTimelineTransit)]
     corrected_legs = [leg for item in segments for leg in item.legs]

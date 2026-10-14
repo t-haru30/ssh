@@ -15,6 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.ai_settings import gemini_api_key, setting
 from app.models import Origin
 from app.journey_cafes import nearby_cafes
+from app.journey_landmarks import named_landmarks
 
 
 class Strict(BaseModel):
@@ -123,7 +124,7 @@ def obj(properties, required):
 
 
 TOOLS = [
-    {"name": "search_candidates", "description": "Search nearby candidates. Cafe queries include live OpenPOI/OSM cafe records and insertion feasibility hints. Other queries search the supplied catalog.",
+    {"name": "search_candidates", "description": "Search candidates. Cafe queries include nearby live records. For a named landmark such as 清水寺 or 法隆寺, use its exact name: search the nationwide catalog and live OSM with Places identity checks beyond the supplied list. Travel constraints still apply.",
      "parameters": obj({"query": {"type": "STRING"}}, ["query"])},
     {"name": "validate_proposal", "description": "Validate a complete itinerary; errors allow another tool turn to repair it. Success finishes with a preview.",
      "parameters": obj({"stops": {"type": "ARRAY", "items": obj({"id": {"type": "STRING"}, "dwell": {"type": "INTEGER"}}, ["id", "dwell"])}}, ["stops"])},
@@ -166,6 +167,10 @@ def allowance(place):
 def fare_allowance(km):
     return 0 if km < .8 else 250 if km <= 5 else 500 if km <= 20 else 1000 if km <= 50 else ceil(km * 25 / 100) * 100
 
+def travel_estimate(a,b):
+    km=distance(a,b)
+    return ceil(km*1000*1.3/80) if km<=.8 else ceil(km/25*60)+10
+
 
 def validate(payload: ChatRequest, proposal: Proposal) -> list[str]:
     selected = [s.id for s in proposal.stops]
@@ -188,7 +193,7 @@ def validate(payload: ChatRequest, proposal: Proposal) -> list[str]:
         return errors
     unchanged = selected == [s.place.id for s in payload.stops]
     points = [payload.origin, *(places[i] for i in selected), payload.return_to]
-    legs = ([s.travel for s in payload.stops] + [payload.return_travel]) if unchanged else [ceil(distance(a, b) * 1000 * 1.3 / 80) for a, b in zip(points, points[1:])]
+    legs = ([s.travel for s in payload.stops] + [payload.return_travel]) if unchanged else [travel_estimate(a,b) for a,b in zip(points,points[1:])]
     now = minutes(payload.departure)
     for index, choice in enumerate(proposal.stops):
         old = current.get(choice.id)
@@ -254,6 +259,7 @@ async def run(payload, key, model):
     discovered = {}
     cafe_search = None
     cafe_required = False
+    landmark_searches={}
     context = payload.model_dump(exclude={"candidates"})
     context["candidate_count"] = len(payload.candidates)
     contents = [{"role": "user", "parts": [{"text": json.dumps(context, ensure_ascii=False)}]}]
@@ -288,7 +294,16 @@ async def run(payload, key, model):
                     steps.append(f"近隣カフェを検索：{len(found)}件。{cafe_search}")
                 else:
                     found = [p.model_dump() for p in catalog(payload).values() if not query or query.casefold() in (p.name + p.category).casefold()]
-                    result = {"candidates": found[:80], "note": "候補データ内の検索。営業時間・料金は未確認。"}
+                    if query and len(found)<3:
+                        if query not in landmark_searches and len(landmark_searches)<2:
+                            landmark_searches[query]=await named_landmarks(client,query,payload.origin)
+                        existing=catalog(payload)
+                        for item in landmark_searches.get(query,[]):
+                            if item['id'] not in existing:
+                                discovered[item['id']]=item
+                                payload.candidates.append(Candidate(**{k:item[k] for k in Candidate.model_fields}))
+                        found=[{**p.model_dump(),**insertion_hint(payload,p)} for p in catalog(payload).values() if query.casefold() in (p.name+p.category).casefold()]
+                    result = {"candidates": found[:80], "note": "全国の施設候補を検索。移動・予算の制約は維持します。営業時間・料金は未確認。"}
                     steps.append(f"施設候補を検索：{len(found)}件")
             else:
                 try:

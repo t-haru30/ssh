@@ -1,0 +1,688 @@
+{
+  "license": "ODbL-1.0",
+  "source": "OpenStreetMap contributors",
+  "gateways": {
+    "hokkaido": [
+      {
+        "name": "小樽駅",
+        "latitude": 43.1975759,
+        "longitude": 140.9933746,
+        "source_url": "https://www.openstreetmap.org/node/8082693151"
+      },
+      {
+        "name": "旭川駅",
+        "latitude": 43.7627501,
+        "longitude": 142.3579263,
+        "source_url": "https://www.openstreetmap.org/node/264430273"
+      }
+    ],
+    "aomori": [
+      {
+        "name": "八戸駅",
+        "latitude": 40.5091565,
+        "longitude": 141.4314978,
+        "source_url": "https://www.openstreetmap.org/node/3920556721"
+      },
+      {
+        "name": "弘前駅",
+        "latitude": 40.5985978,
+        "longitude": 140.4857687,
+        "source_url": "https://www.openstreetmap.org/node/264462308"
+      }
+    ],
+    "iwate": [
+      {
+        "name": "花巻駅",
+        "latitude": 39.3931976,
+        "longitude": 141.1107252,
+        "source_url": "https://www.openstreetmap.org/node/5775510857"
+      },
+      {
+        "name": "一ノ関駅",
+        "latitude": 38.9268807,
+        "longitude": 141.1389019,
+        "source_url": "https://www.openstreetmap.org/node/4636882514"
+      }
+    ],
+    "miyagi": [
+      {
+        "name": "石巻駅",
+        "latitude": 38.4352418,
+        "longitude": 141.3038047,
+        "source_url": "https://www.openstreetmap.org/node/3570916493"
+      },
+      {
+        "name": "古川駅",
+        "latitude": 38.5705529,
+        "longitude": 140.9679338,
+        "source_url": "https://www.openstreetmap.org/node/265031031"
+      }
+    ],
+    "akita": [
+      {
+        "name": "大曲駅",
+        "latitude": 39.4656823,
+        "longitude": 140.479891,
+        "source_url": "https://www.openstreetmap.org/node/3976697455"
+      },
+      {
+        "name": "角館駅",
+        "latitude": 39.5917435,
+        "longitude": 140.5711801,
+        "source_url": "https://www.openstreetmap.org/node/8511775387"
+      }
+    ],
+    "yamagata": [
+      {
+        "name": "米沢駅",
+        "latitude": 37.9094986,
+        "longitude": 140.1283425,
+        "source_url": "https://www.openstreetmap.org/node/3647437886"
+      },
+      {
+        "name": "鶴岡駅",
+        "latitude": 38.7400487,
+        "longitude": 139.8359746,
+        "source_url": "https://www.openstreetmap.org/node/5316014957"
+      }
+    ],
+    "fukushima": [
+      {
+        "name": "郡山駅",
+        "latitude": 37.398488,
+        "longitude": 140.388798,
+        "source_url": "https://www.openstreetmap.org/node/3800631016"
+      },
+      {
+        "name": "会津若松駅",
+        "latitude": 37.5085622,
+        "longitude": 139.9301344,
+        "source_url": "https://www.openstreetmap.org/node/263081995"
+      }
+    ],
+    "ibaraki": [
+      {
+        "name": "土浦駅",
+        "latitude": 36.0779952,
+        "longitude": 140.2060155,
+        "source_url": "https://www.openstreetmap.org/node/6069784405"
+      },
+      {
+        "name": "勝田駅",
+        "latitude": 36.3944346,
+        "longitude": 140.5242433,
+        "source_url": "https://www.openstreetmap.org/node/3799563057"
+      }
+    ],
+    "tochigi": [
+      {
+        "name": "小山駅",
+        "latitude": 36.3129364,
+        "longitude": 139.8065054,
+        "source_url": "https://www.openstreetmap.org/node/3721336949"
+      },
+      {
+        "name": "日光駅",
+        "latitude": 36.7471805,
+        "longitude": 139.6219414,
+        "source_url": "https://www.openstreetmap.org/node/3730128017"
+      }
+    ],
+    "gunma": [
+      {
+        "name": "高崎駅",
+        "latitude": 36.3223662,
+        "longitude": 139.0125458,
+        "source_url": "https://www.openstreetmap.org/node/3402288118"
+      },
+      {
+        "name": "太田駅",
+        "latitude": 36.294102,
+        "longitude": 139.3787733,
+        "source_url": "https://www.openstreetmap.org/node/7478301445"
+      }
+    ],
+    "saitama": [
+      {
+        "name": "大宮駅",
+        "latitude": 35.9063773,
+        "longitude": 139.6243335,
+        "source_url": "https://www.openstreetmap.org/node/264211486"
+      },
+      {
+        "name": "川越駅",
+        "latitude": 35.9069901,
+        "longitude": 139.482954,
+        "source_url": "https://www.openstreetmap.org/node/7864238138"
+      }
+    ],
+    "chiba": [
+      {
+        "name": "船橋駅",
+        "latitude": 35.7016578,
+        "longitude": 139.9852416,
+        "source_url": "https://www.openstreetmap.org/node/2559434103"
+      },
+      {
+        "name": "成田駅",
+        "latitude": 35.7779163,
+        "longitude": 140.3140452,
+        "source_url": "https://www.openstreetmap.org/node/2559434137"
+      }
+    ],
+    "tokyo": [
+      {
+        "name": "新宿駅",
+        "latitude": 35.6922273,
+        "longitude": 139.7006009,
+        "source_url": "https://www.openstreetmap.org/node/1926277346"
+      },
+      {
+        "name": "上野駅",
+        "latitude": 35.7134128,
+        "longitude": 139.7765418,
+        "source_url": "https://www.openstreetmap.org/node/236578444"
+      },
+      {
+        "name": "品川駅",
+        "latitude": 35.6280635,
+        "longitude": 139.7380112,
+        "source_url": "https://www.openstreetmap.org/node/2546879674"
+      },
+      {
+        "name": "池袋駅",
+        "latitude": 35.7280917,
+        "longitude": 139.7110372,
+        "source_url": "https://www.openstreetmap.org/node/664579562"
+      },
+      {
+        "name": "渋谷駅",
+        "latitude": 35.65808,
+        "longitude": 139.7017647,
+        "source_url": "https://www.openstreetmap.org/node/241896099"
+      }
+    ],
+    "kanagawa": [
+      {
+        "name": "鎌倉駅",
+        "latitude": 35.3191831,
+        "longitude": 139.5504271,
+        "source_url": "https://www.openstreetmap.org/node/506122717"
+      },
+      {
+        "name": "小田原駅",
+        "latitude": 35.2561819,
+        "longitude": 139.1552509,
+        "source_url": "https://www.openstreetmap.org/node/4011607036"
+      }
+    ],
+    "niigata": [
+      {
+        "name": "長岡駅",
+        "latitude": 37.4478778,
+        "longitude": 138.8541667,
+        "source_url": "https://www.openstreetmap.org/node/5574679639"
+      },
+      {
+        "name": "上越妙高駅",
+        "latitude": 37.0812219,
+        "longitude": 138.2486852,
+        "source_url": "https://www.openstreetmap.org/node/4109702962"
+      }
+    ],
+    "toyama": [
+      {
+        "name": "高岡駅",
+        "latitude": 36.7411592,
+        "longitude": 137.0147573,
+        "source_url": "https://www.openstreetmap.org/node/267305796"
+      },
+      {
+        "name": "黒部宇奈月温泉駅",
+        "latitude": 36.8743189,
+        "longitude": 137.481437,
+        "source_url": "https://www.openstreetmap.org/node/11733499148"
+      }
+    ],
+    "ishikawa": [
+      {
+        "name": "小松駅",
+        "latitude": 36.4023629,
+        "longitude": 136.4531381,
+        "source_url": "https://www.openstreetmap.org/way/840511578"
+      },
+      {
+        "name": "加賀温泉駅",
+        "latitude": 36.3203882,
+        "longitude": 136.3504996,
+        "source_url": "https://www.openstreetmap.org/node/6641834272"
+      }
+    ],
+    "fukui": [
+      {
+        "name": "敦賀駅",
+        "latitude": 35.644899,
+        "longitude": 136.0763837,
+        "source_url": "https://www.openstreetmap.org/node/4394654074"
+      },
+      {
+        "name": "芦原温泉駅",
+        "latitude": 36.2146024,
+        "longitude": 136.2350566,
+        "source_url": "https://www.openstreetmap.org/node/4921417492"
+      }
+    ],
+    "yamanashi": [
+      {
+        "name": "大月駅",
+        "latitude": 35.6129342,
+        "longitude": 138.942183,
+        "source_url": "https://www.openstreetmap.org/node/3730397974"
+      },
+      {
+        "name": "石和温泉駅",
+        "latitude": 35.657604,
+        "longitude": 138.6353509,
+        "source_url": "https://www.openstreetmap.org/node/3064377903"
+      }
+    ],
+    "nagano": [
+      {
+        "name": "松本駅",
+        "latitude": 36.2307332,
+        "longitude": 137.9644409,
+        "source_url": "https://www.openstreetmap.org/node/6036834287"
+      },
+      {
+        "name": "上田駅",
+        "latitude": 36.3965984,
+        "longitude": 138.2495851,
+        "source_url": "https://www.openstreetmap.org/node/2638613340"
+      }
+    ],
+    "gifu": [
+      {
+        "name": "大垣駅",
+        "latitude": 35.3670837,
+        "longitude": 136.6178001,
+        "source_url": "https://www.openstreetmap.org/node/3999594686"
+      },
+      {
+        "name": "高山駅",
+        "latitude": 36.141126,
+        "longitude": 137.2512848,
+        "source_url": "https://www.openstreetmap.org/node/265830186"
+      }
+    ],
+    "shizuoka": [
+      {
+        "name": "浜松駅",
+        "latitude": 34.7040059,
+        "longitude": 137.7348139,
+        "source_url": "https://www.openstreetmap.org/node/3999193759"
+      },
+      {
+        "name": "三島駅",
+        "latitude": 35.1262974,
+        "longitude": 138.9115159,
+        "source_url": "https://www.openstreetmap.org/node/3585794194"
+      }
+    ],
+    "aichi": [
+      {
+        "name": "金山駅",
+        "latitude": 35.143924,
+        "longitude": 136.9019661,
+        "source_url": "https://www.openstreetmap.org/node/5214024834"
+      },
+      {
+        "name": "豊橋駅",
+        "latitude": 34.7630551,
+        "longitude": 137.3821758,
+        "source_url": "https://www.openstreetmap.org/node/4919784418"
+      }
+    ],
+    "mie": [
+      {
+        "name": "津駅",
+        "latitude": 34.733994,
+        "longitude": 136.5102642,
+        "source_url": "https://www.openstreetmap.org/node/5214047208"
+      },
+      {
+        "name": "伊勢市駅",
+        "latitude": 34.4911349,
+        "longitude": 136.7098291,
+        "source_url": "https://www.openstreetmap.org/node/265822735"
+      }
+    ],
+    "shiga": [
+      {
+        "name": "彦根駅",
+        "latitude": 35.2722017,
+        "longitude": 136.2633658,
+        "source_url": "https://www.openstreetmap.org/node/3630162090"
+      },
+      {
+        "name": "近江八幡駅",
+        "latitude": 35.1223816,
+        "longitude": 136.1027652,
+        "source_url": "https://www.openstreetmap.org/node/1351659261"
+      }
+    ],
+    "kyoto": [
+      {
+        "name": "二条駅",
+        "latitude": 35.0110278,
+        "longitude": 135.7417298,
+        "source_url": "https://www.openstreetmap.org/node/3577959128"
+      },
+      {
+        "name": "宇治駅",
+        "latitude": 34.8904111,
+        "longitude": 135.8007079,
+        "source_url": "https://www.openstreetmap.org/node/3646582027"
+      }
+    ],
+    "osaka": [
+      {
+        "name": "天王寺駅",
+        "latitude": 34.6473432,
+        "longitude": 135.5152413,
+        "source_url": "https://www.openstreetmap.org/node/3632179681"
+      },
+      {
+        "name": "新大阪駅",
+        "latitude": 34.7328955,
+        "longitude": 135.4985436,
+        "source_url": "https://www.openstreetmap.org/node/534123201"
+      }
+    ],
+    "hyogo": [
+      {
+        "name": "姫路駅",
+        "latitude": 34.8264048,
+        "longitude": 134.6907972,
+        "source_url": "https://www.openstreetmap.org/node/265895565"
+      },
+      {
+        "name": "三ノ宮駅",
+        "latitude": 34.6948605,
+        "longitude": 135.1950871,
+        "source_url": "https://www.openstreetmap.org/node/3999683422"
+      }
+    ],
+    "nara": [
+      {
+        "name": "近鉄奈良駅",
+        "latitude": 34.6841376,
+        "longitude": 135.8285414,
+        "source_url": "https://www.openstreetmap.org/node/4452353501"
+      },
+      {
+        "name": "橿原神宮前駅",
+        "latitude": 34.483448,
+        "longitude": 135.7937113,
+        "source_url": "https://www.openstreetmap.org/node/4053979279"
+      }
+    ],
+    "wakayama": [
+      {
+        "name": "白浜駅",
+        "latitude": 33.67588,
+        "longitude": 135.387313,
+        "source_url": "https://www.openstreetmap.org/node/267321227"
+      },
+      {
+        "name": "紀伊田辺駅",
+        "latitude": 33.7328792,
+        "longitude": 135.3845422,
+        "source_url": "https://www.openstreetmap.org/node/267320905"
+      }
+    ],
+    "tottori": [
+      {
+        "name": "米子駅",
+        "latitude": 35.4233042,
+        "longitude": 133.3367834,
+        "source_url": "https://www.openstreetmap.org/node/266921280"
+      },
+      {
+        "name": "倉吉駅",
+        "latitude": 35.4547913,
+        "longitude": 133.849401,
+        "source_url": "https://www.openstreetmap.org/node/2565897659"
+      }
+    ],
+    "shimane": [
+      {
+        "name": "出雲市駅",
+        "latitude": 35.3607587,
+        "longitude": 132.7566624,
+        "source_url": "https://www.openstreetmap.org/node/12903211876"
+      },
+      {
+        "name": "浜田駅",
+        "latitude": 34.9027291,
+        "longitude": 132.0887323,
+        "source_url": "https://www.openstreetmap.org/node/12903211895"
+      }
+    ],
+    "okayama": [
+      {
+        "name": "倉敷駅",
+        "latitude": 34.6019504,
+        "longitude": 133.7657825,
+        "source_url": "https://www.openstreetmap.org/node/6375717341"
+      },
+      {
+        "name": "津山駅",
+        "latitude": 35.0545175,
+        "longitude": 134.003275,
+        "source_url": "https://www.openstreetmap.org/node/4308092924"
+      }
+    ],
+    "hiroshima": [
+      {
+        "name": "福山駅",
+        "latitude": 34.4892799,
+        "longitude": 133.3618898,
+        "source_url": "https://www.openstreetmap.org/node/6624627158"
+      },
+      {
+        "name": "尾道駅",
+        "latitude": 34.4048206,
+        "longitude": 133.1931084,
+        "source_url": "https://www.openstreetmap.org/node/8122138840"
+      }
+    ],
+    "yamaguchi": [
+      {
+        "name": "新山口駅",
+        "latitude": 34.0931301,
+        "longitude": 131.3969538,
+        "source_url": "https://www.openstreetmap.org/node/7812775884"
+      },
+      {
+        "name": "下関駅",
+        "latitude": 33.9493851,
+        "longitude": 130.9217895,
+        "source_url": "https://www.openstreetmap.org/node/6872871854"
+      }
+    ],
+    "tokushima": [
+      {
+        "name": "鳴門駅",
+        "latitude": 34.1788965,
+        "longitude": 134.6084176,
+        "source_url": "https://www.openstreetmap.org/node/8739460410"
+      },
+      {
+        "name": "阿南駅",
+        "latitude": 33.9188254,
+        "longitude": 134.662387,
+        "source_url": "https://www.openstreetmap.org/node/9430425126"
+      }
+    ],
+    "kagawa": [
+      {
+        "name": "丸亀駅",
+        "latitude": 34.2920372,
+        "longitude": 133.792953,
+        "source_url": "https://www.openstreetmap.org/node/7826352926"
+      },
+      {
+        "name": "琴平駅",
+        "latitude": 34.1920034,
+        "longitude": 133.8214374,
+        "source_url": "https://www.openstreetmap.org/node/8911420248"
+      }
+    ],
+    "ehime": [
+      {
+        "name": "今治駅",
+        "latitude": 34.0641845,
+        "longitude": 132.9936721,
+        "source_url": "https://www.openstreetmap.org/node/7826015588"
+      },
+      {
+        "name": "伊予西条駅",
+        "latitude": 33.9124158,
+        "longitude": 133.1875765,
+        "source_url": "https://www.openstreetmap.org/node/8599386263"
+      }
+    ],
+    "kochi": [
+      {
+        "name": "土佐山田駅",
+        "latitude": 33.6071484,
+        "longitude": 133.6850108,
+        "source_url": "https://www.openstreetmap.org/node/8383599815"
+      },
+      {
+        "name": "中村駅",
+        "latitude": 32.9843748,
+        "longitude": 132.9440278,
+        "source_url": "https://www.openstreetmap.org/node/8383599027"
+      }
+    ],
+    "fukuoka": [
+      {
+        "name": "博多駅",
+        "latitude": 33.5900436,
+        "longitude": 130.4203556,
+        "source_url": "https://www.openstreetmap.org/node/3637038754"
+      },
+      {
+        "name": "小倉駅",
+        "latitude": 33.8868464,
+        "longitude": 130.882509,
+        "source_url": "https://www.openstreetmap.org/node/6241679585"
+      }
+    ],
+    "saga": [
+      {
+        "name": "鳥栖駅",
+        "latitude": 33.3739136,
+        "longitude": 130.5198828,
+        "source_url": "https://www.openstreetmap.org/node/7839126316"
+      },
+      {
+        "name": "唐津駅",
+        "latitude": 33.4462729,
+        "longitude": 129.9677507,
+        "source_url": "https://www.openstreetmap.org/node/778185118"
+      }
+    ],
+    "nagasaki": [
+      {
+        "name": "佐世保駅",
+        "latitude": 33.1637103,
+        "longitude": 129.7260999,
+        "source_url": "https://www.openstreetmap.org/node/7341733984"
+      },
+      {
+        "name": "諫早駅",
+        "latitude": 32.8515314,
+        "longitude": 130.0416504,
+        "source_url": "https://www.openstreetmap.org/node/7836776154"
+      }
+    ],
+    "kumamoto": [
+      {
+        "name": "八代駅",
+        "latitude": 32.504005,
+        "longitude": 130.6217417,
+        "source_url": "https://www.openstreetmap.org/node/8150221863"
+      },
+      {
+        "name": "阿蘇駅",
+        "latitude": 32.9374013,
+        "longitude": 131.0800572,
+        "source_url": "https://www.openstreetmap.org/node/265861915"
+      }
+    ],
+    "oita": [
+      {
+        "name": "別府駅",
+        "latitude": 33.2796163,
+        "longitude": 131.5003073,
+        "source_url": "https://www.openstreetmap.org/node/8269550070"
+      },
+      {
+        "name": "由布院駅",
+        "latitude": 33.2624524,
+        "longitude": 131.3550013,
+        "source_url": "https://www.openstreetmap.org/node/11889150036"
+      }
+    ],
+    "miyazaki": [
+      {
+        "name": "都城駅",
+        "latitude": 31.7365393,
+        "longitude": 131.0744458,
+        "source_url": "https://www.openstreetmap.org/node/265854233"
+      },
+      {
+        "name": "延岡駅",
+        "latitude": 32.5898056,
+        "longitude": 131.6722583,
+        "source_url": "https://www.openstreetmap.org/node/8149015847"
+      }
+    ],
+    "kagoshima": [
+      {
+        "name": "指宿駅",
+        "latitude": 31.2368332,
+        "longitude": 130.6426613,
+        "source_url": "https://www.openstreetmap.org/node/265857292"
+      },
+      {
+        "name": "霧島神宮駅",
+        "latitude": 31.8186831,
+        "longitude": 130.8365808,
+        "source_url": "https://www.openstreetmap.org/node/265848020"
+      }
+    ],
+    "okinawa": [
+      {
+        "name": "那覇空港",
+        "latitude": 26.1966506,
+        "longitude": 127.6442731,
+        "source_url": "https://www.openstreetmap.org/way/324129153"
+      },
+      {
+        "name": "首里駅",
+        "latitude": 26.2191726,
+        "longitude": 127.7255525,
+        "source_url": "https://www.openstreetmap.org/node/6540583676"
+      },
+      {
+        "name": "おもろまち駅",
+        "latitude": 26.2227746,
+        "longitude": 127.6984101,
+        "source_url": "https://www.openstreetmap.org/node/6540583670"
+      }
+    ]
+  }
+}

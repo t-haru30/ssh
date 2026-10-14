@@ -4,6 +4,10 @@
 .journey-map-controls > div { display:flex; gap:4px; }
 .journey-map-controls button { border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); padding:8px 10px; font:inherit; font-size:12px; min-height:40px; cursor:pointer; }
 .journey-map-controls button[aria-pressed="true"] { background:var(--forest); color:var(--paper); border-color:var(--forest); }
+.journey-map-controls .journey-map-scope button,
+.journey-map-controls .journey-map-scope button:hover:not(:disabled) { background:color-mix(in srgb, #c77845 12%, var(--paper)); border-color:color-mix(in srgb, #9c4a2d 35%, var(--line)); }
+.journey-map-controls .journey-map-scope button[aria-pressed="true"],
+.journey-map-controls .journey-map-scope button[aria-pressed="true"]:hover:not(:disabled) { background:#9c4a2d; color:#fffefa; border-color:#9c4a2d; }
 .journey-map-controls button:focus-visible, .google-journey-pin:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
 .journey-map-legend { margin:0; padding:6px 10px; color:var(--muted); font-size:11px; line-height:1.5; }
 .journey-map-placeholder { position:absolute; inset:90px 14px 36px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; font-size:13px; background:var(--surface-muted); border-radius:10px; }

@@ -17,8 +17,9 @@ describe("automatic venue identity", () => {
     expect(distinctVenues([place("a", "Ａ 公園"), place("b", "a公園")])).toHaveLength(1);
   });
   it("composes fewer automatic stops without duplicate views and leaves manual stops untouched", () => {
-    const routes = composeLocalRoutes({ entry: { id: "kyoto", prefecture_code: "26", name: "京都府", center: [35, 135], route_count: 1, file: "kyoto.json" }, origin, theme: "all", course: "all", radius: 3, crossPrefecture: false, variation: 0 }, views);
+    const routes = composeLocalRoutes({ entry: { id: "kyoto", prefecture_code: "26", name: "京都府", center: [35, 135], route_count: 1, file: "kyoto.json" }, origin, theme: "all", course: "all", radius: 3, crossPrefecture: false, variation: 0 }, [...views,place('canonical','二条城東南隅櫓')]);
     expect(routes[0].spots).toHaveLength(1);
+    expect(routes[0].spots[0].place_id).toBe('canonical');
     const input = { departureTime: "09:00", availableMinutes: 300, budget: 5000 };
     const plan = createInitialTrip({ input, origin, returnTo: origin, date: "2099-04-10", candidates: views, maxStops: 3, foodEstimate: null, coffeeEstimate: null, transportEstimate: null });
     expect(plan.stops).toHaveLength(1);

@@ -1,11 +1,19 @@
 import type { Place } from "../types";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SpotPhoto } from "./SpotPhoto";
 import "./routePhoto.css";
 
 export function RoutePhotoGrid({ places, enabled, onPlaceSelect }: { places: Place[]; enabled: boolean; onPlaceSelect?: (id: string) => void }) {
-  return <div className="route-photo-grid" style={{ gridTemplateColumns: `repeat(${Math.min(2, places.length) || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${Math.ceil(places.length / 2) || 1}, minmax(0, 1fr))` }}>
-    {places.map(place => <PhotoCell key={place.id} place={place} enabled={enabled} onSelect={onPlaceSelect} />)}
+  const [selection,setSelection]=useState({key:"",index:0});
+  const key=places.map(p=>p.id).join("|");
+  const index=selection.key===key ? Math.min(selection.index,Math.max(0,places.length-1)) : 0;
+  return <div className={`route-photo-grid${places.length>1 ? " has-photo-pages" : ""}`}>
+    {places[index] && <PhotoCell key={places[index].id} place={places[index]} enabled={enabled} onSelect={onPlaceSelect} />}
+    {places.length>1 && <div className="route-photo-pages" onPointerDown={event=>event.stopPropagation()} onClick={event=>event.stopPropagation()}>
+      <button type="button" aria-label="前の施設の写真" disabled={index===0} onClick={()=>setSelection({key,index:index-1})}>←</button>
+      <span aria-live="polite">{index+1} / {places.length}</span>
+      <button type="button" aria-label="次の施設の写真" disabled={index===places.length-1} onClick={()=>setSelection({key,index:index+1})}>→</button>
+    </div>}
   </div>;
 }
 

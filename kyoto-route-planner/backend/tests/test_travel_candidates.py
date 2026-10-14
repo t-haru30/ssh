@@ -26,8 +26,9 @@ class TravelCandidateTests(unittest.IsolatedAsyncioTestCase):
         with patch("app.travel_candidates.search_stations",new=lookup):
             initial=await independent_stations(ORIGIN,"gifu",False)
             expanded=await independent_stations(ORIGIN,"gifu",True)
-        self.assertEqual(initial,[])
-        self.assertEqual({p.name for p in expanded},{"高山駅"})
+        self.assertGreaterEqual(len(initial),2)
+        self.assertIn("高山駅",{p.name for p in expanded})
+        self.assertNotIn("名古屋駅",{p.name for p in expanded})
         self.assertTrue(all(call.args[1]=="21" for call in lookup.call_args_list))
         self.assertIn("高山",[call.args[0] for call in lookup.call_args_list])
         _station_cache.clear()

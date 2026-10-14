@@ -84,6 +84,8 @@ def _sitelinks(place: Place) -> int | None:
 
 def is_unsuitable_place(place: Place | CatalogPlace) -> bool:
     """Exclude places that are not sightseeing destinations before scoring."""
+    if re.search(r'^(?:北|南|東|西).{0,12}から見た',place.name):
+        return True
     if not UNSUITABLE_PLACE_PATTERN.search(f"{place.name} {place.category}"):
         return False
     if any(name in place.name for name in FAMOUS_GRAVEYARD_NAMES):

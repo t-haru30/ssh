@@ -1,0 +1,348 @@
+{
+  "license": "ODbL-1.0",
+  "airports": [
+    {
+      "iata": "AOJ",
+      "name": "青森空港",
+      "latitude": 40.7335455,
+      "longitude": 140.6895828,
+      "source_url": "https://www.openstreetmap.org/way/1430011841"
+    },
+    {
+      "iata": "HNA",
+      "name": "いわて花巻空港",
+      "latitude": 39.4271694,
+      "longitude": 141.1353103,
+      "source_url": "https://www.openstreetmap.org/way/35994591"
+    },
+    {
+      "iata": "MYJ",
+      "name": "松山空港",
+      "latitude": 33.8273404,
+      "longitude": 132.6999473,
+      "source_url": "https://www.openstreetmap.org/way/50557531"
+    },
+    {
+      "iata": "NGO",
+      "name": "中部国際空港セントレア",
+      "latitude": 34.8585795,
+      "longitude": 136.8113468,
+      "source_url": "https://www.openstreetmap.org/way/54717812"
+    },
+    {
+      "iata": "FSZ",
+      "name": "富士山静岡空港",
+      "latitude": 34.7963656,
+      "longitude": 138.1890593,
+      "source_url": "https://www.openstreetmap.org/way/57007443"
+    },
+    {
+      "iata": "MMJ",
+      "name": "信州まつもと空港",
+      "latitude": 36.1662893,
+      "longitude": 137.9237696,
+      "source_url": "https://www.openstreetmap.org/way/57007466"
+    },
+    {
+      "iata": "TOY",
+      "name": "富山空港",
+      "latitude": 36.6489758,
+      "longitude": 137.187883,
+      "source_url": "https://www.openstreetmap.org/way/57007579"
+    },
+    {
+      "iata": "KIJ",
+      "name": "新潟空港",
+      "latitude": 37.9545153,
+      "longitude": 139.1093234,
+      "source_url": "https://www.openstreetmap.org/way/57007660"
+    },
+    {
+      "iata": "CTS",
+      "name": "新千歳空港",
+      "latitude": 42.7839957,
+      "longitude": 141.6832866,
+      "source_url": "https://www.openstreetmap.org/way/57007929"
+    },
+    {
+      "iata": "MBE",
+      "name": "オホーツク紋別空港",
+      "latitude": 44.3026512,
+      "longitude": 143.4052847,
+      "source_url": "https://www.openstreetmap.org/way/57007935"
+    },
+    {
+      "iata": "WKJ",
+      "name": "稚内空港",
+      "latitude": 45.4037687,
+      "longitude": 141.799372,
+      "source_url": "https://www.openstreetmap.org/way/57007955"
+    },
+    {
+      "iata": "OBO",
+      "name": "とかち帯広空港",
+      "latitude": 42.7312983,
+      "longitude": 143.2179331,
+      "source_url": "https://www.openstreetmap.org/way/57007960"
+    },
+    {
+      "iata": "KUH",
+      "name": "釧路空港",
+      "latitude": 43.0428637,
+      "longitude": 144.1926212,
+      "source_url": "https://www.openstreetmap.org/way/57007974"
+    },
+    {
+      "iata": "HKD",
+      "name": "函館空港",
+      "latitude": 41.7702662,
+      "longitude": 140.8238376,
+      "source_url": "https://www.openstreetmap.org/way/57007999"
+    },
+    {
+      "iata": "SHB",
+      "name": "中標津空港",
+      "latitude": 43.5768522,
+      "longitude": 144.9570855,
+      "source_url": "https://www.openstreetmap.org/way/57008051"
+    },
+    {
+      "iata": "GAJ",
+      "name": "山形空港",
+      "latitude": 38.4116767,
+      "longitude": 140.3699987,
+      "source_url": "https://www.openstreetmap.org/way/57008614"
+    },
+    {
+      "iata": "SYO",
+      "name": "庄内空港",
+      "latitude": 38.8127805,
+      "longitude": 139.7842109,
+      "source_url": "https://www.openstreetmap.org/way/57008649"
+    },
+    {
+      "iata": "ONJ",
+      "name": "大館能代空港",
+      "latitude": 40.1934193,
+      "longitude": 140.371715,
+      "source_url": "https://www.openstreetmap.org/way/57008682"
+    },
+    {
+      "iata": "AXT",
+      "name": "秋田空港",
+      "latitude": 39.6142939,
+      "longitude": 140.2178563,
+      "source_url": "https://www.openstreetmap.org/way/57008815"
+    },
+    {
+      "iata": "SDJ",
+      "name": "仙台空港",
+      "latitude": 38.1377873,
+      "longitude": 140.9144251,
+      "source_url": "https://www.openstreetmap.org/way/57008836"
+    },
+    {
+      "iata": "MSJ",
+      "name": "三沢飛行場",
+      "latitude": 40.7079796,
+      "longitude": 141.3544758,
+      "source_url": "https://www.openstreetmap.org/relation/6723874"
+    },
+    {
+      "iata": "SHM",
+      "name": "南紀白浜空港",
+      "latitude": 33.6624235,
+      "longitude": 135.3648751,
+      "source_url": "https://www.openstreetmap.org/way/57009588"
+    },
+    {
+      "iata": "OKJ",
+      "name": "岡山空港",
+      "latitude": 34.7571474,
+      "longitude": 133.8555389,
+      "source_url": "https://www.openstreetmap.org/way/57009996"
+    },
+    {
+      "iata": "UBJ",
+      "name": "山口宇部空港",
+      "latitude": 33.930108,
+      "longitude": 131.2791807,
+      "source_url": "https://www.openstreetmap.org/way/57010586"
+    },
+    {
+      "iata": "HIJ",
+      "name": "広島空港",
+      "latitude": 34.4374722,
+      "longitude": 132.9214166,
+      "source_url": "https://www.openstreetmap.org/way/57010613"
+    },
+    {
+      "iata": "YGJ",
+      "name": "米子鬼太郎空港",
+      "latitude": 35.493345,
+      "longitude": 133.2389089,
+      "source_url": "https://www.openstreetmap.org/way/57010868"
+    },
+    {
+      "iata": "TTJ",
+      "name": "鳥取砂丘コナン空港",
+      "latitude": 35.5287419,
+      "longitude": 134.1659216,
+      "source_url": "https://www.openstreetmap.org/way/57010905"
+    },
+    {
+      "iata": "KOJ",
+      "name": "鹿児島空港",
+      "latitude": 31.8032472,
+      "longitude": 130.7194404,
+      "source_url": "https://www.openstreetmap.org/way/57011702"
+    },
+    {
+      "iata": "KMI",
+      "name": "宮崎空港",
+      "latitude": 31.8760552,
+      "longitude": 131.447944,
+      "source_url": "https://www.openstreetmap.org/way/57013248"
+    },
+    {
+      "iata": "KMJ",
+      "name": "熊本空港",
+      "latitude": 32.8362524,
+      "longitude": 130.8523864,
+      "source_url": "https://www.openstreetmap.org/way/57014851"
+    },
+    {
+      "iata": "NGS",
+      "name": "長崎空港",
+      "latitude": 32.9171843,
+      "longitude": 129.913497,
+      "source_url": "https://www.openstreetmap.org/way/57015147"
+    },
+    {
+      "iata": "TAK",
+      "name": "高松空港",
+      "latitude": 34.2151904,
+      "longitude": 134.0150766,
+      "source_url": "https://www.openstreetmap.org/way/223240147"
+    },
+    {
+      "iata": "OKA",
+      "name": "那覇空港",
+      "latitude": 26.1966506,
+      "longitude": 127.6442731,
+      "source_url": "https://www.openstreetmap.org/way/324129153"
+    },
+    {
+      "iata": "IBR",
+      "name": "茨城空港",
+      "latitude": 36.1825502,
+      "longitude": 140.4168241,
+      "source_url": "https://www.openstreetmap.org/way/356582794"
+    },
+    {
+      "iata": "AKJ",
+      "name": "旭川空港",
+      "latitude": 43.6686853,
+      "longitude": 142.4470496,
+      "source_url": "https://www.openstreetmap.org/way/502741194"
+    },
+    {
+      "iata": "FUK",
+      "name": "福岡空港",
+      "latitude": 33.5868069,
+      "longitude": 130.4494515,
+      "source_url": "https://www.openstreetmap.org/way/529445584"
+    },
+    {
+      "iata": "UKB",
+      "name": "神戸空港",
+      "latitude": 34.6340995,
+      "longitude": 135.224672,
+      "source_url": "https://www.openstreetmap.org/way/772669000"
+    },
+    {
+      "iata": "OIT",
+      "name": "大分空港",
+      "latitude": 33.4801199,
+      "longitude": 131.7352182,
+      "source_url": "https://www.openstreetmap.org/way/866690235"
+    },
+    {
+      "iata": "FKS",
+      "name": "福島空港",
+      "latitude": 37.2280223,
+      "longitude": 140.4294441,
+      "source_url": "https://www.openstreetmap.org/way/1037339151"
+    },
+    {
+      "iata": "TKS",
+      "name": "徳島阿波おどり空港",
+      "latitude": 34.1329249,
+      "longitude": 134.6063975,
+      "source_url": "https://www.openstreetmap.org/relation/2069301"
+    },
+    {
+      "iata": "NRT",
+      "name": "成田国際空港",
+      "latitude": 35.7758917,
+      "longitude": 140.3835383,
+      "source_url": "https://www.openstreetmap.org/relation/3182579"
+    },
+    {
+      "iata": "HSG",
+      "name": "九州佐賀国際空港",
+      "latitude": 33.1494164,
+      "longitude": 130.3044964,
+      "source_url": "https://www.openstreetmap.org/relation/5601357"
+    },
+    {
+      "iata": "IZO",
+      "name": "出雲空港",
+      "latitude": 35.413325,
+      "longitude": 132.8891997,
+      "source_url": "https://www.openstreetmap.org/relation/6121880"
+    },
+    {
+      "iata": "KIX",
+      "name": "関西国際空港",
+      "latitude": 34.4344098,
+      "longitude": 135.2330812,
+      "source_url": "https://www.openstreetmap.org/relation/9436735"
+    },
+    {
+      "iata": "KCZ",
+      "name": "高知龍馬空港",
+      "latitude": 33.5463462,
+      "longitude": 133.668988,
+      "source_url": "https://www.openstreetmap.org/relation/12028679"
+    },
+    {
+      "iata": "KMQ",
+      "name": "小松飛行場",
+      "latitude": 36.3937725,
+      "longitude": 136.4050735,
+      "source_url": "https://www.openstreetmap.org/relation/13514757"
+    },
+    {
+      "iata": "MMB",
+      "name": "女満別空港",
+      "latitude": 43.8808709,
+      "longitude": 144.1635941,
+      "source_url": "https://www.openstreetmap.org/relation/16711610"
+    },
+    {
+      "iata": "HND",
+      "name": "東京国際空港",
+      "latitude": 35.5457102,
+      "longitude": 139.7898582,
+      "source_url": "https://www.openstreetmap.org/relation/17864987"
+    },
+    {
+      "iata": "ITM",
+      "name": "大阪国際空港",
+      "latitude": 34.7841935,
+      "longitude": 135.4403567,
+      "source_url": "https://www.openstreetmap.org/relation/18159861"
+    }
+  ]
+}

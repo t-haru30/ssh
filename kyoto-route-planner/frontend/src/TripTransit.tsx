@@ -4,12 +4,13 @@ import { isRouteTimelineItem } from "./apiValidation";
 import { distanceKm, transportAllowance } from "./dayTrip";
 
 export function transitModeLabel(mode: string) {
-  return ({ public_transport: "公共交通", train: "鉄道", bus: "バス", walk: "徒歩", walking: "徒歩", car: "車" } as Record<string, string>)[mode] ?? "移動手段未確認";
+  return ({ public_transport: "公共交通", train: "鉄道", bus: "バス", walk: "徒歩", walking: "徒歩", car: "車", plane:"飛行機",ship:"船",strange:"接続" } as Record<string, string>)[mode] ?? "移動手段未確認";
 }
 
-export function TripTransit({ from, to, date, departureMinute, initial, onResult, externalBusy = false }: {
+export function TripTransit({ from, to, date, departureMinute, initial, onResult, externalBusy = false,routePriority="time",preferNearbyAirport=true }: {
   from: Origin; to: Origin; date: string; departureMinute: number;
   initial?: RouteTimelineTransit; externalBusy?: boolean; onResult: (result: RouteTimelineTransit) => void;
+  routePriority?:"time"|"price";preferNearbyAirport?:boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -35,6 +36,7 @@ export function TripTransit({ from, to, date, departureMinute, initial, onResult
         headers: { "Content-Type": "application/json" }, body: JSON.stringify({
           origin: { ...from, name: from.name.slice(0, 80) }, destination: { ...to, name: to.name.slice(0, 80) },
           departure_date: day.toISOString().slice(0, 10), departure_time: time,
+          route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
         }) });
       if (!response.ok) throw new Error(response.status === 503 ? "交通検索を利用できません。現在は仮の費用を表示しています。" : "この区間の公共交通経路を取得できませんでした。条件を確認して再検索してください。");
       const result = await response.json() as RouteTimelineTransit;

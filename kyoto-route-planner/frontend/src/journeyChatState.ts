@@ -23,9 +23,11 @@ export function readChatProposal(value: unknown, plan: TripPlan, candidates: Pla
   if (!Array.isArray(discovered) || discovered.length > MAX_TRIP_STOPS) throw new Error("追加候補の形式を確認できませんでした。");
   const places = new Map([...candidates, ...plan.stops.map(s => s.place)].map(p => [p.id, p]));
   for (const p of discovered) {
-    if (!isPlace(p) || p.name.length > 200 || p.category !== "カフェ"
+    if (!isPlace(p) || p.name.length > 200
       || !((/^osm-cafe-(node|way|relation)-[1-9]\d*$/.test(p.id) && p.tags?.amenity === "cafe" && p.tags?.source === "OpenStreetMap"
           && p.tags?.source_url === `https://www.openstreetmap.org/${p.id.slice(9).replace("-", "/")}`)
+        || (/^osm-(node|way|relation)-[1-9]\d*$/.test(p.id) && p.tags?.source==="OpenStreetMap" && p.tags?.license==="ODbL-1.0"
+          && p.tags?.source_url===`https://www.openstreetmap.org/${p.id.slice(4).replace("-","/")}`)
         || (/^openpoi-[a-f0-9]{24}$/.test(p.id) && p.tags?.source === "OpenPOI API" && p.tags?.venue_type === "cafe"
           && p.tags?.position_check === "gsi_neighbourhood" && p.tags?.source_url === "https://openpoiapi.com/attribution.html"
           && typeof p.tags?.licenses === "string" && typeof p.tags?.attributions === "string"))
@@ -48,6 +50,7 @@ export function readChatProposal(value: unknown, plan: TripPlan, candidates: Pla
   if (completed.some((s, i) => stops[i]?.place.id !== s.place.id)) throw new Error("訪問済みの順番は変更できません。");
   const sameRoute = stops.length === plan.stops.length && stops.every((s, i) => s.place.id === plan.stops[i].place.id);
   const next = { ...scheduleTrip(plan.input, plan.origin, plan.date, stops, plan.transport, sameRoute ? plan.transportEstimate : null, plan.returnTo), planningEstimates: plan.planningEstimates };
-  if (next.returnMinute > clockMinutes(next.input.departureTime) + next.input.availableMinutes || next.knownCost > next.input.budget || next.stops.some(s => s.late > 0)) throw new Error("再計算すると時間・予算・固定開始の条件に収まりませんでした。条件を見直してもう一度相談してください。");
+  const needsTransit=!sameRoute && Boolean(next.unknownTravelSegments?.length);
+  if (stops.reduce((sum,s)=>sum+s.dwellMinutes,0)>next.input.availableMinutes || !needsTransit && (next.returnMinute > clockMinutes(next.input.departureTime) + next.input.availableMinutes || next.stops.some(s => s.late > 0)) || next.knownCost > next.input.budget) throw new Error("再計算すると時間・予算・固定開始の条件に収まりませんでした。条件を見直してもう一度相談してください。");
   return next;
 }

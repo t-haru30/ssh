@@ -1,7 +1,7 @@
 import type { Origin, RouteTimelineTransit } from "./types";
 import { transitPlaceName } from "./transitPlaceName";
 
-const modeLabel = (mode: string) => ({train:"電車",bus:"バス",walk:"徒歩",walking:"徒歩",car:"車"}[mode] ?? "移動");
+const modeLabel = (mode: string) => ({train:"電車",bus:"バス",walk:"徒歩",walking:"徒歩",car:"車",plane:"飛行機",ship:"船",strange:"接続"}[mode] ?? "移動");
 
 export function PreviewTransit({from,to,minutes,unknown,loading,transit,places}: {
   from:string;to:string;minutes:number;unknown?:boolean;loading:boolean;

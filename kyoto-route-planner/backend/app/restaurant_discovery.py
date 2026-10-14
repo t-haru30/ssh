@@ -116,6 +116,13 @@ async def _osm_restaurants(client, request, radius):
     cached = _osm_cache(request, radius)
     if cached is not None:
         return cached
+    # Common arrival areas already have independent OSM extracts. Use those
+    # immediately instead of waiting for two public Overpass timeouts. Google
+    # still checks operational status and identity for the current request.
+    seeds = _seed_restaurants(request, radius)
+    if seeds:
+        _osm_cache(request, radius, seeds)
+        return seeds
     # Bounding-box indexes are cheaper than Overpass's around geometry query.
     # The exact radius and prefecture are still checked on every returned row.
     lat, lon = request.origin.latitude, request.origin.longitude
@@ -136,9 +143,10 @@ async def _osm_restaurants(client, request, radius):
                 return places
         except (httpx.HTTPError, ValueError, TypeError):
             continue
-    # Public Overpass endpoints can throttle cloud-hosted callers. Independently
-    # acquired OSM seed records remain useful because every addition must still
-    # match a fresh, operational Google result by full identity and position.
+    return ()
+
+
+def _seed_restaurants(request, radius):
     try:
         data = json.loads(OSM_SEEDS_PATH.read_text(encoding="utf-8"))
         if data.get("license") != "ODbL-1.0":
@@ -147,8 +155,6 @@ async def _osm_restaurants(client, request, radius):
         places = tuple(p for p in places if p.tags.get("source") == "OpenStreetMap"
             and p.id.startswith(("osm-node-","osm-way-","osm-relation-"))
             and distance_km(request.origin,p) <= radius and _in_prefecture(request,p.latitude,p.longitude))
-        if places:
-            _osm_cache(request,radius,places)
         return places
     except (OSError, ValueError, TypeError, KeyError):
         return ()
@@ -169,7 +175,7 @@ async def _google_candidates(client, request, radius, key):
             return []
         try:
             response = await client.post(BASE + method, headers={"X-Goog-Api-Key":key,
-                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.primaryType,places.businessStatus"}, json=body, timeout=7)
+                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.primaryType,places.businessStatus,places.regularOpeningHours"}, json=body, timeout=7)
             data = response.json() if response.status_code == 200 and len(response.content) <= 120_000 else None
             return [p for p in data["places"][:20] if isinstance(p, dict)] if isinstance(data, dict) and isinstance(data.get("places"), list) else []
         except (httpx.HTTPError, ValueError, TypeError):

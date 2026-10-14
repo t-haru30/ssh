@@ -28,8 +28,11 @@
 .discover-agent-status[data-ready="true"] { color: #285642; }
 .discover-modal-recommendation { margin: 16px 0; padding: 16px 20px; border-radius: 12px; background: #f0f5f1; line-height: 1.8; }
 .discover-modal-recommendation p { margin: 8px 0 0; }
-.route-photo-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px; width:100%; height:100%; position:absolute; inset:0; background:var(--paper); }
-.route-photo-grid > :last-child:nth-child(odd):not(:first-child) { grid-column: 1 / -1; }
+.route-photo-grid { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); width:100%; height:100%; position:absolute; inset:0; background:var(--paper); }
+.route-photo-grid.has-photo-pages { grid-template-rows:minmax(0,1fr) 44px; }
+.route-photo-pages { display:flex; justify-content:space-between; align-items:center; background:var(--paper); color:var(--ink); padding-inline:12px; font-size:12px; }
+.route-photo-pages button { min-height:40px; min-width:48px; border:0; background:transparent; color:inherit; font-size:20px; cursor:pointer; }
+.route-photo-pages button:disabled { opacity:.3; cursor:default; }
 .route-photo-cell { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
 .route-photo-cell > .route-photo-tile { width: 100%; height: 100%; }
 .route-photo-open { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer; touch-action: pan-y; }

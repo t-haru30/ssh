@@ -10,6 +10,7 @@ import { routeSelection } from "../routeSelection";
 import { DiscoverCard, formatMinutes } from "./DiscoverCard";
 import type { DiscoverDirection } from "./DiscoverCard";
 import { RouteDetailModal } from "./RouteDetailModal";
+import { readDiscovery } from "./discoveryStream";
 import type { DatasetRoute, RouteDatasetIndex } from "./datasetTypes";
 import { localOrigins } from "../localPlaces";
 import prefectureIndex from "../data/routes/index.json";
@@ -23,7 +24,7 @@ import type { Origin } from "../types";
 import "./discoveryFlow.css";
 import { readTravelerProfile, saveTravelerProfile, travelerProfileSummary, PACE_OPTIONS, normalizeTravelPace } from "../travelerProfile";
 import { TravelRangeControl } from "../TravelRangeControl";
-import { composeLocalRoutes, isDiscoverResponse } from "./dynamicRoutes";
+import { composeLocalRoutes } from "./dynamicRoutes";
 import type { DiscoveryAgent } from "./dynamicRoutes";
 import { diverseRoutes } from "./routeDiversity";
 import { ProgressStatus } from "../ProgressStatus";
@@ -124,6 +125,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const [generating, setGenerating] = useState(false);
   const [remote, setRemote] = useState<{ key: string; routes: DatasetRoute[]; note: string; agent?: DiscoveryAgent; review?: JourneyReviewData; originalRoutes?: DatasetRoute[] } | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const interactedWithDeck = useRef(false);
   const seenRoutes = useRef<Record<string, DatasetRoute[]>>({});
   const [applied, setApplied] = useState<Conditions>(() => ({ area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` }));
   const draft = { area, theme, themes: chosenThemes, meals: tripMeals, pattern, radius, crossPrefecture, variation, traveler, origin: destination, departure, priority_text: preferenceText.trim(), preference_text: `${wish}。${preferenceText}${selectedTags.length ? `。${selectedTags.join("、")}` : ""}` };
@@ -181,23 +183,28 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     requestRef.current?.abort();
     const controller = new AbortController(); requestRef.current = controller;
     const timer = window.setTimeout(() => controller.abort(), 90_000);
+    interactedWithDeck.current=false;
+    let receivedDeck=false;
     setGenerating(true); setNotice(null);
     try {
-      const response = await fetch("/api/discover", { method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+      const response = await fetch("/api/discover", { method: "POST", headers: { "Content-Type": "application/json", "Accept":"text/event-stream" }, signal: controller.signal,
         body: JSON.stringify({ area: next.area, prefecture_name: nextEntry.name, origin: nextOrigin, theme: next.theme, themes: next.themes, meals: next.meals, course: next.pattern, radius_km: next.radius, cross_prefecture: next.crossPrefecture, variation: next.variation, count: 12, traveler: next.traveler, preference_text: next.preference_text.slice(0, 600), priority_text: next.priority_text, viewed_dining_ids: viewedDiningIds }) });
       if (!response.ok) throw new Error("候補を取得できませんでした。");
-      const data: unknown = await response.json();
-      if (!isDiscoverResponse(data)) throw new Error("候補データの形式が正しくありません。");
-      if (!controller.signal.aborted && requestRef.current === controller) {
+      await readDiscovery(response,(data,stage)=>{
+        const availabilityChecked=data.catalog?.availability_checked===true;
+        if (stage==="initial" && !data.routes.length && !availabilityChecked) return;
+        if (!controller.signal.aborted && requestRef.current === controller && !(receivedDeck && interactedWithDeck.current)) {
         const received = diverseRoutes(data.routes, excluded);
-        const combined = received.length < 4 ? diverseRoutes([...received, ...fallback], excluded).slice(0, 8) : received;
+        const combined = !availabilityChecked && received.length < 4 ? diverseRoutes([...received, ...fallback], excluded).slice(0, 8) : received;
         const supplement = combined.length > received.length;
         setRemote({ key: nextKey, ...data, note: supplement ? "条件に合う登録済みの施設から候補を補いました。移動時間は推定です。" : data.note,
           review: isJourneyReview(data.review) ? data.review : undefined, originalRoutes: combined, routes: combined });
         setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
-      }
+        receivedDeck=true;setGenerating(false);
+        }
+      });
     } catch {
-      if (requestRef.current === controller) {
+      if (requestRef.current === controller && !receivedDeck) {
         setRemote({ key: nextKey, routes: fallback, note: "施設データと指定条件から組み合わせています。移動時間は推定です。", agent: { status: "unavailable", message: "AIの提案を取得できませんでした。通常の候補を表示しています。「別の組み合わせ」で再試行できます。" } });
         setCollections(current => ({ ...current, [`${nextKey}:api`]: EMPTY_BROWSE }));
       }
@@ -217,6 +224,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   function chooseArea(nextArea: string) { invalidateDestinationResults();setArea(nextArea); const place = indexEntries.find(item => item.id === nextArea)!; setDestination(localOrigins[nextArea] ?? { name: `${place.name}・エリア中心`, latitude: place.center[0], longitude: place.center[1] }); }
   function updateCollection(next: BrowseState) { setCollections(current => ({ ...current, [collectionKey]: next })); }
   function undo() {
+    interactedWithDeck.current=true;
     cancelAdvance();
     if (!history.length) return;
     setDeckEpoch(value => value + 1);
@@ -248,6 +256,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   }
   function commitSwipe(direction: DiscoverDirection) {
     if (!routes[index]) return false;
+    interactedWithDeck.current=true;
     if (direction === "like") {
       const route = routes[index];
       const idea = toIdea(route);
@@ -313,12 +322,12 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         {!generating && remote?.key === conditionsKey && remote.review && <JourneyReview key={remote.review.id} report={remote.review}
           onAdopt={route => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: [route]} : current); updateCollection(EMPTY_BROWSE); }}
           onRestore={() => { cancelAdvance(); setSelected(null); setDeckEpoch(v => v + 1); setRemote(current => current ? {...current, routes: diverseRoutes(current.originalRoutes ?? [], [])} : current); updateCollection(EMPTY_BROWSE); }} />}
-        {!generating && <><div className="discover-stack" aria-busy={preparingNext}><AnimatePresence custom={exitDirection === "like" ? "accept" : "skip"}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={`${deckEpoch}:${route.id}`} route={route} depth={depth} active={active && !generating && !selected} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
+        {!generating && <><div className="discover-stack" aria-busy={preparingNext} onPointerDownCapture={()=>{interactedWithDeck.current=true;}} onClickCapture={()=>{interactedWithDeck.current=true;}}><AnimatePresence custom={exitDirection === "like" ? "accept" : "skip"}>{stack.map((route, depth) => ({ route, depth })).reverse().map(({ route, depth }) => <DiscoverCard key={`${deckEpoch}:${route.id}`} route={route} depth={depth} active={active && !generating && !selected} preparingNext={preparingNext && depth === 0} exitDirection={exitDirection} onSwipe={swipe} />)}</AnimatePresence>
           {routes.length === 0 && <div className="discover-empty"><strong>この条件で新しく提案できる旅程はありません</strong><p>{applied.themes.includes("food") && !applied.meals.length ? "食事なしでは飲食店を候補から外します。食事を選ぶか、ほかの好みを組み合わせてください。" : "食事の時刻や観光範囲を見直すと、候補を増やせます。"}</p><button type="button" className="idea-primary-button" onClick={() => returnToConditions(1)}>食事・時間を見直す</button><button type="button" onClick={editDestination}>観光範囲を広げる</button></div>}
           {routes.length > 0 && !stack.length && <div className="discover-empty"><span className="discover-empty-icon" aria-hidden="true">✦</span><strong>すべてのルートを見ました</strong><p>いいねした旅程を下から選んで、編集しましょう。</p><button type="button" className="idea-primary-button" onClick={() => { setDeckEpoch(value => value + 1); updateCollection(EMPTY_BROWSE); setNotice(null); }}>最初から見直す ↻</button></div>}
         </div>
         <div className="discover-actions">
-          <button type="button" className="discover-action detail" onClick={() => setSelected(stack[0])} disabled={!stack.length || generating || preparingNext}>詳細を見る</button>
+          <button type="button" className="discover-action detail" onClick={() => {interactedWithDeck.current=true;setSelected(stack[0]);}} disabled={!stack.length || generating || preparingNext}>詳細を見る</button>
           <button type="button" className="discover-action pass" onClick={() => swipe("pass")} disabled={!stack.length || preparingNext || generating}>← 今回は見送る</button>
           <button type="button" className="discover-action save" onClick={() => swipe("like")} disabled={!stack.length || preparingNext || generating}>いいね ♥</button>
         </div>

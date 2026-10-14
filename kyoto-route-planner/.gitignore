@@ -18,7 +18,10 @@ backend/data/osm_cache/
 backend/data/boundaries/
 backend/data/osm_extract/
 .local/
-frontend/public/data/
+frontend/public/data/*
+!frontend/public/data/gateway-presets.json
+!frontend/public/data/airports.json
+!frontend/public/data/landmark-seeds.json
 backend/.test-tmp/
 frontend/.test-tmp/
 backend/test-*.log

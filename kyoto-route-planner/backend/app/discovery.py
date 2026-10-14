@@ -7,17 +7,20 @@ import os
 import re
 import unicodedata
 from typing import Annotated, Literal
+from datetime import date, datetime, timedelta, timezone
+from itertools import permutations
 from fastapi import HTTPException
 from hashlib import sha256
 from math import asin, cos, radians, sin, sqrt, ceil
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, PrivateAttr, model_validator
 
 from app.models import CatalogPlace, Origin, Theme
 from app.places import is_unsuitable_place
 from app.public_catalog import load_public_places
 from app.regional_food import regional_score
 from app.travel_wishes import wish_score
+from app.venue_hours import visit_fits
 
 
 PACE_SETTINGS = {"relaxed": (2, 75, 120), "standard": (3, 60, 105), "packed": (4, 45, 75)}
@@ -37,6 +40,8 @@ class MealChoice(BaseModel):
 
 
 class DiscoverRequest(BaseModel):
+    departure_date: date = Field(default_factory=lambda:datetime.now(timezone(timedelta(hours=9))).date())
+    _venue_hours: dict = PrivateAttr(default_factory=dict)
     area: str = Field(pattern=r"^[a-z]{1,30}$")
     prefecture_name: str = Field(min_length=1, max_length=10)
     origin: Origin
@@ -131,6 +136,10 @@ def arrange_meals(request, places):
         if arrival > target + (0 if meal.time else 90):
             return None
         at = max(arrival, target)
+        if not meal.time:
+            at=next((candidate for candidate in range(at,target+91) if visit_fits(venue,request.departure_date,candidate,dwell(venue),request._venue_hours.get(venue.id))),at)
+        if not visit_fits(venue,request.departure_date,at,dwell(venue),request._venue_hours.get(venue.id)):
+            return None
         roles[venue.id], anchors[venue.id] = meal.kind, f"{at // 60:02}:{at % 60:02}"
         ordered.append(venue)
         now, cursor = at + dwell(venue), venue
@@ -202,6 +211,10 @@ def distinct_venues(places: list[CatalogPlace]) -> list[CatalogPlace]:
     return result
 
 
+def scenic_priority(place):
+    if 'nature' not in place_themes(place):return 0
+    return int(bool(place.tags.get('wikidata') or place.tags.get('wikipedia') or place.tags.get('website')))+2*int(bool(re.search(r'庭園|国立|県立|植物園|渓谷|滝|湖|海岸|展望台|自然公園|名勝',place.name+place.category)))
+
 def eligible_candidates(request: DiscoverRequest, places: tuple[CatalogPlace, ...]) -> list[CatalogPlace]:
     """Apply all hard constraints before exposing any facility to the agent."""
     candidates = sorted((place for place in places
@@ -227,7 +240,8 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
     if not ordered or len(ordered) > max_stops(request):
         return None
     ordered = list(ordered)
-    meal_plan = arrange_meals(request, ordered) if request.meals is not None else None
+    meal_plan = next((plan for venues in permutations([p for p in ordered if dinner_place(p)])
+        if (plan:=arrange_meals(request,[*[p for p in ordered if not dinner_place(p)],*venues])) is not None),None) if request.meals is not None else None
     if request.meals is not None and meal_plan is None:
         return None
     if meal_plan:
@@ -260,6 +274,13 @@ def assemble_route(request: DiscoverRequest, ordered: list[CatalogPlace],
         # Start at 09:00; free time before dinner is waiting, never inflated visit duration.
         arrival = minutes - stays[-1] - legs[-1]["minutes"]
         minutes += max(0, 9 * 60 - arrival)
+    clock=int((meal_plan[3] if meal_plan else '09:00')[:2])*60+int((meal_plan[3] if meal_plan else '09:00')[3:])
+    for index,place in enumerate(ordered):
+        clock+=legs[index]['minutes']
+        anchor=meal_plan[2].get(place.id) if meal_plan else '18:00' if place==dinner else None
+        if anchor:clock=max(clock,int(anchor[:2])*60+int(anchor[3:]))
+        if not visit_fits(place,request.departure_date,clock,stays[index],request._venue_hours.get(place.id)):return None
+        clock+=stays[index]
     if minutes > (300 if request.course == "half_day" else 720 if request.course == "full_day" or request.meals else 600) or (request.course == "full_day" and minutes < 360):
         return None
     course = "full_day" if request.course == "full_day" or minutes > 300 else "half_day"
@@ -294,7 +315,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         if len(nearby) >= max(6, max_stops(request)) and preserves_choices(request, nearby, candidates) and (request.theme != "food" or any("food" in place_themes(p) for p in nearby)) and not any((regional_score(request.origin, p) or wish_score(request.priority_text, p)) and p not in nearby for p in candidates):
             candidates, effective_radius = nearby, radius
             break
-    candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
+    candidates.sort(key=lambda p: (-wish_score(request.priority_text, p), -regional_score(request.origin, p) if request.theme == "food" else 0, -scenic_priority(p) if 'nature' in selected_themes(request) else 0, -traveler_priority(request, p), distance_km(request.origin, p), p.id))
     routes, seen, venue_use = [], set(), {}
     for index in range(min(len(candidates), 80)):
         seed = candidates[(index + request.variation) % len(candidates)]
@@ -303,11 +324,17 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
         dining = sorted(candidates, key=lambda p: (8 * venue_use.get(p.id, 0) - 10 * wish_score(request.priority_text, p) - (2 * regional_score(request.origin, p) if request.theme == "food" else 0),
                         distance_km(seed, p), p.id))
         if request.meals is not None:
-            for meal in (p for p in dining if dinner_place(p) and p not in ordered):
-                if sum(dinner_place(p) for p in ordered) >= len(request.meals):
-                    break
-                ordered.append(meal)
-                remaining.remove(meal)
+            defaults={'breakfast':'08:30','lunch':'12:00','dinner':'18:00'}
+            assigned=set();possible=True
+            for choice in sorted(request.meals,key=lambda m:list(defaults).index(m.kind)):
+                target=choice.time or defaults[choice.kind];minute=int(target[:2])*60+int(target[3:])
+                def suitable(p):
+                    return dinner_place(p) and p.id not in assigned and any(visit_fits(p,request.departure_date,minute+delay,min(stay_minutes(request),75),request._venue_hours.get(p.id)) for delay in (range(0,91,15) if not choice.time else [0]))
+                venue=next((p for p in ordered if suitable(p)),None) or next((p for p in dining if p not in ordered and suitable(p)),None)
+                if not venue:possible=False;break
+                assigned.add(venue.id)
+                if venue not in ordered:ordered.append(venue);remaining.remove(venue)
+            if not possible or any(dinner_place(p) and p.id not in assigned for p in ordered):continue
         if request.course == "full_day" and request.meals is None and not dinner_place(seed):
             meal = next((p for p in dining if dinner_place(p)), None)
             if meal:
@@ -332,7 +359,7 @@ def build_discover_routes(request: DiscoverRequest, places: tuple[CatalogPlace, 
             if not options:
                 break
             missing = selected_themes(request) - {t for q in ordered for t in place_themes(q)}
-            nearest = min(options, key=lambda p: (-wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
+            nearest = min(options, key=lambda p: (-wish_score(request.priority_text, p), -len(missing & set(place_themes(p))), -scenic_priority(p) if 'nature' in selected_themes(request) else 0, distance_km(cursor, p) - 0.5 * traveler_priority(request, p), p.id))
             ordered.append(nearest)
             remaining.remove(nearest)
             cursor = nearest
@@ -406,11 +433,18 @@ async def _base_discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[
 
 
 async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[CatalogPlace, ...]]:
-    from app.openpoi import enrich_candidates
+    from app.openpoi import enrich_candidates, merge_candidates
     from app.restaurant_discovery import discover_restaurants, match_independent_restaurants
-    (fallback, base), restaurants = await asyncio.gather(_base_discover_catalog(request), discover_restaurants(request))
-    pool, status = await enrich_candidates(request, base)
+    (fallback, base), restaurants, (extra, status) = await asyncio.gather(
+        _base_discover_catalog(request), discover_restaurants(request), enrich_candidates(request, ()))
+    pool = merge_candidates(base, extra)
     restaurants = match_independent_restaurants(restaurants, eligible_candidates(request, pool))
+    from app.google_place_photos import same_google_venue
+    for place in [*pool,*restaurants.places]:
+        matched={p.get('id'):p for p in restaurants.google_results if same_google_venue(place,p)}
+        if len(matched)==1:
+            hours=next(iter(matched.values())).get('regularOpeningHours')
+            if isinstance(hours,dict):request._venue_hours[place.id]=hours
     added = sum(p.id.startswith("openpoi-") for p in pool)
     if added:
         fallback = build_discover_routes(request, pool)
@@ -426,7 +460,7 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
         merged.setdefault(place.id,place)
     pool = tuple(distinct_venues(list(merged.values())))
     restaurant_added = max(0,len(pool) - before)
-    if restaurants.places or blocked:
+    if restaurants.places or blocked or request._venue_hours:
         previous_source = fallback["source"]
         fallback = build_discover_routes(request, pool)
         if restaurants.status == "osm_only_unconfirmed":
@@ -436,6 +470,7 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
             fallback["source"] = previous_source + " / Google Places"
             fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
     fallback["catalog"] = {"openpoi_status": status, "openpoi_added": added, "base_count": len(base),
+        "availability_checked":bool(request._venue_hours or blocked),
         "restaurants_status":restaurants.status,"restaurants_found":len(restaurants.places),"restaurants_added":restaurant_added,
         "restaurants_verified":restaurants.verified_count,
         "verified_dining_ids":[p.id for p in restaurants.places] if restaurants.verified_count else [],
@@ -445,8 +480,24 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
 
 async def discover_routes(request: DiscoverRequest) -> dict:
     """A catalog lookup plus at most three bounded Gemini function-calling turns."""
-    from app.discovery_agent import recommend_routes
     fallback, pool = await _discover_catalog(request)
+    return await _select_discover_routes(request, fallback, pool)
+
+
+async def discover_route_events(request: DiscoverRequest):
+    """Deliver feasible catalog routes before waiting for AI selection.
+
+    One catalog lookup and one shared AI job serve the whole stream. Neither
+    polling nor a second provider search is needed to receive the final deck.
+    """
+    fallback, pool = await _discover_catalog(request)
+    yield {"stage": "initial", "result": fallback}
+    result = await _select_discover_routes(request, fallback, pool)
+    yield {"stage": "complete", "result": result}
+
+
+async def _select_discover_routes(request, fallback, pool):
+    from app.discovery_agent import recommend_routes
     result = await recommend_routes(request, eligible_candidates(request, pool), fallback)
     result["catalog"] = fallback["catalog"]
     by_id = {p.id: p for p in pool}

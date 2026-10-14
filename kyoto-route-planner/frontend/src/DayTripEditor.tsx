@@ -14,6 +14,8 @@ import { JourneyReview } from "./JourneyReview";
 import { ItineraryAudit } from "./ItineraryAudit";
 import { isRouteSuggestion, isRecord } from "./apiValidation";
 import { toFriendlyMessage } from "./friendlyError";
+import { useGoogleVenueInfo } from "./discover/useGoogleVenueInfo";
+import { openingConflict } from "./venueHours";
 
 const yen = (amount: number) => `${amount.toLocaleString("ja-JP")}円`;
 const costLabel = (plan: TripPlan) => plan.totalCost === null ? `合計未確認（概算 ${yen(plan.knownCost)}）` : `概算 ${yen(plan.totalCost)}`;
@@ -97,9 +99,11 @@ type Props = {
   initialPlan?: TripPlan | null;
   busy?: boolean;
   onPlanChange: (plan: TripPlan) => void;
+  routePriority?:"time"|"price";onRoutePriorityChange?:(value:"time"|"price")=>void;
+  preferNearbyAirport?:boolean;onPreferNearbyAirportChange?:(value:boolean)=>void;
 };
 
-export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialAnchorTimes, initialAvailableMinutes, initialPlan, busy, onPlanChange }: Props) {
+export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialAnchorTimes, initialAvailableMinutes, initialPlan, busy, onPlanChange,routePriority:controlledPriority,onRoutePriorityChange,preferNearbyAirport:controlledAirport,onPreferNearbyAirportChange }: Props) {
   const destination = returnTo ?? initialPlan?.returnTo ?? origin;
   const currentPreferences = preferences ?? initialPlan?.input.preferences;
   const preferenceKey = JSON.stringify(currentPreferences ?? []);
@@ -111,6 +115,11 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     { route: source, date: sourceDate, time: sourceTime }, null, destination,
   ));
   const [preview, setPreview] = useState<TripPlan | null>(null);
+  const [localPriority,setLocalPriority]=useState<"time"|"price">("time");
+  const [localAirport,setLocalAirport]=useState(true);
+  const routePriority=controlledPriority??localPriority,preferNearbyAirport=controlledAirport??localAirport;
+  const setRoutePriority=(value:"time"|"price")=>{setLocalPriority(value);onRoutePriorityChange?.(value);};
+  const setPreferNearbyAirport=(value:boolean)=>{setLocalAirport(value);onPreferNearbyAirportChange?.(value);};
   const [history, setHistory] = useState<TripPlan[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [chooser, setChooser] = useState<{ swapId: string | null } | null>(null);
@@ -126,6 +135,11 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [transitState, setTransitState] = useState<"loading" | "ready" | "partial" | "failed">("loading");
+  const googleInfos=useGoogleVenueInfo(plan.stops.map(s=>s.place).filter(p=>!['trip-arrival','trip-return'].includes(p.id)),transitState==="ready");
+  const openingProblems=plan.stops.flatMap(s=>{
+    const issue=openingConflict(googleInfos.find(info=>info.place_id===s.place.id),plan.date,s.start,s.dwellMinutes);
+    return issue ? [`${s.place.name}：${issue}`] : [];
+  });
   const [transitRetry, setTransitRetry] = useState(0);
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const [visitDialog, setVisitDialog] = useState<"complete" | "undo" | null>(null);
@@ -169,7 +183,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     candidateRequest.current?.abort(); candidateRequest.current = null;
     setSearching(false); setCandidateNote(""); setRelatedPlaces([]); setCandidateSuggestions([]); setRelatedNote(""); setRelatedAvailable(false);
   }, [search]);
-  const transitKey = JSON.stringify([plan.origin, plan.returnTo, plan.date, plan.input.departureTime,
+  const transitKey = JSON.stringify([plan.origin, plan.returnTo, plan.date, plan.input.departureTime,routePriority,preferNearbyAirport,
     plan.stops.map(stop => [stop.place, stop.dwellMinutes, stop.anchorTime, stop.completed])]);
   const latestTransitKey = useRef(transitKey);
   latestTransitKey.current = transitKey;
@@ -189,6 +203,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
             stay_minutes: snapshot.stops.map(stop => stop.dwellMinutes),
             meal_times: Object.fromEntries(snapshot.stops.filter(stop => stop.anchorTime).map(stop => [stop.place.id, stop.anchorTime])),
             departure_date: snapshot.date, departure_time: snapshot.input.departureTime,
+            route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
           }) });
         if (!response.ok) throw new Error("交通検索を取得できませんでした。");
         const route: unknown = await response.json();
@@ -339,6 +354,9 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     {completedCount > 0 && <p className="trip-completed-note"><strong>{completedCount}か所を訪問済み</strong> 記録した場所・時刻・滞在時間を保ち、これからの予定を調整します。</p>}
     <div className="trip-overview"><span>{plan.stops.length}か所の寄り道</span></div>
     <OvernightSuggestion plan={plan} pending={transitState === "loading"} />
+    <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
+      {plan.stops.some(s=>distanceKm(plan.origin,s.place)>500) && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
+    </div>
     <div className="trip-route-status" role="status" aria-live="polite">
       {transitState === "loading" ? "公共交通の経路と、旅全体の所要時間を確認しています…" : transitState === "ready" ? `移動・滞在を含む総時間 約${durationLabel(usedMinutes)}` : unknownTravel ? "一部の交通経路が未確認です。" : `移動・滞在を含む総時間（概算）約${durationLabel(usedMinutes)}。未確認の区間があります。`}
       {transitState !== "loading" && <button type="button" onClick={() => setTransitRetry(v => v + 1)}>全区間を再検索</button>}
@@ -357,8 +375,9 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <p className="trip-travel-note">おすすめの理由は、登録ジャンル・名称・テーマと好みを照合した説明です。営業時間や体験の評価は含みません。</p>
     {!plan.estimatedTravel && plan.transport.route.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{plan.transport.route.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}
     </div></details>
-    <details className="trip-check-toggle"><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
-    <JourneyChat plan={plan} candidates={options} disabled={busy || preview !== null} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
+    {openingProblems.length>0 && <div className="error-panel" role="status"><strong>営業時間に合わせた見直しが必要です</strong><ul>{openingProblems.map(p=><li key={p}>{p}</li>)}</ul><p>下の確認から修正案を探すか、施設を入れ替えてください。</p></div>}
+    <details className="trip-check-toggle" open={openingProblems.length>0 || undefined}><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
+    <JourneyChat routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} plan={plan} candidates={options} disabled={busy || preview !== null} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
     <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
     <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong></div><span aria-hidden="true">START</span></div>
@@ -366,7 +385,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     <ol className="trip-stops">
       {plan.stops.map((stop, index) => <li key={stop.place.id} data-spot-id={stop.place.id} className={`trip-stop${stop.completed ? " is-completed" : stop.locked ? " is-locked" : ""}`}>
         <TripTransit key={`${plan.date}:${plan.input.departureTime}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.origin)}:${index}`}
-          from={index ? plan.stops[index - 1].place : plan.origin} to={stop.place} externalBusy={transitState === "loading"} date={plan.date}
+          from={index ? plan.stops[index - 1].place : plan.origin} to={stop.place} routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} externalBusy={transitState === "loading"} date={plan.date}
           departureMinute={index ? plan.stops[index - 1].end : clockMinutes(plan.input.departureTime)}
           initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[index] : undefined}
           onResult={result => applyTransit(index, result)} />
@@ -392,7 +411,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
         </details></article>
       </li>)}
     </ol>
-    <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} externalBusy={transitState === "loading"} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
+    <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} externalBusy={transitState === "loading"} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
     <p className="trip-return"><span>{plan.unknownTravelSegments?.includes(plan.stops.length) ? "帰りの交通情報は未確認" : `帰りは約${plan.returnTravel}分`}</span><strong><time>{unknownTravel ? "交通経路の確認後" : tripClock(plan.returnMinute)}</time> {plan.returnTo.name}に帰着</strong><small>帰着時刻は目安です</small></p>
     <div className="trip-footer-actions"><button type="button" disabled={plan.stops.length >= MAX_TRIP_STOPS} onClick={() => { setChooser({ swapId: null }); setCandidateNote(""); }}>＋ 寄り道を追加</button><button type="button" disabled={history.length === 0} onClick={() => { const previous = history[history.length - 1]; if (!previous) return; setHistory(current => current.slice(0, -1)); setPlan(previous); setNotice("ひとつ前の旅程に戻しました。"); }}>ひとつ前に戻す</button></div>
     {plan.stops.length >= MAX_TRIP_STOPS && <p className="trip-travel-note">寄り道は8か所までです。入れ替え・削除して調整できます。</p>}

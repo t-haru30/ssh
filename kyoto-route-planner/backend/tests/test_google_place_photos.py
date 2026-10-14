@@ -39,3 +39,16 @@ class GooglePhotosTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(photos.reserve_lookup())
         self.assertIsNone(photos.safe_url("https://evil.example/photo",image=True))
         self.assertIsNone(photos.safe_url("https://www.google.com/?key=secret"))
+
+    async def test_landscape_is_preferred_to_first_portrait_without_extra_searches(self):
+        calls=[];real_client=httpx.AsyncClient
+        def respond(request):
+            calls.append(request)
+            if request.method=='POST':return httpx.Response(200,json={'places':[{'id':'abc','displayName':{'text':'資料館'},'location':{'latitude':35,'longitude':135},'googleMapsUri':'https://maps.google.com/?cid=1',
+                'photos':[{'name':'places/abc/photos/portrait','widthPx':600,'heightPx':1000},{'name':'places/abc/photos/landscape','widthPx':1200,'heightPx':800}]}]})
+            return httpx.Response(200,json={'photoUri':'https://lh3.googleusercontent.com/photo'})
+        with patch.object(photos,'google_api_key',return_value='test'),patch.object(photos,'reserve_lookup',return_value=True),patch.object(photos.httpx,'AsyncClient',side_effect=lambda **kwargs:real_client(transport=httpx.MockTransport(respond))):
+            result=await photos.fetch_google_photo(self.place)
+        self.assertEqual(result.status,'ready')
+        self.assertIn('/landscape/media',str(calls[-1].url))
+        self.assertEqual(len(calls),2)

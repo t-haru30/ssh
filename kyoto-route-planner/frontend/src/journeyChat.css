@@ -193,3 +193,78 @@
 .preview-leg-stations small { font-size:10px; color:var(--muted); padding-top:2px; }
 .preview-transit .preview-transit-note { font-size:11px; line-height:1.7; margin-top:8px; }
 .preview-leg-transfer { font-size:11px; color:var(--muted); border-bottom:1px solid var(--line); margin-bottom:9px; padding-bottom:8px; overflow-wrap:anywhere; }
+
+.journey-mobile-nav, .journey-chat .journey-mobile-proposal { display:none; }
+.journey-change-card { border:1px solid var(--chat-accent); border-radius:16px; padding:16px; background:var(--paper); margin:12px 0; overflow-wrap:anywhere; }
+.journey-change-card > span { color:var(--chat-accent); font-size:12px; }
+.journey-change-card h4 { margin:8px 0 12px; font-size:17px; }
+.journey-change-card ul { padding-left:20px; font-size:14px; line-height:1.8; }
+.journey-change-card dl > div { display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:6px 0; }
+.journey-change-card dd { margin:0; text-align:right; }
+.journey-change-card > p { font-size:12px; line-height:1.6; color:var(--muted); }
+.journey-chat .journey-change-card > button { width:100%; min-height:44px; margin-top:8px; }
+.journey-change-card > div { display:flex; gap:8px; margin-top:8px; }
+.journey-chat .journey-change-card > div button { flex:1; min-height:44px; }
+.journey-mobile-launcher { width:100%; min-height:56px; margin:12px 0; border-radius:14px; }
+.journey-mobile-dialog { padding:0; margin:0; border:0; left:0; width:100%; max-width:none; max-height:none; height:100dvh; color:var(--ink); background:var(--paper); overflow:hidden; }
+.journey-mobile-dialog::backdrop { background:var(--paper); }
+@media(max-width:650px) {
+  .journey-chat { margin:12px 0 20px; border-radius:14px; }
+  .journey-workspace-header { gap:8px; padding:12px; }
+  .journey-workspace-header > div:first-child { width:100%; }
+  .journey-workspace-header .journey-preview-toggle { display:none; }
+  .journey-mobile-nav { display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--line); background:var(--paper); }
+  .journey-mobile-nav button { flex:1; min-height:44px; font-size:14px; }
+  .journey-chat .journey-mobile-nav button[aria-pressed="true"], .journey-chat .journey-mobile-nav button[aria-pressed="true"]:hover { background:var(--chat-accent); color:var(--on-accent,white); border-color:var(--chat-accent); }
+  .journey-workspace-body { height: min(650px, 78svh); min-height:420px; overflow:hidden; }
+  .journey-workspace-body.has-map, .journey-editor-panes { display:flex; flex-direction:column; min-height:0; }
+  .journey-editor-panes { flex:1; }
+  .journey-chat[data-mobile-panel="chat"] .journey-artifact,
+  .journey-chat[data-mobile-panel="preview"] .journey-conversation,
+  .journey-chat:not([data-mobile-panel="map"]) .journey-map-panel,
+  .journey-chat[data-mobile-panel="map"] .journey-editor-panes { display:none; }
+  .journey-conversation, .journey-artifact { flex:1; min-height:0; height:100%; padding:0 12px 10px; }
+  .journey-conversation > .journey-pane-label { display:none; }
+  .journey-conversation .journey-chat-log { flex:1; height:auto; min-height:0; max-height:none; padding:12px 0; }
+  .journey-chat-message p { font-size:14px; line-height:1.7; }
+  .journey-chat .journey-mobile-proposal { display:block; flex-shrink:0; margin-bottom:8px; min-height:44px; color:var(--chat-accent); font-weight:600; }
+  .journey-composer { flex-shrink:0; margin-top:0; padding:10px; }
+  .journey-chat .journey-composer textarea { font-size:16px; min-height:54px; height:64px; max-height:120px; resize:none; }
+  .journey-composer-footer > span { display:none; }
+  .journey-composer-footer { justify-content:flex-end; }
+  .journey-composer-footer button { min-height:44px; min-width:88px; }
+  .journey-privacy { flex-shrink:0; }
+  .journey-checks { flex-shrink:0; margin-bottom:6px; }
+  .journey-checks ol { max-height:80px; }
+  .journey-chat .journey-artifact-scroll { flex:1; height:auto; min-height:0; padding-top:12px; }
+  .journey-artifact > .journey-pane-label, .journey-review-footer { flex-shrink:0; }
+  .journey-chat-actions { display:grid; grid-template-columns:1fr 1fr; }
+  .journey-chat-actions button { min-height:44px; }
+  .journey-map-panel { flex:1; overflow-y:auto; min-height:0; padding:0 10px 10px; }
+  .journey-map-panel .journey-pane-label button { display:none; }
+  .journey-chat .journey-large-map .map-canvas { height:46svh; min-height:260px; }
+  .journey-chat .journey-large-map .map-frame { min-height:260px; }
+  .journey-sort-hint { display:none; }
+  .journey-chat .journey-move-actions button { min-height:44px; font-size:12px; }
+}
+
+@media(max-width:650px) {
+  .journey-mobile-dialog .journey-chat { margin:0; border:0; border-radius:0; height:100%; display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; }
+  .journey-mobile-dialog .journey-workspace-header { display:none; }
+  .journey-mobile-header { display:flex; align-items:center; gap:10px; padding:8px 12px; flex-shrink:0; }
+  .journey-mobile-header strong { font-size:15px; }
+  .journey-mobile-header > span { margin-left:auto; font-size:11px; color:var(--muted); }
+  .journey-mobile-header button { min-height:44px; }
+  .journey-mobile-dialog .journey-workspace-body { flex:1; height:auto; min-height:0; }
+  .journey-mobile-dialog .journey-mobile-nav { flex-shrink:0; }
+  .journey-mobile-dialog .journey-conversation { overflow:hidden; }
+  .journey-mobile-dialog .journey-chat-log { overscroll-behavior:contain; }
+  .journey-mobile-dialog .journey-chat-message { max-width:100%; }
+  .journey-mobile-dialog .journey-composer label { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  .journey-mobile-dialog .journey-privacy { font-size:10px; margin:5px 0 0; }
+  .journey-mobile-dialog .journey-large-map .map-canvas { height:60dvh; }
+}
+
+.trip-departure-fields { display:flex; gap:12px; flex-wrap:wrap; padding:16px 0; }
+.trip-departure-fields label { display:grid; gap:7px; min-width:0; font-size:13px; }
+.trip-departure-fields input { min-height:44px; min-width:0; padding:8px 12px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--paper); font:inherit; }
