@@ -7,6 +7,26 @@ const origin = { name: "駅", latitude: 35, longitude: 135 };
 const conditions = { entry, origin, theme: "all" as const, course: "all" as const, radius: 3, crossPrefecture: false, variation: 0 };
 function place(id: string, lat: number, area = "kyoto", category = "公園"): Place { return { id, name: id, latitude: lat, longitude: 135, category, themes: ["nature"], description: "", access_point: "", tags: { area } }; }
 describe("local facility composition", () => {
+  it("keeps relaxed full-day sightseeing and both meals when adding one cafe break", () => {
+    const pool=[place("博物館",35.001,"kyoto","博物館"),place("日本庭園",35.002,"kyoto","庭園"),place("昼の食堂",35.003,"kyoto","飲食店"),place("夜の食堂",35.004,"kyoto","飲食店"),place("喫茶ひと休み",35.005,"kyoto","カフェ")];
+    const routes=composeLocalRoutes({...conditions,course:"full_day",meals:[{kind:"lunch"},{kind:"dinner"}],traveler:{pace:"relaxed",companion:"unspecified",age_group:"unspecified",gender:"unspecified"},priorityText:"庭園とカフェに寄りたい"},pool);
+    expect(routes.length).toBeGreaterThan(0);
+    expect(routes[0].spots).toHaveLength(5);
+    expect(new Set(routes[0].spots.map(s=>s.role))).toEqual(new Set(["stop","lunch","dinner","break"]));
+    expect(routes[0].estimated_minutes).toBeLessThanOrEqual(720);
+  });
+  it("uses at most one 30-minute cafe break and covers separate written wishes", () => {
+    const pool=[...Array.from({length:5},(_,i)=>({...place(`店${i}`,35+i*.0001),tags:{area:"kyoto",amenity:"cafe"}})),place("日本庭園",35.002,"kyoto","庭園"),place("美術館",35.003,"kyoto","美術館"),place("食堂",35.004,"kyoto","飲食店")];
+    const routes=composeLocalRoutes({...conditions,theme:"history",course:"half_day",meals:[{kind:"lunch",time:"12:30"}],priorityText:"庭園を歩いてカフェに寄りたい",traveler:{pace:"packed",companion:"solo",age_group:"unspecified",gender:"unspecified"}},pool);
+    expect(routes.length).toBeGreaterThan(0);
+    expect(routes[0].spots.some(s=>s.name==="日本庭園")).toBe(true);
+    expect(routes[0].spots.some(s=>s.role==="break")).toBe(true);
+    for(const route of routes){
+      expect(route.spots.filter(s=>s.role==="break").length).toBeLessThanOrEqual(1);
+      expect(route.spots.filter(s=>s.role==="break").every(s=>s.stay_minutes===30)).toBe(true);
+      expect(route.spots.filter(s=>s.role==="lunch")).toHaveLength(1);
+    }
+  });
   it("prioritizes explicitly written wishes in offline generation without bypassing geography", () => {
     const cafe = place("庭の喫茶店", 35.002, "kyoto", "カフェ");
     const pool = [place("博物館",35.001,"kyoto","博物館"), cafe, place("遠くのカフェ",36,"kyoto","カフェ")];
@@ -14,6 +34,12 @@ describe("local facility composition", () => {
     expect(routes.length).toBeGreaterThan(0);
     expect(routes[0].spots.some(s => s.place_id === cafe.id)).toBe(true);
     expect(routes.every(r => !r.spots.some(s => s.place_id === "遠くのカフェ"))).toBe(true);
+  });
+  it("keeps both wish categories when a permitted nearby cafe is across a prefecture boundary", () => {
+    const pool=[...Array.from({length:6},(_,i)=>place(`公園${i}`,35+i*.0001)),place("日本庭園",35.002,"kyoto","庭園"),place("喫茶ひと休み",35.003,"shiga","カフェ")];
+    const routes=composeLocalRoutes({...conditions,crossPrefecture:true,priorityText:"庭園とカフェ",meals:[]},pool);
+    expect(routes[0].spots.some(s=>s.name==="日本庭園")).toBe(true);
+    expect(routes[0].spots.some(s=>s.name==="喫茶ひと休み")).toBe(true);
   });
   it("varies the lunch venue across candidates without adding a second restaurant", () => {
     const pool = [...Array.from({length:5}, (_,i) => place(`博物館${i}`,35 + i * .001,"kyoto","博物館")),

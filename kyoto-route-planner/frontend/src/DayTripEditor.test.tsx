@@ -239,7 +239,9 @@ describe("DayTripEditor", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "しおりをコピー" }));
     await waitFor(() => expect(within(dialog).getByRole("status").textContent).toContain("下のしおりを選択"));
     expect(writeText).toHaveBeenCalledWith(bookmark.value);
-    expect(fetch).not.toHaveBeenCalled();
+    // The editor may finish its automatic route lookup while clipboard fallback settles.
+    // Copying the bookmark itself must not send it to a server.
+    expect(fetch.mock.calls.every(([url]) => url === "/api/routes/preview")).toBe(true);
   });
   it("filters local candidates as you type without an external search", () => {
     const fetchMock = vi.fn();

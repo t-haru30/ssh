@@ -6,13 +6,17 @@ import "./routePhoto.css";
 export function RoutePhotoGrid({ places, enabled, onPlaceSelect }: { places: Place[]; enabled: boolean; onPlaceSelect?: (id: string) => void }) {
   const [selection,setSelection]=useState({key:"",index:0});
   const key=places.map(p=>p.id).join("|");
-  const index=selection.key===key ? Math.min(selection.index,Math.max(0,places.length-1)) : 0;
-  return <div className={`route-photo-grid${places.length>1 ? " has-photo-pages" : ""}`}>
-    {places[index] && <PhotoCell key={places[index].id} place={places[index]} enabled={enabled} onSelect={onPlaceSelect} />}
-    {places.length>1 && <div className="route-photo-pages" onPointerDown={event=>event.stopPropagation()} onClick={event=>event.stopPropagation()}>
-      <button type="button" aria-label="前の施設の写真" disabled={index===0} onClick={()=>setSelection({key,index:index-1})}>←</button>
-      <span aria-live="polite">{index+1} / {places.length}</span>
-      <button type="button" aria-label="次の施設の写真" disabled={index===places.length-1} onClick={()=>setSelection({key,index:index+1})}>→</button>
+  const pageCount=Math.ceil(places.length/4);
+  const index=selection.key===key ? Math.min(selection.index,Math.max(0,pageCount-1)) : 0;
+  const visible=places.slice(index*4,index*4+4);
+  return <div className={`route-photo-grid${pageCount>1 ? " has-photo-pages" : ""}`}>
+    <div className={`route-photo-page${visible.length>1 ? " is-grid" : ""}`} aria-label="旅の行き先の写真">
+      {visible.map(place=><PhotoCell key={place.id} place={place} enabled={enabled} onSelect={onPlaceSelect} />)}
+    </div>
+    {pageCount>1 && <div className="route-photo-pages" onPointerDown={event=>event.stopPropagation()} onClick={event=>event.stopPropagation()}>
+      <button type="button" aria-label="前の写真ページ" disabled={index===0} onClick={()=>setSelection({key,index:index-1})}>←</button>
+      <span aria-live="polite">写真 {index+1} / {pageCount}</span>
+      <button type="button" aria-label="次の写真ページ" disabled={index===pageCount-1} onClick={()=>setSelection({key,index:index+1})}>→</button>
     </div>}
   </div>;
 }

@@ -9,6 +9,11 @@ button, input, select, summary { touch-action: manipulation; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
 button:disabled { cursor: not-allowed; }
 .app-shell small { font-size: max(12px, 0.82em) !important; line-height: 1.5; }
+.map-load-failure { display:flex; flex-direction:column; justify-content:center; gap:12px; min-height:220px; padding:20px; box-sizing:border-box; color:var(--ink); background:var(--paper); overflow-wrap:anywhere; }
+.map-load-failure p { margin:0; }
+.map-load-failure > div { display:flex; flex-wrap:wrap; gap:8px; }
+.map-load-failure button { min-height:44px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--paper); font:inherit; cursor:pointer; }
+.map-load-failure a { color:var(--forest); }
 .app-shell { max-width: 1280px; padding-bottom: 28px; }
 .topbar { min-height: 90px; height: auto; gap: 16px; padding: 18px 0; }
 .brand { padding: 0; border: 0; color: var(--ink); background: none; text-align: left; font-size: 22px; letter-spacing: .08em; }

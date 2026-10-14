@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render as testingRender, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SearchMode } from "./SearchMode";
-import { readJourneyDraft } from "./journeyDraft";
+import { readJourneyDraft, saveJourneyDraft } from "./journeyDraft";
 import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
 import { routeSelection } from "./routeSelection";
 import { serializeJourneyFile } from "./journeyFile";
@@ -350,6 +350,47 @@ describe("SearchMode local initial proposal", () => {
 });
 
 describe("SearchMode selected route", () => {
+  it("saves a legacy draft as a new card when its original favorite is no longer present", async () => {
+    const place={...savedRoute.places[0],themes:["history","history"] as const};
+    const plan=scheduleTrip({departureTime:"09:00",availableMinutes:360,budget:5000},savedRoute.origin,"2099-10-17",
+      [newTripStop({...place,themes:[...place.themes]},60)],{route:{...savedRoute,places:[{...place,themes:[...place.themes]}]},date:"",time:""});
+    expect(saveJourneyDraft(plan,"以前の旅程","deleted-favorite-id")).toBe(true);
+    vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>[savedRoute.origin]})));
+    render(<SearchMode active />);
+    const save=await screen.findByRole("button",{name:"♡ この旅程を保存"});
+    await waitFor(()=>expect(save).toHaveProperty("disabled",false));
+    fireEvent.click(save);
+    await screen.findByText(/保存しました/);
+    const favorites=JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1")!);
+    expect(favorites).toHaveLength(1);
+    expect(favorites[0].title).toBe("以前の旅程");
+    expect(readJourneyDraft()?.sourceFavoriteId).not.toBe("deleted-favorite-id");
+    expect(serializeJourneyFile(readJourneyDraft()!.plan,"以前の旅程")).toContain("以前の旅程");
+  });
+  it.each(["この日時で交通情報を更新", "交通経路を再検索"])("submits the displayed native departure values with %s and keeps them after transport completes", async buttonName => {
+    const calls: Record<string,unknown>[]=[];
+    vi.stubGlobal("fetch",vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      if(String(input)==="/api/routes/preview") {
+        calls.push(JSON.parse(String(init?.body)));
+        return {ok:true,json:async()=>savedRoute};
+      }
+      return {ok:true,json:async()=>String(input)==="/api/origins"?[savedRoute.origin]:[]};
+    }));
+    render(<SearchMode active preset={{theme:"history",stopCount:1,nonce:177,places:savedRoute.places.map(p=>({...p,themes:["history"]})),dwellMinutes:{},origin:savedRoute.origin,title:"日時の更新"}} />);
+    await screen.findByRole("heading",{name:"保存済みスポット"});
+    const refresh=screen.getByRole("button",{name:new RegExp(buttonName)});
+    await waitFor(()=>expect(refresh).toHaveProperty("disabled",false));
+    // Native date controls can commit their displayed value immediately before
+    // form submission, without an earlier React change notification.
+    (screen.getByLabelText("出発日") as HTMLInputElement).value="2099-10-17";
+    (screen.getByLabelText("出発時刻") as HTMLInputElement).value="10:30";
+    fireEvent.click(refresh);
+    await waitFor(()=>expect(calls.some(call=>call.departure_date==="2099-10-17" && call.departure_time==="10:30")).toBe(true));
+    await waitFor(()=>expect(refresh).toHaveProperty("disabled",false));
+    expect(screen.getByLabelText("出発日")).toHaveProperty("value","2099-10-17");
+    expect(screen.getByLabelText("出発時刻")).toHaveProperty("value","10:30");
+    await waitFor(()=>expect(readJourneyDraft()?.plan.date).toBe("2099-10-17"));
+  });
   it("refreshes a future journey by segments while preserving all seven visits and meal anchors",async()=>{
     const origin={name:"京都駅",latitude:34.9858,longitude:135.7588};
     const picked=Array.from({length:7},(_,i)=>({...origin,id:`future-${i}`,name:`未来の施設${i}`,category:"公園",description:"",access_point:"",themes:[] as []}));

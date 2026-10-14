@@ -91,3 +91,4 @@
 .discover-candidate-note p { flex: 1 1 280px; margin: 0; }
 .discover-swipe-hint span { display: inline-block; margin: 0 8px; }
 @media (max-width: 600px) { .discovery-question-footer { padding-bottom: max(8px, env(safe-area-inset-bottom)); } .discovery-next { gap: 8px; } .discovery-next .idea-primary-button { padding: 14px; } }
+.discovery-wish-preview { margin:8px 0 0; color:var(--forest); font-size:13px; line-height:1.6; overflow-wrap:anywhere; }

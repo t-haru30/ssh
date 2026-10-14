@@ -3,6 +3,12 @@ import type { DatasetRoute } from "./datasetTypes";
 import { diverseRoutes, similarTrip } from "./routeDiversity";
 const route = (id: string, names: string[]): DatasetRoute => ({ id, spots: names.map((name, i) => ({ place_id: name, name, lat: 40.8, lng: 140.7 + i * .0001 })) } as DatasetRoute);
 describe("trip diversity", () => {
+  it("retains explicit wish coverage ahead of extra meal novelty", () => {
+    const wishes=route("wishes",["日本庭園","喫茶ひと休み"]), meals=route("meals",["食堂A","食堂B"]);
+    wishes.spots[0].category="庭園"; wishes.spots[1].category="カフェ"; wishes.spots[1].role="break";
+    meals.spots.forEach(s=>{s.category="飲食店";s.role="lunch";s.reason="庭園とカフェを巡る前に食事";});
+    expect(diverseRoutes([meals,wishes],[],"庭園とカフェ")[0].id).toBe("wishes");
+  });
   it("shows an alternative meal venue before another trip sharing the same restaurant", () => {
     const first = route("first",["博物館A","食堂A"]), repeat = route("repeat",["博物館B","食堂A"]), different = route("different",["博物館A","食堂B"]);
     for (const r of [first,repeat,different]) { r.spots[0].role = "stop"; r.spots[1].role = "lunch"; }

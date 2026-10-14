@@ -201,7 +201,7 @@ export function SharedSwipeCard({
       <div className="swipe-card-copy">
         {presentation === "visual" && <span className="swipe-plan-course">{coverBadge}</span>}
         {imageStatus && (!hasCoverImage || !photoPlaceName) && <p className="route-illustration-status" role="status">{photoPlaceName && !hasCoverImage ? "写真を表示できませんでした。行き先の説明をご覧ください。" : imageStatus}</p>}
-        <h3 title={title}>{titleBoundary > 0 ? <>
+        <h3 title={title} data-long-title={title.length > 36 || undefined}>{titleBoundary > 0 ? <>
           <span className="swipe-title-part">{title.slice(0, titleBoundary + 3)}</span><wbr />
           <span className="swipe-title-part">{title.slice(titleBoundary + 3)}</span>
         </> : title}</h3>

@@ -1,5 +1,6 @@
 import { distanceKm } from "./dayTrip";
 import type { Origin, Place } from "./types";
+import { isCafe } from "./placeThemes";
 import {osmVisitFits} from "./venueHours";
 
 export const MEALS = [
@@ -21,6 +22,7 @@ export function mealError(meals: MealChoice[]) {
 function planMealOrder(places: Place[], meals: MealChoice[], origin: Origin, course: string, dwell: (p: Place) => number, isMeal: (p: Place) => boolean) {
   const choices = MEALS.flatMap(m => meals.filter(c => c.kind === m.kind));
   const venues = places.filter(isMeal), pending = places.filter(p => !isMeal(p));
+  if (pending.length > 1 && isCafe(pending[0])) pending.splice(1,0,pending.shift()!);
   if (venues.length !== choices.length || mealError(choices)) return null;
   const first = choices[0];
   const departure = first ? Math.max(0, Math.min(540, minuteOf(mealTime(first)) - 30)) : 540;
@@ -37,7 +39,7 @@ function planMealOrder(places: Place[], meals: MealChoice[], origin: Origin, cou
   function add(p: Place) { now += travel(cursor, p) + dwell(p); cursor = p; ordered.push(p); }
   for (let i = 0; i < choices.length; i++) {
     const meal = choices[i], venue = venues[i], target = minuteOf(mealTime(meal));
-    while (pending.length && now + travel(cursor, pending[0]) + dwell(pending[0]) + travel(pending[0], venue) <= target) add(pending.shift()!);
+    while (pending.length && !(isCafe(pending[0]) && !ordered.length) && now + travel(cursor, pending[0]) + dwell(pending[0]) + travel(pending[0], venue) <= target) add(pending.shift()!);
     const arrival = now + travel(cursor, venue);
     if (arrival > target + (meal.time ? 0 : 90)) return null;
     const at = Math.max(arrival, target);
