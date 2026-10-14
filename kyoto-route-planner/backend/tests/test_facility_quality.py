@@ -43,6 +43,28 @@ class QualityTests(unittest.TestCase):
         self.assertFalse(chain(place(name='独立食堂',category='飲食店')))
 
 class QualityAsyncTests(unittest.IsolatedAsyncioTestCase):
+    async def test_sparse_area_checks_local_and_hidden_sights_without_lowering_reviews(self):
+        import httpx
+        import json
+        req=DiscoverRequest(area='tokyo',prefecture_name='東京都',origin={'name':'東京駅','latitude':35.68,'longitude':139.76},meals=[])
+        classic=place('landmark','有名な城',tier='classic')
+        regional=place('regional','地域の美術館')
+        hidden=place('hidden','山あいの庭園',tier='hidden')
+        low=place('low','低評価の資料館')
+        pool=(classic,regional,hidden,low)
+        calls=[]
+        def respond(request):
+            body=json.loads(request.content);calls.append(body)
+            if request.url.path.endswith('searchNearby'):return httpx.Response(200,json={'places':[review(classic)]})
+            matched=next(p for p in pool if body['textQuery']==p.name+' '+p.region)
+            return httpx.Response(200,json={'places':[review(matched,4.1 if matched.id=='low' else 4.5)]})
+        client=httpx.AsyncClient(transport=httpx.MockTransport(respond))
+        with patch('app.google_place_photos.google_api_key',return_value='test'), patch('app.google_place_photos.reserve_lookup',return_value=True), patch('app.facility_quality.httpx.AsyncClient',return_value=client):
+            chosen,status=await filter_quality(req,pool)
+        self.assertEqual({p.id for p in chosen},{'landmark','regional','hidden'})
+        self.assertEqual(status['verified_count'],2)
+        self.assertLessEqual(sum('textQuery' in c for c in calls),6)
+
     async def test_missing_key_does_not_recommend_unknown_ratings(self):
         req=DiscoverRequest(area='tokyo',prefecture_name='東京都',origin={'name':'東京駅','latitude':35.68,'longitude':139.76},meals=[])
         p=place(name='地域の資料館');classic=place('landmark',tier='classic')

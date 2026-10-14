@@ -81,3 +81,24 @@ class CatalogPolicyTests(unittest.TestCase):
     def test_radius_is_still_a_hard_constraint(self):
         r=request();r.radius_km=1
         self.assertNotIn('東京タワー',[p.name for p in eligible_candidates(r,load_public_places())])
+
+    def test_sparse_landmark_is_not_required_in_every_itinerary(self):
+        from app.models import CatalogPlace
+        places=tuple(CatalogPlace(id=f'local-{i}',name=f'独立した公園{i}',category='公園・庭園',
+            region='東京都',address='',description='',latitude=35.68+i*.001,longitude=139.76,
+            tags={'recommendation_tier':t,'leisure':'park'})
+            for i,t in enumerate(['classic','regional','regional','regional','hidden','hidden','hidden']))
+        result=build_discover_routes(request(),places)
+        self.assertGreaterEqual(len(result['routes']),3)
+        sets=[{s['place_id'] for s in r['spots']} for r in result['routes']]
+        self.assertIn('local-0',sets[0])
+        self.assertTrue(any('local-0' not in ids for ids in sets))
+        self.assertTrue(any(ids & {'local-4','local-5','local-6'} for ids in sets))
+        self.assertIn('地域の見どころ・穴場',result['note'])
+
+    def test_no_landmarks_still_produces_local_itineraries(self):
+        from app.models import CatalogPlace
+        places=tuple(CatalogPlace(id=f'local-{i}',name=f'地域の庭園{i}',category='公園・庭園',
+            region='東京都',address='',description='',latitude=35.68+i*.001,longitude=139.76,
+            tags={'recommendation_tier':'hidden' if i%2 else 'regional','leisure':'park'}) for i in range(6))
+        self.assertGreaterEqual(len(build_discover_routes(request(),places)['routes']),2)
