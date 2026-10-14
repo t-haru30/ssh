@@ -14,7 +14,7 @@ from typing import Annotated
 from fastapi import FastAPI, HTTPException, Query, Request, Path as ApiPath
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.staticfiles import StaticFiles
+from app.frontend_files import FrontendFiles
 from pydantic import Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -1387,5 +1387,5 @@ async def _recommend_routes(
 
 frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 if frontend_dist.is_dir():
-    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+    app.mount("/", FrontendFiles(directory=frontend_dist, html=True), name="frontend")
 

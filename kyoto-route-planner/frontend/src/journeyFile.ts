@@ -14,12 +14,11 @@ function endpoint(value: unknown): Origin {
 }
 function place(value: unknown): Place {
   if (!isPlace(value) || !textWithin(value.id, 200, true) || !textWithin(value.name, 200, true)
-    || !textWithin(value.category, 100) || value.themes.length > 5
-    || new Set(value.themes).size !== value.themes.length) throw invalid();
+    || !textWithin(value.category, 100)) throw invalid();
   // Only location identity and catalog classification are portable. Descriptions,
   // provider tags/reviews, AI explanations and extra properties never cross this boundary.
   return { id: value.id, name: value.name, category: value.category,
-    latitude: value.latitude, longitude: value.longitude, themes: [...value.themes], description: "", access_point: "" };
+    latitude: value.latitude, longitude: value.longitude, themes: [...new Set(value.themes)], description: "", access_point: "" };
 }
 
 /** Pure parser: never changes local storage or the active journey. v1 drafts remain importable. */

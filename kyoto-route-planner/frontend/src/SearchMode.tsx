@@ -47,6 +47,17 @@ function localDateInputValue() {
 const REQUEST_TIMEOUT_MS = 60_000;
 const INITIAL_DATA_TIMEOUT_MS = 15_000;
 
+function validDepartureDate(value: string) {
+  return /^20\d{2}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(`${value}T12:00:00Z`))
+    && new Date(`${value}T12:00:00Z`).toISOString().slice(0,10) === value;
+}
+function submittedDeparture(form: HTMLFormElement | null, date: string, time: string) {
+  const fields = form ? new FormData(form) : null;
+  const departureDate = String(fields?.get("departure_date") ?? date);
+  const departureTime = String(fields?.get("departure_time") ?? time);
+  return { departureDate, departureTime, valid: validDepartureDate(departureDate) && /^([01]\d|2[0-3]):[0-5]\d$/.test(departureTime) };
+}
+
 export type { SearchPreset } from "./routeSelection";
 
 type SearchModeProps = {
@@ -58,7 +69,7 @@ type SearchModeProps = {
 
 export function SearchMode({ active, preset, editingOnly = false, onDiscover }: SearchModeProps) {
   const { prefecture } = usePrefecture();
-  const { saveFavorite, replaceFavorite, isFavorite } = useFavorites();
+  const { favorites, saveFavorite, replaceFavorite, isFavorite } = useFavorites();
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [restoredDraft] = useState(readJourneyDraft);
   const [sourceFavoriteId, setSourceFavoriteId] = useState(restoredDraft?.sourceFavoriteId);
@@ -238,7 +249,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   ), [isOvernight, overnightSuggestion, suggestions, dayTripPlan]);
 
   const hasResult = isOvernight ? overnightSuggestion !== null : suggestions.length > 0;
-  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(departureDate);
+  const validDate = validDepartureDate(departureDate);
   const validTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(departureTime);
   const validDeparture = validDate && validTime;
   const editorDate = validDate ? departureDate : dayTripPlan?.date ?? localDateInputValue();
@@ -323,13 +334,13 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     setTripSession(current => current + 1); setDraftRestored(false); setError(null);
   }
 
-  function proposeLocally() {
+  function proposeLocally(date = departureDate, time = departureTime) {
     try {
       if (!origin || !returnTo) throw new Error("出発駅と帰着駅を選んでください。");
       const optionalAmount = (value: string, label: string) => value.trim() === "" ? null : readTripNumber(value, label, 0, 50000);
       const plan = createInitialTrip({
-        input: { departureTime, availableMinutes: readTripNumber(initialMinutes, "使える時間", 30, 720), budget: readTripNumber(initialBudget, "予算", 0, 50000), preferences },
-        origin, returnTo, date: departureDate, candidates: editingCandidates, maxStops: stopCount, radiusKm: travelRadius,
+        input: { departureTime: time, availableMinutes: readTripNumber(initialMinutes, "使える時間", 30, 720), budget: readTripNumber(initialBudget, "予算", 0, 50000), preferences },
+        origin, returnTo, date, candidates: editingCandidates, maxStops: stopCount, radiusKm: travelRadius,
         foodEstimate: optionalAmount(foodEstimate, "食事の計画用見積もり"), coffeeEstimate: optionalAmount(coffeeEstimate, "カフェの計画用見積もり"), transportEstimate: optionalAmount(initialTransportEstimate, "交通費の計画用見積もり"),
       });
       if (!plan.stops.length) throw new Error(plan.violations.join(" ") || "この条件に合う候補がありません。時間や行き先を見直してください。");
@@ -342,8 +353,11 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
     event.preventDefault();
     if (searching || (editingOnly && !hasResult)) return;
-    if (!validDeparture) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
-    if (!isOvernight && !hasResult) { proposeLocally(); return; }
+    const submitted = submittedDeparture(event.currentTarget, departureDate, departureTime);
+    if (!submitted.valid) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
+    const requestDate = submitted.departureDate, requestTime = submitted.departureTime;
+    setDepartureDate(requestDate); setDepartureTime(requestTime);
+    if (!isOvernight && !hasResult) { proposeLocally(requestDate, requestTime); return; }
     if (!isOvernight && !returnTo) { setError("帰着駅を選んでください。"); return; }
     if (!isOvernight && dayTripPlan?.stops.length === 0) { setError("立ち寄り先を追加してから経路を検索してください。"); return; }
     const requestId = requestIdRef.current + 1;
@@ -364,8 +378,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           origin_latitude: origin.latitude,
           origin_longitude: origin.longitude,
         } : {}),
-        departure_date: departureDate,
-        departure_time: departureTime,
+        departure_date: requestDate,
+        departure_time: requestTime,
         stops_per_day: stopCount,
         nights, radius_km: travelRadius,
         hotel_query: `${originName} ホテル 旅館`,
@@ -414,8 +428,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         theme,
         ...(returnTo ? { return_to: returnTo.name, return_latitude: returnTo.latitude, return_longitude: returnTo.longitude } : {}),
         stop_count: stopCount,
-        departure_date: departureDate,
-        departure_time: departureTime,
+        departure_date: requestDate,
+        departure_time: requestTime,
         variation: 0, radius_km: travelRadius,
         ...(suggestions[0] ? { selected_places: dayTripPlan?.stops.map(stop => stop.place) ?? suggestions[0].places } : {}),
       };
@@ -428,7 +442,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             origin, return_to:returnTo, places:dayTripPlan.stops.map(stop=>stop.place),
             stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
             meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
-            departure_date:departureDate,departure_time:departureTime,
+            departure_date:requestDate,departure_time:requestTime,
             route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
           } : request),
           signal: controller.signal,
@@ -447,7 +461,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           if (payload.routes.length === 0) throw new Error("スポットが見つかりませんでした。条件を変えて再試行してください。");
           setSuggestions(payload.routes.map((route, index) => ({ ...route, title: suggestions[index]?.title ?? route.title })));
           setOvernightSuggestion(null);
-          setTransportStamp({ date: departureDate, time: departureTime });
+          setTransportStamp({ date: requestDate, time: requestTime });
         }
       } catch (cause) {
         if (requestId !== requestIdRef.current) return;
@@ -468,7 +482,10 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
   async function handleRegenerate() {
     if (searching || loading || suggestions.length === 0 || dayTripPlan?.stops.length === 0) return;
-    if (!validDeparture) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
+    const submitted = submittedDeparture(formRef.current, departureDate, departureTime);
+    if (!submitted.valid) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
+    const requestDate = submitted.departureDate, requestTime = submitted.departureTime;
+    setDepartureDate(requestDate); setDepartureTime(requestTime);
     if (!origin || !returnTo) { setError("出発駅と帰着駅を選んでください。"); return; }
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
@@ -489,8 +506,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       theme,
       ...(returnTo ? { return_to: returnTo.name, return_latitude: returnTo.latitude, return_longitude: returnTo.longitude } : {}),
       stop_count: stopCount,
-      departure_date: departureDate,
-      departure_time: departureTime,
+      departure_date: requestDate,
+      departure_time: requestTime,
       variation: nextRegenerationCount, radius_km: travelRadius,
       selected_places: dayTripPlan?.stops.map(stop => stop.place) ?? suggestions[0].places,
     };
@@ -502,7 +519,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           origin, return_to:returnTo, places:dayTripPlan.stops.map(stop=>stop.place),
           stay_minutes:dayTripPlan.stops.map(stop=>stop.dwellMinutes),
           meal_times:Object.fromEntries(dayTripPlan.stops.filter(stop=>stop.anchorTime).map(stop=>[stop.place.id,stop.anchorTime])),
-          departure_date:departureDate,departure_time:departureTime,
+          departure_date:requestDate,departure_time:requestTime,
           route_priority:routePriority,prefer_nearby_airport:preferNearbyAirport,
         } : request),
         signal: controller.signal,
@@ -516,7 +533,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       if (requestId === requestIdRef.current) {
         if (payload.routes.length === 0) throw new Error("スポットが見つかりませんでした。条件を変えて再試行してください。");
         setSuggestions(payload.routes);
-        setTransportStamp({ date: departureDate, time: departureTime });
+        setTransportStamp({ date: requestDate, time: requestTime });
       }
     } catch (cause) {
       if (requestId !== requestIdRef.current) return;
@@ -583,8 +600,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       {editingOnly && !hasResult && <section className="discovery-question"><h2>まずは、気になる旅を選びましょう</h2><p>「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
       {(!editingOnly || hasResult) && <div className={`search-stage${hasResult ? " has-result" : ""}`}>
         {hasResult && <div className="trip-departure-fields" aria-label="旅の出発日時">
-          <label>出発日<input form="journey-conditions" type="date" value={departureDate} onChange={event=>setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required /></label>
-          <label>出発時刻<input form="journey-conditions" type="time" value={departureTime} onChange={event=>setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required /></label>
+          <label>出発日<input name="departure_date" form="journey-conditions" type="date" value={departureDate} onChange={event=>setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required /></label>
+          <label>出発時刻<input name="departure_time" form="journey-conditions" type="time" value={departureTime} onChange={event=>setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required /></label>
           <button type="button" className="idea-primary-button" disabled={searching || loading || !validDeparture || hasCompleted} onClick={()=>formRef.current?.requestSubmit()}>{searching ? "交通情報を更新中…" : "この日時で交通情報を更新"}</button>
         </div>}
         {hasResult && (
@@ -699,11 +716,11 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
                 <div className="form-advanced-fields">
                   {!hasResult && <label>
                     <span>出発日</span>
-                    <input type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required />
+                    <input name="departure_date" type="date" value={departureDate} onChange={(event) => setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required />
                   </label>}
                   {!hasResult && <label>
                     <span>出発時刻</span>
-                    <input type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required />
+                    <input name="departure_time" type="time" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required />
                   </label>}
                   {(!hasResult || isOvernight) && <label>
                     <span>{isOvernight ? "1日あたりの立ち寄り先" : "立ち寄り先"}</span>
@@ -748,7 +765,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
                   const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
                     : dayTripPlan ? savedJourney(dayTripPlan, theme, planTitle) : null;
                   if (!idea) return;
-                  if (sourceFavoriteId) {
+                  if (sourceFavoriteId && favorites.some(favorite => favorite.id === sourceFavoriteId)) {
                     setSaveNotice(replaceFavorite(sourceFavoriteId, idea) ? "元のプランを更新しました。「編集済み」として保存しています。" : "元のプランを更新できませんでした。元の保存内容は保持しています。");
                     return;
                   }
@@ -757,7 +774,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
                     setSourceFavoriteId(favoriteId(idea, idea.prefecture_code ?? prefecture.code));
                     setSaveNotice("保存しました。「保存済み」からいつでも開けます。");
                   } else setSaveNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。");
-                } catch (cause) { setSaveNotice(toFriendlyMessage(cause)); }
+                } catch (cause) { setSaveNotice(toFriendlyMessage(cause, "旅程を保存できませんでした。しおりをコピーして残してください。")); }
               }}>♡ この旅程を保存</button>
               <span className="result-date">{isOvernight ? overnightResult?.snapshot.departureDate ?? overnightSuggestion?.days[0]?.date ?? departureDate : editorDate}</span>
             </div>
