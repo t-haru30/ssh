@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 
 from app.discovery import DiscoverRequest, assemble_route, build_discover_routes, diversify_dining_routes, discover_routes
-from app.restaurant_discovery import RestaurantDiscovery, discover_restaurants, parse_osm_restaurant, _osm_cache, _google_candidates, _osm_restaurants
+from app.restaurant_discovery import RestaurantDiscovery, discover_restaurants, parse_osm_restaurant, _osm_cache, _google_candidates, _osm_restaurants, match_independent_restaurants
 from app.models import CatalogPlace
 
 
@@ -116,7 +116,7 @@ class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
     async def test_bounded_separate_regional_queries_no_reviews_no_key_in_urls(self):
         post = AsyncMock(return_value=httpx.Response(200,json={"places":[]}))
         client = type("Client",(),{"post":post})()
-        with patch("app.restaurant_discovery.specialties",return_value=("京料理","湯豆腐")),patch("app.restaurant_discovery.reserve_lookup",return_value=True):
+        with patch("app.regional_food.specialties",return_value=("京料理","湯豆腐")),patch("app.restaurant_discovery.reserve_lookup",return_value=True):
             await _google_candidates(client,request(),2,"private-server-key")
         self.assertEqual(post.await_count,5)
         bodies = [call.kwargs["json"] for call in post.call_args_list]
@@ -132,6 +132,29 @@ class RestaurantProviderTests(unittest.IsolatedAsyncioTestCase):
 
 
 class DiningDiversityTests(unittest.TestCase):
+    def test_half_day_does_not_collapse_to_one_route_when_one_specialty_shop_exists(self):
+        req = request()
+        sight = place(10,"博物館",food=False)
+        diners = [place(1,"京料理の店"),place(2,"普通の食堂"),place(3,"別の食堂")]
+        routes = build_discover_routes(req,tuple([sight,*diners]))["routes"]
+        meals = [next(s["place_id"] for s in route["spots"] if s["role"]=="lunch") for route in routes]
+        self.assertGreaterEqual(len(set(meals)),3)
+        self.assertEqual(meals[0],diners[0].id)
+
+    def test_sweets_only_shops_do_not_fill_lunch_or_dinner(self):
+        from app.discovery import dinner_place
+        for name in ["サーティワンアイスクリーム", "柿安口福堂JR岐阜店", "和菓子の店", "セブンーイレブンキヨスクIR金沢駅中2階店", "KOIJMA CAFÉ 盛岡駅店"]:
+            self.assertFalse(dinner_place(place(1,name)))
+        self.assertTrue(dinner_place(place(1,"飛騨牛料理の店")))
+
+    def test_verified_restaurants_are_preferred_over_unknown_shops_without_concentrating_on_one(self):
+        req=request()
+        a,b,c,unknown=place(1,"地域の料理店"),place(2,"別の料理店"),place(3,"三つ目の料理店"),place(4,"分類だけが飲食店の候補")
+        sight=place(9,"博物館",food=False)
+        routes=diversify_dining_routes(req,[assemble_route(req,[sight,unknown]),assemble_route(req,[sight,a]),assemble_route(req,[sight,b])],(a,b,c,unknown,sight),verified_ids={a.id,b.id,c.id})
+        meals=[s["place_id"] for route in routes for s in route["spots"] if s["role"]=="lunch"]
+        self.assertEqual(set(meals),{a.id,b.id,c.id})
+
     def test_regeneration_prefers_an_unseen_meal_venue(self):
         a,b,sight = place(1,"京料理の店"),place(2,"別の食堂"),place(9,"博物館",food=False)
         req = request(viewed_dining_ids=[a.id])
@@ -165,6 +188,23 @@ class DiningDiversityTests(unittest.TestCase):
 
 
 class RestaurantFlowTests(unittest.IsolatedAsyncioTestCase):
+    async def test_google_can_check_independent_openpoi_records_without_copying_its_facts(self):
+        diner=place(1,"金沢おでんの店").model_copy(update={"id":"openpoi-fixture","tags":{"source":"OpenPOI API","licenses":"[]"}})
+        google={"id":"google-only-id","displayName":{"text":diner.name},"location":{"latitude":diner.latitude,"longitude":diner.longitude},
+            "primaryType":"japanese_restaurant","businessStatus":"OPERATIONAL","editorialSummary":{"text":"GOOGLE-ONLY-SUMMARY"}}
+        result=match_independent_restaurants(RestaurantDiscovery(status="osm_unavailable",google_results=(google,),regional_google_ids=frozenset([google["id"]])),(diner,))
+        self.assertEqual(result.status,"ready")
+        self.assertEqual(result.places[0].model_dump(),diner.model_dump())
+        self.assertEqual(result.local_match_ids,(diner.id,))
+        self.assertNotIn("GOOGLE-ONLY-SUMMARY",json.dumps(result.places[0].model_dump()))
+        closed={**google,"businessStatus":"CLOSED_PERMANENTLY"}
+        blocked=match_independent_restaurants(RestaurantDiscovery(google_results=(closed,)),(diner,))
+        self.assertIn(diner.id,blocked.blocked_ids)
+        dessert=match_independent_restaurants(RestaurantDiscovery(google_results=({**google,"primaryType":"ice_cream_shop"},)),(diner,))
+        self.assertIn(diner.id,dessert.blocked_ids)
+        shop=match_independent_restaurants(RestaurantDiscovery(google_results=({**google,"primaryType":"convenience_store"},)),(diner,))
+        self.assertIn(diner.id,shop.blocked_ids)
+
     async def test_regional_search_hint_is_a_preference_and_keeps_menu_unconfirmed(self):
         from app.discovery_review import review_journeys
         req = request()

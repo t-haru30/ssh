@@ -7,10 +7,11 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import closing
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from hashlib import sha256
 import json
 import logging
+from math import cos, radians
 import os
 from pathlib import Path
 import sqlite3
@@ -22,7 +23,7 @@ import httpx
 from app.models import CatalogPlace
 from app.discovery import distance_km, distinct_venues, selected_themes
 from app.google_place_photos import BASE, google_api_key, reserve_lookup, same_google_venue
-from app.regional_food import specialties
+from app.regional_food import specialty_queries
 
 OVERPASS_URLS = ("https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter")
 OSM_CACHE_PATH = Path(os.getenv("OSM_RESTAURANTS_CACHE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "osm_restaurants.sqlite3")))
@@ -30,6 +31,12 @@ OSM_TAGS = {"name", "name:ja", "name:en", "official_name", "amenity", "cuisine",
 _slots = asyncio.Semaphore(2)
 logger = logging.getLogger(__name__)
 OSM_SEEDS_PATH = Path(__file__).resolve().parent / "data" / "osm_restaurant_seeds.json"
+NON_MEAL_TYPES = {"cafe", "coffee_shop", "bar", "bakery", "ice_cream_shop", "confectionery", "dessert_shop", "dessert_restaurant", "donut_shop", "tea_house", "candy_store", "chocolate_shop"}
+MEAL_TYPES = {"restaurant", "food_court", "bar_and_grill", "diner", "steak_house", "sandwich_shop", "noodle_shop", "soba_noodle_shop", "udon_noodle_shop", "meal_takeaway", "meal_delivery"}
+
+
+def meal_type(kind):
+    return isinstance(kind,str) and kind not in NON_MEAL_TYPES and (kind in MEAL_TYPES or kind.endswith("_restaurant"))
 
 
 @dataclass
@@ -40,6 +47,10 @@ class RestaurantDiscovery:
     result_count: int = 0
     local_match_ids: tuple[str, ...] = ()
     verified_count: int = 0
+    # Request-local matching material only. Never serialized into the response,
+    # cached, passed to AI or copied into independently sourced facility fields.
+    google_results: tuple[dict, ...] = field(default=(), repr=False)
+    regional_google_ids: frozenset[str] = field(default_factory=frozenset, repr=False)
 
 
 def wants_restaurants(request) -> bool:
@@ -105,8 +116,12 @@ async def _osm_restaurants(client, request, radius):
     cached = _osm_cache(request, radius)
     if cached is not None:
         return cached
-    query = (f'[out:json][timeout:10];nwr(around:{radius * 1000:.0f},{request.origin.latitude:.7f},{request.origin.longitude:.7f})'
-             '["amenity"~"^(restaurant|fast_food|food_court)$"]["name"];out center tags 2500;')
+    # Bounding-box indexes are cheaper than Overpass's around geometry query.
+    # The exact radius and prefecture are still checked on every returned row.
+    lat, lon = request.origin.latitude, request.origin.longitude
+    dlat, dlon = radius / 110, radius / max(1,110 * cos(radians(lat)))
+    box = f"{max(-90,lat-dlat):.5f},{max(-180,lon-dlon):.5f},{min(90,lat+dlat):.5f},{min(180,lon+dlon):.5f}"
+    query = (f'[out:json][timeout:10];nwr["amenity"~"^(restaurant|fast_food|food_court)$"]["name"]({box});out center tags 2500;')
     for endpoint in OVERPASS_URLS:
         try:
             response = await client.get(endpoint, params={"data":query}, timeout=6)
@@ -144,15 +159,10 @@ async def _google_candidates(client, request, radius, key):
     nearby = {"includedTypes":["restaurant"],"maxResultCount":20,"rankPreference":"POPULARITY","languageCode":"ja",
               "locationRestriction":{"circle":{"center":center,"radius":radius * 1000}}}
     close = {**nearby,"locationRestriction":{"circle":{"center":center,"radius":min(radius,1.5)*1000}}}
-    local_words = specialties(request.origin)
-    # Separate dishes rather than one AND-like query which can hide useful shops.
-    queries = []
-    for word in local_words:
-        if not any(word in previous or previous in word for previous in queries): queries.append(word)
-        if len(queries) == 2: break
-    queries = queries or ["郷土料理 ご当地グルメ"]
+    # Separate dishes, rotating only when the user requests a new variation.
+    queries = specialty_queries(request.origin, request.variation)
     def text(word):
-        return {"textQuery":f"{request.prefecture_name} {request.origin.name} {word}","includedType":"restaurant","pageSize":20,"languageCode":"ja",
+        return {"textQuery":f"{request.prefecture_name} {request.origin.name} {word}","includedType":"restaurant","strictTypeFiltering":True,"pageSize":20,"languageCode":"ja",
                 "locationBias":{"circle":{"center":center,"radius":radius * 1000}}}
     async def search(method, body):
         if not reserve_lookup():
@@ -190,25 +200,41 @@ async def discover_restaurants(request) -> RestaurantDiscovery:
     # hours, names and coordinates cannot enter AI prompts or saved plans here.
     local, nearby = groups
     google = [*local,*nearby]
-    if not google or not osm:
-        status = "google_unavailable" if not google else "osm_unavailable"
-        logger.warning("Dining lookup %s: Google candidates=%d, independent OSM candidates=%d",status,len(google),len(osm))
-        return RestaurantDiscovery(status=status)
-    local_google_ids = {item.get("id") for item in local if isinstance(item.get("id"),str)}
+    if not google:
+        logger.warning("Dining lookup: Google candidates unavailable; independent OSM candidates=%d",len(osm))
+        return RestaurantDiscovery(status="google_unavailable")
+    result = RestaurantDiscovery(status="osm_unavailable", google_results=tuple(google),
+        regional_google_ids=frozenset(item["id"] for item in local if isinstance(item.get("id"),str)))
+    return match_independent_restaurants(result, osm)
+
+
+def match_independent_restaurants(result: RestaurantDiscovery, candidates) -> RestaurantDiscovery:
+    """Also check existing licensed providers if Overpass could not supply OSM.
+
+    Keep OSM as the database base; the existing OpenPOI supplement retains its own
+    identity, location and attribution. Google supplies no savable facility facts.
+    """
+    from app.discovery import dinner_place
+    if not result.google_results:
+        return result
+    google = result.google_results
+    local_google_ids = result.regional_google_ids
+    independent = distinct_venues([*result.places, *(p for p in candidates
+        if p.tags.get("source") in {"OpenStreetMap", "OpenPOI API"} and dinner_place(p))])
     found, blocked, local_ids, used_google = [], [], [], set()
     def matches(place, item):
         try:
             return isinstance(item.get("id"),str) and same_google_venue(place,item)
         except (ValueError, TypeError, KeyError, AttributeError):
             return False
-    for place in osm:
+    for place in independent:
         matched = {item["id"]:item for item in google if matches(place,item)}
         if len(matched) != 1:
             continue
         match = next(iter(matched.values()))
-        if match.get("businessStatus") in {"CLOSED_PERMANENTLY","CLOSED_TEMPORARILY"} or match.get("primaryType") in {"cafe","coffee_shop","bar"}:
+        if match.get("businessStatus") in {"CLOSED_PERMANENTLY","CLOSED_TEMPORARILY"} or isinstance(match.get("primaryType"),str) and not meal_type(match["primaryType"]):
             blocked.append(place.id)
-        elif match["id"] not in used_google and match.get("businessStatus") == "OPERATIONAL" and match.get("primaryType") not in {"cafe","coffee_shop","bar"}:
+        elif match["id"] not in used_google and match.get("businessStatus") == "OPERATIONAL" and meal_type(match.get("primaryType")):
             found.append(place)
             used_google.add(match["id"])
             if match["id"] in local_google_ids:
@@ -217,5 +243,6 @@ async def discover_restaurants(request) -> RestaurantDiscovery:
     # to inflate the deck; use the original catalog if live confirmation fails.
     places = tuple(distinct_venues(found))
     ids = {p.id for p in places}
-    return RestaurantDiscovery(places,tuple(blocked),"ready" if places else "no_verified_candidates",
-        len({p.get("id") for p in google if isinstance(p.get("id"),str)}),tuple(i for i in local_ids if i in ids),len(places))
+    return RestaurantDiscovery(places,tuple(set(result.blocked_ids) | set(blocked)),"ready" if places else "no_verified_candidates" if independent else "osm_unavailable",
+        len({p.get("id") for p in google if isinstance(p.get("id"),str)}),tuple(i for i in local_ids if i in ids),len(places),
+        result.google_results,result.regional_google_ids)

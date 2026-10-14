@@ -106,7 +106,7 @@ export function SharedSwipeCard({
     return () => { removed = true; window.clearTimeout(timeout); movement.stop(); fade.stop(); };
   }, [isPresent, departureDirection, safeToRemove, x, opacity]);
   const rotate = useTransform(x, [-240, 240], [-13, 13]);
-  const backgroundColor = useTransform(x, value => `color-mix(in srgb, var(--paper) ${100 - Math.min(30, Math.abs(value) / 110 * 30)}%, ${value < 0 ? "#e99535" : "#2ba06a"})`);
+  const backgroundColor = useTransform(x, value => `color-mix(in srgb, var(--paper) ${100 - Math.min(30, Math.abs(value) / 110 * 30)}%, ${value < 0 ? "#8a9198" : "#e89a62"})`);
   const skipOpacity = useTransform(x, [-140, -35], [1, 0]);
   const acceptOpacity = useTransform(x, [35, 140], [0, 1]);
   const hasCoverImage = Boolean(imageUrl) && failedUrl !== imageUrl;
