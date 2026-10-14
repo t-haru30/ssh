@@ -146,8 +146,8 @@ export function SharedSwipeCard({
       aria-busy={isProcessing}
       inert={!isTop || !isPresent}
     >
-      {swipeEnabled && <motion.div className="swipe-stamp skip" style={{ opacity: skipOpacity }}>{skipLabel}</motion.div>}
-      {swipeEnabled && <motion.div className="swipe-stamp accept" style={{ opacity: acceptOpacity }}>{acceptLabel}</motion.div>}
+      {swipeEnabled && <motion.div className="swipe-stamp skip" aria-hidden="true" style={{ opacity: skipOpacity, pointerEvents: "none" }}>{skipLabel}</motion.div>}
+      {swipeEnabled && <motion.div className="swipe-stamp accept" aria-hidden="true" style={{ opacity: acceptOpacity, pointerEvents: "none" }}>{acceptLabel}</motion.div>}
       <div className={`swipe-cover theme-${theme}${hasCoverImage || coverContent ? " has-image" : ""}`}>
         {coverContent ?? <>
         {hasCoverImage ? (

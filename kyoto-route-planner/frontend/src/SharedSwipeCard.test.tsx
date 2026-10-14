@@ -1,6 +1,6 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AnimatePresence } from "framer-motion";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { SharedSwipeCard, type SharedSwipeDirection } from "./SharedSwipeCard";
 
 afterEach(cleanup);
@@ -14,6 +14,20 @@ function Deck({ index, direction }: { index: number; direction: SharedSwipeDirec
 }
 
 describe("swipe card departure with real motion lifecycle", () => {
+  it("keeps both swipe feedback labels from intercepting photo taps", () => {
+    const select=vi.fn();
+    const view=render(<SharedSwipeCard title="写真の旅" theme="nature" spots={[]} coverBadge=""
+      coverContent={<button type="button" onClick={select}>施設の写真</button>}
+      depth={0} isTop exitDirection="accept" onSwipe={()=>true} />);
+    const labels=view.container.querySelectorAll<HTMLElement>(".swipe-stamp");
+    expect(labels).toHaveLength(2);
+    for(const label of labels){
+      expect(label.style.pointerEvents).toBe("none");
+      expect(label.getAttribute("aria-hidden")).toBe("true");
+    }
+    fireEvent.click(screen.getByRole("button",{name:"施設の写真"}));
+    expect(select).toHaveBeenCalledOnce();
+  });
   for (const direction of ["accept", "skip"] as const) {
     it(`removes departed cards and enables the next card after ${direction}`, async () => {
       const view = render(<Deck index={0} direction="skip" />);
