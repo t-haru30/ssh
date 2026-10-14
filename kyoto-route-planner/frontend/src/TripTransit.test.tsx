@@ -13,7 +13,8 @@ it("searches a facility pair with the rolled-over departure date and keeps fare 
   vi.stubGlobal("fetch", fetch);
   const onResult = vi.fn();
   const view = render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={1455} onResult={onResult} />);
-  expect(screen.getByText(/交通費の仮置き 250円/)).toBeTruthy();
+  expect(screen.getByText("交通費 未確認")).toBeTruthy();
+  expect(screen.queryByText(/250円/)).toBeNull();
   fireEvent.click(screen.getByRole("button"));
   await waitFor(() => expect(onResult).toHaveBeenCalledWith(result));
   expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ departure_date: "2026-10-14", departure_time: "00:15", origin: from, destination: to });

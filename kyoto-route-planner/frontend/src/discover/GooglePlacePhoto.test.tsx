@@ -15,6 +15,7 @@ it("only fetches when enabled and shows all credits, falling back on image failu
   expect(screen.getByRole("link",{name:"Google Maps"})).toBeTruthy();
   expect(screen.getByRole("link",{name:"撮影者"})).toBeTruthy();
   expect(fetcher.mock.calls[0][1].cache).toBe("no-store");
+  expect(JSON.parse(fetcher.mock.calls[0][1].body)).toMatchObject({category:"博物館",description:"",themes:[]});
   fireEvent.error(screen.getByRole("img",{name:"資料館"}));
   expect(screen.getByText("代替画像")).toBeTruthy();
   expect(fetcher).toHaveBeenCalledTimes(1);

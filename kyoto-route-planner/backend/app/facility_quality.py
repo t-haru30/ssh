@@ -41,9 +41,11 @@ def select_reviewed(candidates, google):
     selected=[]
     for p in candidates:
         if chain(p): continue
+        matched={item.get('id'):item for item in google if matches(p,item)}
+        if any(item.get('businessStatus') in {'CLOSED_PERMANENTLY','CLOSED_TEMPORARILY'} for item in matched.values()):
+            continue
         if tier(p)=='classic' and not dining(p):
             selected.append(p);continue
-        matched={item.get('id'):item for item in google if matches(p,item)}
         if len(matched)==1 and passes_reviews(next(iter(matched.values()))): selected.append(p)
     return tuple(selected)
 
@@ -52,7 +54,8 @@ async def filter_quality(request, candidates, existing_google=()):
     from app.discovery import distance_km,eligible_candidates
     nearby=tuple(p for p in eligible_candidates(request,candidates) if not chain(p))
     if not any(tier(p)!='classic' or dining(p) for p in nearby):
-        return nearby, {'status':'landmarks_only','verified_count':0,'excluded_count':len(candidates)-len(nearby)}
+        selected=select_reviewed(nearby,existing_google)
+        return selected, {'status':'landmarks_only','verified_count':0,'excluded_count':len(candidates)-len(selected)}
     key=google_api_key();google=list(existing_google);success=bool(existing_google)
     if key:
         center={'latitude':request.origin.latitude,'longitude':request.origin.longitude}

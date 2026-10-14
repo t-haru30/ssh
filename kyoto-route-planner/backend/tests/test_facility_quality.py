@@ -13,6 +13,11 @@ def review(p,rating=4.2,count=50,**overrides):
             'businessStatus':'OPERATIONAL','rating':rating,'userRatingCount':count,**overrides}
 
 class QualityTests(unittest.TestCase):
+    def test_known_closed_landmarks_are_excluded_even_when_reviews_are_optional(self):
+        classic=place('landmark',tier='classic')
+        for status in ('CLOSED_PERMANENTLY','CLOSED_TEMPORARILY'):
+            self.assertEqual(select_reviewed((classic,),[review(classic,businessStatus=status)]),())
+        self.assertEqual(select_reviewed((classic,),[review(classic,businessStatus='OPERATIONAL')]),(classic,))
     def test_rating_and_count_are_both_required(self):
         p=place()
         self.assertTrue(passes_reviews(review(p)))
@@ -43,6 +48,14 @@ class QualityTests(unittest.TestCase):
         self.assertFalse(chain(place(name='独立食堂',category='飲食店')))
 
 class QualityAsyncTests(unittest.IsolatedAsyncioTestCase):
+    async def test_landmark_only_shortcut_keeps_known_closure_exclusions(self):
+        req=DiscoverRequest(area='tokyo',prefecture_name='東京都',origin={'name':'東京駅','latitude':35.68,'longitude':139.76},meals=[])
+        classic=place('landmark',tier='classic')
+        with patch('app.google_place_photos.google_api_key') as key:
+            chosen,status=await filter_quality(req,(classic,),[review(classic,businessStatus='CLOSED_PERMANENTLY')])
+        self.assertEqual(chosen,())
+        self.assertEqual(status['excluded_count'],1)
+        key.assert_not_called()
     async def test_sparse_area_checks_local_and_hidden_sights_without_lowering_reviews(self):
         import httpx
         import json

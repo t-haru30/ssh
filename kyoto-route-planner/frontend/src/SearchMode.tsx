@@ -597,7 +597,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         </div>
       )}
 
-      {editingOnly && !hasResult && <section className="discovery-question"><h2>まずは、気になる旅を選びましょう</h2><p>「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
+      {editingOnly && !hasResult && <section className="discovery-question"><h2>{favorites.length ? "編集したい旅程を選びましょう" : "まずは、気になる旅を選びましょう"}</h2><p>{favorites.length ? "上の保存した旅程から選ぶか、新しい旅を見つけられます。" : "「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。"}</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
       {(!editingOnly || hasResult) && <div className={`search-stage${hasResult ? " has-result" : ""}`}>
         {hasResult && <div className="trip-departure-fields" aria-label="旅の出発日時">
           <label>出発日<input name="departure_date" form="journey-conditions" type="date" value={departureDate} onChange={event=>setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required /></label>

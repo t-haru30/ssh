@@ -68,8 +68,28 @@ def normalized(name):
     return re.sub(r"[\s・･]", "", unicodedata.normalize("NFKC", name)).casefold()
 
 
+def compatible_google_kind(place, candidate):
+    """Reject explicit type conflicts; generic provider types are not identity proof."""
+    types = candidate.get('types', [])
+    if not isinstance(types, list) or not all(isinstance(value, str) for value in types):
+        return False
+    types = set(types)
+    category = place.category + ' ' + place.tags.get('amenity', '') + ' ' + place.tags.get('tourism', '')
+    food = {'restaurant','cafe','coffee_shop','bakery','bar','fast_food_restaurant'}
+    sights = {'museum','art_gallery','park','hindu_temple','church','mosque','synagogue'}
+    if re.search(r'カフェ|喫茶|cafe|coffee', category, re.I):
+        return not (types & sights) and not ('restaurant' in types and not types & {'cafe','coffee_shop'})
+    if re.search(r'飲食|レストラン|食堂|料理|restaurant|fast_food', category, re.I):
+        return not (types & sights and not types & food)
+    if re.search(r'博物館|美術館|資料館|寺院|神社|公園|museum|gallery|park', category, re.I):
+        return not (types & food and not types & sights)
+    return True
+
+
 def same_google_venue(place: Place, candidate: dict) -> bool:
     """Retain the complete catalog branch name; never strip a provider suffix."""
+    if not compatible_google_kind(place, candidate):
+        return False
     name = normalized(candidate.get("displayName", {}).get("text", ""))
     originals = [value for value in [place.name, *(place.tags.get(key, "") for key in ("name", "name:ja", "name:en", "official_name"))] if isinstance(value,str) and value]
     aliases = {normalized(value) for value in originals}
@@ -105,14 +125,14 @@ async def fetch_google_photo(place: Place):
     try:
         async with asyncio.timeout(8), httpx.AsyncClient(timeout=6, follow_redirects=False, trust_env=False, verify=ssl.create_default_context()) as client:
             response = await client.post(BASE + "/places:searchText", headers={"X-Goog-Api-Key":key,
-                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.photos,places.googleMapsUri"},
+                "X-Goog-FieldMask":"places.id,places.displayName,places.location,places.types,places.businessStatus,places.photos,places.googleMapsUri"},
                 json={"textQuery":place.name + " " + (place.address or ""), "languageCode":"ja", "pageSize":3,
                       "locationBias":{"circle":{"center":{"latitude":place.latitude,"longitude":place.longitude},"radius":500.0}}})
             if response.status_code != 200:
                 return GooglePhoto()
             matches = []
             for candidate in response.json().get("places", [])[:3]:
-                if same_google_venue(place, candidate) and candidate.get("photos"):
+                if candidate.get('businessStatus') not in {'CLOSED_PERMANENTLY','CLOSED_TEMPORARILY'} and same_google_venue(place, candidate) and candidate.get("photos"):
                     matches.append(candidate)
             # Ambiguous same-name branches are not interchangeable.
             if len(matches) != 1:

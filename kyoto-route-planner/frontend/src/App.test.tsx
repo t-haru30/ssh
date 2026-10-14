@@ -113,6 +113,20 @@ describe("App onboarding", () => {
 });
 
 describe("App journey replacement confirmation", () => {
+  it("lists saved journeys immediately in the editor, including before a draft exists", () => {
+    window.localStorage.removeItem(JOURNEY_DRAFT_KEY);
+    window.localStorage.setItem("kyoto-route-planner:active-tab:v1", "discover");
+    savedState.favorites = [{ ...existingRoute, id: "26:garden", prefecture_code: "26", prefecture_name: "京都府", tags: {}, saved_at: "2026-10-15T00:00:00Z" }];
+    render(<App />);
+    expect(screen.queryByRole("region", { name: "保存した旅程から編集" })).toBeNull();
+    fireEvent.click(screen.getByRole("tab", { name: /旅程を編集/ }));
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
+    const saved = screen.getByRole("region", { name: "保存した旅程から編集" });
+    fireEvent.click(within(saved).getByRole("button", { name: "庭園の旅を編集" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(searchRender).toHaveBeenLastCalledWith(expect.objectContaining({ active: true,
+      preset: expect.objectContaining({ title: existingRoute.title, places: [garden], sourceFavoriteId: "26:garden" }) }));
+  });
   it("reopens the edited saved plan from its original liked card even after its name and venues changed", () => {
     const original=readJourneyDraft()!.plan;
     const edited=scheduleTrip({...original.input,budget:8000},origin,original.date,[newTripStop(museum,60)],original.transport);

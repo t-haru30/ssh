@@ -54,6 +54,20 @@ export const PREFECTURES = [
 export type PrefectureCode = (typeof PREFECTURES)[number]["code"];
 export type Prefecture = (typeof PREFECTURES)[number];
 
+export const PREFECTURE_REGIONS = [
+  { name: "北海道", codes: ["01"] },
+  { name: "東北", codes: ["02", "03", "04", "05", "06", "07"] },
+  { name: "関東", codes: ["08", "09", "10", "11", "12", "13", "14"] },
+  { name: "北陸", codes: ["15", "16", "17", "18"] },
+  { name: "甲信", codes: ["19", "20"] },
+  { name: "東海", codes: ["21", "22", "23", "24"] },
+  { name: "近畿", codes: ["25", "26", "27", "28", "29", "30"] },
+  { name: "中国", codes: ["31", "32", "33", "34", "35"] },
+  { name: "四国", codes: ["36", "37", "38", "39"] },
+  { name: "九州", codes: ["40", "41", "42", "43", "44", "45", "46"] },
+  { name: "沖縄", codes: ["47"] },
+] satisfies { name: string; codes: PrefectureCode[] }[];
+
 type PrefectureContextValue = {
   prefecture: Prefecture;
   setPrefectureCode: (code: PrefectureCode) => void;

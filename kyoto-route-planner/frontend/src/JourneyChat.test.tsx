@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { JourneyChat } from "./JourneyChat";
-import { readChatProposal } from "./journeyChatState";
+import { chatPayload, readChatProposal } from "./journeyChatState";
 import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
 import type { RouteSuggestion } from "./types";
 
@@ -44,16 +44,51 @@ describe("chat proposal validation", () => {
     const next = readChatProposal(data.proposal, completed, places);
     expect(next.stops[0]).toMatchObject({ completed: true, start: completed.stops[0].start, end: completed.stops[0].end });
   });
-  it("recomputes travel, estimates new costs, rejects infeasible changes", () => {
+  it("recomputes travel and costs without enforcing removed budget and duration settings", () => {
     const base = plan();
     const next = readChatProposal(data.proposal, base, places);
-    expect(next.estimatedTravel).toBe(true); expect(next.totalCost).toBeGreaterThan(0); expect(next.provisionalCosts).toBe(true);
+    expect(next.estimatedTravel).toBe(true); expect(next.totalCost).toBeNull(); expect(next.knownCost).toBeGreaterThan(0); expect(next.provisionalCosts).toBe(true);
     expect(next.stops[1].spending).toBeNull();
-    expect(() => readChatProposal({ stops: [{ id: "0", dwell: 360 }, { id: "1", dwell: 360 }] }, base, places)).toThrow("収まりません");
+    base.input.availableMinutes = 30; base.input.budget = 0;
+    const extended = readChatProposal({ stops: [{ id: "0", dwell: 360 }, { id: "1", dwell: 360 }] }, base, places);
+    expect(extended.returnMinute).toBeGreaterThan(540 + base.input.availableMinutes);
+    expect(extended.knownCost).toBeGreaterThan(base.input.budget);
+    expect(extended.violations).toEqual([]);
+    expect(extended.input).toEqual(base.input);
+    const request = chatPayload(base, places, "公園を長く楽しみたい", []);
+    expect(request).not.toHaveProperty("budget");
+    expect(request).not.toHaveProperty("available_minutes");
+  });
+  it("still rejects a change that misses a fixed appointment", () => {
+    const base = plan(); base.stops[1].anchorTime = "11:00"; base.stops[1].locked = true;
+    expect(() => readChatProposal({ stops: [{ id: "0", dwell: 180 }, { id: "1", dwell: 90 }] }, base, places)).toThrow("固定した開始時刻");
   });
 });
 
 describe("JourneyChat", () => {
+  it("allows adoption after transport refresh even when an edit exceeds legacy hidden limits", async () => {
+    const base = plan(); base.input.availableMinutes = 120;
+    base.stops.forEach(stop => { stop.spending = 3000; });
+    const apply = vi.fn();
+    const previewRoute = { ...route, coordinates: [], timeline: [5, 10, 5].map(duration => ({
+      type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "市バス",
+      duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:05", fare_yen: 100,
+    })) };
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ ok: true, json: async () => url === "/api/journey/chat"
+      ? { message: "美術館でゆっくり過ごす変更案です。", steps: [], proposal: { stops: [{ id: "0", dwell: 120 }, { id: "1", dwell: 90 }] } }
+      : previewRoute })));
+    render(<JourneyChat plan={base} candidates={places} onApply={apply} />);
+    fireEvent.change(screen.getByLabelText("旅程への希望"), { target: { value: "美術館の滞在を120分に増やして" } });
+    fireEvent.click(screen.getByRole("button", { name: "相談する" }));
+    const adopt = await screen.findByRole("button", { name: "この案を旅程に反映" });
+    await waitFor(() => expect(adopt.hasAttribute("disabled")).toBe(false));
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(adopt);
+    const next = apply.mock.calls[0][0];
+    expect(next.knownCost).toBeGreaterThan(base.input.budget);
+    expect(next.returnMinute - 540).toBeGreaterThan(base.input.availableMinutes);
+    expect(next.violations).toEqual([]);
+  });
   it("applies an inline change card only after route validation, without requiring the preview tab", async () => {
     const apply = vi.fn();
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => Promise.resolve({ok:true,json:async () => url === "/api/journey/chat" ? data : {...route,places:[places[0],places[2]]}})));

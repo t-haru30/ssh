@@ -86,6 +86,10 @@ it("explains missing answers and orders departure before prefecture and gateway"
   const departure = screen.getByLabelText("出発地点"), prefecture = screen.getByLabelText("行き先の都道府県"), gateway = screen.getByRole("group", {name:"行き先の駅・観光の起点"});
   expect(departure.compareDocumentPosition(prefecture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(prefecture.compareDocumentPosition(gateway) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(prefecture.querySelectorAll("option")).toHaveLength(47);
+  expect(prefecture.querySelector('optgroup[label="東北"]')?.textContent).toContain("岩手県");
+  expect(prefecture.querySelector('optgroup[label="関東"]')?.textContent).toContain("東京都");
+  expect(prefecture.querySelector('optgroup[label="北陸"]')?.textContent).toContain("石川県");
 });
 
 it("combines interests in step one and sends written wishes ahead of optional tags", async () => {

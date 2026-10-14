@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { SavedRoutesList } from "./SavedRoutesList";
+import { SavedJourneyPicker } from "./SavedJourneyPicker";
 import { DiscoverMode } from "./discover/DiscoverMode";
 import { SearchMode } from "./SearchMode";
 import type { SearchPreset } from "./SearchMode";
@@ -95,12 +96,13 @@ function App() {
             aria-controls={`panel-${tab.id}`}
             tabIndex={activeTab === tab.id ? 0 : -1}
             className={activeTab === tab.id ? "active" : ""}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => { setActiveTab(tab.id); window.scrollTo?.({ top: 0 }); }}
             onKeyDown={event => {
               if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
               event.preventDefault();
               const next = event.key === "Home" ? "discover" : event.key === "End" ? "search" : activeTab === "discover" ? "search" : "discover";
               setActiveTab(next);
+              window.scrollTo?.({ top: 0 });
               document.getElementById(`tab-${next}`)?.focus();
             }}
           >
@@ -114,6 +116,7 @@ function App() {
         active={activeTab === "discover"}
         onPlanInSearch={planInSearch}
       />
+      {activeTab === "search" && <SavedJourneyPicker favorites={favorites} onEdit={route => planInSearch(route)} />}
       <SearchMode active={activeTab === "search"} preset={searchPreset} editingOnly onDiscover={() => setActiveTab("discover")} />
       {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} onGoHome={() => { setShowFavorites(false); setActiveTab("discover"); }} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}

@@ -12,7 +12,8 @@ export function categoryArtwork(place: Place): Artwork {
     || !/博物館|美術館|資料館|寺院|神社|museum|gallery/i.test(category) && /天ぷら|天麩羅|寿司|鮨|ラーメン|蕎麦|そば|焼肉|喫茶|カフェ|割烹/.test(place.name);
   let index: number;
   if (foodVenue) {
-    if (/天ぷら|天麩羅|天婦羅|tempura/i.test(food)) index = 1;
+    if (/カフェ|喫茶|cafe|coffee/i.test(category)) index = 6;
+    else if (/天ぷら|天麩羅|天婦羅|tempura/i.test(food)) index = 1;
     else if (/寿司|鮨|すし|sushi/i.test(food)) index = 2;
     else if (/ラーメン|らーめん|ramen/i.test(food)) index = 3;
     else if (/蕎麦|そば|soba/i.test(food)) index = 4;

@@ -8,6 +8,19 @@ from app import google_place_photos as photos
 from app.models import Place
 
 class GooglePhotosTests(unittest.IsolatedAsyncioTestCase):
+    async def test_closed_venues_and_wrong_types_never_supply_photos(self):
+        real_client = httpx.AsyncClient
+        for status, kinds in [('CLOSED_PERMANENTLY',['museum']),('CLOSED_TEMPORARILY',['museum']),('OPERATIONAL',['restaurant'])]:
+            calls = []
+            def respond(request):
+                calls.append(request)
+                return httpx.Response(200,json={'places':[{'id':'abc','displayName':{'text':'資料館'},
+                    'location':{'latitude':35,'longitude':135},'businessStatus':status,'types':kinds,
+                    'googleMapsUri':'https://maps.google.com/?cid=1','photos':[{'name':'places/abc/photos/xyz'}]}]})
+            with patch.object(photos,'google_api_key',return_value='test'), patch.object(photos,'reserve_lookup',return_value=True), patch.object(photos.httpx,'AsyncClient',side_effect=lambda **kwargs:real_client(transport=httpx.MockTransport(respond))):
+                result = await photos.fetch_google_photo(self.place)
+            self.assertEqual(result.status,'unavailable')
+            self.assertEqual(len(calls),1)
     def setUp(self):
         self.place = Place(id="museum", name="資料館", latitude=35, longitude=135, category="博物館", description="", access_point="", themes=[])
 

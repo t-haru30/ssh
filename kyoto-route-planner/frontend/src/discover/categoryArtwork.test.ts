@@ -13,6 +13,7 @@ describe("venue category artwork", () => {
     ["二条城二ノ丸御殿", "史跡", "城・史跡"], ["山の公園", "公園", "自然・公園"],
   ])("classifies %s as %s", (name, category, label) => expect(categoryArtwork(place(name,category)).label).toBe(label));
   it("uses cuisine metadata, but does not invent a cuisine for an unknown restaurant", () => {
+    expect(categoryArtwork(place("そばと和菓子のカフェ", "カフェ", {amenity:"cafe", cuisine:"soba;japanese"})).label).toBe("カフェ");
     expect(categoryArtwork(place("Local Kitchen", "飲食店", {cuisine:"tempura"})).label).toBe("天ぷら");
     expect(categoryArtwork(place("Sanzuian", "飲食店")).label).toBe("飲食店");
     expect(categoryArtwork({...place("資料館", "博物館"),description:"この後は天ぷらを楽しむ旅"}).label).toBe("博物館");

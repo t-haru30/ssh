@@ -53,8 +53,9 @@ class ChatRequest(Strict):
     origin: Origin
     return_to: Origin
     departure: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
-    available_minutes: int = Field(ge=30, le=720, strict=True)
-    budget: int = Field(ge=0, le=50000, strict=True)
+    # Accepted for older clients only; the editor no longer exposes these limits.
+    available_minutes: int | None = Field(default=None, ge=30, le=720, strict=True)
+    budget: int | None = Field(default=None, ge=0, le=50000, strict=True)
     stops: list[Stop] = Field(max_length=8)
     candidates: list[Candidate] = Field(default_factory=list, max_length=80)
     return_travel: int = Field(ge=0, le=10000, strict=True)
@@ -105,8 +106,12 @@ only a candidate whose name/category explicitly indicates カフェ, 喫茶, caf
 If no supported venue fits, ask the user rather than substituting an unverified type.
 Use only supplied or searched candidate IDs. Explain uncertainty honestly.
 Do not silently relax the request (e.g. delete a requested cafe just to pass validation).
-Ask a concise Japanese question if no eligible candidate exists or the user must change
-time/budget/fixed appointments. You cannot edit those constraints in this version.
+The editor has no budget limit, activity-duration limit or target return-time setting.
+Legacy budget/available_minutes values and earlier assistant requests to change those
+settings are obsolete. Never use them as caps or ask the user to change those settings.
+Keep estimating travel time and costs so the user can compare the proposed itinerary.
+Ask a concise Japanese question if no eligible candidate exists or a fixed appointment
+cannot be met. You cannot change fixed appointments in this version.
 A valid proposal will finish the run and be shown for explicit user adoption, not applied.
 Each dwell must be 30-360 minutes (arrival/return placeholders allow 15). At most 8 stops.
 For cafes, call search_candidates with query カフェ once: it searches live OpenPOI/OSM cafes
@@ -124,7 +129,7 @@ def obj(properties, required):
 
 
 TOOLS = [
-    {"name": "search_candidates", "description": "Search candidates. Cafe queries include nearby live records. For a named landmark such as 清水寺 or 法隆寺, use its exact name: search the nationwide catalog and live OSM with Places identity checks beyond the supplied list. Travel constraints still apply.",
+    {"name": "search_candidates", "description": "Search candidates. Cafe queries include nearby live records. For a named landmark such as 清水寺 or 法隆寺, use its exact name: search the nationwide catalog and live OSM with Places identity checks beyond the supplied list. Fixed appointments still apply; travel time is estimated.",
      "parameters": obj({"query": {"type": "STRING"}}, ["query"])},
     {"name": "validate_proposal", "description": "Validate a complete itinerary; errors allow another tool turn to repair it. Success finishes with a preview.",
      "parameters": obj({"stops": {"type": "ARRAY", "items": obj({"id": {"type": "STRING"}, "dwell": {"type": "INTEGER"}}, ["id", "dwell"])}}, ["stops"])},
@@ -152,20 +157,6 @@ def catalog(payload):
 def is_cafe(place):
     return bool(re.search(r"カフェ|喫茶|珈琲|コーヒー|café|cafe|coffee", place.name + " " + place.category, re.I))
 
-
-def allowance(place):
-    if place.id in {"trip-arrival", "trip-return"}:
-        return 0
-    text = place.category + " " + place.name
-    for pattern, cost in [(r"カフェ|喫茶|coffee|cafe", 800), (r"飲食|グルメ|レストラン|食堂|料理|restaurant", 1500),
-                          (r"博物館|美術館|資料館|記念館|museum", 1000), (r"寺|庭園|城", 600), (r"公園|神社|神宮|海|山|川", 0)]:
-        if re.search(pattern, text, re.I):
-            return cost
-    return 500
-
-
-def fare_allowance(km):
-    return 0 if km < .8 else 250 if km <= 5 else 500 if km <= 20 else 1000 if km <= 50 else ceil(km * 25 / 100) * 100
 
 def travel_estimate(a,b):
     km=distance(a,b)
@@ -207,13 +198,6 @@ def validate(payload: ChatRequest, proposal: Proposal) -> list[str]:
                 errors.append(f"{old.place.name}の固定開始に{now - anchor}分遅れます。")
             now = max(now, anchor)
         now += choice.dwell
-    over = now + legs[-1] - minutes(payload.departure) - payload.available_minutes
-    if over > 0:
-        errors.append(f"帰着目標を{over}分超過します。移動は概算です。")
-    cost = sum(current[i].spending if i in current and current[i].spending is not None else allowance(places[i]) for i in selected)
-    cost += payload.travel_cost if unchanged and payload.travel_cost is not None else sum(fare_allowance(distance(a, b)) for a, b in zip(points, points[1:]))
-    if cost > payload.budget:
-        errors.append(f"概算費用が予算を{cost - payload.budget}円超過します。未入力費用は施設別の目安です。")
     return errors
 
 
@@ -260,7 +244,7 @@ async def run(payload, key, model):
     cafe_search = None
     cafe_required = False
     landmark_searches={}
-    context = payload.model_dump(exclude={"candidates"})
+    context = payload.model_dump(exclude={"candidates", "available_minutes", "budget"})
     context["candidate_count"] = len(payload.candidates)
     contents = [{"role": "user", "parts": [{"text": json.dumps(context, ensure_ascii=False)}]}]
     steps = []
@@ -303,7 +287,7 @@ async def run(payload, key, model):
                                 discovered[item['id']]=item
                                 payload.candidates.append(Candidate(**{k:item[k] for k in Candidate.model_fields}))
                         found=[{**p.model_dump(),**insertion_hint(payload,p)} for p in catalog(payload).values() if query.casefold() in (p.name+p.category).casefold()]
-                    result = {"candidates": found[:80], "note": "全国の施設候補を検索。移動・予算の制約は維持します。営業時間・料金は未確認。"}
+                    result = {"candidates": found[:80], "note": "全国の施設候補を検索。固定予定は維持します。営業時間・料金は未確認。"}
                     steps.append(f"施設候補を検索：{len(found)}件")
             else:
                 try:
@@ -314,7 +298,7 @@ async def run(payload, key, model):
                 except ValueError:
                     errors = ["変更案の形式が不正です。IDと15〜360分の滞在時間を指定してください。"]
                 if not errors:
-                    steps.append("固定予定・帰着目安・概算予算を検証しました")
+                    steps.append("固定予定・訪問済みの記録と移動時間を確認しました")
                     return ChatResponse(message="変更案を作りました。並び順と変更内容を確認してから反映できます。移動と費用は概算、営業時間・営業状況は未確認です。", proposal=proposal, steps=steps,
                         discovered_candidates=[discovered[s.id] for s in proposal.stops if s.id in discovered])
                 steps.append("変更案を再検討：" + " / ".join(errors))

@@ -37,7 +37,8 @@ describe("local initial day trip", () => {
     expect(low.stops.map(stop => stop.place.id)).toEqual([coffee.id]);
     expect(low.knownCost).toBe(600);
     expect(low.provisionalCosts).toBe(true);
-    expect(low.totalCost).toBe(600);
+    expect(low.totalCost).toBeNull();
+    expect(low.travelCost).toBeNull();
   });
   it("combines preferences and explains actual matches deterministically without fetching", () => {
     const fetch = vi.fn(() => { throw new Error("network must not be used"); });

@@ -32,6 +32,9 @@ export function routeSelection(route: DatasetRoute | RouteIdea, includeTransfers
     ? { name: "京都駅", latitude: 34.98585, longitude: 135.75877 }
     : { name: `${entry?.name ?? ("prefecture_name" in route ? route.prefecture_name : undefined) ?? "選んだ地域"}・エリア中心`, latitude: center[0], longitude: center[1] };
   const dwellMinutes = "spots" in route ? Object.fromEntries(route.spots.map(spot => [spot.place_id, spot.stay_minutes])) : { ...route.dwell_minutes };
+  for (const place of places) {
+    if (dwellMinutes[place.id] === undefined && /カフェ|喫茶|cafe|coffee/i.test(`${place.category} ${place.tags?.amenity ?? ""}`)) dwellMinutes[place.id] = 30;
+  }
   const timing = "spots" in route ? {
     departureTime: route.departure_time,
     anchorTimes: Object.fromEntries(route.spots.filter(s => s.meal_time || s.role === "dinner").map(s => [s.place_id, s.meal_time ?? "18:00"])),
