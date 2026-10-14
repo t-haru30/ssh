@@ -5,7 +5,7 @@ import { SearchMode } from "./SearchMode";
 import type { SearchPreset } from "./SearchMode";
 import { routeSelection } from "./routeSelection";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import { Onboarding, markOnboardingSeen } from "./Onboarding";
+import { Onboarding, setOnboardingSuppressed, shouldSuppressOnboarding } from "./Onboarding";
 import { useFavorites } from "./useFavorites";
 import { readJourneyDraft } from "./journeyDraft";
 import { TripDialog } from "./DayTripEditor";
@@ -27,13 +27,13 @@ function App() {
   const [searchPreset, setSearchPreset] = useState<SearchPreset | null>(null);
   const [pendingPreset, setPendingPreset] = useState<{ selection: SearchPreset; currentTitle: string } | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !shouldSuppressOnboarding());
   const { favorites, error } = useFavorites();
 
   useEffect(() => { try { localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab); } catch { /* Keep the app usable without storage. */ } }, [activeTab]);
 
-  function closeOnboarding() {
-    markOnboardingSeen();
+  function closeOnboarding(suppressFuture: boolean) {
+    setOnboardingSuppressed(suppressFuture);
     setShowOnboarding(false);
   }
   function planInSearch(route: Parameters<typeof routeSelection>[0], searchTransport = false) {

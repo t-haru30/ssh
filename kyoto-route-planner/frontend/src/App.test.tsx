@@ -8,8 +8,13 @@ import type { Place, RouteSuggestion } from "./types";
 import type { SearchPreset } from "./routeSelection";
 import { savedJourney } from "./savedJourney";
 import type { FavoriteRoute } from "./useFavorites";
+import { setOnboardingSuppressed } from "./Onboarding";
 
-const { searchRender, savedState } = vi.hoisted(() => ({ searchRender: vi.fn(), savedState: { favorites: [] as FavoriteRoute[] } }));
+const { searchRender, savedState, onboardingState } = vi.hoisted(() => ({
+  searchRender: vi.fn(),
+  savedState: { favorites: [] as FavoriteRoute[] },
+  onboardingState: { suppressed: true, choice: false },
+}));
 
 vi.mock("./discover/DiscoverMode", () => ({
   DiscoverMode: ({ active, onPlanInSearch }: { active: boolean; onPlanInSearch: (route: RouteIdea) => void }) => (
@@ -29,9 +34,14 @@ vi.mock("./SavedRoutesList", () => ({ SavedRoutesList: () => null }));
 vi.mock("./useFavorites", () => ({ useFavorites: () => ({ favorites: savedState.favorites, error: null }) }));
 vi.mock("./ThemeSwitcher", () => ({ ThemeSwitcher: () => null }));
 vi.mock("./Onboarding", () => ({
-  Onboarding: () => null,
-  hasSeenOnboarding: () => true,
-  markOnboardingSeen: vi.fn(),
+  Onboarding: ({ onClose }: { onClose: (suppressFuture: boolean) => void }) => (
+    <div role="dialog" aria-label="はじめての使い方">
+      <label><input type="checkbox" aria-label="今後、使い方の説明を表示しない" onChange={(event) => { onboardingState.choice = event.currentTarget.checked; }} />今後、使い方の説明を表示しない</label>
+      <button type="button" onClick={() => onClose(onboardingState.choice)}>はじめる</button>
+    </div>
+  ),
+  shouldSuppressOnboarding: () => onboardingState.suppressed,
+  setOnboardingSuppressed: vi.fn((suppress: boolean) => { onboardingState.suppressed = suppress; }),
 }));
 
 const origin = { name: "京都駅", latitude: 34.98585, longitude: 135.75877 };
@@ -51,7 +61,10 @@ const newRoute: RouteIdea = { ...existingRoute, title: "美術館の旅", places
 beforeEach(() => {
   window.localStorage.clear();
   searchRender.mockClear();
+  vi.mocked(setOnboardingSuppressed).mockClear();
   savedState.favorites=[];
+  onboardingState.suppressed = true;
+  onboardingState.choice = false;
   vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
   const source: RouteSuggestion = {
     origin, places: [garden], title: existingRoute.title, story: null, total_minutes: 30,
@@ -69,6 +82,34 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   window.localStorage.clear();
+});
+
+describe("App onboarding", () => {
+  it("shows the welcome guide on a first visit and remembers when it is dismissed", () => {
+    onboardingState.suppressed = false;
+    render(<App />);
+    expect(screen.getByRole("dialog", { name: "はじめての使い方" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "はじめる" }));
+    expect(screen.queryByRole("dialog", { name: "はじめての使い方" })).toBeNull();
+    expect(setOnboardingSuppressed).toHaveBeenCalledWith(false);
+    expect(onboardingState.suppressed).toBe(false);
+  });
+
+  it("suppresses the welcome guide only when the checkbox is selected", () => {
+    onboardingState.suppressed = false;
+    render(<App />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "今後、使い方の説明を表示しない" }));
+    fireEvent.click(screen.getByRole("button", { name: "はじめる" }));
+    expect(setOnboardingSuppressed).toHaveBeenCalledWith(true);
+    expect(onboardingState.suppressed).toBe(true);
+  });
+
+  it("does not show the welcome guide automatically after opting out", () => {
+    onboardingState.suppressed = true;
+    render(<App />);
+    expect(screen.queryByRole("dialog", { name: "はじめての使い方" })).toBeNull();
+  });
 });
 
 describe("App journey replacement confirmation", () => {
