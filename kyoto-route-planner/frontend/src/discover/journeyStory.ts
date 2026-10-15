@@ -8,6 +8,8 @@ const experiences: Record<string, string> = {
   "カフェ": "カフェでの休憩", "和菓子・甘味": "甘いもの", "博物館": "展示を通した歴史や文化との出会い", "美術館": "作品の鑑賞",
   "寺院": "寺院の建築と境内の散策", "神社": "参拝と境内の散策", "日本庭園": "庭園の景色", "自然・公園": "自然の中の散策",
   "城・史跡": "歴史ある建物や史跡の見学", "街歩き": "街歩き", "飲食店": "食事",
+  "ベーカリー": "パン", "居酒屋": "お酒と料理", "うどん": "うどん", "温泉・入浴施設": "入浴での休息",
+  "水族館": "水辺の生き物の観察", "展望台": "展望台からの眺め", "海辺・海岸": "海辺の景色と散策",
 };
 function genre(spot: DatasetSpot, info?: GoogleVenueInfo) {
   return categoryArtwork({id:spot.place_id,name:spot.name,category:`${spot.category} ${info?.category ?? ""} ${info?.primary_type ?? ""}`,tags:spot.tags,latitude:spot.lat,longitude:spot.lng,description:"",access_point:"",themes:[]}).label;

@@ -16,6 +16,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import httpx
 
 from app.http_client import provider_timeout
+from app.station_photos import station_photo_score
 from app.image_search import (
     CommercialImage, WIKIMEDIA_IMAGE_HOSTS, WIKIMEDIA_USER_AGENT, _file_name,
     _metadata_text, _normalize, _query_pages, _safe_host_url, _search_wikipedia,
@@ -129,7 +130,7 @@ def _direct_subject(name: str, description: str) -> bool:
     )
 
 
-async def _commons(client: httpx.AsyncClient, name: str, latitude: float, longitude: float, *, geo: bool) -> CommercialImage | None:
+async def _commons(client: httpx.AsyncClient, name: str, latitude: float, longitude: float, *, geo: bool, station=False) -> CommercialImage | None:
     params = {"action": "query", "formatversion": 2, "prop": "imageinfo|coordinates", "coprimary": "all", "colimit": 10,
               "iiprop": "url|extmetadata|mime|metadata", "iiurlwidth": 800}
     if geo:
@@ -139,11 +140,15 @@ async def _commons(client: httpx.AsyncClient, name: str, latitude: float, longit
         literal = re.sub(r'["|{}<>\\]', " ", name)[:200]
         params.update(generator="search", gsrsearch=f'"{literal}"', gsrnamespace=6, gsrlimit=10)
     data = await _json(client, COMMONS_API, **params)
+    candidates = []
     for page in _query_pages(data):
         image = _file_image(page, "commons")
         if image and _file_coordinates(page, latitude, longitude) and _direct_subject(name, image.description) and (image.photo_evidence or definite_place_photo(name, image.description)):
-            return image
-    return None
+            if not station:
+                return image
+            if station_photo_score(image, name):
+                candidates.append(image)
+    return max(candidates, key=lambda image: station_photo_score(image, name), default=None)
 
 
 def _claims(entity: dict, prop: str):
@@ -177,7 +182,7 @@ def _entity_matches(entity: dict, name: str, latitude: float, longitude: float) 
     )
 
 
-async def _wikidata(client: httpx.AsyncClient, name: str, latitude: float, longitude: float) -> CommercialImage | None:
+async def _wikidata(client: httpx.AsyncClient, name: str, latitude: float, longitude: float, *, station=False) -> CommercialImage | None:
     search = await _json(client, WIKIDATA_API, action="wbsearchentities", search=name[:200], language="ja", type="item", limit=10)
     matches = search.get("search", [])
     if not isinstance(matches, list):
@@ -202,6 +207,7 @@ async def _wikidata(client: httpx.AsyncClient, name: str, latitude: float, longi
         return None
     data = await _json(client, COMMONS_API, action="query", formatversion=2, titles="|".join(files), prop="imageinfo|coordinates", coprimary="all", colimit=10, iiprop="url|extmetadata|mime|metadata", iiurlwidth=800)
     expected = {_file_name(v) for v in files}
+    candidates = []
     for page in _query_pages(data):
         image = _file_image(page, "wikidata")
         if not image or _file_name(image.filename) not in expected:
@@ -210,8 +216,11 @@ async def _wikidata(client: httpx.AsyncClient, name: str, latitude: float, longi
         if page.get("coordinates") and not _file_coordinates(page, latitude, longitude):
             continue
         if image.photo_evidence or definite_place_photo(name, image.description):
-            return image
-    return None
+            if not station:
+                return image
+            if station_photo_score(image, name):
+                candidates.append(image)
+    return max(candidates, key=lambda image: station_photo_score(image, name), default=None)
 
 
 async def _openverse(client: httpx.AsyncClient, name: str, latitude: float, longitude: float) -> CommercialImage | None:
@@ -295,7 +304,7 @@ async def _openverse(client: httpx.AsyncClient, name: str, latitude: float, long
     return None
 
 
-async def search_verified_place_image(name: str, latitude: float | None, longitude: float | None) -> CommercialImage | None:
+async def search_verified_place_image(name: str, latitude: float | None, longitude: float | None, *, station=False) -> CommercialImage | None:
     global _active_lookups
     if not name.strip() or not _near(latitude, longitude, latitude, longitude, 0):
         return None
@@ -304,27 +313,51 @@ async def search_verified_place_image(name: str, latitude: float | None, longitu
     _active_lookups += 1
     tasks = []
     failed = False
+    fallback = None
     try:
         async with asyncio.timeout(LOOKUP_SECONDS), httpx.AsyncClient(
             timeout=provider_timeout(LOOKUP_SECONDS), headers={"User-Agent": WIKIMEDIA_USER_AGENT},
             verify=ssl.create_default_context(), trust_env=False, follow_redirects=False,
             limits=httpx.Limits(max_connections=4, max_keepalive_connections=4),
         ) as client:
-            tasks = [asyncio.create_task(call) for call in (
+            calls = (
+                _search_wikipedia(client, name, latitude, longitude, strict_errors=True),
+                _wikidata(client, name, latitude, longitude, station=True),
+                _commons(client, name, latitude, longitude, geo=False, station=True),
+                _commons(client, name, latitude, longitude, geo=True, station=True),
+            ) if station else (
                 _search_wikipedia(client, name, latitude, longitude, strict_errors=True),
                 _commons(client, name, latitude, longitude, geo=False),
                 _commons(client, name, latitude, longitude, geo=True),
                 _wikidata(client, name, latitude, longitude),
                 _openverse(client, name, latitude, longitude),
-            )]
-            for completed in asyncio.as_completed(tasks):
+            )
+            tasks = [asyncio.create_task(call) for call in calls]
+            # Station portraits use the exact article/entity's representative
+            # image first. A faster photo of lunch or a train must not win.
+            for completed in tasks if station else asyncio.as_completed(tasks):
                 try:
                     result = await completed
                     if result is not None:
-                        return result
+                        if not station or station_photo_score(result, name) >= 2:
+                            return result
+                        if fallback is None and station_photo_score(result, name) == 1:
+                            fallback = result
                 except (httpx.HTTPError, ValueError, TypeError, KeyError):
                     failed = True
+            if fallback is not None:
+                return fallback
     except (httpx.HTTPError, TimeoutError) as error:
+        if station:
+            # Keep a verified completed provider if a preferred source times out.
+            for task in tasks:
+                if task.done() and not task.cancelled() and task.exception() is None:
+                    image = task.result()
+                    if image and station_photo_score(image, name):
+                        if fallback is None or station_photo_score(image, name) > station_photo_score(fallback, name):
+                            fallback = image
+            if fallback is not None:
+                return fallback
         raise PhotoLookupError("lookup_deadline") from error
     finally:
         for task in tasks:

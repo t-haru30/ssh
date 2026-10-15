@@ -19,6 +19,7 @@ from app.image_search import (
 )
 from app.licensed_photos import PhotoLookupError, search_verified_place_image as search_commercial_image
 from app.models import Place
+from app.station_photos import is_station_place, station_photo_score
 from urllib.parse import urlparse
 
 ROUTE_TIMEOUT = 35.0
@@ -53,7 +54,12 @@ class PhotoResponse(BaseModel):
 
 
 def _place_key(place: Place) -> str:
-    return json.dumps([place.id, place.name, place.latitude, place.longitude], ensure_ascii=False)
+    # Arrival/return are itinerary roles, not two different physical stations.
+    return json.dumps(["station" if is_station_place(place) else place.id, place.name, place.latitude, place.longitude], ensure_ascii=False)
+
+
+def _for_place(photo: PhotoResponse, place: Place) -> PhotoResponse:
+    return photo.model_copy(update={"place_id": place.id, "place_name": place.name}) if photo.status == "ready" else photo
 
 
 def _safe_candidate(image: CommercialImage) -> bool:
@@ -124,12 +130,20 @@ async def _classify(place: Place, image: CommercialImage, timeout: float) -> boo
 
 async def _load_place(place: Place, deadline: float) -> PhotoResponse:
     result = PhotoResponse(status="unavailable")
+    station = is_station_place(place)
     try:
-        async with asyncio.timeout(max(0, min(LOOKUP_TIMEOUT, deadline - monotonic()))):
-            image = await search_commercial_image(place.name, place.latitude, place.longitude)
+        # Station discovery owns an 18-second deadline and can salvage another
+        # completed source on timeout. Leave it time to return that fallback.
+        lookup_timeout = LOOKUP_TIMEOUT + 1 if station else LOOKUP_TIMEOUT
+        async with asyncio.timeout(max(0, min(lookup_timeout, deadline - monotonic()))):
+            image = await search_commercial_image(place.name, place.latitude, place.longitude, **({"station": True} if station else {}))
         if image is not None and _safe_candidate(image):
-            decision = await _classify(place, image, min(AI_TIMEOUT, max(0, deadline - monotonic())))
-            if decision is True or (decision is None and (definite_place_photo(place.name, image.description) or image.photo_evidence)):
+            score = station_photo_score(image, place.name) if station else 0
+            # Name, position, subject and rights were checked by the licensed
+            # provider. English station captions must not depend on an idle AI.
+            station_overview = station and score >= 2 and image.provider in {"wikipedia", "wikidata", "commons"}
+            decision = None if station_overview else await _classify(place, image, min(AI_TIMEOUT, max(0, deadline - monotonic())))
+            if (not station or score > 0) and (decision is True or (decision is None and (station_overview or definite_place_photo(place.name, image.description) or image.photo_evidence))):
                 result = PhotoResponse(
                     status="ready", place_id=place.id, place_name=place.name,
                     image_url=image.image_url, author_name=image.author_name,
@@ -165,7 +179,7 @@ async def fetch_route_photo(request: PhotoRequest) -> PhotoResponse:
                     hit, cached = _negative_cache.get(key)
                 if hit:
                     if cached.status == "ready":
-                        return cached
+                        return _for_place(cached, place)
                     if cached.failure_reason == "lookup_failed":
                         unavailable = cached
                     continue
@@ -177,7 +191,7 @@ async def fetch_route_photo(request: PhotoRequest) -> PhotoResponse:
                 # Cancellation of one viewer must not cancel another viewer's lookup.
                 result = await asyncio.shield(task)
                 if result.status == "ready":
-                    return result
+                    return _for_place(result, place)
                 if result.failure_reason == "lookup_failed":
                     unavailable = result
     except TimeoutError:

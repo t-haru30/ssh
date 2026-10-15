@@ -33,6 +33,39 @@ def client_with(*payloads):
 
 
 class LicensedPhotoTests(unittest.IsolatedAsyncioTestCase):
+    async def test_station_uses_representative_image_instead_of_fast_food_photo(self):
+        representative=photos._file_image(file_page('名古屋駅の駅舎の外観'),'wikipedia')
+        food=photos._file_image(file_page('名古屋駅のきしめんを撮影した写真'),'commons')
+        ready=asyncio.Event()
+        async def article(*args,**kwargs):
+            await ready.wait()
+            return representative
+        with patch.object(photos,'_search_wikipedia',AsyncMock(side_effect=article)),patch.object(photos,'_wikidata',AsyncMock(return_value=None)),patch.object(photos,'_commons',AsyncMock(return_value=food)),patch.object(photos,'_openverse',AsyncMock()) as openverse,patch.object(photos.httpx,'AsyncClient',return_value=AsyncMock()):
+            job=asyncio.create_task(photos.search_verified_place_image('名古屋駅',36.654,138.1894,station=True))
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+            self.assertFalse(job.done())
+            ready.set()
+            self.assertIs(await job,representative)
+            openverse.assert_not_called()
+        self.assertEqual(photos._active_lookups,0)
+
+    async def test_station_commons_prefers_exterior_and_still_rejects_wrong_location(self):
+        food=file_page('名古屋駅のきしめんの写真')
+        sign=file_page('名古屋駅の駅名標を撮影した写真')
+        exterior=file_page('名古屋駅の駅舎の外観')
+        wrong=file_page('名古屋駅の駅舎の外観',latitude=35)
+        image=await photos._commons(client_with({'query':{'pages':[food,sign,wrong,exterior]}}),'名古屋駅',36.654,138.1894,geo=True,station=True)
+        self.assertEqual(image.description,'名古屋駅の駅舎の外観')
+
+    async def test_station_keeps_completed_source_when_preferred_provider_times_out(self):
+        exterior=photos._file_image(file_page('盛岡駅の駅舎の外観'),'commons')
+        async def blocked(*args,**kwargs):
+            await asyncio.Event().wait()
+        with patch.object(photos,'LOOKUP_SECONDS',.02),patch.object(photos,'_search_wikipedia',AsyncMock(side_effect=blocked)),patch.object(photos,'_wikidata',AsyncMock(return_value=None)),patch.object(photos,'_commons',AsyncMock(return_value=exterior)),patch.object(photos.httpx,'AsyncClient',return_value=AsyncMock()):
+            self.assertIs(await photos.search_verified_place_image('盛岡駅',36.654,138.1894,station=True),exterior)
+        self.assertEqual(photos._active_lookups,0)
+
     def setUp(self):
         photos._openverse_used = 0
         photos._openverse_minute_used = 0

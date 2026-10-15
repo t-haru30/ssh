@@ -1,0 +1,97 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "generate",
+  "date": "2026-10-15",
+  "display_label": "AI生成・ジャンルイメージ",
+  "assets": [
+    {
+      "key": "cafe-garden-v1",
+      "label": "カフェ",
+      "subject": "A quiet garden cafe terrace, one white ceramic cup of coffee with visible dark coffee and a delicate small cheesecake on a wooden table, green plants and soft garden bokeh. The coffee and cafe table are dominant; no Japanese set meal, no rice, no grilled fish.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A quiet garden cafe terrace, one white ceramic cup of coffee with visible dark coffee and a delicate small cheesecake on a wooden table, green plants and soft garden bokeh. The coffee and cafe table are dominant; no Japanese set meal, no rice, no grilled fish.",
+      "src": "/images/genres/cafe-garden-v1.webp",
+      "original_file": "cafe-garden-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 270302
+    },
+    {
+      "key": "bakery-v1",
+      "label": "ベーカリー",
+      "subject": "A small inviting bakery counter, golden croissants, a crusty baguette and a round loaf of bread in a woven basket, paper-lined wooden tray, warm morning window light. The recognizable baked bread is central and dominant, no meal plates.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A small inviting bakery counter, golden croissants, a crusty baguette and a round loaf of bread in a woven basket, paper-lined wooden tray, warm morning window light. The recognizable baked bread is central and dominant, no meal plates.",
+      "src": "/images/genres/bakery-v1.webp",
+      "original_file": "bakery-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 369398
+    },
+    {
+      "key": "izakaya-v1",
+      "label": "居酒屋",
+      "subject": "An intimate Japanese izakaya wooden counter with a few yakitori skewers on a ceramic plate, edamame and a small clear glass of pale beer, cozy warm evening amber light, softly suggested unlabeled wooden shelves. Small shared dishes and counter atmosphere, no full rice set meal.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: An intimate Japanese izakaya wooden counter with a few yakitori skewers on a ceramic plate, edamame and a small clear glass of pale beer, cozy warm evening amber light, softly suggested unlabeled wooden shelves. Small shared dishes and counter atmosphere, no full rice set meal.",
+      "src": "/images/genres/izakaya-v1.webp",
+      "original_file": "izakaya-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 291544
+    },
+    {
+      "key": "udon-v1",
+      "label": "うどん",
+      "subject": "A close elevated view of a Japanese ceramic bowl filled with unmistakably thick pale white udon noodles in clear amber dashi broth, chopped green scallions, a wooden spoon at the side, simple wooden tabletop and gentle steam. No thin ramen noodles, no sushi.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A close elevated view of a Japanese ceramic bowl filled with unmistakably thick pale white udon noodles in clear amber dashi broth, chopped green scallions, a wooden spoon at the side, simple wooden tabletop and gentle steam. No thin ramen noodles, no sushi.",
+      "src": "/images/genres/udon-v1.webp",
+      "original_file": "udon-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 265836
+    },
+    {
+      "key": "onsen-v1",
+      "label": "温泉・入浴施設",
+      "subject": "A peaceful generic Japanese outdoor onsen hot spring bath, clear gently steaming water in an irregular natural stone pool, wooden edge and a small woven basket on the dry deck, lush mountain greenery beyond. No people or bathing bodies, no real identifiable inn.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A peaceful generic Japanese outdoor onsen hot spring bath, clear gently steaming water in an irregular natural stone pool, wooden edge and a small woven basket on the dry deck, lush mountain greenery beyond. No people or bathing bodies, no real identifiable inn.",
+      "src": "/images/genres/onsen-v1.webp",
+      "original_file": "onsen-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 418910
+    },
+    {
+      "key": "aquarium-v1",
+      "label": "水族館",
+      "subject": "Inside a serene public aquarium, a broad large blue viewing window containing a small school of silver fish and a graceful ray swimming above gently lit rocks, dark curved viewing room in foreground. Clearly an indoor aquarium exhibit, no ocean landscape, no whales, no humans.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: Inside a serene public aquarium, a broad large blue viewing window containing a small school of silver fish and a graceful ray swimming above gently lit rocks, dark curved viewing room in foreground. Clearly an indoor aquarium exhibit, no ocean landscape, no whales, no humans.",
+      "src": "/images/genres/aquarium-v1.webp",
+      "original_file": "aquarium-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 242482
+    },
+    {
+      "key": "observation-v1",
+      "label": "展望台",
+      "subject": "A generic high observation deck with a simple safe glass railing framing a broad view over a fictional Japanese city, low mountains and sky at golden afternoon light. The viewing platform and sweeping vista are central, no famous tower or identifiable skyline, no people.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A generic high observation deck with a simple safe glass railing framing a broad view over a fictional Japanese city, low mountains and sky at golden afternoon light. The viewing platform and sweeping vista are central, no famous tower or identifiable skyline, no people.",
+      "src": "/images/genres/observation-v1.webp",
+      "original_file": "observation-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 307666
+    },
+    {
+      "key": "coast-v1",
+      "label": "海辺・海岸",
+      "subject": "A quiet Japanese coast walk, turquoise sea, small sandy cove, a rocky headland and a gently curving coastal footpath with low natural grasses, clear summer daylight. Sea and shoreline are dominant and recognizable, no mountain river, no famous rock formation or identifiable location.",
+      "prompt": "Use case: illustration-story. Asset type: fallback genre image for a Japanese travel planning app, clearly an editorial illustration, not a real venue photograph. Style: refined warm watercolor and gouache with fine paper texture, realistic recognizable subjects but visibly painted, forest green and sage accents, ivory and natural wood. Composition: landscape 3:2, one cohesive full bleed opaque scene, central subject readable in a square center crop and a short mobile card. No text, letters, numbers, menus, signage, logos, watermarks, identifiable real venues, landmarks, brands, or people. Primary request: A quiet Japanese coast walk, turquoise sea, small sandy cove, a rocky headland and a gently curving coastal footpath with low natural grasses, clear summer daylight. Sea and shoreline are dominant and recognizable, no mountain river, no famous rock formation or identifiable location.",
+      "src": "/images/genres/coast-v1.webp",
+      "original_file": "coast-v1.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 456278
+    }
+  ],
+  "usage": "Fictional genre illustrations only; prefer real photos. No depiction or verification of a particular venue. No live image generation requests."
+}
