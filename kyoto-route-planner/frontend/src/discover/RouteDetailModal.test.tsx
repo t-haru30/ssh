@@ -59,6 +59,12 @@ describe("RouteDetailModal", () => {
     const onPlan = vi.fn();
     const onClose = vi.fn();
     render(<RouteDetailModal route={savedRoute} onClose={onClose} onPlanInSearch={onPlan} />);
+    const dialog = screen.getByRole("dialog");
+    const scrollRegion = dialog.querySelector(".discover-modal-scroll");
+    const footer = dialog.querySelector(".discover-modal-footer");
+    expect(scrollRegion?.contains(dialog.querySelector(".discover-modal-timeline"))).toBe(true);
+    expect(scrollRegion?.contains(footer)).toBe(false);
+    expect(footer?.parentElement).toBe(dialog);
     expect(screen.queryByText(/観光の起点：東京都・エリア中心/)).toBeNull();
     expect(screen.getByText(/滞在の目安 45分/)).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId("map-origin").textContent).toBe("東京都・エリア中心"));
