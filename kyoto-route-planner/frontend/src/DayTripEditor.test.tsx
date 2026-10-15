@@ -151,6 +151,9 @@ describe("DayTripEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "この時刻で記録する" }));
     const original = changed.mock.calls.at(-1)![0].stops[0];
     expect(original.completed).toBe(true);
+    const completedVisual = view.container.querySelector<HTMLElement>('[data-spot-id="0"] .trip-stop-visual')!;
+    expect(completedVisual.querySelector(".trip-stop-header .trip-completed-badge")).toBeNull();
+    expect(completedVisual.querySelector(":scope > .trip-completed-badge")?.textContent).toBe("訪問済み");
     expect((screen.getByRole("button", { name: "公園の時間と費用を編集" }) as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByRole("button", { name: "公園を削除" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole("button", { name: "美術館を訪問済みにする" })).toBeTruthy();
