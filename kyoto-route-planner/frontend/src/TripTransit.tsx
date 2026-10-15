@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Origin, RouteTimelineTransit } from "./types";
 import { isRouteTimelineItem } from "./apiValidation";
+import { WalkingEstimate } from "./WalkingEstimate";
 
 export function transitRouteLabel(lineName: string | null | undefined, fallback = "路線未確認") {
   const routeName = lineName
@@ -72,6 +73,7 @@ export function TripTransit({ from, to, date, departureMinute, initial, onResult
         ? `${fare.toLocaleString("ja-JP")}円`
         : busy || externalBusy ? "確認中…" : "未確認"}</strong></div>
     </div>
+    {initial?.mode !== "walk" && <WalkingEstimate from={from} to={to} />}
     <details className="trip-transit-details">
       <summary>交通手段・所要時間を見る</summary>
       <dl className="trip-transit-summary">

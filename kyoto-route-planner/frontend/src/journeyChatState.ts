@@ -1,11 +1,11 @@
 import { isPlace, isRecord } from "./apiValidation";
-import { minimumDwell, newTripStop, scheduleTrip, MAX_TRIP_STOPS } from "./dayTrip";
+import { isTripEndpoint, minimumDwell, newTripStop, scheduleTrip, MAX_TRIP_STOPS } from "./dayTrip";
 import type { TripPlan } from "./dayTrip";
 import type { Place } from "./types";
 
 export type ChatMessage = { role: "user" | "assistant"; text: string; context?: string };
 const candidate = (p: Place) => ({ id: p.id, name: p.name, category: p.category, latitude: p.latitude, longitude: p.longitude });
-const chatStop = (s: TripPlan["stops"][number]) => ({ place: candidate(s.place), dwell: s.dwellMinutes, locked: s.locked,
+const chatStop = (s: TripPlan["stops"][number]) => ({ place: candidate(s.place), dwell: s.dwellMinutes, locked: s.locked || isTripEndpoint(s.place),
   completed: Boolean(s.completed), anchor: s.anchorTime, spending: s.spending, start: s.start, end: s.end, travel: s.travel });
 export function chatPayload(plan: TripPlan, candidates: Place[], message: string, history: ChatMessage[], appliedPlan?: TripPlan) {
   return {
@@ -44,10 +44,12 @@ export function readChatProposal(value: unknown, plan: TripPlan, candidates: Pla
     seen.add(item.id);
     const old = plan.stops.find(s => s.place.id === item.id) ?? appliedPlan?.stops.find(s => s.place.id === item.id);
     if (item.dwell < minimumDwell(places.get(item.id)!)) throw new Error("施設の滞在は30分以上で指定してください。");
-    if (old && (old.locked || old.completed) && item.dwell !== old.dwellMinutes) throw new Error("固定・訪問済みの予定を変更する案は反映できません。");
+    if (old && (old.locked || old.completed || isTripEndpoint(old.place)) && item.dwell !== old.dwellMinutes) throw new Error("固定・訪問済みの予定を変更する案は反映できません。");
     return old ? { ...old, dwellMinutes: item.dwell } : newTripStop(places.get(item.id)!, item.dwell);
   });
   for (const snapshot of [plan, ...(appliedPlan ? [appliedPlan] : [])]) {
+    if (snapshot.stops.some(s => s.place.id === "trip-arrival") && stops[0]?.place.id !== "trip-arrival"
+      || snapshot.stops.some(s => s.place.id === "trip-return") && stops.at(-1)?.place.id !== "trip-return") throw new Error("出発・帰着の起点は移動・削除できません。");
     for (const old of snapshot.stops) if ((old.locked || old.completed) && (!seen.has(old.place.id) || stops.find(s => s.place.id === old.place.id)?.dwellMinutes !== old.dwellMinutes)) throw new Error("固定・訪問済みの予定を削除・変更する案は反映できません。");
     const completed = snapshot.stops.filter(s => s.completed);
     if (completed.some((s, i) => stops[i]?.place.id !== s.place.id)) throw new Error("訪問済みの順番は変更できません。");

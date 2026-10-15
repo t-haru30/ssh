@@ -1,16 +1,18 @@
 import type { Origin, RouteTimelineTransit } from "./types";
 import { transitPlaceName } from "./transitPlaceName";
+import { WalkingEstimate } from "./WalkingEstimate";
 
 const modeLabel = (mode: string) => ({train:"電車",bus:"バス",walk:"徒歩",walking:"徒歩",car:"車",plane:"飛行機",ship:"船",strange:"接続"}[mode] ?? "移動");
 
-export function PreviewTransit({from,to,minutes,unknown,loading,transit,places}: {
+export function PreviewTransit({from,to,minutes,unknown,loading,transit,places,fromPoint,toPoint}: {
   from:string;to:string;minutes:number;unknown?:boolean;loading:boolean;
-  transit?:RouteTimelineTransit;places:Origin[];
+  transit?:RouteTimelineTransit;places:Origin[];fromPoint?:Origin;toPoint?:Origin;
 }) {
   const legs=transit?.legs ?? [];
   return <li className="journey-between-stops" aria-label={`プレビューの移動：${from}から${to}`}>
     <div className="preview-transit">
       <div className="preview-transit-heading"><strong>{unknown ? "所要時間未確認" : `約${minutes}分`}</strong><span>{transit?.fare_yen != null ? `概算 ${transit.fare_yen.toLocaleString("ja-JP")}円` : loading ? "交通費を確認中…" : "交通費 未確認"}</span></div>
+      {fromPoint && toPoint && transit?.mode !== "walk" && <WalkingEstimate from={fromPoint} to={toPoint} />}
       {legs.length > 0 && <div className="preview-transit-modes" aria-label="移動手段の順番">{legs.map((leg,index) => <span key={index}>{index > 0 && <span className="preview-transit-arrow" aria-hidden="true">›</span>}<span className={`preview-mode preview-mode--${leg.mode}`}>{modeLabel(leg.mode)}</span></span>)}</div>}
       {!transit && <p className="preview-transit-note">{loading ? "交通経路を検索中…" : "距離からの徒歩概算"}</p>}
       {transit && <details className="preview-transit-details"><summary>経路・乗換を見る</summary>

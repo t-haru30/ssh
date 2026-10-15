@@ -8,7 +8,7 @@ import type { FormEvent, ReactNode } from "react";
 import { TripDialog } from "./TripDialog";
 import { PlaceDetailsDialog } from "./discover/PlaceDetails";
 import type { Origin, Place, Preference, RouteSuggestion } from "./types";
-import { facilityAllowance, transportMatches, completeNextStop, completedStopCount, undoLastCompletedStop, distanceKm, minimumDwell, MAX_TRIP_STOPS, newTripStop, readTripNumber, scheduleTrip, tripChanges, tripClock, clockMinutes } from "./dayTrip";
+import { facilityAllowance, transportMatches, completeNextStop, completedStopCount, undoLastCompletedStop, distanceKm, isTripEndpoint, minimumDwell, MAX_TRIP_STOPS, newTripStop, readTripNumber, scheduleTrip, tripChanges, tripClock, clockMinutes } from "./dayTrip";
 import type { TripPlan, TripStop } from "./dayTrip";
 import { preferenceReason } from "./tripPreferences";
 import { JourneyReview } from "./JourneyReview";
@@ -116,7 +116,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const preferenceKey = JSON.stringify(currentPreferences ?? []);
   const originKey = JSON.stringify(origin);
   const destinationKey = JSON.stringify(destination);
-  const [plan, setPlan] = useState(() => initialPlan ?? scheduleTrip(
+  const [plan, setPlan] = useState(() => initialPlan ? { ...initialPlan, stops: initialPlan.stops.map(stop => isTripEndpoint(stop.place) ? { ...stop, locked: true } : stop) } : scheduleTrip(
     { departureTime, availableMinutes: initialAvailableMinutes ?? 360, budget: 5000, preferences: currentPreferences }, origin, date,
     source.places.map(place => ({ ...newTripStop(place, initialDwellMinutes?.[place.id]), anchorTime: initialAnchorTimes?.[place.id] ?? null })),
     { route: source, date: sourceDate, time: sourceTime }, null, destination,
@@ -289,7 +289,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       if (anchorTime && clockMinutes(anchorTime) < clockMinutes(plan.input.departureTime)) throw new Error("固定開始時刻は出発以降にしてください。");
       const spendingText = String(data.get("spending") ?? "");
       const spending = spendingText === "" ? null : readTripNumber(spendingText, "施設・飲食の見積もり", 0, 50000);
-      const locked = data.get("locked") === "on" || anchorTime !== null;
+      const locked = isTripEndpoint(stop.place) || data.get("locked") === "on" || anchorTime !== null;
       setPreview(compute(plan.stops.map(item => item.place.id === stop.place.id ? { ...item, dwellMinutes, anchorTime, spending, locked } : item)));
       setError(null);
     } catch (cause) { setError(toFriendlyMessage(cause)); }
@@ -402,17 +402,17 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
           <div className="trip-stop-header"><span className="trip-stop-number">{stop.completed ? "✓" : index + 1}</span><div><time>{unknownTravel && !stop.completed ? "交通経路の確認後に時刻を表示" : `${tripClock(stop.start)} — ${tripClock(stop.end)}`}{stop.completed ? "（記録）" : ""}</time><h4>{stop.place.name}</h4></div>{stop.completed ? <span className="trip-completed-badge">訪問済み</span> : stop.locked && <span className="trip-fixed-badge">固定中</span>}</div>
         </div><details className="trip-stop-fold"><summary className="trip-stop-fold-summary">操作</summary>
           <div className="trip-stop-actions">
-            <button type="button" disabled={stop.completed} className={stop.locked ? "trip-pin active" : "trip-pin"} aria-pressed={stop.locked} aria-label={`${stop.place.name}${stop.locked ? "の固定を解除" : "を固定"}`} onClick={() => { if (!stop.completed) adopt(compute(plan.stops.map(item => item.place.id === stop.place.id ? { ...item, locked: !item.locked, anchorTime: item.locked ? null : item.anchorTime } : item)), stop.locked ? "固定を解除しました。" : "行き先と滞在時間を固定しました。"); }}>{stop.completed ? "記録を保護中" : stop.locked ? "● 固定中" : "○ 固定する"}</button>
+            <button type="button" disabled={stop.completed || isTripEndpoint(stop.place)} className={stop.locked ? "trip-pin active" : "trip-pin"} aria-pressed={stop.locked} aria-label={`${stop.place.name}${isTripEndpoint(stop.place) ? "は起点のため固定" : stop.locked ? "の固定を解除" : "を固定"}`} onClick={() => { if (!stop.completed && !isTripEndpoint(stop.place)) adopt(compute(plan.stops.map(item => item.place.id === stop.place.id ? { ...item, locked: !item.locked, anchorTime: item.locked ? null : item.anchorTime } : item)), stop.locked ? "固定を解除しました。" : "行き先と滞在時間を固定しました。"); }}>{stop.completed ? "記録を保護中" : isTripEndpoint(stop.place) ? "起点・固定" : stop.locked ? "● 固定中" : "○ 固定する"}</button>
             <button type="button" disabled={stop.completed} aria-expanded={editId === stop.place.id} aria-controls={`trip-edit-${index}`} aria-label={`${stop.place.name}の時間と費用を編集`} onClick={() => { setEditId(editId === stop.place.id ? null : stop.place.id); setError(null); }}>時間・費用</button>
-            <button type="button" disabled={stop.locked} title={stop.locked ? "固定を解除すると入れ替えできます" : undefined} aria-label={`${stop.place.name}を入れ替える`} onClick={() => { setChooser({ swapId: stop.place.id }); setCandidateNote(""); }}>入れ替え</button>
-            <button type="button" disabled={stop.locked} title={stop.locked ? "固定を解除すると削除できます" : undefined} aria-label={`${stop.place.name}を削除`} onClick={() => setPreview(compute(plan.stops.filter(item => item.place.id !== stop.place.id), null))}>削除</button>
+            <button type="button" disabled={stop.locked || isTripEndpoint(stop.place)} title={isTripEndpoint(stop.place) ? "出発・帰着の起点は変更できません" : stop.locked ? "固定を解除すると入れ替えできます" : undefined} aria-label={`${stop.place.name}を入れ替える`} onClick={() => { setChooser({ swapId: stop.place.id }); setCandidateNote(""); }}>入れ替え</button>
+            <button type="button" disabled={stop.locked || isTripEndpoint(stop.place)} title={isTripEndpoint(stop.place) ? "出発・帰着の起点は削除できません" : stop.locked ? "固定を解除すると削除できます" : undefined} aria-label={`${stop.place.name}を削除`} onClick={() => setPreview(compute(plan.stops.filter(item => item.place.id !== stop.place.id), null))}>削除</button>
           </div>
           {index === completedCount && <button type="button" className="trip-visit-button" aria-label={`${stop.place.name}を訪問済みにする`} onClick={() => setVisitDialog("complete")}>✓ 訪問済みにする</button>}
           {stop.completed && index === completedCount - 1 && <button type="button" className="trip-visit-undo" aria-label={`${stop.place.name}の訪問済みを解除`} onClick={() => setVisitDialog("undo")}>訪問済みを解除する</button>}
           {stop.locked && <p className="trip-fixed-help">{stop.completed ? "場所・開始・終了時刻・滞在時間を記録して保護しています。" : stop.anchorTime ? "開始時刻を指定 · 行き先・滞在時間を保持" : "行き先・滞在時間を保持 · 開始時刻は移動により変わります"}</p>}
           {editId === stop.place.id && <form className="trip-stop-edit" id={`trip-edit-${index}`} key={`${stop.place.id}-${stop.dwellMinutes}-${stop.spending}-${stop.anchorTime}`} onSubmit={event => editStop(event, stop)}>
             <div className="trip-field-grid"><label>滞在時間（分）<input name="dwell" type="number" min={minimumDwell(stop.place)} max="360" defaultValue={stop.dwellMinutes} required /></label><label>固定開始時刻（任意）<input name="anchor" type="time" defaultValue={stop.anchorTime ?? ""} /></label><label>施設・飲食の見積もり（円）<input name="spending" type="number" min="0" max="50000" defaultValue={stop.spending ?? facilityAllowance(stop.place)} placeholder="不明なら空欄" /></label></div>
-            <label className="trip-checkbox"><input name="locked" type="checkbox" defaultChecked={stop.locked} />行き先と滞在時間を固定する</label><small>開始時刻を指定すると、この予定を固定します。費用は1人分の見積もりです。</small>
+            <label className="trip-checkbox"><input name="locked" type="checkbox" defaultChecked={stop.locked} disabled={isTripEndpoint(stop.place)} />{isTripEndpoint(stop.place) ? "出発・帰着の起点は固定です" : "行き先と滞在時間を固定する"}</label><small>開始時刻を指定すると、この予定を固定します。費用は1人分の見積もりです。</small>
             <div className="trip-stop-actions"><button type="submit" className="trip-primary">変更を確認</button><button type="button" onClick={() => { setEditId(null); setError(null); }}>編集を閉じる</button></div>
           </form>}
         </details></article>
