@@ -19,6 +19,16 @@ const place: Place = { id: "garden", name: "散策庭園", category: "庭園", l
 const article = { description: "公開記事に基づく庭園の説明です。", source_url: "https://ja.wikipedia.org/wiki/庭園",
   source_title: "庭園", license_url: "https://creativecommons.org/licenses/by-sa/4.0/", license_name: "CC BY-SA 4.0", note: null };
 const response = (data: unknown, ok = true) => ({ ok, json: async () => data }) as Response;
+it('updates the open card from DB facts and retains their sources and check dates',async()=>{
+  const current={...place,id:'osm-node-123'};let hours='10:00〜18:00';let revision='a'.repeat(64);
+  vi.stubGlobal('fetch',vi.fn(async(url:string)=>response(url==='/api/places/current-information' ? {status:'ready',records:[{place_id:current.id,name:current.name,latitude:current.latitude,longitude:current.longitude,status:'updated',revision,field_checked_at:{opening_hours:'2026-10-15T01:00:00Z'},official:{...official,opening_hours:hours,field_sources:{opening_hours:'https://garden.example.jp/guide'}}}]} : url==='/api/places/description' ? {...article,official} : null)));
+  render(<PlaceIntroduction place={current} enableOfficialSearch={false}/>);
+  await screen.findByText('10:00〜18:00',{exact:false});
+  expect(screen.getByRole('link',{name:'開館・営業時間の出典'}).getAttribute('href')).toBe('https://garden.example.jp/guide');
+  expect(screen.getByText(/DB確認：2026\/10\/15/)).toBeTruthy();
+  hours='11:00〜19:00';revision='b'.repeat(64);act(()=>window.dispatchEvent(new Event('focus')));
+  await screen.findByText('11:00〜19:00',{exact:false});expect(screen.queryByText('10:00〜18:00',{exact:false})).toBeNull();
+});
 const official = { url: "https://garden.example.jp/", description: "公式紹介に基づく庭園の特色です。", description_source_url: "https://garden.example.jp/about",
   highlights: ["公式に紹介された季節の花"], opening_hours: "9:00〜17:00", closed_days: "毎週月曜日", admission: "大人500円", checked_at: "2026-10-12T10:00:00Z", status: "verified", note: null };
 function deferred() {

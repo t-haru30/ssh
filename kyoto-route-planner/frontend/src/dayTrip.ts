@@ -59,6 +59,12 @@ export function distanceKm(a: Origin | Place, b: Origin | Place) {
     + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin((b.longitude - a.longitude) * rad / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, x)));
 }
+export const isTripEndpoint = (place: Place) => ["trip-arrival", "trip-return"].includes(place.id);
+/** Same local approximation as unsolved short segments: 1.3 detour, 80 m/min. */
+export function walkingEstimateMinutes(from: Origin, to: Origin): number | null {
+  const km = distanceKm(from, to);
+  return Number.isFinite(km) && km >= .01 && km <= 5 ? Math.ceil(km * 1000 * 1.3 / 80) : null;
+}
 /** Planning allowances, not verified admission prices or fares. User values take precedence. */
 export function facilityAllowance(place: Place): number {
   if (["trip-arrival", "trip-return"].includes(place.id)) return 0;
@@ -79,7 +85,7 @@ export function transportMatches(plan: TripPlan): boolean {
 }
 export const minimumDwell = (place: Place) => ["trip-arrival", "trip-return"].includes(place.id) ? 15 : 30;
 export function newTripStop(place: Place, dwellMinutes = 90): TripStop {
-  return { place, dwellMinutes: Math.max(minimumDwell(place), Math.min(360, dwellMinutes)), locked: false, anchorTime: null, spending: null, completed: false, completedStart: null, completedEnd: null, completedTravel: null };
+  return { place, dwellMinutes: Math.max(minimumDwell(place), Math.min(360, dwellMinutes)), locked: isTripEndpoint(place), anchorTime: null, spending: null, completed: false, completedStart: null, completedEnd: null, completedTravel: null };
 }
 /** Completed visits must remain a contiguous prefix in their recorded order. */
 export function completedStopCount(stops: TripStop[]) {
@@ -117,6 +123,8 @@ export function scheduleTrip(
   returnTo: Origin = origin,
   options: { checkPlanningLimits?: boolean } = {},
 ): TripPlan {
+  // Saved journeys from before endpoint protection may still have locked=false.
+  stops = stops.map(stop => isTripEndpoint(stop.place) && !stop.locked ? { ...stop, locked: true } : stop);
   const departure = clockMinutes(input.departureTime);
   completedStopCount(stops);
   const historyViolations: string[] = [];

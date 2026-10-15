@@ -111,6 +111,8 @@ satisfied, explain that through ask_user. If validation fails, inspect the error
 their constraints cannot be met. Do not repeat an identical failing proposal.
 Preserve locked stops and their dwell times; preserve completed stops at the beginning
 in their existing order. All appointments, costs and constraints are application-owned.
+If supplied, trip-arrival must stay first and trip-return must stay last. Never remove,
+replace, reorder or change the dwell of these fixed station endpoints.
 Never invent a place, URL, opening time, price or claim live transport verification.
 Match requested venue types only using explicit name/category evidence. A generic
 飲食店 category does NOT establish that a place is a cafe. For a cafe request, use
@@ -192,9 +194,12 @@ def validate(payload: ChatRequest, proposal: Proposal) -> list[str]:
         if choice.dwell < (15 if choice.id in {"trip-arrival", "trip-return"} else 30):
             errors.append("施設の滞在は30分以上で指定してください。")
     for stop in [*(payload.applied_stops or []), *payload.stops]:
-        if (stop.locked or stop.completed) and (stop.place.id not in chosen or chosen[stop.place.id].dwell != stop.dwell):
+        if (stop.locked or stop.completed or stop.place.id in {'trip-arrival','trip-return'}) and (stop.place.id not in chosen or chosen[stop.place.id].dwell != stop.dwell):
             errors.append(f"{stop.place.name}は固定・訪問済みです。削除や滞在時間の変更はできません。")
     for snapshot in [payload.stops, payload.applied_stops or []]:
+        ids = {s.place.id for s in snapshot}
+        if ('trip-arrival' in ids and selected[:1] != ['trip-arrival']) or ('trip-return' in ids and selected[-1:] != ['trip-return']):
+            errors.append('出発・帰着の起点は移動・削除できません。')
         completed = [s.place.id for s in snapshot if s.completed]
         if selected[:len(completed)] != completed:
             errors.append("訪問済みの予定は先頭で元の順序を保持してください。")

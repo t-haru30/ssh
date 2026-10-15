@@ -14,6 +14,7 @@ it("searches a facility pair with the rolled-over departure date and keeps fare 
   const onResult = vi.fn();
   const view = render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={1455} onResult={onResult} />);
   expect(screen.getByText("運賃目安：").nextElementSibling?.textContent).toBe("未確認");
+  expect(screen.getByText('徒歩なら約19分')).toBeTruthy();
   expect(screen.queryByText(/250円/)).toBeNull();
   fireEvent.click(screen.getByRole("button"));
   await waitFor(() => expect(onResult).toHaveBeenCalledWith(result));

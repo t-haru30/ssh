@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from app.frontend_files import FrontendFiles
 from pydantic import Field
+from dotenv import load_dotenv
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -426,6 +427,9 @@ async def _preview_sequential_timeline(payload: RoutePreviewRequest, deadline: f
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     configure_ai_environment()
+    # DB settings must be available on the first request, before any legacy API client runs.
+    if os.getenv('PYTHON_DOTENV_DISABLED') != '1':
+        load_dotenv(Path(__file__).resolve().parents[1] / '.env', override=False)
     initialize_database()
     _app.state.fallback_ideas = load_fallback_ideas()
     yield
@@ -449,6 +453,13 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 from app.catalog_admin import CatalogAdminGuard, router as catalog_admin_router
 app.add_middleware(CatalogAdminGuard)
 app.include_router(catalog_admin_router)
+from app.catalog_information import CatalogInformationRequest, catalog_information
+
+@app.post('/api/places/current-information')
+@limiter.limit('30/minute')
+async def public_catalog_information(request: Request, payload: CatalogInformationRequest):
+    return JSONResponse(await catalog_information(payload.ids),headers={'Cache-Control':'no-store'})
+
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 ROUTE_STOP_STAY_MINUTES = 90
 ROUTE_TIMELINE_VERSION = 1

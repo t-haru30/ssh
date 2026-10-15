@@ -24,6 +24,14 @@ def call(name, args):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_station_endpoints_cannot_be_moved_removed_or_changed_even_in_old_unlocked_plans(self):
+        p=payload()
+        arrival=p.stops[0].model_copy(deep=True);arrival.place.id='trip-arrival';arrival.place.name='到着駅';arrival.dwell=15;arrival.locked=False
+        returning=arrival.model_copy(deep=True);returning.place.id='trip-return';returning.place.name='帰路駅'
+        p.stops=[arrival,*p.stops,returning]
+        for choice in [proposal(('a',60),('trip-arrival',15),('trip-return',15)),proposal(('trip-arrival',15),('trip-return',15),('a',60)),proposal(('a',60),('trip-return',15)),proposal(('trip-arrival',30),('a',60),('trip-return',15))]:
+            self.assertTrue(chat.validate(p,choice))
+        self.assertEqual(chat.validate(p,proposal(('trip-arrival',15),('a',60),('b',30),('trip-return',15))),[])
     def test_latest_explicit_removal_duration_and_order_are_checked(self):
         p = payload(); p.stops[0].locked = False
         p.message = "美術館を外して、カフェを60分にして"

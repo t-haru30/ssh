@@ -10,6 +10,7 @@ import { OfficialPlaceSearch } from "./OfficialPlaceSearch";
 import "./placeDetails.css";
 import { useGoogleVenueInfo } from "./useGoogleVenueInfo";
 import { GoogleVenueSummary } from "./GoogleVenueSummary";
+import { useCatalogInformation } from "./useCatalogInformation";
 
 type Introduction = {
   description: string;
@@ -80,6 +81,7 @@ function readIntroduction(value: unknown): Introduction | null {
 
 /** Mounted only after a person opens a destination; browsing cards makes no API calls. */
 export function PlaceIntroduction({ place, stayMinutes, recommendations = [], reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {
+  const database = useCatalogInformation(place);
   const googleInfos = useGoogleVenueInfo([place], enableOfficialSearch, true);
   const googleInfo = googleInfos[0];
   const [introduction, setIntroduction] = useState<Introduction | null>(null);
@@ -117,9 +119,20 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], re
   const routeNote = place.description.trim();
   const hasRouteNote = routeNote && !recommendations.some(reason => reason.trim() === routeNote) && !/^.{1,4}[都道府県]$/.test(routeNote);
   const matchedOfficial = readOfficial(googleInfo?.official);
-  const official = catalogOfficial?.description ? catalogOfficial : matchedOfficial ?? catalogOfficial;
+  const providerOfficial = catalogOfficial?.description ? catalogOfficial : matchedOfficial ?? catalogOfficial;
+  const databaseOfficial = readOfficial(database?.official);
+  const official = databaseOfficial ? {...databaseOfficial,
+    description:providerOfficial?.description ?? databaseOfficial.description,
+    description_source_url:providerOfficial?.description_source_url ?? databaseOfficial.description_source_url,
+    highlights:providerOfficial?.highlights ?? databaseOfficial.highlights,
+    opening_hours:databaseOfficial.opening_hours ?? providerOfficial?.opening_hours ?? null,
+    closed_days:databaseOfficial.closed_days ?? providerOfficial?.closed_days ?? null,
+    admission:databaseOfficial.admission ?? providerOfficial?.admission ?? null,
+    field_sources:{...providerOfficial?.field_sources,...databaseOfficial.field_sources},
+    notices:providerOfficial?.notices ?? databaseOfficial.notices} : providerOfficial;
   const needsOfficialSearch = enableOfficialSearch && (!official || !official.opening_hours || !official.closed_days || !official.admission);
-  const detailsLoading = loading || loadedIdentity !== identity;
+  const descriptionLoading = loading || loadedIdentity !== identity;
+  const detailsLoading = descriptionLoading && !databaseOfficial;
   return <div className="place-introduction">
     <GoogleVenueSummary info={googleInfos[0]} showDetails />
     <div className="place-details-facts"><span>{place.category}</span>{stayMinutes !== undefined && <span>滞在の目安 {stayMinutes}分</span>}</div>
@@ -133,18 +146,20 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], re
       <ul>{official!.highlights.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
       <p className="place-details-source">見どころの参考：<a href={official!.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a></p>
     </section>}
-    {detailsLoading ? <p role="status" className="place-details-status">この場所の説明を確認しています…</p>
+    {descriptionLoading ? <p role="status" className="place-details-status">この場所の説明を確認しています…</p>
       : official?.description ? <div className="place-details-description"><h4>この場所について</h4><p>{official.description}</p><p className="place-details-source">出典：<a href={official.description_source_url} target="_blank" rel="noopener noreferrer">施設の公式紹介</a>をもとに作成</p></div>
       : introduction ? <div className="place-details-description"><h4>この場所について</h4><p>{introduction.description}</p>
         <p className="place-details-source">出典：<a href={introduction.source_url} target="_blank" rel="noopener noreferrer">{introduction.source_title} — Wikipediaの寄稿者</a>（冒頭の抜粋・<a href={introduction.license_url} target="_blank" rel="noopener noreferrer">{introduction.license_name}</a>）</p>
       </div> : !googleInfo && <p role="status" className="place-details-status">この場所に一致する詳しい説明は、現在確認できません。施設の案内や地図をご確認ください。</p>}
     {!detailsLoading && <section className="place-official-guide" aria-label="訪問前の確認"><h4>訪問前の確認</h4>
       <p className="place-details-source">施設データ：{place.id.startsWith("osm-") ? "OpenStreetMap" : place.tags?.source ?? "登録済みの施設候補"}{googleInfo ? " · 詳細情報：Google Maps・施設の案内" : ""}。施設の説明と営業時間・料金は、それぞれの出典をご確認ください。</p>
+      {databaseOfficial && <p className="place-details-source" role="status">施設DBの確認済み情報を自動反映しています。{database?.status !== "updated" && "更新内容は要確認のため、前回の確認済み情報を表示しています。"}</p>}
       <dl>{([
         ["opening_hours", "開館・営業時間"], ["closed_days", "休館・定休日"], ["admission", "入館・利用料金"],
       ] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{official?.[key] ?? (key === "opening_hours" && googleInfo?.opening_hours.length ? <>{googleInfo.opening_hours.join("\n")} <a href={googleInfo.source_url} target="_blank" rel="noopener noreferrer">Google Maps掲載情報</a></> : "未確認")}
         {official?.[key] && official.field_sources[key] && <> <a href={official.field_sources[key]} target="_blank" rel="noopener noreferrer" aria-label={`${label}の出典`}>出典</a></>}
         {official?.[key] && !official.field_sources[key] && <small>（項目別の出典は未確認）</small>}
+        {databaseOfficial?.[key] && database?.field_checked_at?.[key] && !Number.isNaN(Date.parse(database.field_checked_at[key])) && <small>（DB確認：{new Date(database.field_checked_at[key]).toLocaleDateString("ja-JP",{timeZone:"Asia/Tokyo"})}）</small>}
       </dd></div>)}</dl>
       <p className="place-details-status">未確認は、休業・閉館や無料を意味しません。当日の営業状況は公式案内でご確認ください。</p>
       {official?.notices.map(notice => <aside className="place-official-notice" aria-label="臨時休館のお知らせ" key={notice.url}>

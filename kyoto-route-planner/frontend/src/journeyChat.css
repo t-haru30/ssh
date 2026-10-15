@@ -155,12 +155,8 @@
 .journey-between-stops p { margin-top:5px; }
 .journey-between-stops details { margin-top:6px; font-size:11px; }
 .journey-between-stops summary { cursor:pointer; }
-.journey-chat .journey-drag-handle { cursor:grab; padding:3px; min-height:32px; height:32px; font-size:15px; flex-shrink:0; }
-.journey-chat .journey-drag-handle:active { cursor:grabbing; }
-.journey-artifact-stops > li.is-drop-target { box-shadow:inset 0 3px var(--chat-accent); background:color-mix(in srgb,var(--chat-accent) 12%,var(--paper)); }
-.journey-artifact-stops > li.is-dragging { opacity:.5; }
-.journey-move-actions { display:flex; gap:6px; margin-top:8px; }
-.journey-chat .journey-move-actions button { font-size:10px; padding:5px 8px; min-height:30px; }
+.journey-artifact-stops > li > .journey-move-actions { display:flex; flex:none; flex-direction:column; gap:6px; width:40px; margin:0; }
+.journey-chat .journey-move-actions button { font-size:22px; padding:0; width:40px; min-height:42px; line-height:1; }
 
 .journey-artifact-stops > .journey-between-stops { padding:14px 12px; border-left:2px solid var(--line); margin:4px 0 4px 11px; border-radius:0 10px 10px 0; }
 .preview-transit { color:var(--ink); }
@@ -245,7 +241,7 @@
   .journey-chat .journey-large-map .map-canvas { height:46svh; min-height:260px; }
   .journey-chat .journey-large-map .map-frame { min-height:260px; }
   .journey-sort-hint { display:none; }
-  .journey-chat .journey-move-actions button { min-height:44px; font-size:12px; }
+  .journey-chat .journey-move-actions button { min-height:44px; font-size:22px; }
 }
 
 @media(max-width:650px) {
