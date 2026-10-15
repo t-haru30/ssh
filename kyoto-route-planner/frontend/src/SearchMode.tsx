@@ -254,13 +254,30 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   const validDeparture = validDate && validTime;
   const editorDate = validDate ? departureDate : dayTripPlan?.date ?? localDateInputValue();
   const editorTime = validTime ? departureTime : dayTripPlan?.input.departureTime ?? "09:00";
-  const [formCollapsed, setFormCollapsed] = useState(false);
   const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
   const timelineAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setFormCollapsed(hasResult);
-  }, [hasResult]);
+  const saveJourney = () => {
+    try {
+      const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
+        : dayTripPlan ? savedJourney(dayTripPlan, theme, planTitle) : null;
+      if (!idea) return;
+      if (sourceFavoriteId && favorites.some(favorite => favorite.id === sourceFavoriteId)) {
+        setSaveNotice(replaceFavorite(sourceFavoriteId, idea) ? "元のプランを更新しました。「編集済み」として保存しています。" : "元のプランを更新できませんでした。元の保存内容は保持しています。");
+        return;
+      }
+      if (isFavorite(idea)) { setSaveNotice("この旅程はすでに保存済みです。"); return; }
+      if (saveFavorite(idea)) {
+        setSourceFavoriteId(favoriteId(idea, idea.prefecture_code ?? prefecture.code));
+        setSaveNotice("保存しました。「保存済み」からいつでも開けます。");
+      } else setSaveNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。");
+    } catch (cause) { setSaveNotice(toFriendlyMessage(cause, "旅程を保存できませんでした。しおりをコピーして残してください。")); }
+  };
+  const journeySaveButton = <button
+    type="button"
+    className="journey-save-button"
+    disabled={searching || (isOvernight ? !overnightResult : !dayTripPlan?.stops.length)}
+    onClick={saveJourney}
+  >♡ この旅程を保存</button>;
 
   // Scroll Spy: 画面中央の帯に入ったスポットをハイライトする
   useEffect(() => {
@@ -283,8 +300,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     if (!active || preset?.overnightSnapshot || !preset?.autoSearch || loading || autoSearchNonce.current === preset.nonce || !suggestions[0]
       || suggestions[0].places.map(p => p.id).join("|") !== preset.places.map(p => p.id).join("|")) return;
     autoSearchNonce.current = preset.nonce;
-    formRef.current?.requestSubmit();
-  }, [active, preset, loading, suggestions]);
+    void submitJourney(departureDate, departureTime);
+  }, [active, preset, loading, suggestions, departureDate, departureTime]);
 
   const locationGeneration = useRef(0);
   useEffect(() => { setLocating(false); return () => { locationGeneration.current++; }; }, [active, preset?.nonce]);
@@ -350,12 +367,18 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-
     event.preventDefault();
-    if (searching || (editingOnly && !hasResult)) return;
     const submitted = submittedDeparture(event.currentTarget, departureDate, departureTime);
     if (!submitted.valid) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
-    const requestDate = submitted.departureDate, requestTime = submitted.departureTime;
+    await submitJourney(submitted.departureDate, submitted.departureTime);
+  }
+
+  async function submitJourney(requestDate: string, requestTime: string) {
+    if (searching || (editingOnly && !hasResult)) return;
+    if (!validDepartureDate(requestDate) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(requestTime)) {
+      setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。");
+      return;
+    }
     setDepartureDate(requestDate); setDepartureTime(requestTime);
     if (!isOvernight && !hasResult) { proposeLocally(requestDate, requestTime); return; }
     if (!isOvernight && !returnTo) { setError("帰着駅を選んでください。"); return; }
@@ -482,10 +505,8 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
   async function handleRegenerate() {
     if (searching || loading || suggestions.length === 0 || dayTripPlan?.stops.length === 0) return;
-    const submitted = submittedDeparture(formRef.current, departureDate, departureTime);
-    if (!submitted.valid) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
-    const requestDate = submitted.departureDate, requestTime = submitted.departureTime;
-    setDepartureDate(requestDate); setDepartureTime(requestTime);
+    if (!validDeparture) { setError("出発日と出発時刻を入力してください。現在の旅程は保持しています。"); return; }
+    const requestDate = departureDate, requestTime = departureTime;
     if (!origin || !returnTo) { setError("出発駅と帰着駅を選んでください。"); return; }
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
@@ -550,6 +571,11 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
     }
   }
 
+  async function retryJourney() {
+    if (isOvernight) await submitJourney(departureDate, departureTime);
+    else await handleRegenerate();
+  }
+
 
   return (
     <div
@@ -574,7 +600,14 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
       {!isOvernight && suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
-          <h2>{planTitle.trim() || "私のConcierGO"}</h2>
+          <input
+            className="route-copy-title"
+            aria-label="プラン名"
+            maxLength={500}
+            value={planTitle}
+            placeholder="旅の名前を入力"
+            onChange={event => setPlanTitle(event.target.value)}
+          />
         </section>
       )}
 
@@ -598,34 +631,13 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
       )}
 
       {editingOnly && !hasResult && <section className="discovery-question"><h2>{favorites.length ? "編集したい旅程を選びましょう" : "まずは、気になる旅を選びましょう"}</h2><p>{favorites.length ? "下の保存した旅程から選ぶか、新しい旅を見つけられます。" : "「見つける」で旅程を選ぶと、ここで行き先・順番・時間を編集できます。"}</p><button type="button" className="idea-primary-button" onClick={onDiscover}>旅を見つける →</button></section>}
-      {(!editingOnly || hasResult) && <div className={`search-stage${hasResult ? " has-result" : ""}`}>
-        {hasResult && <div className="trip-departure-fields" aria-label="旅の出発日時">
-          <label>出発日<input name="departure_date" form="journey-conditions" type="date" value={departureDate} onChange={event=>setDepartureDate(event.target.value)} disabled={searching || hasCompleted} required /></label>
-          <label>出発時刻<input name="departure_time" form="journey-conditions" type="time" value={departureTime} onChange={event=>setDepartureTime(event.target.value)} disabled={searching || hasCompleted} required /></label>
-          <button type="button" className="idea-primary-button" disabled={searching || loading || !validDeparture || hasCompleted} onClick={()=>formRef.current?.requestSubmit()}>{searching ? "交通情報を更新中…" : "この日時で交通情報を更新"}</button>
-        </div>}
-        {hasResult && (
-          <button
-            className="form-toggle-button"
-            type="button"
-            aria-expanded={!formCollapsed}
-            aria-controls="planner-card"
-            onClick={() => setFormCollapsed((value) => !value)}
-          >
-            {formCollapsed ? "条件を変更する" : "条件を閉じる"}
-            <span aria-hidden="true">{formCollapsed ? "▾" : "▴"}</span>
-          </button>
-        )}
-        <section
-          className={`planner-card${hasResult && formCollapsed ? " collapsed" : ""}`}
-          id="planner-card"
-          aria-labelledby="planner-title"
-        >
+      {!editingOnly && !hasResult && <div className="search-stage">
+        <section className="planner-card" id="planner-card" aria-labelledby="planner-title">
                     <div className="section-heading">
             <div>
               <h2 id="planner-title">{editingOnly ? "旅程の条件を編集" : "旅のプランを立てる"}</h2>
             </div>
-            <span className="step-number">01 <i>/ 02</i></span>
+            {!editingOnly && <span className="step-number">01 <i>/ 02</i></span>}
           </div>
 
           {!editingOnly && <div className="plan-type-toggle">
@@ -644,7 +656,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
           }
           <form id="journey-conditions" ref={formRef} onSubmit={handleSubmit}>
-            <div className="journey-form-intro"><span>01</span><div><strong>旅の条件を決めましょう</strong><p>行きたい場所と、過ごせる時間から。</p></div></div>
+            {!editingOnly && <div className="journey-form-intro"><span>01</span><div><strong>旅の条件を決めましょう</strong><p>行きたい場所と、過ごせる時間から。</p></div></div>}
             <div className="journey-range-fields">
               <TravelRangeControl label="移動範囲・出発地からの半径（km）" value={travelRadius} onChange={setTravelRadius} disabled={searching} hint="県境を越えて、この範囲内の候補を探します。" />
               {isOvernight && <label>泊数<select value={nights} disabled={searching} onChange={event => setNights(Number(event.target.value))}>{[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}泊{n + 1}日</option>)}</select><small>同じ宿を拠点に提案します。経路検索は1日あたり最大2回です。</small></label>}
@@ -682,10 +694,19 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             </fieldset>}
             {!isOvernight && <fieldset className="trip-preferences">
               <legend>好きな過ごし方 <small>複数選べます</small></legend>
-              <div className="trip-preference-options">{PREFERENCE_OPTIONS.map(item => <label key={item.value} className={preferences.includes(item.value) ? "selected" : ""}>
-                <input type="checkbox" checked={preferences.includes(item.value)} disabled={searching} onChange={event => setPreferences(current => event.target.checked ? [...current, item.value] : current.filter(value => value !== item.value))} />
-                <span>{item.label}</span>
-              </label>)}</div>
+              <div className="trip-preference-options">{PREFERENCE_OPTIONS.map(item => {
+                const selected = preferences.includes(item.value);
+                return <button
+                  key={item.value}
+                  type="button"
+                  className={selected ? "selected" : ""}
+                  aria-pressed={selected}
+                  disabled={searching}
+                  onClick={() => setPreferences(current => current.includes(item.value)
+                    ? current.filter(value => value !== item.value)
+                    : [...current, item.value])}
+                >{item.label}</button>;
+              })}</div>
               <small>{hasResult ? "行き先は保持し、おすすめの理由を更新します。" : "好みに合う場所を優先します。未選択なら、発着地から近い候補で提案します。"}</small>
             </fieldset>}
 
@@ -758,28 +779,13 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
           </div>}
           {departureDate < localDateInputValue() && <p className="error-panel" role="status">出発日が過去になっています。上の「出発日」を変更し、交通情報を更新してください。</p>}
           <section className="results-section" aria-live="polite">
-            <div className="section-heading results-heading">
-              <div><h2>私の旅のしおり</h2>{!isOvernight && <label className="plan-title-input">プラン名<input maxLength={500} value={planTitle} placeholder="旅の名前を入力" onChange={event => setPlanTitle(event.target.value)} /></label>}</div>
-              <button type="button" className="journey-save-button" disabled={searching || (isOvernight ? !overnightResult : !dayTripPlan?.stops.length)} onClick={() => {
-                try {
-                  const idea = isOvernight && overnightResult ? savedOvernight(overnightResult.snapshot, overnightResult.theme)
-                    : dayTripPlan ? savedJourney(dayTripPlan, theme, planTitle) : null;
-                  if (!idea) return;
-                  if (sourceFavoriteId && favorites.some(favorite => favorite.id === sourceFavoriteId)) {
-                    setSaveNotice(replaceFavorite(sourceFavoriteId, idea) ? "元のプランを更新しました。「編集済み」として保存しています。" : "元のプランを更新できませんでした。元の保存内容は保持しています。");
-                    return;
-                  }
-                  if (isFavorite(idea)) { setSaveNotice("この旅程はすでに保存済みです。"); return; }
-                  if (saveFavorite(idea)) {
-                    setSourceFavoriteId(favoriteId(idea, idea.prefecture_code ?? prefecture.code));
-                    setSaveNotice("保存しました。「保存済み」からいつでも開けます。");
-                  } else setSaveNotice("保存できませんでした。画面上部の保存機能の案内をご確認ください。");
-                } catch (cause) { setSaveNotice(toFriendlyMessage(cause, "旅程を保存できませんでした。しおりをコピーして残してください。")); }
-              }}>♡ この旅程を保存</button>
-              <span className="result-date">{isOvernight ? overnightResult?.snapshot.departureDate ?? overnightSuggestion?.days[0]?.date ?? departureDate : editorDate}</span>
-            </div>
+            {isOvernight && <div className="section-heading results-heading">
+              <div><h2>私の旅のしおり</h2></div>
+              {journeySaveButton}
+              <span className="result-date">{overnightResult?.snapshot.departureDate ?? overnightSuggestion?.days[0]?.date ?? departureDate}</span>
+            </div>}
             {saveNotice && <p className="journey-save-notice" role="status">{saveNotice}</p>}
-            {error && <div className="error-panel" role="alert"><strong>{isOvernight ? "ルートを表示できません" : "交通情報を更新できません"}</strong><span>{error} 現在の旅程は保持しています。</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => formRef.current?.requestSubmit()}>再試行</button></div>}
+            {error && <div className="error-panel" role="alert"><strong>{isOvernight ? "ルートを表示できません" : "交通情報を更新できません"}</strong><span>{error} 現在の旅程は保持しています。</span><button type="button" className="error-retry-button" disabled={searching || loading || !validDeparture} onClick={() => void retryJourney()}>再試行</button></div>}
 
         {isOvernight && overnightSuggestion && (
           <div className="route-options">
@@ -831,6 +837,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             <DayTripEditor key={tripSession} source={suggestions[0]} sourceDate={transportStamp.date} sourceTime={transportStamp.time}
               routePriority={routePriority} onRoutePriorityChange={setRoutePriority} preferNearbyAirport={preferNearbyAirport} onPreferNearbyAirportChange={setPreferNearbyAirport}
               origin={origin ?? suggestions[0].origin} returnTo={returnTo ?? origin ?? suggestions[0].origin} preferences={preferences} date={editorDate} departureTime={editorTime} candidates={editingCandidates}
+              headerAction={journeySaveButton}
               initialAnchorTimes={preset?.nonce === tripSession ? preset.anchorTimes : undefined} initialAvailableMinutes={preset?.nonce === tripSession ? preset.availableMinutes : undefined} initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
             <div className="route-swipe-controls">
               <button className="regenerate-button" type="button" onClick={() => void handleRegenerate()} disabled={searching || loading || !validDeparture || dayTripPlan?.stops.length === 0}>
@@ -848,7 +855,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
         <div className="trip-dialog-actions"><button type="button" className="trip-primary" onClick={() => {
           const cleared = clearJourneyDraft(); setDraftRestored(false); setDraftSaved(false);
           if (!cleared) setError("ブラウザ内の前回の下書きを削除できませんでした。再読み込みすると前回の旅程が復元される場合があります。");
-          setPlanTitle("私のConcierGO"); setSourceFavoriteId(undefined); setSuggestions([]); setDayTripPlan(null); setTripSession(Date.now()); setFormCollapsed(false); setConfirmStartOver(false);
+          setPlanTitle("私のConcierGO"); setSourceFavoriteId(undefined); setSuggestions([]); setDayTripPlan(null); setTripSession(Date.now()); setConfirmStartOver(false);
         }}>下書きを閉じて新しく作る</button><button type="button" onClick={() => setConfirmStartOver(false)}>今の旅程を残す</button></div>
       </TripDialog>}
     </div>

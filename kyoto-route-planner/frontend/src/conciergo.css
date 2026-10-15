@@ -73,19 +73,16 @@ input, select, textarea { max-width: 100%; min-width: 0; }
 .map-toolbar button { min-height: 40px; }
 .search-mode--result { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 0 26px; align-items: start; }
 .tab-panel[hidden] { display: none !important; }
-.search-mode--result { grid-template-areas: "hero hero" "files files" "banner banner" "form map" "timeline map"; }
+.search-mode--result { grid-template-areas: "hero hero" "files files" "banner banner" "timeline map"; }
 .search-mode--result > .hero { grid-area: hero; }
 .search-mode--result > .journey-file-controls { grid-area: files; }
 .search-mode--result > .route-copy-banner { grid-area: banner; }
 .search-mode--result > .hero, .search-mode--result > .journey-file-controls, .search-mode--result > .route-copy-banner { grid-column: 1 / -1; }
-.search-mode--result > .search-stage { grid-column: 1; grid-row: 4; width: 100%; margin: 20px 0; }
-.search-mode--result > .timeline-area { grid-column: 1; grid-row: 5; min-width: 0; margin-top: 0; }
-.search-mode--result > .hero-map, .search-mode--result:has(.trip-editor) > .hero-map { grid-column: 2; grid-row: 4 / span 2; position: sticky; top: 24px; width: 100%; height: min(75vh, 700px); min-height: 400px; max-width: none; margin: 20px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; }
-.search-mode--result .form-toggle-button { width: 100%; margin: 0 0 12px; border-radius: 12px; min-height: 46px; }
+.search-mode--result > .timeline-area { grid-column: 1; grid-row: 4; min-width: 0; margin-top: 0; }
+.search-mode--result > .hero-map, .search-mode--result:has(.trip-editor) > .hero-map { grid-column: 2; grid-row: 4; position: sticky; top: 24px; width: 100%; height: min(75vh, 700px); min-height: 400px; max-width: none; margin: 20px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; }
 .search-mode--result .results-heading { flex-wrap: wrap; }
 .search-mode--result .result-date { width: 100%; color: var(--muted); }
 .search-mode--result .results-section { margin-top: 18px; }
-.search-mode--result > .search-stage { grid-area: form; }
 .search-mode--result > .timeline-area { grid-area: timeline; }
 .search-mode--result > .hero-map, .search-mode--result:has(.trip-editor) > .hero-map { grid-area: map; }
 .overnight-day-section { border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-top: 18px; }
@@ -93,7 +90,6 @@ input, select, textarea { max-width: 100%; min-width: 0; }
 @media (max-width: 900px) {
   .search-mode--result { display: block; }
   .search-mode--result > .hero-map, .search-mode--result:has(.trip-editor) > .hero-map { position: relative; top: auto; height: 310px; min-height: 240px; }
-  .search-mode--result > .search-stage { max-width: none; }
 }
 @media (max-width: 600px) {
   .app-shell { padding: 0 16px 24px; }

@@ -212,6 +212,20 @@ it("explains missing answers and orders departure before prefecture and gateway"
   expect(prefecture.querySelector('optgroup[label="北陸"]')?.textContent).toContain("石川県");
 });
 
+it("shows the preference note as a placeholder and hides it when text is entered", () => {
+  mount();
+  goMood();
+  const duration = screen.getByRole("group", { name: "どれくらい楽しむ？" });
+  fireEvent.click(within(duration).getByRole("button", { name: "半日" }));
+  const textarea = screen.getByLabelText(/旅に加えたいことはありますか？/);
+  expect((textarea as HTMLTextAreaElement).placeholder).toBe("例：金沢で庭園を歩いて、カフェに寄りたい\n注意：入力した希望を優先します。");
+  expect(textarea.parentElement?.querySelector("small")).toBeNull();
+  fireEvent.change(textarea, { target: { value: "京都の庭園を歩きたい" } });
+  expect((textarea as HTMLTextAreaElement).value).toBe("京都の庭園を歩きたい");
+  expect(screen.queryByText(/施設名や食べたいものも書けます/)).toBeNull();
+  expect(screen.queryByText(/行き先は次の画面で選べます/)).toBeNull();
+});
+
 it("combines interests in step one and sends written wishes ahead of optional tags", async () => {
   mount(); revealThemes();
   fireEvent.click(screen.getByRole("button",{name:"自然・景色"}));

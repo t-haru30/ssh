@@ -13,6 +13,11 @@ import { FacilityPhoto } from "./FacilityPhoto";
 import { useMobileLayout } from "./useMobileLayout";
 import "./journeyChat.css";
 
+function journeyTimeRange(plan: TripPlan) {
+  const departure = plan.input.departureTime.replace(/^0(?=\d:)/, "");
+  return `${departure}~${tripClock(plan.returnMinute)}`;
+}
+
 export function JourneyChat({ plan, candidates, onApply, disabled = false,routePriority="time",preferNearbyAirport=true }: {
   plan: TripPlan; candidates: Place[]; onApply: (plan: TripPlan) => void; disabled?: boolean;
   routePriority?:"time"|"price";preferNearbyAirport?:boolean;
@@ -257,7 +262,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
 
         <div className="journey-artifact-scroll">
           <div className="journey-artifact-heading"><span>{shown.date.replaceAll("-", "/")} · {shown.stops.length}か所</span><h4>{reviewing ? "旅程の変更案" : "いまの旅程"}</h4><p>{shown.origin.name} → {shown.returnTo.name}</p></div>
-          <div className="journey-artifact-stats"><div><span>帰着の目安</span><strong>{reviewing && <del>{tripClock(plan.returnMinute)}</del>}{tripClock(shown.returnMinute)}</strong></div><div><span>1人あたりの概算</span><strong>{reviewing && money(plan) !== money(shown) && <del>{money(plan)}</del>}{money(shown)}</strong></div></div>
+          <div className="journey-artifact-stats"><div><span>出発〜帰着の目安</span><strong>{reviewing && <del>{journeyTimeRange(plan)}</del>}{journeyTimeRange(shown)}</strong></div><div><span>1人あたりの概算</span><strong>{reviewing && money(plan) !== money(shown) && <del>{money(plan)}</del>}{money(shown)}</strong></div></div>
           {reviewing && <div className="journey-diff-summary"><strong>今回の変更</strong><ul>{shown.stops.some((s, i) => plan.stops.some(o => o.place.id === s.place.id) && plan.stops[i]?.place.id !== s.place.id) && <li>訪問順を変更：{shown.stops.map(s => s.place.name).join(" → ")}</li>}{tripChanges(plan, pending!).map((change, i) => <li key={i}>{change}</li>)}</ul></div>}
           {reviewing && routeStatus === "loading" && <p role="status" className="journey-sort-hint">全区間の経路・移動時間を取得しています…</p>}
           {reviewing && routeStatus === "failed" && <p role="status">交通経路を取得できませんでした。徒歩概算を表示しています。<button type="button" onClick={() => setRouteRetry(v => v + 1)}>経路を再取得</button></p>}
@@ -304,5 +309,4 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   const launcher = <button type="button" className="journey-mobile-launcher" onClick={() => {setChatVisible(true);setMobilePanel("chat");setMobileOpen(true);}}>✦ AIに相談{pending ? " · 変更案あり" : "して旅程を編集"}</button>;
   return <>{host ? createPortal(mobile ? launcher : content, host) : mobile ? launcher : content}{mobile && mobileOpen && createPortal(<dialog className="journey-mobile-dialog" ref={dialog} aria-label="旅程をチャットで編集" onCancel={() => setMobileOpen(false)}>{content}</dialog>, document.body)}</>;
 }
-
 

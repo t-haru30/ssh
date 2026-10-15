@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { JourneyChat } from "./JourneyChat";
 import { chatPayload, readChatProposal } from "./journeyChatState";
-import { completeNextStop, newTripStop, scheduleTrip } from "./dayTrip";
+import { completeNextStop, newTripStop, scheduleTrip, tripClock } from "./dayTrip";
 import type { RouteSuggestion } from "./types";
 
 vi.mock("./LazyMapView", () => ({ LazyMapView: ({places}: {places: {name: string}[]}) => <div data-testid="preview-map">{places.map(p => p.name).join(" → ")}</div> }));
@@ -74,6 +74,14 @@ describe("chat proposal validation", () => {
 });
 
 describe("JourneyChat", () => {
+  it("shows the departure and estimated return times together", () => {
+    const current = plan();
+    render(<JourneyChat plan={current} candidates={places} onApply={vi.fn()} />);
+
+    expect(screen.getByText("出発〜帰着の目安").nextElementSibling?.textContent)
+      .toBe(`9:00~${tripClock(current.returnMinute)}`);
+  });
+
   it("allows adoption after transport refresh even when an edit exceeds legacy hidden limits", async () => {
     const base = plan(); base.input.availableMinutes = 120;
     base.stops.forEach(stop => { stop.spending = 3000; });
