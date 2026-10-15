@@ -17,3 +17,9 @@ frontend/public/data/*
 !frontend/public/data/landmark-seeds.json
 **/.test-tmp
 **/test-*.log
+
+**/.venv-cloud
+**/.runtime
+**/.test-tmp
+**/*.sqlite3
+**/*.sqlite3-*

@@ -26,3 +26,9 @@ backend/.test-tmp/
 frontend/.test-tmp/
 backend/test-*.log
 frontend/*.log
+
+**/.venv-cloud
+**/.runtime
+**/.test-tmp
+**/*.sqlite3
+**/*.sqlite3-*
