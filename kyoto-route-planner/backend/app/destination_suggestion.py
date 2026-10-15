@@ -10,8 +10,12 @@ from app.station_search import search_stations
 
 class DestinationRequest(BaseModel):
     text: str = Field(min_length=1, max_length=500)
+    explicit_only: bool = False
 
 async def suggest_destination(payload: DestinationRequest):
+    if payload.explicit_only:
+        from app.written_destination import resolve_written_destination
+        return await resolve_written_destination(payload.text)
     key = gemini_api_key()
     model = setting("GEMINI_MODEL", setting("RECOMMENDATION_GEMINI_MODEL", "gemini-3.8-flash")).strip()
     if not key or not re.fullmatch(r"gemini-[a-zA-Z0-9.-]{1,80}", model):

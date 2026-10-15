@@ -4,6 +4,16 @@ import { StationSearch } from "./StationSearch";
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 const original = { name: "京都駅", latitude: 35, longitude: 135 };
+it("shows a selected gateway outside the first three without reordering the main choices", () => {
+  const options=["静岡駅","浜松駅","三島駅","修善寺駅","伊東駅"].map((name,i)=>({name,latitude:35+i*.01,longitude:139}));
+  render(<StationSearch label="行き先" optionLayout="buttons" value={options[3]} options={options} onChange={vi.fn()} />);
+  expect(screen.getByRole("button",{name:"修善寺駅"}).getAttribute("aria-pressed")).toBe("true");
+  const main=screen.getByRole("group",{name:"行き先"}).querySelector('[aria-label="主要駅の候補"]');
+  expect([...main!.querySelectorAll("button")].map(button=>button.textContent)).toEqual(["静岡駅","浜松駅","三島駅","修善寺駅"]);
+  fireEvent.click(screen.getByRole("button",{name:"ほかの候補を見る"}));
+  expect(screen.getAllByRole("button",{name:"修善寺駅"})).toHaveLength(1);
+  expect(screen.getByRole("button",{name:"伊東駅"})).toBeTruthy();
+});
 it("fetches only on explicit search and selects same-name candidates by coordinates", async () => {
   const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [
     { name: "中野駅", latitude: 35, longitude: 139, code: "1", prefecture: "東京都", lines: ["中央線"] },

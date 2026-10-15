@@ -28,6 +28,8 @@ import type { DiscoveryAgent } from "./dynamicRoutes";
 import { diverseRoutes } from "./routeDiversity";
 import { ProgressStatus } from "../ProgressStatus";
 import { requestedWishes } from "../travelWishes";
+import { destinationsFromText, type DestinationSuggestion } from "../destinationFromText";
+import { isOrigin, isRecord } from "../apiValidation";
 
 
 import { MEALS, mealError, mealTime, minuteOf, type MealChoice } from "../mealPlanning";
@@ -68,6 +70,66 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     try { return localStorage.getItem("discovery-prefer-landmarks") === "true"; } catch { return false; }
   });
   const [departure, setDeparture] = useState<Origin>(() => ({ name: "名古屋駅", latitude: 35.1709, longitude: 136.8815 }));
+  const [destinationSuggestions, setDestinationSuggestions] = useState<DestinationSuggestion[]>([]);
+  const [destinationNote, setDestinationNote] = useState("");
+  const [resolvingDestination, setResolvingDestination] = useState(false);
+  const [destinationRetry, setDestinationRetry] = useState(false);
+  const destinationRequest = useRef<AbortController | null>(null);
+  const destinationVisible = useRef(false); destinationVisible.current = active && step === 2;
+  const lastDestinationText = useRef<string | null>(null);
+  function cancelWrittenDestination(retryOnReturn = false) {
+    if (destinationRequest.current && retryOnReturn) lastDestinationText.current = null;
+    destinationRequest.current?.abort(); destinationRequest.current = null; setResolvingDestination(false);
+  }
+  useEffect(() => { if (!active || step !== 2) cancelWrittenDestination(true); }, [active, step]);
+  useEffect(() => () => { destinationRequest.current?.abort(); destinationRequest.current = null; }, []);
+  function clearWrittenDestination() {
+    cancelWrittenDestination(); setDestinationRetry(false); setDestinationNote(""); setDestinationSuggestions([]);
+  }
+  function setWrittenDestination(item: DestinationSuggestion) {
+    invalidateDestinationResults(); setArea(item.area); setDestination(item.origin); setCrossPrefecture(false);
+    setDestinationNote(`「${item.placeName}」に合わせて、行き先を${item.prefecture}・${item.origin.name}に設定しました。`);
+  }
+  function chooseWrittenDestination(item: DestinationSuggestion) {
+    clearWrittenDestination(); setWrittenDestination(item);
+  }
+  function applyWrittenDestination(force = false) {
+    const text = preferenceText.normalize("NFKC").replace(/\s+/g, "");
+    if (!force && lastDestinationText.current === text) return;
+    clearWrittenDestination();
+    lastDestinationText.current = text;
+    const suggestions = destinationsFromText(text, localOrigins);
+    setDestinationSuggestions(suggestions.length > 1 ? suggestions : []);
+    if (suggestions.length === 1) {
+      setWrittenDestination(suggestions[0]);
+    }
+    if (!suggestions.length && text) void resolveWrittenDestination(preferenceText.trim());
+  }
+  async function resolveWrittenDestination(text: string) {
+    const controller = new AbortController(); destinationRequest.current = controller; setResolvingDestination(true);
+    const timer = window.setTimeout(() => controller.abort(), 28_000);
+    try {
+      const response = await fetch("/api/destination-suggestion", {method:"POST",signal:controller.signal,headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({text,explicit_only:true})});
+      const data: unknown = await response.json();
+      if (destinationRequest.current !== controller || controller.signal.aborted || !destinationVisible.current) return;
+      if (!response.ok || !isRecord(data) || !["ready","no_location"].includes(String(data.status)) || !Array.isArray(data.locations)
+        || data.locations.length > 3 || !data.locations.every(item => isRecord(item) && typeof item.place_name === "string" && item.place_name.length > 0 && item.place_name.length <= 80 && isOrigin(item.origin)
+          && indexEntries.some(entry => entry.name === item.prefecture))
+        || data.status === "ready" && !data.locations.length || data.status === "no_location" && data.locations.length) throw new Error();
+      const choices = data.locations.map(item => ({placeName:item.place_name as string,prefecture:item.prefecture as string,
+        area:indexEntries.find(entry => entry.name === item.prefecture)!.id,origin:item.origin as Origin}));
+      setDestinationSuggestions(choices.length > 1 ? choices : []);
+      if (choices.length === 1) setWrittenDestination(choices[0]);
+    } catch {
+      if (destinationRequest.current === controller && destinationVisible.current) {
+        setDestinationNote("入力した地名の起点を確認できませんでした。行き先を選ぶか、もう一度確認できます。"); setDestinationRetry(true);
+      }
+    } finally {
+      window.clearTimeout(timer);
+      if (destinationRequest.current === controller) { destinationRequest.current = null; setResolvingDestination(false); }
+    }
+  }
   const [destination, setDestination] = useState<Origin>(() => localOrigins[area] ?? { name: `${prefecture.name}・エリア中心`, latitude: indexEntries.find(item => item.id === area)!.center[0], longitude: indexEntries.find(item => item.id === area)!.center[1] });
   const [liked, setLiked] = useState<DatasetRoute[]>([]);
   const [locating, setLocating] = useState(false);
@@ -155,7 +217,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
     resultsRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     resultsHeadingRef.current?.focus({ preventScroll: true });
   }
-  function returnToConditions(step: 0 | 1 | 2) { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); cancelAdvance(); setSelected(null); setStep(step); }
+  function returnToConditions(step: 0 | 1 | 2) { requestRef.current?.abort(); requestRef.current = null; setGenerating(false); cancelAdvance(); setSelected(null); if (step === 2) applyWrittenDestination(); else cancelWrittenDestination(true); setStep(step); }
   useEffect(() => { if (homeRequest) returnToConditions(0); }, [homeRequest]);
   function editConditions() { returnToConditions(0); }
   function editDestination() { returnToConditions(2); }
@@ -208,7 +270,9 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const nextBlockedReason = step === 0 && profileStage < 3
     ? ["誰と出かけるかを選んでください。「指定しない」でも進めます。", "旅のペースを選んでください。", "好きな過ごし方を1つ以上選んでください。"][profileStage]
     : step === 1 && !durationAnswered ? "どれくらい楽しむかを選んでください。"
-    : step > 0 && step < 3 && mealWarning ? mealWarning : step === 2 && locating ? "現在地を取得中です。取得が終わるまでお待ちください。" : "";
+    : step > 0 && step < 3 && mealWarning ? mealWarning : step === 2 && resolvingDestination ? "入力した地名の行き先を確認しています。都道府県や駅を選んで続けることもできます。"
+    : step === 2 && locating ? "現在地を取得中です。取得が終わるまでお待ちください。"
+    : step === 2 && destinationSuggestions.length > 1 ? "入力した地名から行き先を1つ選んでください。" : "";
   const { index, history } = collections[collectionKey] ?? EMPTY_BROWSE;
   const stack = routes.slice(index, index + 3);
   const areaName = entry.name;
@@ -216,7 +280,8 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   function invalidateDestinationResults() {
     requestRef.current?.abort(); requestRef.current=null; cancelAdvance();setGenerating(false);setRemote(null);setSelected(null);setNotice(null);setCollections({});
   }
-  function chooseArea(nextArea: string) { invalidateDestinationResults();setArea(nextArea); const place = indexEntries.find(item => item.id === nextArea)!; setDestination(localOrigins[nextArea] ?? { name: `${place.name}・エリア中心`, latitude: place.center[0], longitude: place.center[1] }); }
+  function chooseArea(nextArea: string) { clearWrittenDestination();invalidateDestinationResults();setArea(nextArea); const place = indexEntries.find(item => item.id === nextArea)!; setDestination(localOrigins[nextArea] ?? { name: `${place.name}・エリア中心`, latitude: place.center[0], longitude: place.center[1] }); }
+  function changeDestination(station: Origin) { clearWrittenDestination();invalidateDestinationResults();setDestination(station);setCrossPrefecture(false); }
   function updateCollection(next: BrowseState) { setCollections(current => ({ ...current, [collectionKey]: next })); }
   function undo() {
     interactedWithDeck.current=true;
@@ -286,7 +351,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           {mealWarning && <p role="alert">{mealWarning}</p>}
         </fieldset></div>}
         <div className="profile-reveal"><label className="discovery-free-text">旅に加えたいことはありますか？（任意）<textarea value={preferenceText} onChange={event => setPreferenceText(event.target.value)} maxLength={500} rows={3} placeholder="例：金沢で庭園を歩いて、カフェに寄りたい" /></label>
-          <small>施設名や食べたいものも書けます。入力した希望を優先します。</small>
+          <small>入力した希望を優先します。地名が分かれば、次の画面の行き先にも反映します。</small>
           {requestedWishes(preferenceText).length > 0 && <p className="discovery-wish-preview" role="status">旅程で優先：{requestedWishes(preferenceText).join("・")}</p>}
         </div>
       </>}
@@ -297,12 +362,18 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
           {(locationMessage || departure.name === "現在地") && <p role="status" aria-live="polite">{locationMessage || "現在地を出発地点に設定しました。"}</p>}
         </div>
         <label className="prefecture-picker">行き先の都道府県<select value={area} onChange={event => chooseArea(event.target.value)}>{PREFECTURE_REGIONS.map(region => <optgroup key={region.name} label={region.name}>{indexEntries.filter(item => (region.codes as readonly string[]).includes(item.prefecture_code)).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup>)}</select></label>
-        <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={station => { invalidateDestinationResults();setDestination(station);setCrossPrefecture(false); }} />
+        {destinationNote && <p className="preference-tags-note" role="status">{destinationNote}</p>}
+        {destinationRetry && <button type="button" onClick={() => applyWrittenDestination(true)}>地名からもう一度設定</button>}
+        {destinationSuggestions.length > 1 && <div className="destination-text-options" role="group" aria-label="入力した地名の行き先候補">
+          <p>地名が複数あります。行き先を選んでください。</p>
+          <div className="station-choice-grid">{destinationSuggestions.map(item => <button type="button" key={`${item.area}|${item.origin.name}|${item.origin.latitude}|${item.origin.longitude}`} onClick={() => chooseWrittenDestination(item)}>{item.prefecture}・{item.origin.name}</button>)}</div>
+        </div>}
+        <DestinationGatewaySearch key={area} area={area} prefecture={{ name: draftEntry.name, code: draftEntry.prefecture_code }} value={destination} fallback={localOrigins[area] ?? { name: `${draftEntry.name}・エリア中心`, latitude: draftEntry.center[0], longitude: draftEntry.center[1] }} onChange={changeDestination} />
         <details className="discover-more-conditions"><summary>到着後の観光範囲 · {radius === 20000 ? "制限なし" : `半径${radius}km`}</summary><label className="range-checkbox"><input type="checkbox" checked={radius === 20000} onChange={event => setRadius(event.target.checked ? 20000 : 30)} />距離を制限しない</label>{radius !== 20000 && <TravelRangeControl value={radius} onChange={setRadius} maximum={20000} label="観光の起点からの半径（km）" />}<label className="range-checkbox"><input type="checkbox" checked={crossPrefecture} onChange={event => setCrossPrefecture(event.target.checked)} />県をまたぐ候補も含める</label></details>
       </>}
       <footer className="discovery-question-footer">
         <p id="discovery-next-hint" className="discovery-next-hint" role="status" aria-live="polite">{nextBlockedReason || (step === 0 ? profileStage >= 3 ? "好みの設定が完了しました。" : `あと${3 - profileStage}項目を選んでください。` : step === 1 ? !durationAnswered ? "旅の気分と長さを選ぶと次へ進めます。" : "行き先は次の画面で選べます。" : "この条件で旅程を探します。")}</p>
-        <div className="discovery-next">{step > 0 && <button type="button" onClick={() => setStep(step - 1)}>← 戻る</button>}<button type="button" className={`idea-primary-button${step < 2 ? " discovery-next-button" : ""}`} aria-describedby="discovery-next-hint" disabled={Boolean(nextBlockedReason)} onClick={() => step === 2 ? void generate() : setStep(step + 1)}>{step === 2 ? "おすすめ旅程を見る" : step === 0 ? "次へ：旅の気分を選ぶ" : "次へ：行き先を選ぶ"} →</button></div>
+        <div className="discovery-next">{step > 0 && <button type="button" onClick={() => setStep(step - 1)}>← 戻る</button>}<button type="button" className={`idea-primary-button${step < 2 ? " discovery-next-button" : ""}`} aria-describedby="discovery-next-hint" disabled={Boolean(nextBlockedReason)} onClick={() => step === 2 ? void generate() : returnToConditions((step + 1) as 1 | 2)}>{step === 2 ? "おすすめ旅程を見る" : step === 0 ? "次へ：旅の気分を選ぶ" : "次へ：行き先を選ぶ"} →</button></div>
       </footer>
     </section>}
     {step === 3 && <section className="discover-workspace discovery-deck" aria-label="旅の候補を探す">
