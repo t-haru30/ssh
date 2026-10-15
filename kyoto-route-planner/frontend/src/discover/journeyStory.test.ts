@@ -22,3 +22,17 @@ it("explains the restaurant's cuisine and its place in the day without inventing
   expect(reason.fit).not.toMatch(/人気|絶品|名店|予約不要/);
   expect(reason.unconfirmed).toBe(true);
 });
+it("describes the new artwork genres without leaking an undefined experience into recommendations", () => {
+  const expanded={spots:[
+    {place_id:"b",name:"ベーカリー",category:"ベーカリー",role:"breakfast"},
+    {place_id:"u",name:"手打ちうどん",category:"飲食店",role:"lunch"},
+    {place_id:"a",name:"水族館",category:"水族館",role:"stop"},
+    {place_id:"o",name:"温泉",category:"温泉",role:"stop"},
+    {place_id:"v",name:"展望台",category:"展望台",role:"stop"},
+    {place_id:"c",name:"海岸",category:"海岸",role:"stop"},
+    {place_id:"i",name:"居酒屋",category:"居酒屋",role:"dinner"},
+  ]} as DatasetRoute;
+  const story=completeJourneyStory(expanded);
+  expect(story).not.toContain("undefined");
+  for (const experience of ["パン","うどん","生き物の観察","入浴での休息","展望台からの眺め","海辺の景色と散策","お酒と料理"]) expect(story).toContain(experience);
+});

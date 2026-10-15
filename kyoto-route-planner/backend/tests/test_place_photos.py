@@ -28,6 +28,32 @@ def image(description="清水寺の本堂を撮影した写真"):
 
 
 class PlacePhotoTests(unittest.IsolatedAsyncioTestCase):
+    async def test_station_roles_share_lookup_and_photo_but_keep_requested_ids(self):
+        station=place('名古屋駅','trip-arrival')
+        return_station=station.model_copy(update={'id':'trip-return'})
+        candidate=image('View of Nagoya Station entrance building')
+        event=asyncio.Event()
+        async def lookup(*args,**kwargs):
+            await event.wait()
+            return candidate
+        with patch.object(photos,'search_commercial_image',AsyncMock(side_effect=lookup)) as search, patch.object(photos,'_classify',AsyncMock()) as classifier:
+            jobs=[asyncio.create_task(photos.fetch_route_photo(photos.PhotoRequest(places=[p]))) for p in [station,return_station]]
+            await asyncio.sleep(0)
+            event.set()
+            arrival,returned=await asyncio.gather(*jobs)
+            cached=await photos.fetch_route_photo(photos.PhotoRequest(places=[return_station]))
+        self.assertEqual([arrival.status,returned.status,cached.status],['ready']*3)
+        self.assertEqual([arrival.place_id,returned.place_id,cached.place_id],['trip-arrival','trip-return','trip-return'])
+        self.assertEqual(arrival.image_url,returned.image_url)
+        search.assert_awaited_once_with(station.name,station.latitude,station.longitude,station=True)
+        classifier.assert_not_called()
+
+    async def test_station_does_not_accept_food_even_if_ai_says_yes(self):
+        station=place('名古屋駅','trip-arrival')
+        with patch.object(photos,'search_commercial_image',AsyncMock(return_value=image('名古屋駅の天ぷらきしめんの写真'))),patch.object(photos,'_classify',AsyncMock(return_value=True)):
+            result=await photos.fetch_route_photo(photos.PhotoRequest(places=[station]))
+        self.assertEqual(result.status,'unavailable')
+
     def setUp(self):
         self.environment = patch.dict(os.environ, {"PYTHON_DOTENV_DISABLED": "1", "GEMINI_API_KEY": "", "RECOMMENDATION_GEMINI_API_KEY": ""})
         self.environment.start()
