@@ -26,6 +26,5 @@
 .venue-evidence-setup { font-size: .75rem; margin-top: 12px; line-height: 1.9; }
 .venue-evidence-setup summary { cursor: pointer; font-weight: 600; }
 .venue-evidence-setup code { overflow-wrap: anywhere; font-size: .7rem; }
-.discover-modal-spots > li:has(.venue-evidence) { flex-wrap: wrap; }
-.discover-modal-spots > li > .venue-evidence { flex: 1 0 100%; width: 100%; box-sizing: border-box; margin: 12px 0 0; }
+
 @media (max-width: 480px) { .venue-evidence { padding: 14px; } }

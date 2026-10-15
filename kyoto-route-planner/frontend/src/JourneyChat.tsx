@@ -18,8 +18,9 @@ function journeyTimeRange(plan: TripPlan) {
   return `${departure}~${tripClock(plan.returnMinute)}`;
 }
 
-export function JourneyChat({ plan, candidates, onApply, disabled = false,routePriority="time",preferNearbyAirport=true }: {
+export function JourneyChat({ plan, candidates, onApply, disabled = false,routePriority="time",preferNearbyAirport=true, onDepartureDateChange }: {
   plan: TripPlan; candidates: Place[]; onApply: (plan: TripPlan) => void; disabled?: boolean;
+  onDepartureDateChange?: (date: string) => void;
   routePriority?:"time"|"price";preferNearbyAirport?:boolean;
 }) {
   const [chatVisible, setChatVisible] = useState(true);
@@ -259,7 +260,20 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
         <div className="journey-pane-label"><span>プレビュー</span><div className="journey-view-switch" role="group" aria-label="表示する旅程"><button type="button" aria-pressed={!reviewing} onClick={() => setView("current")}>現在の旅程</button><button type="button" disabled={!pending} aria-pressed={reviewing} onClick={() => setView("changes")}>変更案{pending ? " ●" : ""}</button></div></div>
 
         <div className="journey-artifact-scroll">
-          <div className="journey-artifact-heading"><span>{shown.date.replaceAll("-", "/")} · {shown.stops.length}か所</span><h4>{reviewing ? "旅程の変更案" : "いまの旅程"}</h4><p>{shown.origin.name} → {shown.returnTo.name}</p></div>
+          <div className="journey-artifact-heading"><span>{shown.stops.length}か所</span><h4>{reviewing ? "旅程の変更案" : "いまの旅程"}</h4><p>{shown.origin.name} → {shown.returnTo.name}</p></div>
+          <div className="route-copy-date">
+            <label htmlFor="journey-preview-departure-date">出発日</label>
+            <input id="journey-preview-departure-date" aria-label="出発日" type="date" value={plan.date}
+              onChange={event => onDepartureDateChange?.(event.target.value)} disabled={disabled || !onDepartureDateChange} />
+          </div>
+          <div className="route-copy-stations" aria-label="出発駅から帰着駅">
+            <span className="route-copy-stations-label">出発駅 → 帰着駅</span>
+            <div className="route-copy-stations-route">
+              <output id="journey-preview-departure-station" aria-label="出発駅">{plan.origin.name}</output>
+              <span aria-hidden="true">→</span>
+              <output id="journey-preview-arrival-station" aria-label="帰着駅">{plan.returnTo.name}</output>
+            </div>
+          </div>
           <div className="journey-artifact-stats"><div><span>出発〜帰着の目安</span><strong>{reviewing && <del>{journeyTimeRange(plan)}</del>}{journeyTimeRange(shown)}</strong></div><div><span>1人あたりの概算</span><strong>{reviewing && money(plan) !== money(shown) && <del>{money(plan)}</del>}{money(shown)}</strong></div></div>
           {reviewing && <div className="journey-diff-summary"><strong>今回の変更</strong><ul>{shown.stops.some((s, i) => plan.stops.some(o => o.place.id === s.place.id) && plan.stops[i]?.place.id !== s.place.id) && <li>訪問順を変更：{shown.stops.map(s => s.place.name).join(" → ")}</li>}{tripChanges(plan, pending!).map((change, i) => <li key={i}>{change}</li>)}</ul></div>}
           {reviewing && routeStatus === "loading" && <p role="status" className="journey-sort-hint">全区間の経路・移動時間を取得しています…</p>}

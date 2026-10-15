@@ -26,9 +26,13 @@ it("searches a facility pair with the rolled-over departure date and keeps fare 
   expect(heading?.textContent).toContain("運賃目安：260円");
   const fareLabel = screen.getByText("運賃目安：");
   expect(fareLabel.nextElementSibling?.textContent).toBe("260円");
-  const transitDetails = screen.getByText("交通手段・所要時間を見る").closest("details");
+  const transitSummary = screen.getByText("交通手段・所要時間を見る");
+  const transitDetails = transitSummary.closest("details");
+  const transitControls = transitSummary.closest(".trip-transit-controls");
+  expect(transitControls?.querySelector("button")?.textContent).toBe("公共交通の経路・運賃を検索");
+  expect(transitDetails?.parentElement).toBe(transitControls);
   expect(transitDetails?.open).toBe(false);
-  fireEvent.click(screen.getByText("交通手段・所要時間を見る"));
+  fireEvent.click(transitSummary);
   expect(transitDetails?.open).toBe(true);
   expect(screen.getByText("交通手段").nextElementSibling?.textContent).toBe("地下鉄");
   expect(screen.getByText("所要時間").nextElementSibling?.textContent).toBe("約15分");

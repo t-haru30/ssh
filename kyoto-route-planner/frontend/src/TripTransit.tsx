@@ -74,26 +74,28 @@ export function TripTransit({ from, to, date, departureMinute, initial, onResult
         : busy || externalBusy ? "確認中…" : "未確認"}</strong></div>
     </div>
     {initial?.mode !== "walk" && <WalkingEstimate from={from} to={to} />}
-    <details className="trip-transit-details">
-      <summary>交通手段・所要時間を見る</summary>
-      <dl className="trip-transit-summary">
-        <div><dt>交通手段</dt><dd>
-          {routeLegs.length > 1
-            ? <ol className="trip-transit-route" aria-label="利用する交通手段">{routeLegs.map((leg, index) => <li key={`${leg.from_name}-${leg.to_name}-${index}`}>
-              {index > 0 && <span className="trip-transit-route-arrow" aria-hidden="true">↓</span>}
-              <span>{transitRouteLabel(leg.line_name)}</span>
-            </li>)}</ol>
-            : routeLabel}
-        </dd></div>
-        <div><dt>所要時間</dt><dd>{initial?.duration_minutes != null
-          ? `約${initial.duration_minutes}分${initial.is_estimate ? "（概算）" : ""}`
-          : "未確認"}</dd></div>
-      </dl>
-      {!!initial?.legs?.length && <details><summary>路線・乗換を見る</summary><ol>{initial.legs.map((leg, i) =>
-        <li key={i}>{leg.from_name} → {leg.to_name}<br />{transitRouteLabel(leg.line_name)}{leg.duration_minutes != null && ` · 約${leg.duration_minutes}分`}</li>)}</ol>
-        <small>駅すぱあと検索結果。施設と駅の間の徒歩・実際の発着時刻は出発前に確認してください。</small></details>}
-    </details>
-    <button type="button" disabled={busy || externalBusy} onClick={() => void search()}>{busy || externalBusy ? "経路と運賃を検索中…" : "公共交通の経路・運賃を検索"}</button>
+    <div className="trip-transit-controls">
+      <details className="trip-transit-details">
+        <summary>交通手段・所要時間を見る</summary>
+        <dl className="trip-transit-summary">
+          <div><dt>交通手段</dt><dd>
+            {routeLegs.length > 1
+              ? <ol className="trip-transit-route" aria-label="利用する交通手段">{routeLegs.map((leg, index) => <li key={`${leg.from_name}-${leg.to_name}-${index}`}>
+                {index > 0 && <span className="trip-transit-route-arrow" aria-hidden="true">↓</span>}
+                <span>{transitRouteLabel(leg.line_name)}</span>
+              </li>)}</ol>
+              : routeLabel}
+          </dd></div>
+          <div><dt>所要時間</dt><dd>{initial?.duration_minutes != null
+            ? `約${initial.duration_minutes}分${initial.is_estimate ? "（概算）" : ""}`
+            : "未確認"}</dd></div>
+        </dl>
+        {!!initial?.legs?.length && <details><summary>路線・乗換を見る</summary><ol>{initial.legs.map((leg, i) =>
+          <li key={i}>{leg.from_name} → {leg.to_name}<br />{transitRouteLabel(leg.line_name)}{leg.duration_minutes != null && ` · 約${leg.duration_minutes}分`}</li>)}</ol>
+          <small>駅すぱあと検索結果。施設と駅の間の徒歩・実際の発着時刻は出発前に確認してください。</small></details>}
+      </details>
+      <button type="button" disabled={busy || externalBusy} onClick={() => void search()}>{busy || externalBusy ? "経路と運賃を検索中…" : "公共交通の経路・運賃を検索"}</button>
+    </div>
     {error && <p role="status">{error}</p>}
   </section>;
 }
