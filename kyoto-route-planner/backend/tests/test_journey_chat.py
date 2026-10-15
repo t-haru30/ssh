@@ -24,6 +24,46 @@ def call(name, args):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_latest_explicit_removal_duration_and_order_are_checked(self):
+        p = payload(); p.stops[0].locked = False
+        p.message = "美術館を外して、カフェを60分にして"
+        self.assertTrue(chat.requested_edit_errors(p, proposal(("a", 90), ("b", 60))))
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("b", 60))), [])
+        p.message = "美術館で30分長く過ごしたい。美術館のあとにカフェを追加して"
+        self.assertTrue(chat.requested_edit_errors(p, proposal(("b", 30), ("a", 90))))
+        self.assertTrue(chat.requested_edit_errors(p, proposal(("a", 60), ("b", 30))))
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 90), ("b", 30))), [])
+        p.message = "最後の場所で３０分長く過ごしたい"
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 90))), [])
+
+    def test_does_not_treat_negated_removal_as_removal_or_history_as_current_request(self):
+        p = payload(message="美術館を削除しないで、カフェを追加して", history=[dict(role="user", text="美術館を削除して")])
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 60), ("b", 30))), [])
+        p.message = "美術館の滞在を２時間に増やして"
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 120))), [])
+
+    def test_original_fixed_visits_cannot_be_lost_in_a_follow_up(self):
+        p = payload(); p.applied_stops = p.stops
+        p.stops = []
+        self.assertIn("固定・訪問済み", " ".join(chat.validate(p, proposal(("b", 30)))))
+
+    def test_generic_cafe_follow_up_targets_the_current_visit_among_many_candidates(self):
+        p = payload(message="そのカフェを30分にして")
+        p.stops.append(chat.Stop(place=p.candidates[0], dwell=60, locked=False, start=600, end=660, travel=0))
+        p.candidates.append(p.candidates[0].model_copy(update={"id":"c", "name":"別の喫茶店"}))
+        self.assertTrue(chat.requested_edit_errors(p, proposal(("a", 90), ("b", 60))))
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 60), ("b", 30))), [])
+
+    def test_quoted_and_corrected_requests_do_not_force_the_old_edit(self):
+        p = payload(message="前は「美術館を外して」と言ったけど、やっぱり残して30分長くして")
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 90))), [])
+        p.message = "前は『カフェを追加して』と言ったけど、やっぱり美術館の時間だけ増やして"
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 90))), [])
+        p.message = "カフェを増やして"
+        p.stops.append(chat.Stop(place=p.candidates[0], dwell=60, locked=False, start=600, end=660, travel=0))
+        p.candidates.append(p.candidates[0].model_copy(update={"id":"c", "name":"別のカフェ"}))
+        self.assertEqual(chat.requested_edit_errors(p, proposal(("a", 60), ("b", 60), ("c", 30))), [])
+
     def test_rejects_unknown_duplicate_and_fixed_changes(self):
         for p in [proposal(("unknown", 60)), proposal(("a", 60), ("a", 60)), proposal(("b", 30)), proposal(("a", 30))]:
             self.assertTrue(chat.validate(payload(), p))
@@ -70,6 +110,38 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(feedback["id"], "turn-id")
         self.assertEqual(snapshots[1][1]["parts"][0]["thoughtSignature"], "preserve-me")
         self.assertIn("再検討", result.steps[1])
+
+    async def test_unchanged_proposal_is_repaired_instead_of_reported_as_success(self):
+        sequence = [call("validate_proposal", proposal(("a", 60)).model_dump()),
+                    call("validate_proposal", proposal(("a", 60), ("b", 30)).model_dump())]
+        with patch.object(chat, "model_call", new=AsyncMock(side_effect=sequence)) as model:
+            result = await chat.run(payload(message="カフェを追加して"), "test", "gemini-test")
+        self.assertEqual(model.await_count, 2)
+        self.assertIn("変更がありません", result.steps[0])
+        self.assertEqual([s.id for s in result.proposal.stops], ["a", "b"])
+
+    async def test_removing_cafe_after_a_search_does_not_require_adding_it_back(self):
+        p = payload(message="カフェを外して", history=[dict(role="user", text="カフェを追加して")])
+        p.stops.append(chat.Stop(place=p.candidates[0], dwell=60, locked=False, start=600, end=660, travel=0))
+        sequence = [call("search_candidates", {"query": "カフェ"}), call("validate_proposal", proposal(("a", 60)).model_dump())]
+        with patch.object(chat, "model_call", new=AsyncMock(side_effect=sequence)):
+            result = await chat.run(p, "test", "gemini-test")
+        self.assertEqual([s.id for s in result.proposal.stops], ["a"])
+
+    async def test_follow_up_uses_preview_snapshot_and_supplies_original_for_undo(self):
+        import json
+        p = payload(message="カフェはもう少し短くして")
+        p.applied_stops = list(p.stops)
+        p.stops.append(chat.Stop(place=p.candidates[0], dwell=60, locked=False, start=600, end=660, travel=0))
+        with patch.object(chat, "model_call", new=AsyncMock(return_value=call("validate_proposal", proposal(("a", 60), ("b", 30)).model_dump()))) as model:
+            result = await chat.run(p, "test", "gemini-test")
+        contents = model.call_args.args[-1]
+        context = json.loads(contents[0]["parts"][0]["text"])
+        self.assertEqual(context["editing_target"], "pending_proposal")
+        self.assertEqual([s["place"]["id"] for s in context["stops"]], ["a", "b"])
+        self.assertEqual([s["place"]["id"] for s in context["applied_stops"]], ["a"])
+        self.assertEqual(contents[0]["parts"][-1]["text"], "Latest user request — prioritize this edit: " + p.message)
+        self.assertEqual(result.proposal.stops[-1].dwell, 30)
 
     async def test_legacy_limits_are_not_sent_to_the_model_or_used_to_reject_edits(self):
         import json
