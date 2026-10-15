@@ -446,6 +446,9 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
+from app.catalog_admin import CatalogAdminGuard, router as catalog_admin_router
+app.add_middleware(CatalogAdminGuard)
+app.include_router(catalog_admin_router)
 ROUTE_REQUEST_BUDGET_SECONDS = 55.0
 ROUTE_STOP_STAY_MINUTES = 90
 ROUTE_TIMELINE_VERSION = 1

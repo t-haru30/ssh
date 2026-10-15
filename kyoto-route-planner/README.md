@@ -337,3 +337,10 @@ npm run build
 `.github/workflows/ci.yml` により、`main` へのPull Requestと`main`へのプッシュ時に、バックエンドの全テストとフロントエンドのビルドを自動実行します。CIでは実際の駅すぱあとAPIを呼び出さないため、APIキーをGitHub Actionsへ登録する必要はありません。実際のAPIキーはローカルの`backend/.env`だけに保存してください。
 
 カードのおすすめ理由は短い一文にまとめ、全文と出典は展開して確認できます。実写真の検索にはOpenverseも追加し、元のCommons情報で施設名・位置・著作者・ライセンスを確認できる写真だけを表示します。詳しい対象範囲と通信制限は [実施設写真](docs/real-place-photos.md) を参照してください。
+
+## 施設データの自動更新と管理
+
+Firestore・Cloud Run Jobs・Schedulerで公式情報を確認します。一般公開Webでは管理URLを拒否し、別のIAM認証付き管理サービスで確認します。
+
+- [初心者向けの導入・確認手順](docs/cloud-beginner-handoff.md)
+- [設定・データ移行の詳細](docs/cloud-catalog-deployment.md)
