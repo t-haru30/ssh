@@ -68,7 +68,7 @@ def normalized(name):
     return re.sub(r"[\s・･]", "", unicodedata.normalize("NFKC", name)).casefold()
 
 
-def compatible_google_kind(place, candidate):
+def compatible_google_kind(place, candidate, *, require_station_type=False):
     """Reject explicit type conflicts; generic provider types are not identity proof."""
     types = candidate.get('types', [])
     if not isinstance(types, list) or not all(isinstance(value, str) for value in types):
@@ -77,6 +77,12 @@ def compatible_google_kind(place, candidate):
     category = place.category + ' ' + place.tags.get('amenity', '') + ' ' + place.tags.get('tourism', '')
     food = {'restaurant','cafe','coffee_shop','bakery','bar','fast_food_restaurant'}
     sights = {'museum','art_gallery','park','hindu_temple','church','mosque','synagogue'}
+    station = (re.search(r'(?:駅|station)(?:\s*[（(].*[）)])?$', place.name.strip(), re.I)
+               or place.category in {'駅','鉄道駅','station','train_station','subway_station'}
+               or place.tags.get('railway') == 'station' or place.tags.get('public_transport') == 'station')
+    if station:
+        # Station candidate lookups omit types; photo lookups explicitly request them.
+        return not types and not require_station_type or bool(types & {'train_station','subway_station','transit_station','light_rail_station'})
     if re.search(r'カフェ|喫茶|cafe|coffee', category, re.I):
         return not (types & sights) and not ('restaurant' in types and not types & {'cafe','coffee_shop'})
     if re.search(r'飲食|レストラン|食堂|料理|restaurant|fast_food', category, re.I):
@@ -86,9 +92,9 @@ def compatible_google_kind(place, candidate):
     return True
 
 
-def same_google_venue(place: Place, candidate: dict) -> bool:
+def same_google_venue(place: Place, candidate: dict, *, require_station_type=False) -> bool:
     """Retain the complete catalog branch name; never strip a provider suffix."""
-    if not compatible_google_kind(place, candidate):
+    if not compatible_google_kind(place, candidate, require_station_type=require_station_type):
         return False
     name = normalized(candidate.get("displayName", {}).get("text", ""))
     originals = [value for value in [place.name, *(place.tags.get(key, "") for key in ("name", "name:ja", "name:en", "official_name"))] if isinstance(value,str) and value]
@@ -132,7 +138,7 @@ async def fetch_google_photo(place: Place):
                 return GooglePhoto()
             matches = []
             for candidate in response.json().get("places", [])[:3]:
-                if candidate.get('businessStatus') not in {'CLOSED_PERMANENTLY','CLOSED_TEMPORARILY'} and same_google_venue(place, candidate) and candidate.get("photos"):
+                if candidate.get('businessStatus') not in {'CLOSED_PERMANENTLY','CLOSED_TEMPORARILY'} and same_google_venue(place, candidate, require_station_type=True) and candidate.get("photos"):
                     matches.append(candidate)
             # Ambiguous same-name branches are not interchangeable.
             if len(matches) != 1:

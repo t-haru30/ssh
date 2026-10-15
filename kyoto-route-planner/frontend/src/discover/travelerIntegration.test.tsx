@@ -22,6 +22,7 @@ it("sends changed traveler conditions, cancels stale recommendations and restore
   fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /旅の気分を選ぶ/ }));
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
+  fireEvent.click(within(screen.getByRole("group", { name: "旅の途中に、どの食事を入れますか？" })).getByRole("button", { name: "おまかせ" }));
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ }));
   const expected = { age_group: "65_plus", gender: "female", companion: "family", pace: "packed" };

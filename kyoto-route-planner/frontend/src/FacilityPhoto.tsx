@@ -17,7 +17,6 @@ export function FacilityPhoto({place, compact = false, photo}: {place: Place; co
     observer.observe(root.current);
     return () => observer.disconnect();
   }, []);
-  if (["trip-arrival", "trip-return"].includes(place.id)) return null;
   return <div ref={root} className={`facility-photo${compact ? " facility-photo-compact" : ""}`}>{photo && failedUrl !== photo.imageUrl
     ? <PhotoFigure place={place} photo={photo} showName={false} onError={()=>setFailedUrl(photo.imageUrl)} />
     : <SpotPhoto key={`${place.id}:${place.latitude}:${place.longitude}`} place={place} enabled={visible} showName={false} />}</div>;

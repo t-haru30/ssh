@@ -37,7 +37,7 @@ function acquire(payload: string, id: string): Job {
 
 export function useGooglePlacePhoto(place: Place, enabled: boolean) {
   // Recommendations, themes and descriptions cannot affect facility lookup.
-  const identityTags = Object.fromEntries(["amenity", "tourism", "name", "name:ja", "name:en", "official_name"]
+  const identityTags = Object.fromEntries(["amenity", "tourism", "railway", "public_transport", "name", "name:ja", "name:en", "official_name"]
     .flatMap(key => place.tags?.[key] ? [[key, place.tags[key]]] : []));
   const payload = JSON.stringify({ id: place.id, name: place.name, latitude: place.latitude, longitude: place.longitude, address: place.address || "", category: place.category, tags: identityTags, description: "", access_point: "", themes: [] });
   const [state, setState] = useState<{ payload: string; photo: Photo | null } | null>(null);
