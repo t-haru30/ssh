@@ -63,6 +63,14 @@ describe("chat proposal validation", () => {
     const base = plan(); base.stops[1].anchorTime = "11:00"; base.stops[1].locked = true;
     expect(() => readChatProposal({ stops: [{ id: "0", dwell: 180 }, { id: "1", dwell: 90 }] }, base, places)).toThrow("固定した開始時刻");
   });
+  it("restores original visit settings when undoing a removal in a follow-up", () => {
+    const base = plan(); base.stops[1].spending = 750; base.stops[1].anchorTime = "11:00";
+    const preview = readChatProposal({stops:[{id:"0",dwell:90},{id:"2",dwell:30}]}, base, places);
+    const restored = readChatProposal({stops:[{id:"0",dwell:90},{id:"1",dwell:90}]}, preview, places, [], base);
+    expect(restored.stops[1]).toMatchObject({spending:750,anchorTime:"11:00"});
+    const protectedBase = plan(); protectedBase.stops[1].locked = true;
+    expect(() => readChatProposal({stops:[{id:"0",dwell:90},{id:"2",dwell:30}]}, preview, places, [], protectedBase)).toThrow("固定・訪問済み");
+  });
 });
 
 describe("JourneyChat", () => {
@@ -156,11 +164,61 @@ describe("JourneyChat", () => {
     fireEvent.change(screen.getByLabelText("旅程への希望"), { target: { value: "カフェはもう少し短く" } });
     fireEvent.click(screen.getByRole("button", { name: "相談する" }));
     await screen.findByRole("button", { name: "この変更を反映" });
-    expect(JSON.parse(fetchMock.mock.calls.filter(call => call[0] === "/api/journey/chat")[1][1].body).history.some((m: {text: string}) => m.text.includes("未反映の変更案"))).toBe(true);
+    const followUp = JSON.parse(fetchMock.mock.calls.filter(call => call[0] === "/api/journey/chat")[1][1].body);
+    expect(followUp.history.some((m: {text: string}) => m.text.includes("未反映の変更案"))).toBe(true);
+    expect(followUp.stops.map((s: {place: {id: string}}) => s.place.id)).toEqual(["0", "2"]);
+    expect(followUp.applied_stops.map((s: {place: {id: string}}) => s.place.id)).toEqual(["0", "1"]);
     await waitFor(() => expect(screen.getByRole("button", { name: "この変更を反映" }).hasAttribute("disabled")).toBe(false));
     fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
     expect(apply).toHaveBeenCalledTimes(1);
     expect(apply.mock.calls[0][0].stops.map((s: {place: {id: string}}) => s.place.id)).toEqual(["0", "2"]);
+  });
+  it("keeps discovered visits in follow-ups and preserves a preview if the next request fails", async () => {
+    const live = { ...places[2], id: "osm-cafe-node-123", name: "川辺の喫茶店", category: "カフェ", tags: { source: "OpenStreetMap", amenity: "cafe", source_url: "https://www.openstreetmap.org/node/123" } };
+    const requests: ReturnType<typeof chatPayload>[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init: RequestInit) => {
+      if (url !== "/api/journey/chat") throw new Error("offline routes");
+      requests.push(JSON.parse(init.body as string));
+      if (requests.length === 3) return {ok:false, json: async () => ({detail:"通信に失敗しました"})};
+      return {ok:true, json: async () => ({message:"変更案です",steps:[],proposal:{stops:[{id:"0",dwell:90},{id:live.id,dwell:requests.length === 1 ? 60 : 30}]},discovered_candidates:requests.length === 1 ? [live] : []})};
+    }));
+    const apply = vi.fn(); render(<JourneyChat plan={plan()} candidates={places.slice(0, 2)} onApply={apply} />);
+    const send = (text: string) => {
+      fireEvent.change(screen.getByLabelText("旅程への希望"), {target:{value:text}});
+      fireEvent.click(screen.getByRole("button", {name:"相談する"}));
+    };
+    send("公園の代わりにカフェを追加して");
+    await screen.findByRole("article", {name:"会話内の変更案"});
+    send("そのカフェを30分にして");
+    await waitFor(() => expect(requests).toHaveLength(2));
+    await waitFor(() => expect(screen.queryByText("変更案を考えています")).toBeNull());
+    expect(requests[1].stops[1]).toMatchObject({place:{id:live.id},dwell:60});
+    expect(requests[1].candidates.some(p => p.id === live.id)).toBe(true);
+    expect(requests[1].candidates.some(p => p.id === "1")).toBe(true);
+    await waitFor(() => expect(screen.getByTestId("preview-map").textContent).toContain(live.name));
+    expect(screen.getByText(/30\s*分の滞在/)).toBeTruthy();
+    send("もう30分長くして");
+    expect((await screen.findByRole("alert")).textContent).toContain("通信に失敗");
+    expect(requests[2].stops[1].dwell).toBe(30);
+    expect(screen.getByTestId("preview-map").textContent).toContain(live.name);
+    expect(screen.getByRole("article", {name:"会話内の変更案"})).toBeTruthy();
+    expect(apply).not.toHaveBeenCalled();
+  });
+  it("edits the applied plan again after rejecting a preview", async () => {
+    const fetchMock = vi.fn(async (url: string, _init: RequestInit) => {
+      if (url !== "/api/journey/chat") throw new Error("offline routes");
+      return {ok:true,json:async () => data};
+    }); vi.stubGlobal("fetch", fetchMock);
+    render(<JourneyChat plan={plan()} candidates={places} onApply={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText("旅程への希望"), {target:{value:"カフェを追加"}});
+    fireEvent.click(screen.getByRole("button", {name:"相談する"}));
+    fireEvent.click(await screen.findByRole("button", {name:"この案を見送る"}));
+    fireEvent.change(screen.getByLabelText("旅程への希望"), {target:{value:"公園を短くして"}});
+    fireEvent.click(screen.getByRole("button", {name:"相談する"}));
+    await screen.findByRole("article", {name:"会話内の変更案"});
+    const latest = JSON.parse(fetchMock.mock.calls.filter(c => c[0] === "/api/journey/chat")[1][1].body as string);
+    expect(latest.stops.map((s: {place:{id:string}}) => s.place.id)).toEqual(["0","1"]);
+    expect(latest.applied_stops).toBeUndefined();
   });
   it("discards late replies when the plan changes", async () => {
     let resolve!: (value: unknown) => void;

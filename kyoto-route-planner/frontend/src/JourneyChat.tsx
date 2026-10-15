@@ -73,7 +73,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
     if (request.current) setError("旅程や移動時間が更新されたため、相談を中断しました。最新の旅程でもう一度相談してください。");
     request.current?.abort(); request.current = null;
     setWorking(false); setProposal(null); setSteps([]); setReplacing(null); setDraggedStop(null); setDropTarget(null); setReorderError("");
-    // History is conversational only; every request sends the authoritative current plan.
+    // A changed applied plan invalidates any pending preview and in-flight reply.
   }, [identity]);
   useEffect(() => () => { request.current?.abort(); request.current = null; }, []);
 
@@ -89,23 +89,26 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
     if (!text || text.length > 1200 || request.current || disabled) return;
     const controller = new AbortController(); request.current = controller;
     const base = identity;
+    const editing = proposal?.base === base ? proposal.plan : plan;
+    const pool = [...candidates, ...plan.stops.map(s => s.place), ...editing.stops.map(s => s.place)];
     const context = messages.slice(-12);
     setMessages(current => [...current.slice(-19), { role: "user", text }]);
-    setInput(""); setError(""); setProposal(null); setSteps([]); setWorking(true);
+    setInput(""); setError(""); setSteps([]); setWorking(true);
     const timer = window.setTimeout(() => controller.abort(), 70_000);
     try {
       const response = await fetch("/api/journey/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(chatPayload(plan, candidates, text, context)), signal: controller.signal });
+        body: JSON.stringify(chatPayload(editing, pool, text, context, editing === plan ? undefined : plan)), signal: controller.signal });
       const data: unknown = await response.json();
       if (request.current !== controller || latest.current !== base || controller.signal.aborted) return;
       if (!response.ok) throw new Error(isRecord(data) && typeof data.detail === "string" ? data.detail : "AIチャットに接続できませんでした。");
       if (!isRecord(data) || typeof data.message !== "string" || data.message.length > 3000
         || !Array.isArray(data.steps) || data.steps.length > 6 || !data.steps.every(s => typeof s === "string" && s.length <= 3000)) throw new Error("返答の形式を確認できませんでした。");
-      const next = data.proposal == null ? null : readChatProposal(data.proposal, plan, candidates, data.discovered_candidates ?? []);
+      const next = data.proposal == null ? null : readChatProposal(data.proposal, editing, pool, data.discovered_candidates ?? [], plan);
       setSteps(data.steps as string[]);
       setMessages(current => [...current.slice(-19), { role: "assistant", text: data.message as string }]);
       if (next) {
         setRouteStatus("loading");
+        setRouteRetry(current => current + 1);
         setProposal({ base, plan: next }); setView("changes");
         // Preserve the suggested itinerary for follow-up requests without claiming adoption.
         setMessages(current => [...current, { role: "assistant",
@@ -237,6 +240,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
         {disabled && <p className="journey-disabled-note">編集中の条件や変更案を確定すると、相談を続けられます。</p>}
         <form className="journey-composer" onSubmit={submit}>
           <label htmlFor="journey-chat-input">旅程への希望</label>
+          {pending && <p className="journey-disabled-note">追加の指示は、この変更案に反映します。</p>}
           <textarea ref={composer} id="journey-chat-input" value={input} maxLength={1200} rows={3} disabled={working || disabled} onChange={e => setInput(e.target.value)} onKeyDown={e => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }} placeholder="例：昼食のあとに、近くのカフェを追加して" />
           <div className="journey-composer-footer"><span>Ctrl / ⌘ + Enter で送信</span>{working ? <button type="button" onClick={cancel}>中止</button> : <button type="submit" className="trip-primary" disabled={disabled || !input.trim()}>相談する <span aria-hidden="true">↑</span></button>}</div>
         </form>
