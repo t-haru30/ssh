@@ -52,7 +52,10 @@ export function StationSearch({ label, value, options, onChange, disabled = fals
   }
   const registered = [...new Map([...options, ...(value ? [value] : [])].map(item => [identity(item), item])).values()];
   const mainOptions = registered.slice(0, 3);
-  const moreOptions = registered.slice(3);
+  // Keep the chosen gateway visible without reordering the main station buttons.
+  if (value && !mainOptions.some(item => identity(item) === identity(value))) mainOptions.push(value);
+  const mainIdentities = new Set(mainOptions.map(identity));
+  const moreOptions = registered.filter(item => !mainIdentities.has(identity(item)));
   function choose(candidate: Candidate) {
     const qualified = candidate.prefecture && !candidate.name.includes(candidate.prefecture) ? `${candidate.name}（${candidate.prefecture}）` : candidate.name;
     onChange({ name: qualified.length <= 80 ? qualified : candidate.name, latitude: candidate.latitude, longitude: candidate.longitude }, candidate.prefecture);

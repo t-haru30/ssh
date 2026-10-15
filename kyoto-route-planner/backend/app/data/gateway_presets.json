@@ -326,6 +326,12 @@
         "latitude": 35.1262974,
         "longitude": 138.9115159,
         "source_url": "https://www.openstreetmap.org/node/3585794194"
+      },
+      {
+        "name": "修善寺駅",
+        "latitude": 34.97921395,
+        "longitude": 138.9504675,
+        "source_url": "https://www.openstreetmap.org/way/450149044"
       }
     ],
     "aichi": [
