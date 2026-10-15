@@ -163,22 +163,23 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
   return <div className="route-modal-backdrop" onClick={onClose}>
     <section ref={dialogRef} className="route-modal discover-route-modal" role="dialog" aria-modal="true" aria-label={route.title} onClick={event => event.stopPropagation()}>
       <header className="route-modal-header"><div><p className="eyebrow">YOUR LITTLE JOURNEY</p><h2>{route.title}</h2></div><button ref={closeRef} type="button" className="route-modal-close" onClick={onClose} aria-label="閉じる">✕</button></header>
-      <div className="discover-modal-facts"><span><strong>{places.length}</strong> か所を巡る旅のプラン</span>{isStaticRoute && <span>所要時間の目安 <strong>{formatMinutes(route.estimated_minutes)}</strong></span>}</div>
-      {!isStaticRoute && route.story && <p className="discover-modal-story">{route.story}</p>}
-      <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
-        {includesTransfers && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
-      </div>
-      <div className="route-modal-map"><JourneyMap places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></div>
-      {"spots" in route && <div className="discover-modal-recommendation"><strong>この旅の楽しみ</strong><p>{journeyOverview(route,googleInfos)}</p><details><summary>立ち寄り先ごとのおすすめ理由</summary><JourneyReasons route={route} googleInfos={googleInfos} /></details></div>}
-      {selection.overnightSnapshot && <p className="result-note">{selection.overnightSnapshot.nights}泊{selection.overnightSnapshot.nights + 1}日 · 宿泊先：{selection.overnightSnapshot.itinerary.hotel.name}。各日の旅程は「このルートで旅を計画する」から開けます。</p>}
-      {routeLoading && <p className="result-note" role="status">交通経路を確認しています…</p>}
-      {routeError && <p className="result-note" role="status">{routeError} 直前の検索結果またはモデルコースの目安を表示しています。</p>}
-      <div className="trip-timeline-heading"><h3>今日のタイムライン</h3></div>
-      {timeline.find(item => item.type === "spot" && item.role === "start")?.type === "spot" && (() => {
-        const departure = timeline.find(item => item.type === "spot" && item.role === "start");
-        return departure?.type === "spot" && <div className="trip-departure"><time>{departure.time}</time><div><strong>{departure.name}を出発</strong></div><span aria-hidden="true">START</span></div>;
-      })()}
-      <ol className="trip-stops discover-modal-timeline">
+      <div className="discover-modal-scroll">
+        <div className="discover-modal-facts"><span><strong>{places.length}</strong> か所を巡る旅のプラン</span>{isStaticRoute && <span>所要時間の目安 <strong>{formatMinutes(route.estimated_minutes)}</strong></span>}</div>
+        {!isStaticRoute && route.story && <p className="discover-modal-story">{route.story}</p>}
+        <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
+          {includesTransfers && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
+        </div>
+        <div className="route-modal-map"><JourneyMap places={places} origin={origin} returnTo={returnTo} coordinates={routeSuggestion?.coordinates?.length ? routeSuggestion.coordinates : [[origin.latitude, origin.longitude], ...coordinates, [returnTo.latitude, returnTo.longitude]]} legs={routeSuggestion?.legs ?? []} timeline={timeline} journeyDate={journeyDate} routeLoading={routeLoading} mapTokens={routeSuggestion?.timeline?.flatMap(item => item.type === "transit" && item.map_token ? [item.map_token] : [])} /></div>
+        {"spots" in route && <div className="discover-modal-recommendation"><strong>この旅の楽しみ</strong><p>{journeyOverview(route,googleInfos)}</p><details><summary>立ち寄り先ごとのおすすめ理由</summary><JourneyReasons route={route} googleInfos={googleInfos} /></details></div>}
+        {selection.overnightSnapshot && <p className="result-note">{selection.overnightSnapshot.nights}泊{selection.overnightSnapshot.nights + 1}日 · 宿泊先：{selection.overnightSnapshot.itinerary.hotel.name}。各日の旅程は「このルートで旅を計画する」から開けます。</p>}
+        {routeLoading && <p className="result-note" role="status">交通経路を確認しています…</p>}
+        {routeError && <p className="result-note" role="status">{routeError} 直前の検索結果またはモデルコースの目安を表示しています。</p>}
+        <div className="trip-timeline-heading"><h3>今日のタイムライン</h3></div>
+        {timeline.find(item => item.type === "spot" && item.role === "start")?.type === "spot" && (() => {
+          const departure = timeline.find(item => item.type === "spot" && item.role === "start");
+          return departure?.type === "spot" && <div className="trip-departure"><time>{departure.time}</time><div><strong>{departure.name}を出発</strong></div><span aria-hidden="true">START</span></div>;
+        })()}
+        <ol className="trip-stops discover-modal-timeline">
         {timeline.map((item, index) => {
           if (item.type === "transit") {
             const modes = item.legs?.length
@@ -232,7 +233,8 @@ export function RouteDetailModal({ route, onClose, onPlanInSearch }: RouteDetail
             </article>
           </li>;
         })}
-      </ol>
+        </ol>
+      </div>
       <div className="discover-modal-footer"><p className="result-note">時刻は目安です。営業・運行情報は出発前にご確認ください。</p>{onPlanInSearch && <button type="button" className="idea-primary-button" onClick={() => onPlanInSearch(route)}>このルートで旅を計画する <span aria-hidden="true">→</span></button>}</div>
     </section>
   </div>;

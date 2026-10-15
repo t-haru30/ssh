@@ -99,22 +99,59 @@ button:disabled { cursor: not-allowed; }
 .onboarding-suppress-option input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--forest); }
 .onboarding-next-button { flex: none; align-self: flex-end; min-height: 46px; padding: 9px 14px; font-size: 13px; }
 .onboarding-start-button { width: 100%; min-height: 50px; }
-.onboarding-plan-preview { display: grid; width: min(420px, calc(100% - 36px)); gap: 8px; }
+@property --onboarding-timeline-progress {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+.onboarding-plan-preview {
+  --onboarding-initial-hold: 1000ms;
+  --onboarding-typing-duration: 1200ms;
+  --onboarding-change-duration: 600ms;
+  --onboarding-changed-hold: 3700ms;
+  --onboarding-final-fade-duration: 700ms;
+  --onboarding-final-hold: 300ms;
+  --onboarding-loop-duration: calc(var(--onboarding-initial-hold) + var(--onboarding-typing-duration) + var(--onboarding-change-duration) + var(--onboarding-changed-hold) + var(--onboarding-final-fade-duration) + var(--onboarding-final-hold));
+  --onboarding-timeline-progress: 0;
+  --onboarding-typing-start: calc(var(--onboarding-initial-hold) / var(--onboarding-loop-duration));
+  --onboarding-typing-progress: clamp(0, calc((var(--onboarding-timeline-progress) - var(--onboarding-typing-start)) / (var(--onboarding-typing-duration) / var(--onboarding-loop-duration))), 1);
+  --onboarding-change-start: calc((var(--onboarding-initial-hold) + var(--onboarding-typing-duration)) / var(--onboarding-loop-duration));
+  --onboarding-change-progress: clamp(0, calc((var(--onboarding-timeline-progress) - var(--onboarding-change-start)) / (var(--onboarding-change-duration) / var(--onboarding-loop-duration))), 1);
+  --onboarding-restore-start: calc((var(--onboarding-initial-hold) + var(--onboarding-typing-duration) + var(--onboarding-change-duration) + var(--onboarding-changed-hold)) / var(--onboarding-loop-duration));
+  --onboarding-restore-progress: clamp(0, calc((var(--onboarding-timeline-progress) - var(--onboarding-restore-start)) / (var(--onboarding-final-fade-duration) / var(--onboarding-loop-duration))), 1);
+  --onboarding-changed-state: min(var(--onboarding-change-progress), calc(1 - var(--onboarding-restore-progress)));
+  --onboarding-highlight-state: var(--onboarding-changed-state);
+  display: grid;
+  width: min(420px, calc(100% - 36px));
+  gap: 8px;
+  animation: onboarding-demo-timeline var(--onboarding-loop-duration) linear infinite;
+}
 .onboarding-plan-preview > .onboarding-preview-label { margin-bottom: 2px; }
 .onboarding-plan-stop { display: flex; align-items: center; gap: 8px; min-height: 26px; color: var(--control-text); font-size: 12px; }
 .onboarding-plan-stop b { color: var(--forest); font-size: 11px; }
 .onboarding-plan-stop i { width: 8px; height: 8px; border: 2px solid var(--forest); border-radius: 50%; background: var(--paper); }
-.onboarding-plan-stop-edit > i { animation: onboarding-stop-marker-edit 3.6s ease-in-out infinite; }
+.onboarding-plan-stop-edit { position: relative; isolation: isolate; }
+.onboarding-plan-stop-edit::before { position: absolute; z-index: -1; inset: 0 -8px; border-radius: 6px; background: color-mix(in srgb, var(--forest) 8%, var(--paper)); content: ""; opacity: var(--onboarding-highlight-state); pointer-events: none; }
+.onboarding-plan-stop-edit > i { position: relative; }
+.onboarding-plan-stop-edit > i::after { position: absolute; inset: 1px; border-radius: 50%; background: var(--forest); content: ""; opacity: var(--onboarding-highlight-state); }
 .onboarding-plan-stop-name { display: grid; min-width: 0; }
 .onboarding-plan-stop-name > span { grid-area: 1 / 1; }
-.onboarding-plan-stop-name > span:first-child { animation: onboarding-stop-name-before 3.6s ease-in-out infinite; }
-.onboarding-plan-stop-name > span:last-child { color: var(--forest); font-weight: 700; animation: onboarding-stop-name-after 3.6s ease-in-out infinite; }
+.onboarding-plan-stop-name > span:first-child { opacity: calc(1 - var(--onboarding-changed-state)); }
+.onboarding-plan-stop-name > span:last-child { color: var(--forest); font-weight: 700; opacity: var(--onboarding-changed-state); }
 .onboarding-plan-budget { display: flex; align-items: center; gap: 8px; margin-top: 2px; color: var(--muted); font-size: 12px; }
 .onboarding-plan-budget-amount { display: grid; color: var(--ink); font-weight: 700; }
 .onboarding-plan-budget-amount > span { grid-area: 1 / 1; }
-.onboarding-plan-budget-amount > span:first-child { animation: onboarding-stop-name-before 3.6s ease-in-out infinite; }
-.onboarding-plan-budget-amount > span:last-child { color: var(--forest); animation: onboarding-stop-name-after 3.6s ease-in-out infinite; }
-.onboarding-plan-budget-meter { color: var(--forest); animation: onboarding-budget-fill 3.6s ease-in-out infinite; }
+.onboarding-plan-budget-amount > span:first-child { opacity: calc(1 - var(--onboarding-changed-state)); }
+.onboarding-plan-budget-amount > span:last-child { color: var(--forest); opacity: var(--onboarding-changed-state); }
+.onboarding-plan-budget-meter { color: var(--forest); }
+.onboarding-chat-preview { display: grid; justify-items: end; gap: 5px; margin-top: 4px; color: var(--control-text); font-size: 10px; }
+.onboarding-chat-prompt { max-width: 80%; padding: 6px 10px; border-radius: 10px 10px 2px 10px; background: color-mix(in srgb, var(--forest) 10%, var(--paper)); opacity: min(var(--onboarding-typing-progress), var(--onboarding-changed-state)); }
+@supports (clip-path: inset(0 calc(100% - (50% * .5)) 0 0)) {
+  .onboarding-chat-prompt { clip-path: inset(0 calc(100% - (var(--onboarding-typing-progress) * 100%)) 0 0); }
+}
+.onboarding-chat-change { display: flex; align-items: center; gap: 7px; align-self: start; margin-left: 18px; padding: 6px 10px; border: 1px solid color-mix(in srgb, var(--forest) 20%, var(--line)); border-radius: 10px; background: var(--paper); color: var(--forest); font-weight: 700; opacity: var(--onboarding-highlight-state); }
+.onboarding-chat-change b:last-child { display: grid; width: 16px; height: 16px; place-items: center; border-radius: 50%; background: var(--forest); color: var(--on-accent); font-size: 9px; }
+@keyframes onboarding-demo-timeline { from { --onboarding-timeline-progress: 0; } to { --onboarding-timeline-progress: 1; } }
 @keyframes onboarding-friend-select { 0%, 8%, 100% { background: var(--paper); color: var(--control-text); transform: scale(1); } 15%, 92% { background: var(--forest); color: var(--on-accent); transform: scale(1.04); } }
 @keyframes onboarding-condition-select { 0%, 27%, 100% { background: var(--paper); color: var(--control-text); transform: scale(1); } 35%, 92% { background: var(--forest); color: var(--on-accent); transform: scale(1.04); } }
 @keyframes onboarding-next-select { 0%, 53%, 100% { background: color-mix(in srgb, var(--forest) 8%, var(--paper)); color: var(--forest); box-shadow: none; transform: translateY(0); } 62%, 92% { background: var(--forest); color: var(--on-accent); box-shadow: 0 4px 12px color-mix(in srgb, var(--forest) 28%, transparent); transform: translateY(-2px); } }
@@ -131,10 +168,6 @@ button:disabled { cursor: not-allowed; }
   0%, 49%, 69%, 100% { opacity: 0; }
   55%, 63% { opacity: 1; }
 }
-@keyframes onboarding-stop-marker-edit { 0%, 22%, 100% { transform: scale(1); background: var(--paper); } 32%, 86% { transform: scale(1.3); background: var(--forest); } }
-@keyframes onboarding-stop-name-before { 0%, 22%, 100% { opacity: 1; transform: translateY(0); } 30%, 86% { opacity: 0; transform: translateY(-5px); } }
-@keyframes onboarding-stop-name-after { 0%, 22%, 100% { opacity: 0; transform: translateY(5px); } 30%, 86% { opacity: 1; transform: translateY(0); } }
-@keyframes onboarding-budget-fill { 0%, 20%, 100% { opacity: .55; } 48%, 78% { opacity: 1; } }
 @media (max-width: 600px) {
   .app-shell { padding-right: 20px; padding-left: 20px; }
   .topbar { min-height: 82px; padding: 15px 0; gap: 10px; }
@@ -175,7 +208,10 @@ button:disabled { cursor: not-allowed; }
   .onboarding-plan-preview { gap: clamp(6px, 1.2dvh, 12px); }
   .onboarding-plan-stop { min-height: 30px; }
   .onboarding-plan-stop b { font-size: clamp(13px, 3.4vw, 16px); }
-  .onboarding-demo-controls > button:first-child { min-height: 42px; padding: 6px 8px; font-size: clamp(13px, 3.8vw, 15px); }
+  .onboarding-chat-preview { font-size: clamp(12px, 3.2vw, 14px); }
+  .onboarding-chat-prompt,
+  .onboarding-chat-change { padding: 7px 10px; }
+  .onboarding-demo-controls > button:first-child { min-height: 42px; padding: 6px 8px; font-size: clamp(13px, 3.8vw, 15px); white-space: nowrap; }
   .onboarding-demo-controls .idea-primary-button { min-height: 44px; padding: 8px 10px; font-size: clamp(13px, 3.8vw, 15px); }
   .onboarding-next-button { align-self: flex-end; min-height: 42px; padding: 7px 10px; font-size: clamp(13px, 3.8vw, 15px); }
   .onboarding-suppress-option { min-height: 40px; gap: 8px; font-size: clamp(14px, 3.8vw, 16px); }
@@ -193,6 +229,15 @@ button:disabled { cursor: not-allowed; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .onboarding-demo * { animation: none !important; }
+  .onboarding-demo-3 .onboarding-plan-preview {
+    --onboarding-timeline-progress: 0.373333 !important;
+    --onboarding-typing-progress: 1 !important;
+    --onboarding-change-progress: 1 !important;
+    --onboarding-restore-progress: 0 !important;
+    --onboarding-changed-state: 1 !important;
+    --onboarding-highlight-state: 1 !important;
+    animation: none !important;
+  }
   .onboarding-preview-chip-friend,
   .onboarding-preview-chip-active { background: var(--forest); color: var(--on-accent); }
   .onboarding-preview-button { background: var(--forest); color: var(--on-accent); }

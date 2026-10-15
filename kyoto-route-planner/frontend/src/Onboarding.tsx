@@ -26,7 +26,7 @@ type OnboardingProps = {
 const STEPS = [
   { title: "検索条件を選ぶ", demo: "条件を選んで旅を探す画面" },
   { title: "スワイプで旅を選ぶ", demo: "旅程カードを右へスワイプして保存する様子" },
-  { title: "プランを編集する", demo: "訪問先と時間と予算を編集する画面" },
+  { title: "AIチャットでプランを変更", demo: "入力後、予定変更と完了メッセージが同時に表示される様子" },
 ];
 
 export function Onboarding({ onClose }: OnboardingProps) {
@@ -99,9 +99,13 @@ export function Onboarding({ onClose }: OnboardingProps) {
                   </span>
                 </span>
                   <span className="onboarding-plan-budget">予算 <span className="onboarding-plan-budget-amount">
-                    <span>¥3,000</span>
                     <span>¥6,000</span>
+                    <span>¥3,000</span>
                   </span><span className="onboarding-plan-budget-meter"> ━━━━━</span></span>
+                <div className="onboarding-chat-preview">
+                  <span className="onboarding-chat-prompt">カフェをレストランに変更して</span>
+                  <span className="onboarding-chat-change"><b aria-hidden="true">✦</b><span>レストランに変更</span><b aria-hidden="true">✓</b></span>
+                </div>
               </div>
             )}
           </div>
