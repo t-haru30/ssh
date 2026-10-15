@@ -251,7 +251,7 @@ describe("SearchMode nearby departures", () => {
 
       expect(await screen.findByRole("textbox", { name: "プラン名" })).toHaveProperty("value", "保存済みルート");
       expect(screen.queryByRole("button", { name: "条件を変更する" })).toBeNull();
-      expect(screen.queryByLabelText("出発日")).toBeNull();
+      expect(screen.getByLabelText("出発日").closest("#journey-preview-panel")).toBeTruthy();
       expect(screen.queryByRole("combobox", { name: "出発駅" })).toBeNull();
       expect(screen.queryByText("好きな過ごし方")).toBeNull();
       await waitFor(() => expect(readJourneyDraft()?.plan.stops[0].place.id).toBe("saved-spot"));
@@ -361,7 +361,7 @@ describe("SearchMode selected route", () => {
     expect(readJourneyDraft()?.sourceFavoriteId).not.toBe("deleted-favorite-id");
     expect(serializeJourneyFile(readJourneyDraft()!.plan,"以前の旅程")).toContain("以前の旅程");
   });
-  it("removes post-search date controls and refreshes transport with the saved schedule", async () => {
+  it("keeps the post-search date editable and refreshes transport with the saved schedule", async () => {
     const calls: Record<string,unknown>[]=[];
     vi.stubGlobal("fetch",vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
       if(String(input)==="/api/routes/preview") {
@@ -372,7 +372,7 @@ describe("SearchMode selected route", () => {
     }));
     render(<SearchMode active preset={{theme:"history",stopCount:1,nonce:177,places:savedRoute.places.map(p=>({...p,themes:["history"]})),dwellMinutes:{},origin:savedRoute.origin,title:"日時の更新",departureTime:"10:30"}} />);
     await screen.findByRole("heading",{name:"保存済みスポット"});
-    expect(screen.queryByLabelText("出発日")).toBeNull();
+    expect(screen.getByLabelText("出発日")).toBeTruthy();
     expect(screen.queryByLabelText("出発時刻")).toBeNull();
     expect(screen.queryByRole("button",{name:"この日時で交通情報を更新"})).toBeNull();
     expect(screen.queryByRole("button",{name:"条件を変更する"})).toBeNull();
@@ -382,7 +382,7 @@ describe("SearchMode selected route", () => {
     fireEvent.click(refresh);
     await waitFor(()=>expect(calls.some(call=>call.departure_date===initialDate && call.departure_time==="10:30")).toBe(true));
     await waitFor(()=>expect(refresh).toHaveProperty("disabled",false));
-    expect(screen.queryByLabelText("出発日")).toBeNull();
+    expect(screen.getByLabelText("出発日")).toHaveProperty("value", initialDate);
     await waitFor(()=>expect(readJourneyDraft()?.plan.date).toBe(initialDate));
   });
   it("refreshes a future journey by segments while preserving all seven visits and meal anchors",async()=>{
@@ -399,8 +399,8 @@ describe("SearchMode selected route", () => {
     }));
     render(<SearchMode active preset={{theme:"nature",stopCount:7,nonce:33,places:picked,origin,title:"未来の旅",departureTime:"10:00",dwellMinutes:{"future-1":75,"future-5":75},anchorTimes:{"future-1":"12:30","future-5":"20:30"}}} />);
     await screen.findByRole("heading",{name:"未来の施設0"});
-    expect(screen.queryByLabelText("出発日")).toBeNull();
     const originalDate = readJourneyDraft()!.plan.date;
+    expect(screen.getByLabelText("出発日")).toHaveProperty("value", originalDate);
     const refresh=screen.getByRole("button",{name:/交通経路を再検索/});
     await waitFor(()=>expect(refresh).toHaveProperty("disabled",false));
     fireEvent.click(refresh);
@@ -443,7 +443,7 @@ describe("SearchMode selected route", () => {
     expect((screen.getByRole("button", { name: "読み込む庭園を削除" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.queryByRole("button", { name: "条件を変更する" })).toBeNull();
     expect(screen.queryByRole("combobox", { name: "出発駅" })).toBeNull();
-    expect(screen.queryByLabelText("出発日")).toBeNull();
+    expect(screen.getByLabelText("出発日")).toHaveProperty("value", readJourneyDraft()?.plan.date);
     expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);
   });
 
@@ -465,14 +465,14 @@ describe("SearchMode selected route", () => {
     await waitFor(() => expect(submitted).not.toBeNull());
     expect(submitted).toMatchObject({ return_to: origin });
   });
-  it("retains the saved schedule and omits date and time inputs after a route is selected", async () => {
+  it("retains the saved schedule with an editable date and no time input after route selection", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [{ name: "京都駅", latitude: 34.9858, longitude: 135.7588 }] })));
     const place = { id: "p", name: "公園", latitude: 34.987, longitude: 135.76, category: "公園", description: "", access_point: "", themes: [] };
     render(<SearchMode active preset={{ theme: "nature", stopCount: 1, nonce: 2, places: [place], origin: { name: "京都駅", latitude: 34.9858, longitude: 135.7588 }, title: "公園の旅", dwellMinutes: {} }} />);
     await screen.findByRole("heading", { name: "公園" });
     await waitFor(() => expect(readJourneyDraft()).not.toBeNull());
     const before = readJourneyDraft()!;
-    expect(screen.queryByLabelText("出発日")).toBeNull();
+    expect(screen.getByLabelText("出発日")).toHaveProperty("value", before.plan.date);
     expect(screen.queryByLabelText("出発時刻")).toBeNull();
     expect(screen.queryByRole("button", { name: "条件を変更する" })).toBeNull();
     expect(screen.getByRole("heading", { name: "公園" })).toBeTruthy();
@@ -555,6 +555,10 @@ it("renames a plan without restoring a removed stop, and updates the same saved 
   vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [savedRoute.origin] })));
   const view = render(<SearchMode active />);
   const titleInput = await screen.findByRole("textbox", { name: "プラン名" });
+  expect(titleInput.tagName).toBe("TEXTAREA");
+  const longTitle = "三十三間堂から、街歩きを楽しむ旅。京都の歴史と街並みを巡りながら、お気に入りのカフェにも立ち寄る一日プランです。";
+  fireEvent.change(titleInput, { target: { value: longTitle } });
+  expect(titleInput).toHaveProperty("value", longTitle);
   expect(titleInput.closest(".route-copy-banner")).toBeTruthy();
   expect(view.container.querySelector(".results-heading .plan-title-input")).toBeNull();
   expect(view.container.querySelector(".trip-heading .journey-save-button")).toBeTruthy();
@@ -576,4 +580,25 @@ it("renames a plan without restoring a removed stop, and updates the same saved 
   fireEvent.change(titleInput, { target: { value: "新しい散歩" } });
   await waitFor(() => expect(readJourneyDraft()?.plan.stops).toHaveLength(0));
   expect(readJourneyDraft()?.title).toBe("新しい散歩");
+});
+
+it("changes the itinerary date from the plan editor and refreshes the route for that date", async () => {
+  localStorage.setItem(SAVED_PLAN_STORAGE_KEY, JSON.stringify({ suggestions: [savedRoute], overnightSuggestion: null }));
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+    const url = String(input);
+    const json = url.includes("/api/origins")
+      ? [savedRoute.origin]
+      : url.includes("/api/routes/preview")
+        ? { ...savedRoute, timeline: [], total_minutes: null }
+        : [];
+    return { ok: true, json: async () => json } as Response;
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  render(<SearchMode active />);
+  const dateInput = await screen.findByLabelText("出発日");
+  await waitFor(() => expect(readJourneyDraft()).not.toBeNull());
+  fireEvent.change(dateInput, { target: { value: "2026-10-17" } });
+  await waitFor(() => expect(readJourneyDraft()?.plan.date).toBe("2026-10-17"));
+  await waitFor(() => expect(fetchMock.mock.calls.some(([input, init]) => String(input).includes("/api/routes/preview")
+    && JSON.parse(String(init?.body)).departure_date === "2026-10-17")).toBe(true));
 });

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { cleanup, fireEvent, render as renderBase, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render as renderBase, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DayTripEditor } from "./DayTripEditor";
 import { newTripStop, scheduleTrip } from "./dayTrip";
@@ -15,7 +15,7 @@ const origin = { name: "京都駅", latitude: 35, longitude: 135 };
 const places = ["公園", "美術館"].map((name, index) => ({ ...origin, id: String(index), name, category: "観光", description: "", access_point: "", themes: [] }));
 const source: RouteSuggestion = { origin, places, legs: [], total_minutes: 20, fare_yen: 200, departure_time: "09:00", arrival_time: null, title: "選んだ旅", story: null, note: "" };
 const props = { source, sourceDate: "2026-10-12", sourceTime: "09:00", origin, date: "2026-10-12", departureTime: "09:00", candidates: [], onPlanChange: vi.fn() };
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 it("shows fixed-start conflicts even though the removed budget and duration controls are hidden", () => {
   const initialPlan = scheduleTrip({departureTime:"09:00",availableMinutes:360,budget:5000}, origin, props.date,
@@ -45,27 +45,44 @@ it('keeps restored station endpoints fixed and disables unlock, replacement and 
   }
 });
 
-it("automatically searches all segments and displays total time without showing overruns", async () => {
+it("keeps the summary concise after automatically searching all segments", async () => {
   const timeline = [10, 15, 20].map(duration => ({ type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "地下鉄", duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:10", fare_yen: 200 }));
   const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...source, timeline, coordinates: [[35,135]], total_minutes: 45 }) });
   vi.stubGlobal("fetch", fetcher);
   const changed = vi.fn();
   render(<DayTripEditor {...props} onPlanChange={changed} />);
   expect(screen.getByText("公共交通の経路を確認しています…")).toBeTruthy();
-  expect(await screen.findAllByText("約3時間45分")).toHaveLength(1);
+  await waitFor(() => expect(screen.queryByText("公共交通の経路を確認しています…")).toBeNull());
   expect(screen.getByLabelText("現在の旅程の概要")).toBeTruthy();
   const tripSummary = screen.getByLabelText("現在の旅程の概要");
-  expect(tripSummary.querySelector(".trip-summary-range > span")?.textContent).toBe("出発〜帰着の目安");
-  expect(tripSummary.querySelector(".trip-summary-range > strong")?.textContent).toMatch(/^9:00~\d{1,2}:\d{2}$/);
+  expect(tripSummary.querySelector(".trip-summary-range .trip-summary-label")?.textContent).toBe("出発〜帰着の目安");
+  expect(tripSummary.querySelector(".trip-summary-range .trip-summary-value")?.textContent).toMatch(/^9:00~\d{1,2}:\d{2}$/);
+  expect(tripSummary.querySelector(".trip-cost-heading strong")?.textContent).not.toBe("");
+  expect(tripSummary.querySelectorAll(".trip-summary-card")).toHaveLength(2);
+  expect(tripSummary.querySelectorAll(".trip-summary-card .trip-summary-label")).toHaveLength(2);
+  expect(tripSummary.querySelectorAll(".trip-summary-card .trip-summary-value")).toHaveLength(2);
+  expect(tripSummary.querySelector(".trip-summary-card:not(.trip-summary-range) .trip-summary-label")?.textContent).toBe("合計金額");
+  expect(tripSummary.querySelector(".trip-summary-card:not(.trip-summary-range) .trip-summary-label")?.nextElementSibling?.className).toBe("trip-cost-heading");
+  expect(tripSummary.textContent).not.toContain("約3時間45分");
+  expect(tripSummary.textContent).not.toContain("交通・施設・飲食の合計");
+  expect(tripSummary.querySelector(".trip-summary-range")?.children).toHaveLength(2);
   expect(screen.queryByText(/移動・滞在を含む総時間/)).toBeNull();
-  expect(screen.getByText(/約3時間45分 · 移動 約45分 · 滞在/)).toBeTruthy();
+  expect(screen.queryByText(/移動 約45分 · 滞在/)).toBeNull();
   const costHeading = screen.getByText("/1人").parentElement;
   expect(costHeading?.className).toBe("trip-cost-heading");
   expect(costHeading?.firstElementChild?.tagName).toBe("STRONG");
-  expect(screen.getByText("交通・施設・飲食の合計")).toBeTruthy();
+  expect(screen.queryByText("交通・施設・飲食の合計")).toBeNull();
+  expect(screen.queryByText("交通経路と所要時間を反映しました。")).toBeNull();
+  expect(screen.queryByText("2か所の寄り道")).toBeNull();
   expect(screen.queryByText(/超過/)).toBeNull();
+  const routePriority = screen.getByLabelText("交通経路の優先");
+  const retryRoutes = screen.getByRole("button", { name: "全区間を再検索" });
+  expect(routePriority.closest(".trip-route-status")).toBe(retryRoutes.closest(".trip-route-status"));
+  expect(screen.queryByText(/約3時間45分/)).toBeNull();
   expect(screen.getAllByText("運賃目安：")[0].nextElementSibling?.textContent).toBe("200円");
   expect(screen.getAllByText("交通手段・所要時間を見る")[0].closest("details")?.open).toBe(false);
+  const transitControls = screen.getAllByText("交通手段・所要時間を見る")[0].closest(".trip-transit-controls");
+  expect(transitControls?.querySelector("button")?.textContent).toBe("公共交通の経路・運賃を検索");
   fireEvent.click(screen.getAllByText("交通手段・所要時間を見る")[0]);
   expect(screen.getAllByText("交通手段")[0].nextElementSibling?.textContent).toBe("地下鉄");
   expect(screen.getAllByText("所要時間")[0].nextElementSibling?.textContent).toBe("約10分");
@@ -75,6 +92,11 @@ it("automatically searches all segments and displays total time without showing 
   const bookmark = screen.getByRole("textbox", { name: "しおりの内容" }) as HTMLTextAreaElement;
   expect(bookmark.value).toContain("交通手段：地下鉄 · 所要時間 約10分 · 運賃目安 200円（概算）");
   expect(bookmark.value).toContain("帰りの交通手段：地下鉄 · 所要時間 約20分 · 運賃目安 200円（概算）");
+  const previousChanges = changed.mock.calls.length;
+  fetcher.mockImplementation(async (url: string) => ({ ok: true, json: async () => url === "/api/transit/segment" ? timeline[0] : { ...source, timeline, coordinates: [[35, 135]], total_minutes: 45 } }));
+  fireEvent.click(screen.getAllByRole("button", { name: "公共交通の経路・運賃を検索" })[0]);
+  await waitFor(() => expect(changed.mock.calls.length).toBeGreaterThan(previousChanges));
+  expect(screen.queryByText("区間の経路・概算運賃を反映しました。")).toBeNull();
 });
 
 it("shows stop actions inline and opens spot details only from the photo", () => {
@@ -92,6 +114,18 @@ it("shows stop actions inline and opens spot details only from the photo", () =>
   expect(view.queryByText(/場所の詳細/)).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "公園の詳細を表示" }));
   expect(screen.getByRole("dialog", { name: "公園" })).toBeTruthy();
+});
+
+it("automatically dismisses itinerary success notices after three seconds", () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+  renderBase(<DayTripEditor {...props} />);
+  fireEvent.click(screen.getByRole("button", { name: "公園を固定" }));
+  expect(screen.getByText("行き先と滞在時間を固定しました。")).toBeTruthy();
+  act(() => { vi.advanceTimersByTime(2999); });
+  expect(screen.getByText("行き先と滞在時間を固定しました。")).toBeTruthy();
+  act(() => { vi.advanceTimersByTime(1); });
+  expect(screen.queryByText("行き先と滞在時間を固定しました。")).toBeNull();
 });
 
 it("retains the replacement and other stops despite a long travel time", () => {
@@ -142,7 +176,7 @@ describe("DayTripEditor", () => {
     expect(screen.queryByLabelText("使える時間（時間）")).toBeNull();
     expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(screen.queryByText("2026/10/12 · 京都駅発 → 大阪駅着")).toBeNull();
-    expect(screen.getByText("2か所の寄り道")).toBeTruthy();
+    expect(screen.queryByText("2か所の寄り道")).toBeNull();
     expect(screen.getByText(/大阪駅に帰着/)).toBeTruthy();
     expect(screen.queryByText(preferenceReason(places[0], ["nature", "culture"]))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "美術館を削除" }));

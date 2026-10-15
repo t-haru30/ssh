@@ -76,10 +76,27 @@ describe("chat proposal validation", () => {
 describe("JourneyChat", () => {
   it("shows the departure and estimated return times together", () => {
     const current = plan();
-    const view = render(<JourneyChat plan={current} candidates={places} onApply={vi.fn()} />);
+    const onDepartureDateChange = vi.fn();
+    const view = render(<JourneyChat plan={current} candidates={places} onApply={vi.fn()} onDepartureDateChange={onDepartureDateChange} />);
 
     expect(screen.getByText("出発〜帰着の目安").nextElementSibling?.textContent)
       .toBe(`9:00~${tripClock(current.returnMinute)}`);
+    const dateInput = screen.getByLabelText("出発日");
+    expect(dateInput).toHaveProperty("value", current.date);
+    const stationOutput = screen.getByLabelText("出発駅");
+    expect(stationOutput.textContent).toBe(current.origin.name);
+    const arrivalStationOutput = screen.getByLabelText("帰着駅");
+    expect(arrivalStationOutput.textContent).toBe(current.returnTo.name);
+    expect(stationOutput.tagName).toBe("OUTPUT");
+    expect(arrivalStationOutput.tagName).toBe("OUTPUT");
+    expect(stationOutput.parentElement).toBe(arrivalStationOutput.parentElement);
+    expect(stationOutput.parentElement?.parentElement?.previousElementSibling).toBe(dateInput.parentElement);
+    expect(stationOutput.closest(".journey-artifact-scroll")?.querySelector(".journey-artifact-stats")?.previousElementSibling).toBe(stationOutput.parentElement?.parentElement);
+    expect(stationOutput.parentElement?.parentElement?.textContent).toContain("出発駅 → 帰着駅");
+    expect(view.container.querySelector(".journey-artifact-heading > span")?.textContent).toBe(`${current.stops.length}か所`);
+    expect(view.container.querySelector(".journey-artifact-heading")?.textContent).not.toContain(current.date.replaceAll("-", "/"));
+    fireEvent.change(dateInput, { target: { value: "2026-10-16" } });
+    expect(onDepartureDateChange).toHaveBeenCalledWith("2026-10-16");
     expect(view.container.querySelector(".journey-workspace-header .journey-state")).toBeNull();
     expect(view.container.querySelector(".journey-workspace-header")?.textContent).not.toContain("希望を伝える");
     expect(view.container.querySelector(".journey-conversation > .journey-pane-label")?.textContent).toBe("チャット");

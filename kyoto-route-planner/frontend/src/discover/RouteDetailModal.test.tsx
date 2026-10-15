@@ -35,7 +35,16 @@ describe("RouteDetailModal", () => {
       ],
     };
     render(<RouteDetailModal route={route} onClose={() => {}} />);
-    expect(screen.getByText(/観光の起点：上野駅/)).toBeTruthy();
+    expect(screen.queryByText(/観光の起点：上野駅/)).toBeNull();
+    expect(screen.getByText("上野駅を出発")).toBeTruthy();
+    expect(screen.getAllByText("移動の内訳")).toHaveLength(3);
+    const transitSummaries = screen.getAllByText("移動の内訳");
+    expect(transitSummaries[0].closest("details")?.open).toBe(false);
+    fireEvent.click(transitSummaries[0]);
+    expect(transitSummaries[0].closest("details")?.open).toBe(true);
+    fireEvent.click(transitSummaries[0]);
+    expect(transitSummaries[0].closest("details")?.open).toBe(false);
+    for (const details of transitSummaries) fireEvent.click(details);
     expect(screen.getByText("徒歩で約10分")).toBeTruthy();
     expect(screen.getByText("車で約15分")).toBeTruthy();
     expect(screen.getByText("約20分")).toBeTruthy();
@@ -50,7 +59,7 @@ describe("RouteDetailModal", () => {
     const onPlan = vi.fn();
     const onClose = vi.fn();
     render(<RouteDetailModal route={savedRoute} onClose={onClose} onPlanInSearch={onPlan} />);
-    expect(screen.getByText(/観光の起点：東京都・エリア中心/)).toBeTruthy();
+    expect(screen.queryByText(/観光の起点：東京都・エリア中心/)).toBeNull();
     expect(screen.getByText(/滞在の目安 45分/)).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId("map-origin").textContent).toBe("東京都・エリア中心"));
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "閉じる" }));
@@ -133,7 +142,7 @@ describe("RouteDetailModal", () => {
           from_name: "京都駅",
           to_name: "伏見稲荷大社",
           mode: "public_transport",
-          transit_line: "JR奈良線",
+          transit_line: "移動 / JR奈良線 / 徒歩 / 市バス",
           start_time: "09:02",
           end_time: "09:08",
           duration_minutes: 6,
@@ -153,114 +162,25 @@ describe("RouteDetailModal", () => {
     render(<RouteDetailModal route={route} onClose={() => undefined} />);
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    fireEvent.click(screen.getAllByText("移動の内訳")[0]);
     expect(await screen.findByText("JR奈良線")).toBeTruthy();
     expect(screen.queryByText("公共交通 · JR奈良線")).toBeNull();
-    expect(screen.getByText("運行時刻 09:02〜09:08")).toBeTruthy();
+    expect(screen.getByText(/運行時刻 09:02〜09:08/)).toBeTruthy();
+    expect(screen.queryByText("↓")).toBeNull();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/routes/preview",
       expect.objectContaining({ method: "POST" }),
     );
   });
 
-  it("uses GPS coordinates to select a nearby station and re-searches the route", async () => {
-    const route: DatasetRoute = {
-      id: "kyoto-sample",
-      area: "kyoto",
-      pattern: "half_day",
-      course: "half_day",
-      theme: "temple",
-      title: "京都の寺社を巡る",
-      estimated_minutes: 120,
-      legs: [
-        { from: "京都駅", to: "伏見稲荷大社", distance_km: 3, mode: "public_transport", minutes: 10 },
-        { from: "伏見稲荷大社", to: "京都駅", distance_km: 3, mode: "public_transport", minutes: 10 },
-      ],
-      start: { name: "京都駅", lat: 34.985849, lng: 135.758766, to_first_km: 3, from_last_km: 3 },
-      total_score: 1,
-      center: [34.985849, 135.758766],
-      spots: [{
-        place_id: "fushimi",
-        name: "伏見稲荷大社",
-        category: "神社",
-        lat: 34.9671,
-        lng: 135.7727,
-        stay_minutes: 90,
-        score: 1,
-        role: "stop",
-      }],
-      coordinates: [[34.9671, 135.7727]],
-    };
-    const previewResponse = new Response(JSON.stringify({
-        places: [{
-          id: "fushimi",
-          name: "伏見稲荷大社",
-          category: "神社",
-          description: "",
-          access_point: "",
-          latitude: 34.9671,
-          longitude: 135.7727,
-          themes: ["temple"],
-        }],
-        origin: { name: "最寄り駅", latitude: 35.001, longitude: 135.002 },
-        legs: [],
-        title: null,
-        story: null,
-        total_minutes: 20,
-        departure_time: "09:00",
-        arrival_time: "09:20",
-        timeline: [],
-        note: "",
-        coordinates: [],
-      }), { status: 200 });
-    const fetchMock = vi.fn(async (
-      input: RequestInfo | URL,
-      _init?: RequestInit,
-    ): Promise<Response> => (
-      String(input).includes("/api/nearby-stations")
-        ? new Response(JSON.stringify([{
-              name: "最寄り駅",
-              latitude: 35.001,
-              longitude: 135.002,
-            }]), { status: 200 })
-        : previewResponse.clone()
-    ));
-    vi.stubGlobal("fetch", fetchMock);
-    Object.defineProperty(navigator, "geolocation", {
-      configurable: true,
-      value: {
-        getCurrentPosition: (success: PositionCallback) => success({
-          coords: { latitude: 35.123, longitude: 135.456 },
-          timestamp: Date.now(),
-        } as GeolocationPosition),
-      },
-    });
-
-    render(<RouteDetailModal route={route} onClose={() => undefined} />);
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    const locationButton = await screen.findByRole("button", { name: "現在地から出発" });
-    fireEvent.click(locationButton);
-
-    await waitFor(() => {
-      const previewCalls = fetchMock.mock.calls.filter(
-        ([input]) => String(input) === "/api/routes/preview",
-      );
-      expect(previewCalls).toHaveLength(2);
-    });
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/api/nearby-stations?latitude=35.123&longitude=135.456",
-      expect.anything(),
-    );
-    const previewCalls = fetchMock.mock.calls.filter(
-      ([input]) => String(input) === "/api/routes/preview",
-    );
-    expect(JSON.parse(String(previewCalls[1][1]?.body))).toMatchObject({
-      origin: {
-        name: "最寄り駅",
-        latitude: 35.001,
-        longitude: 135.002,
-      },
-    });
+  it("hides the location and manual route-search controls", async () => {
+    render(<RouteDetailModal route={savedRoute} onClose={() => undefined} />);
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/routes/preview", expect.anything()));
+    expect(screen.queryByRole("button", { name: "現在地から出発" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "元の出発地に戻す" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "交通経路を再検索する" })).toBeNull();
+    expect(screen.queryByText("この旅で訪れる場所")).toBeNull();
+    expect(screen.queryByText("この場所の見どころ")).toBeNull();
   });
 });
 
@@ -275,7 +195,7 @@ it("automatically previews the outward and homeward transfers while retaining to
   expect(body.return_to).toEqual(travelOrigin);
   expect(body.places.map((place: { id: string }) => place.id)).toEqual(["trip-arrival", "tokyo-spot", "trip-return"]);
   expect(body.stay_minutes).toEqual([15, 45, 15]);
-  expect(screen.getByText("東京の史跡", { selector: "strong" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "東京の史跡" })).toBeTruthy();
   expect(screen.getByText(/帰着の目安 交通検索後に表示 名古屋駅/)).toBeTruthy();
 });
 

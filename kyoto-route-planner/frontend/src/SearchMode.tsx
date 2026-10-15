@@ -1,7 +1,7 @@
 import { usePrefecture } from "./PrefectureContext";
 import { distanceKm, transportMatches } from "./dayTrip";
 import { currentLocation } from "./currentLocation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LazyMapView } from "./LazyMapView";
 import { buildDayTimeline, RouteTimeline } from "./RouteTimeline";
@@ -126,6 +126,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   }, [active]);
 
   const places = localPlaces;
+  const planTitleRef = useRef<HTMLTextAreaElement>(null);
   const [origins, setOrigins] = useState<Origin[]>([]);
   const [nearbyStations, setNearbyStations] = useState<Origin[]>(savedForm?.nearbyStations ?? []);
   const [originName, setOriginName] = useState(restoredDraft?.plan.origin.name ?? savedForm?.originName ?? legacyPlan?.suggestions[0]?.origin.name ?? "京都駅");
@@ -220,6 +221,17 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
   const endpointOptions = useMemo(() => [...new Map([...(customOrigin ? [customOrigin] : []), ...(customReturn ? [customReturn] : []), ...nearbyStations, ...origins].map(item => [`${item.name}:${item.latitude}:${item.longitude}`, item])).values()], [customOrigin, customReturn, nearbyStations, origins]);
   const returnTo = returnSame ? origin : customReturn?.name === returnName ? customReturn : endpointOptions.find(item => item.name === returnName) ?? null;
   const hasCompleted = Boolean(dayTripPlan?.stops.some(stop => stop.completed));
+  useLayoutEffect(() => {
+    const textarea = planTitleRef.current;
+    if (!textarea) return;
+    const resize = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight + 4}px`;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [planTitle]);
   const mapPlaces = useMemo(() => {
     if (isOvernight && overnightSuggestion) {
       const allPlaces = overnightSuggestion.days.flatMap(d => d.places);
@@ -600,12 +612,14 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
 
       {!isOvernight && suggestions[0]?.title && (
         <section className="route-copy-banner visible" aria-live="polite">
-          <input
+          <textarea
+            ref={planTitleRef}
             className="route-copy-title"
             aria-label="プラン名"
             maxLength={500}
             value={planTitle}
             placeholder="旅の名前を入力"
+            rows={1}
             onChange={event => setPlanTitle(event.target.value)}
           />
         </section>
@@ -837,6 +851,7 @@ export function SearchMode({ active, preset, editingOnly = false, onDiscover }: 
             <DayTripEditor key={tripSession} source={suggestions[0]} sourceDate={transportStamp.date} sourceTime={transportStamp.time}
               routePriority={routePriority} onRoutePriorityChange={setRoutePriority} preferNearbyAirport={preferNearbyAirport} onPreferNearbyAirportChange={setPreferNearbyAirport}
               origin={origin ?? suggestions[0].origin} returnTo={returnTo ?? origin ?? suggestions[0].origin} preferences={preferences} date={editorDate} departureTime={editorTime} candidates={editingCandidates}
+              onDepartureDateChange={setDepartureDate}
               headerAction={journeySaveButton}
               initialAnchorTimes={preset?.nonce === tripSession ? preset.anchorTimes : undefined} initialAvailableMinutes={preset?.nonce === tripSession ? preset.availableMinutes : undefined} initialDwellMinutes={preset?.nonce === tripSession ? preset.dwellMinutes : undefined} initialPlan={dayTripPlan} busy={searching} onPlanChange={setDayTripPlan} />
             <div className="route-swipe-controls">

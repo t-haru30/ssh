@@ -105,12 +105,13 @@ type Props = {
   initialPlan?: TripPlan | null;
   busy?: boolean;
   headerAction?: ReactNode;
+  onDepartureDateChange?: (date: string) => void;
   onPlanChange: (plan: TripPlan) => void;
   routePriority?:"time"|"price";onRoutePriorityChange?:(value:"time"|"price")=>void;
   preferNearbyAirport?:boolean;onPreferNearbyAirportChange?:(value:boolean)=>void;
 };
 
-export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialAnchorTimes, initialAvailableMinutes, initialPlan, busy, headerAction, onPlanChange,routePriority:controlledPriority,onRoutePriorityChange,preferNearbyAirport:controlledAirport,onPreferNearbyAirportChange }: Props) {
+export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo, preferences, date, departureTime, candidates, initialDwellMinutes, initialAnchorTimes, initialAvailableMinutes, initialPlan, busy, headerAction, onDepartureDateChange, onPlanChange,routePriority:controlledPriority,onRoutePriorityChange,preferNearbyAirport:controlledAirport,onPreferNearbyAirportChange }: Props) {
   const destination = returnTo ?? initialPlan?.returnTo ?? origin;
   const currentPreferences = preferences ?? initialPlan?.input.preferences;
   const preferenceKey = JSON.stringify(currentPreferences ?? []);
@@ -140,6 +141,8 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const [candidateNote, setCandidateNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [successNotice, setSuccessNotice] = useState("");
+  const successNoticeTimer = useRef<number | null>(null);
   const [transitState, setTransitState] = useState<"loading" | "ready" | "partial" | "failed">("loading");
   const googleInfos=useGoogleVenueInfo(plan.stops.map(s=>s.place).filter(p=>!['trip-arrival','trip-return'].includes(p.id)),transitState==="ready");
   const openingProblems=plan.stops.flatMap(s=>{
@@ -155,6 +158,9 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousSource = useRef(source);
   const previousConditions = useRef({ originKey, destinationKey, date, departureTime, preferenceKey });
+  useEffect(() => () => {
+    if (successNoticeTimer.current !== null) window.clearTimeout(successNoticeTimer.current);
+  }, []);
 
   useEffect(() => {
     if (previousSource.current === source) return;
@@ -221,7 +227,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
           planningEstimates: current.planningEstimates }));
         const complete = route.timeline?.filter(item => item.type === "transit").every(item => item.duration_minutes != null && !item.is_estimate) && route.total_minutes != null;
         setTransitState(complete ? "ready" : "partial");
-        setNotice(complete ? "交通経路と所要時間を反映しました。" : "一部の経路を確認できませんでした。取得済みの経路は反映しています。");
+        setNotice(complete ? "" : "一部の経路を確認できませんでした。取得済みの経路は反映しています。");
       } catch {
         if (latestTransitKey.current === transitKey && (!controller.signal.aborted || timedOut)) {
           setTransitState("failed");
@@ -265,13 +271,21 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     return { ...scheduleTrip(plan.input, plan.origin, plan.date, plan.stops,
       { route, date: plan.date, time: plan.input.departureTime }, plan.transportEstimate, plan.returnTo), planningEstimates: plan.planningEstimates };
     });
-    setNotice("区間の経路・概算運賃を反映しました。");
+    setNotice("");
   }
   function compute(stops: TripStop[], estimate = plan.transportEstimate) {
     return { ...scheduleTrip(plan.input, plan.origin, plan.date, stops, plan.transport, estimate, plan.returnTo), planningEstimates: plan.planningEstimates };
   }
+  function showSuccessNotice(message: string) {
+    if (successNoticeTimer.current !== null) window.clearTimeout(successNoticeTimer.current);
+    setSuccessNotice(message);
+    successNoticeTimer.current = window.setTimeout(() => {
+      setSuccessNotice(current => current === message ? "" : current);
+      successNoticeTimer.current = null;
+    }, 3000);
+  }
   function adopt(next: TripPlan, message = "変更を旅程に反映しました。") {
-    setPlan(next); setPreview(null); setEditId(null); setError(null); setNotice(message);
+    setPlan(next); setPreview(null); setEditId(null); setError(null); setNotice(""); showSuccessNotice(message);
     window.requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
   }
   function editStop(event: FormEvent<HTMLFormElement>, stop: TripStop) {
@@ -339,7 +353,6 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const changes = preview ? tripChanges(plan, preview) : [];
   const unknownTravel = Boolean(plan.unknownTravelSegments?.length);
   const previewFitsTime = !preview || preview.input.availableMinutes === plan.input.availableMinutes || (!preview.unknownTravelSegments?.length && preview.returnMinute <= clockMinutes(preview.input.departureTime) + preview.input.availableMinutes);
-  const usedMinutes = plan.returnMinute - clockMinutes(plan.input.departureTime);
   const displayedViolations = plan.violations.filter(message => !/(帰着目標|超過|予算|費用|時間枠)/.test(message));
   const bookmark = tripBookmark(plan);
   async function copyBookmark() {
@@ -353,23 +366,28 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   return <section className="trip-editor" aria-labelledby="trip-editor-title"><fieldset className="trip-controls" disabled={busy}>
     <header className="trip-heading"><div><h3 id="trip-editor-title" tabIndex={-1} ref={headingRef}>私の旅のしおり</h3></div>{lockedCount > 0 && <span className="trip-lock-count">{lockedCount}件を固定中</span>}{headerAction}</header>
     {completedCount > 0 && <p className="trip-completed-note"><strong>{completedCount}か所を訪問済み</strong> 記録した場所・時刻・滞在時間を保ち、これからの予定を調整します。</p>}
-    <div className="trip-overview"><span>{plan.stops.length}か所の寄り道</span></div>
     <MobileTripMap plan={plan} routeLoading={transitState === "loading"} />
     <OvernightSuggestion plan={plan} pending={transitState === "loading"} />
-    <div className="trip-route-options"><label>交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
-      {plan.stops.some(s=>distanceKm(plan.origin,s.place)>500) && <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>}
-    </div>
-    <div className="trip-route-status" role="status" aria-live="polite">
-      {transitState === "loading" ? "公共交通の経路を確認しています…" : transitState === "ready" ? `約${durationLabel(usedMinutes)}` : unknownTravel ? "一部の交通経路が未確認です。" : `（概算）約${durationLabel(usedMinutes)}。未確認の区間があります。`}
-      {transitState !== "loading" && <button type="button" onClick={() => setTransitRetry(v => v + 1)}>全区間を再検索</button>}
+    {plan.stops.some(s=>distanceKm(plan.origin,s.place)>500) && <div className="trip-route-options">
+      <label className="route-airport-option"><input type="checkbox" checked={preferNearbyAirport} onChange={event=>setPreferNearbyAirport(event.target.checked)} />近くの空港を優先（那覇への往復）</label>
+    </div>}
+    <div className="trip-route-status">
+      {(transitState === "loading" || unknownTravel) && <span className="trip-route-status-message" role="status" aria-live="polite">
+        {transitState === "loading" ? "公共交通の経路を確認しています…" : "一部の交通経路が未確認です。"}
+      </span>}
+      <div className="trip-route-controls">
+        <label className="trip-route-priority">交通経路の優先<select value={routePriority} onChange={event=>setRoutePriority(event.target.value as "time"|"price")}><option value="time">速さ優先</option><option value="price">料金優先</option></select></label>
+        {transitState !== "loading" && <button type="button" onClick={() => setTransitRetry(v => v + 1)}>全区間を再検索</button>}
+      </div>
     </div>
     <div className="trip-summary" aria-label="現在の旅程の概要">
-      <div className="trip-summary-range"><span>出発〜帰着の目安</span><strong>{tripClock(clockMinutes(plan.input.departureTime)).replace(/^0(?=\d:)/, "")}~{unknownTravel ? "未確認" : tripClock(plan.returnMinute).replace(/^0(?=\d:)/, "")}</strong><span>約{durationLabel(usedMinutes)} · 移動 {unknownTravel ? "未確認" : `約${plan.travelMinutes}分`} · 滞在 {plan.stops.reduce((total, stop) => total + stop.dwellMinutes, 0)}分</span></div>
-      <div><div className="trip-cost-heading"><strong>{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算小計</em></> : "合計未確認" : yen(plan.totalCost)}</strong><small>/1人</small></div><span>{plan.totalCost === null ? `未確認の費用が${plan.unknownCosts}項目あります` : "交通・施設・飲食の合計"}</span></div>
+      <div className="trip-summary-range trip-summary-card"><span className="trip-summary-label">出発〜帰着の目安</span><strong className="trip-summary-value">{tripClock(clockMinutes(plan.input.departureTime)).replace(/^0(?=\d:)/, "")}~{unknownTravel ? "未確認" : tripClock(plan.returnMinute).replace(/^0(?=\d:)/, "")}</strong></div>
+      <div className="trip-summary-card"><span className="trip-summary-label">合計金額</span><div className="trip-cost-heading"><strong className="trip-summary-value">{plan.totalCost === null ? plan.knownCost > 0 ? <>{yen(plan.knownCost)}<em>概算小計</em></> : "合計未確認" : yen(plan.totalCost)}</strong><small>/1人</small></div>{plan.totalCost === null && <span>未確認の費用が{plan.unknownCosts}項目あります</span>}</div>
     </div>
     {displayedViolations.length > 0 && <details className="trip-warnings"><summary>旅程の確認が必要です</summary><ul>{displayedViolations.map(message => <li key={message}>{message}</li>)}</ul></details>}
     {error && <p className="trip-error" role="alert">{error}</p>}
     <p className={`trip-live-message${notice ? " has-message" : ""}`} role="status" aria-live="polite" aria-atomic="true">{notice}</p>
+    {successNotice && <p className="trip-live-message has-message" role="status" aria-live="polite" aria-atomic="true">{successNotice}</p>}
     <details className="trip-method-details"><summary>移動・費用の見積もりについて</summary><div>
     <p className="trip-travel-note">{plan.estimatedTravel ? "移動は直線距離からの徒歩概算です。予定の入れ替え・削除後は交通経路を再検索してください。" : "取得済みの区間は交通検索の所要時間を使用しています。区間情報がない場合は合計時間からの概算です。"} 営業時間・実際の発着時刻は未確認です。</p>
     <p className="trip-travel-note">{isRoundTrip(plan) ? "往復交通費" : "全区間の交通費"}：{plan.travelCost === null ? "未確認" : `${yen(plan.travelCost)}（${plan.transportEstimate === null ? "取得運賃" : "利用者見積もり"}）`}</p>
@@ -379,7 +397,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     </div></details>
     {openingProblems.length>0 && <div className="error-panel" role="status"><strong>営業時間に合わせた見直しが必要です</strong><ul>{openingProblems.map(p=><li key={p}>{p}</li>)}</ul><p>下の確認から修正案を探すか、施設を入れ替えてください。</p></div>}
     <details className="trip-check-toggle" open={openingProblems.length>0 || undefined}><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。")} /></details>
-    <JourneyChat routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} plan={plan} candidates={options} disabled={busy || preview !== null} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
+    <JourneyChat routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} plan={plan} candidates={options} disabled={busy || preview !== null} onDepartureDateChange={onDepartureDateChange} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
     <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
     <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong></div><span aria-hidden="true">START</span></div>

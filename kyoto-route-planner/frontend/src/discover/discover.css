@@ -44,6 +44,39 @@
 .discover-modal-return { display: grid; gap: 7px; margin: 0; padding: 15px 0; border-top: 1px solid var(--line); font-size: 11px; }
 .discover-modal-return > span { color: var(--muted); }
 .discover-modal-return > strong { color: var(--forest); font-weight: 600; }
+.discover-route-modal .trip-timeline-heading { margin-top: 24px; }
+.discover-route-modal .discover-modal-timeline { margin-bottom: 20px; }
+.discover-route-modal .discover-modal-leg { margin-left: 25px; }
+.discover-modal-transit-details { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.discover-modal-transit-details > summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px 12px; cursor: pointer; padding: 12px 14px; color: var(--control-text); list-style: none; }
+.discover-modal-transit-details > summary::-webkit-details-marker { display: none; }
+.discover-modal-transit-details > summary::after { content: "+"; color: var(--forest); font-size: 16px; }
+.discover-modal-transit-details[open] > summary::after { content: "−"; }
+.discover-modal-transit-details > summary > span { color: var(--forest); font-weight: 600; }
+.discover-modal-transit-details > summary > strong { overflow-wrap: anywhere; font-size: 11px; }
+.discover-modal-transit-details > summary > small { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.discover-modal-transit-content { display: grid; gap: 8px; padding: 0 14px 12px; color: var(--control-text); font-size: 11px; }
+.discover-modal-transit-content p { margin: 0; line-height: 1.7; }
+.discover-modal-transit-content ol { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.discover-modal-transit-content li { display: grid; gap: 3px; min-width: 0; padding: 7px 9px; border-radius: 7px; background: var(--surface-muted); overflow-wrap: anywhere; }
+.discover-modal-transit-content li span { color: var(--muted); font-size: 10px; }
+.discover-modal-finish { padding: 15px 0; }
+.discover-modal-finish .trip-departure { border-color: var(--forest); }
+.discover-modal-stop-visual { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 128px; overflow: hidden; border-radius: 10px; background: var(--surface-muted); }
+.discover-modal-stop-photo { grid-column: 2; grid-row: 1; min-width: 0; }
+.discover-modal-stop-photo .facility-photo, .discover-modal-stop-photo .route-photo-tile { width: 100%; height: 100%; min-height: 128px; margin: 0; border-radius: 0; }
+.discover-route-modal .trip-stop-header { grid-column: 1; grid-row: 1; width: auto; min-width: 0; padding: 12px; pointer-events: auto; }
+.discover-route-modal .trip-stop-header h4 { overflow-wrap: anywhere; }
+.discover-route-modal .trip-stop-meta { margin: 10px 0 0; }
+.discover-route-modal .trip-place-details { margin: 8px 0 0; }
+.discover-route-modal .place-description-toggle { margin-top: 8px; }
+.discover-route-modal .venue-evidence { margin-top: 8px; }
+@media (max-width: 520px) {
+  .discover-modal-transit-details > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 11px; }
+  .discover-modal-transit-details > summary > small { grid-column: 1; }
+  .discover-modal-stop-visual { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
+  .discover-route-modal .trip-stop-header { flex-wrap: wrap; gap: 8px; padding: 10px; }
+}
 .discover-mode button:focus-visible, .discover-mode select:focus-visible, .discover-route-modal button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 @media (max-width: 1000px) {
   .discover-destinations { grid-template-columns: 1fr; gap: 14px; }.discover-destination-heading { display: flex; align-items: baseline; gap: 12px; }.discover-destination-heading h2 { margin: 0; }.discover-workspace { gap: 23px; grid-template-columns: 250px minmax(0, 1fr); }.discover-filters { padding: 20px; }.discover-hero-copy { padding: 32px; }.discover-art-ticket { left: 8%; width: 185px; }
