@@ -28,6 +28,7 @@ function enterMood() {
 function goMood() {
   enterMood();
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
+  fireEvent.click(within(screen.getByRole("group", { name: "旅の途中に、どの食事を入れますか？" })).getByRole("button", { name: "おまかせ" }));
 }
 function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ })); fireEvent.change(screen.getByLabelText("出発地点"), { target: { value: "京都駅|34.985849|135.758766" } }); }
 async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); await waitFor(()=>expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false)); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect(screen.queryByRole("button", {name:"検索を中止する"})).toBeNull()); }
@@ -235,6 +236,7 @@ it("combines interests in step one and sends written wishes ahead of optional ta
   expect(screen.queryByRole("button",{name:"ゆっくり過ごしたい"})).toBeNull();
   expect(screen.getByRole("group",{name:"どれくらい楽しむ？"})).toBeTruthy();
   fireEvent.click(screen.getByRole("button",{name:"半日"}));
+  fireEvent.click(within(screen.getByRole("group", {name:"食事の予定は入れますか？"})).getByRole("button", {name:"おまかせ"}));
   fireEvent.click(screen.getByRole("button",{name:"提案タグを選択"}));
   fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"庭園とカフェに寄りたい"}});
   expect(screen.getByText("旅程で優先：カフェ・庭園")).toBeTruthy();
@@ -262,11 +264,15 @@ it("asks about meals after duration and sends optional times only for selected m
   expect(body.meals).toEqual([{kind:"lunch",time:"13:00"}]);
 });
 
-it("treats unanswered gourmet meals as automatic and keeps explicit no-meals separate", async () => {
+it("requires a meal choice and keeps explicit no-meals separate from automatic meals", async () => {
   mount(); revealThemes();
   fireEvent.click(screen.getByRole("button", {name: "グルメ"}));
-  goMood(); fireEvent.click(screen.getByRole("button", {name: "1日"}));
+  enterMood(); fireEvent.click(screen.getByRole("button", {name: "1日"}));
+  expect(within(screen.getByRole("group", {name:"1日の旅に、どの食事を入れますか？"})).getByRole("button", {name:"おまかせ"}).getAttribute("aria-pressed")).toBe("false");
   expect(screen.getByRole("button", {name:"食事なし"}).getAttribute("aria-pressed")).toBe("false");
+  expect((screen.getByRole("button", {name:/次へ：行き先/}) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByText(/旅に入れる食事を選んでください/)).toBeTruthy();
+  fireEvent.click(within(screen.getByRole("group", {name:"1日の旅に、どの食事を入れますか？"})).getByRole("button", {name:"おまかせ"}));
   fireEvent.click(screen.getByRole("button", {name:/行き先を選ぶ/}));
   fireEvent.click(screen.getByRole("button", {name:/おすすめ旅程を見る/}));
   await waitFor(() => expect(vi.mocked(fetch).mock.calls.some(([url]) => url === "/api/discover")).toBe(true));
@@ -511,12 +517,11 @@ it("changes destination directly while retaining profile, mood and free-text ans
   expect(JSON.parse(String(request?.body))).toMatchObject({ area: "aomori", theme: "history", course: "half_day", traveler: { companion: "family" }, preference_text: "博物館に寄りたい", origin: { name: departure } });
 });
 
-it("includes selected AI tags in the next screen and recommendation request", async () => {
+it("keeps selected AI tags in the recommendation request", async () => {
   mount();
   revealThemes(); fireEvent.click(screen.getByRole("button", { name: "おまかせ" }));
   goMood();
   fireEvent.click(screen.getByRole("button", { name: "提案タグを選択" }));
-  expect(screen.getByText("✦ 庭園でひと休み")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   await generate();
   const request = vi.mocked(fetch).mock.calls.find(([url]) => url === "/api/discover")![1];
@@ -548,6 +553,7 @@ it("reveals each profile question only after the preceding choice", () => {
 it("reveals mood questions one by one and keeps answers when returning", () => {
   mount(); enterMood();
   expect(screen.getByRole("group", { name: "どれくらい楽しむ？" })).toBeTruthy();
+  expect(screen.queryByLabelText("あなたの旅のタグ")).toBeNull();
   expect(screen.getByRole("textbox")).toBeTruthy();
   expect((screen.getByRole("button", { name: /行き先を選ぶ/ }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByRole("button", { name: "← 戻る" })).toBeTruthy();
@@ -555,12 +561,13 @@ it("reveals mood questions one by one and keeps answers when returning", () => {
   expect(screen.getByRole("textbox")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "半日" }));
   expect(screen.getByRole("textbox")).toBeTruthy();
+  fireEvent.click(within(screen.getByRole("group", {name:"食事の予定は入れますか？"})).getByRole("button", {name:"食事なし"}));
   fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ }));
   fireEvent.click(screen.getByRole("button", { name: "← 戻る" }));
   expect(screen.getByRole("button", { name: "半日" }).getAttribute("aria-pressed")).toBe("true");
 });
 
-it("allows returning users to jump to 02 with their saved preferences and shows AI tags before the mood question", () => {
+it("allows returning users to jump to 02 without repeating their saved profile choices", () => {
   const first = mount();
   expect(screen.queryByRole("button", { name: "02 気分へ" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "家族と" }));
@@ -570,8 +577,8 @@ it("allows returning users to jump to 02 with their saved preferences and shows 
   mount();
   fireEvent.click(screen.getByRole("button", { name: "02 気分へ" }));
   expect(screen.getByRole("heading", { name: "どんな一日にしたい？" })).toBeTruthy();
-  expect(screen.getByText("歴史・街歩き")).toBeTruthy();
-  expect(screen.getByText("ゆったり")).toBeTruthy();
+  expect(screen.queryByText("歴史・街歩き")).toBeNull();
+  expect(screen.queryByText("ゆったり")).toBeNull();
   const tags = screen.getByRole("button", { name: "提案タグを選択" });
   const question = screen.getByRole("group", { name: "どれくらい楽しむ？" });
   expect(tags.compareDocumentPosition(question) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

@@ -22,8 +22,6 @@
 .discovery-question .discover-filter-group button { padding:13px 18px; border-radius:14px; }
 .discovery-question .discovery-free-text { font-weight:700; }
 .discovery-question .discovery-free-text textarea { font-weight:400; }
-.discovery-tags { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0; }
-.discovery-tags span { background:var(--surface-muted); color:var(--forest); border-radius:30px; padding:8px 14px; font-size:13px; }
 .discovery-free-text { display:grid; gap:12px; margin-top:28px; font-size:14px; }
 .discovery-free-text textarea { resize:vertical; width:100%; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--paper); color:var(--ink); font:inherit; box-sizing:border-box; }
 .discovery-next { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:36px; }

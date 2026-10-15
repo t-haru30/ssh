@@ -22,7 +22,7 @@ import { StationSearch } from "../StationSearch";
 import { DestinationGatewaySearch } from "../DestinationGatewaySearch";
 import type { Origin } from "../types";
 import "./discoveryFlow.css";
-import { readTravelerProfile, saveTravelerProfile, travelerProfileSummary, PACE_OPTIONS, normalizeTravelPace } from "../travelerProfile";
+import { readTravelerProfile, saveTravelerProfile } from "../travelerProfile";
 import { TravelRangeControl } from "../TravelRangeControl";
 import type { DiscoveryAgent } from "./dynamicRoutes";
 import { diverseRoutes } from "./routeDiversity";
@@ -270,6 +270,7 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
   const nextBlockedReason = step === 0 && profileStage < 3
     ? ["誰と出かけるかを選んでください。「指定しない」でも進めます。", "旅のペースを選んでください。", "好きな過ごし方を1つ以上選んでください。"][profileStage]
     : step === 1 && !durationAnswered ? "どれくらい楽しむかを選んでください。"
+    : step === 1 && mealMode === "unanswered" ? "旅に入れる食事を選んでください。「おまかせ」や「食事なし」も選べます。"
     : step > 0 && step < 3 && mealWarning ? mealWarning : step === 2 && resolvingDestination ? "入力した地名の行き先を確認しています。都道府県や駅を選んで続けることもできます。"
     : step === 2 && locating ? "現在地を取得中です。取得が終わるまでお待ちください。"
     : step === 2 && destinationSuggestions.length > 1 ? "入力した地名から行き先を1つ選んでください。" : "";
@@ -340,12 +341,11 @@ export function DiscoverMode({ active, onPlanInSearch, homeRequest = 0 }: Discov
         {profileStage >= 2 && <div className="profile-reveal"><fieldset className="discover-filter-group"><legend>好きな過ごし方は？（複数選択できます）</legend><div className="discover-theme-options">{themes.map(item => <button type="button" key={item.id} aria-pressed={profileStage >= 3 && chosenThemes.includes(item.id) && (item.id !== "all" || !preferLandmarks)} onClick={() => { setTheme(item.id); if (item.id === "all") setPreferLandmarks(false); setProfileStage(3); }}>{item.label}</button>)}<button type="button" aria-pressed={preferLandmarks} onClick={() => {setPreferLandmarks(value => !value); setProfileStage(3);}}>名所・定番</button></div></fieldset></div>}
       </>}
       {step === 1 && <>
-        <div className="discovery-tags" aria-label="あなたの旅のタグ">{selectedTags.map(tag => <span key={tag}>✦ {tag}</span>)}<span>{travelerProfileSummary(traveler)}</span><span>{[...chosenThemes.filter(id=>id!=="all" || !preferLandmarks).map(id => themes.find(item => item.id === id)?.label), ...(preferLandmarks ? ["名所・定番"] : [])].join("・")}</span><span>{PACE_OPTIONS.find(item => item.value === normalizeTravelPace(traveler.pace))?.label}</span></div>
         <div className="profile-reveal"><PreferenceTags theme={theme} traveler={traveler} selected={selectedTags} onChange={setSelectedTags} /></div>
         <div className="profile-reveal profile-first-question"><fieldset className="discover-filter-group"><legend>どれくらい楽しむ？</legend><div className="discover-duration-options">{([{ id: "all", label: "おまかせ" }, { id: "half_day", label: "半日" }, { id: "full_day", label: "1日" }] as const).map(item => <button key={item.id} type="button" aria-pressed={durationAnswered && pattern === item.id} onClick={() => { setPattern(item.id); if (item.id === "half_day") setMeals(current => current.filter(m => m.kind !== "breakfast")); setDurationAnswered(true); }}>{item.label}</button>)}</div></fieldset></div>
         {durationAnswered && <div className="profile-reveal"><fieldset className="discover-filter-group">
           <legend>{pattern === "full_day" ? "1日の旅に、どの食事を入れますか？" : pattern === "half_day" ? "食事の予定は入れますか？" : "旅の途中に、どの食事を入れますか？"}</legend>
-          {chosenThemes.includes("food") && <p className="preference-tags-note">{`未選択なら${pattern === "full_day" ? "昼・夜ごはん" : "昼ごはん"}を入れます。食事を入れない場合は「食事なし」を選んでください。`}</p>}
+          <p className="preference-tags-note">「おまかせ」または入れたい食事を選んでください。食事を入れない場合は「食事なし」を選んでください。</p>
           <div className="discover-theme-options"><button type="button" aria-pressed={mealMode === "auto"} onClick={() => {setMealMode("auto"); setMeals([]);}}>おまかせ</button>{MEALS.filter(m => pattern !== "half_day" || m.kind !== "breakfast").map(m => <button type="button" key={m.kind} aria-pressed={mealMode === "custom" && meals.some(c => c.kind === m.kind)} onClick={() => {setMealMode("custom"); setMeals(current => current.some(c => c.kind === m.kind) ? current.filter(c => c.kind !== m.kind) : [...current, {kind: m.kind}]);}}>{m.label}</button>)}<button type="button" aria-pressed={mealMode === "custom" && !meals.length} onClick={() => {setMealMode("custom"); setMeals([]);}}>食事なし</button></div>
           {MEALS.filter(m => meals.some(c => c.kind === m.kind)).map(m => <label className="meal-time-field" key={m.kind}>{m.label}の時間（任意）<input type="time" aria-label={`${m.label}の時間（任意）`} value={meals.find(c => c.kind === m.kind)?.time ?? ""} onChange={e => setMeals(current => current.map(c => c.kind === m.kind ? {...c,time:e.target.value || null} : c))} /><small>未指定なら<strong>{m.time}ごろ</strong>を目安にします</small></label>)}
           {mealWarning && <p role="alert">{mealWarning}</p>}

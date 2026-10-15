@@ -127,9 +127,8 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   const routePriority=controlledPriority??localPriority,preferNearbyAirport=controlledAirport??localAirport;
   const setRoutePriority=(value:"time"|"price")=>{setLocalPriority(value);onRoutePriorityChange?.(value);};
   const setPreferNearbyAirport=(value:boolean)=>{setLocalAirport(value);onPreferNearbyAirportChange?.(value);};
-  const [history, setHistory] = useState<TripPlan[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
-  const [chooser, setChooser] = useState<{ swapId: string | null } | null>(null);
+  const [chooser, setChooser] = useState<{ swapId: string } | null>(null);
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [searchedPlaces, setSearchedPlaces] = useState<Place[]>([]);
@@ -168,7 +167,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       })],
       { route: source, date: sourceDate, time: sourceTime }, previous.transportEstimate, previous.returnTo,
     ), planningEstimates: previous.planningEstimates }));
-    setPreview(null); setHistory([]); setEditId(null);
+    setPreview(null); setEditId(null);
   }, [source, sourceDate, sourceTime, initialDwellMinutes]);
   useEffect(() => {
     const conditions = previousConditions.current;
@@ -183,7 +182,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       previous.stops, previous.transport, previous.transportEstimate,
       conditions.destinationKey === destinationKey ? previous.returnTo : destination,
     ), planningEstimates: previous.planningEstimates }));
-    setPreview(null); setHistory([]);
+    setPreview(null);
   }, [originKey, destinationKey, date, departureTime, preferenceKey]);
   useEffect(() => { onPlanChange(plan); }, [plan, onPlanChange]);
   useEffect(() => () => candidateRequest.current?.abort(), []);
@@ -272,10 +271,6 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     return { ...scheduleTrip(plan.input, plan.origin, plan.date, stops, plan.transport, estimate, plan.returnTo), planningEstimates: plan.planningEstimates };
   }
   function adopt(next: TripPlan, message = "変更を旅程に反映しました。") {
-    // Visit records can only change through their explicit confirmation dialog.
-    // Discard older edit history at that boundary so ordinary Undo cannot erase it.
-    const visitRecordChanged = completedStopCount(next.stops) !== completedStopCount(plan.stops);
-    setHistory(current => visitRecordChanged ? [] : [...current.slice(-19), plan]);
     setPlan(next); setPreview(null); setEditId(null); setError(null); setNotice(message);
     window.requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
   }
@@ -336,8 +331,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
   function chooseCandidate(place: Place) {
     if (!chooser) return;
     const next = newTripStop(place);
-    const stops = chooser.swapId ? plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop) : [...plan.stops];
-    if (!chooser.swapId) { const returnIndex = stops.findIndex(stop => stop.place.id === "trip-return"); stops.splice(returnIndex < 0 ? stops.length : returnIndex, 0, next); }
+    const stops = plan.stops.map(stop => stop.place.id === chooser.swapId ? next : stop);
     closeChooser(); setPreview(compute(stops, null));
   }
   const lockedCount = plan.stops.filter(stop => stop.locked).length;
@@ -384,12 +378,12 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
     {!plan.estimatedTravel && plan.transport.route.legs.length > 0 && <details className="trip-cost-details"><summary>取得した全区間の交通経路を見る</summary><ol>{plan.transport.route.legs.map((leg, index) => <li key={index}><p>{leg.from_name} → {leg.to_name} · {leg.line_name}{leg.duration_minutes === null ? "" : `（約${leg.duration_minutes}分）`}</p></li>)}</ol><p>各施設での滞在を含めた実ダイヤではありません。実際の出発前に確認してください。</p></details>}
     </div></details>
     {openingProblems.length>0 && <div className="error-panel" role="status"><strong>営業時間に合わせた見直しが必要です</strong><ul>{openingProblems.map(p=><li key={p}>{p}</li>)}</ul><p>下の確認から修正案を探すか、施設を入れ替えてください。</p></div>}
-    <details className="trip-check-toggle" open={openingProblems.length>0 || undefined}><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。ひとつ前に戻すこともできます。")} /></details>
+    <details className="trip-check-toggle" open={openingProblems.length>0 || undefined}><summary>営業時間・移動を確認する</summary><ItineraryAudit plan={plan} onAdopt={next => adopt(next, "営業・移動を再確認した修正案を採用しました。")} /></details>
     <JourneyChat routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} plan={plan} candidates={options} disabled={busy || preview !== null} onApply={next => adopt(next, "チャットの変更案を旅程に反映しました。")} />
     <details><summary>施設の料金・出発前の情報も調べる</summary><JourneyReview places={plan.stops.map(stop => stop.place)} departureDate={plan.date} /></details>
     <div className="trip-timeline-heading"><h4>今日のタイムライン</h4><button type="button" onClick={() => { setBookmarkOpen(true); setCopyNotice(""); }}>しおりを見る <span aria-hidden="true">↗</span></button></div>
     <div className="trip-departure"><time>{plan.input.departureTime}</time><div><strong>{plan.origin.name}を出発</strong></div><span aria-hidden="true">START</span></div>
-    {!plan.stops.length && <div className="trip-empty"><span aria-hidden="true">＋</span><h4>次の寄り道を、ひとつ。</h4><p>下の「寄り道を追加」から行き先を選べます。<br />変更案を確認して、旅程に加えましょう。</p></div>}
+    {!plan.stops.length && <div className="trip-empty"><span aria-hidden="true">＋</span><h4>寄り道はありません</h4><p>この旅程に登録された場所はありません。</p></div>}
     <ol className="trip-stops">
       {plan.stops.map((stop, index) => <li key={stop.place.id} data-spot-id={stop.place.id} className={`trip-stop${stop.completed ? " is-completed" : stop.locked ? " is-locked" : ""}`}>
         <TripTransit key={`${plan.date}:${plan.input.departureTime}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.origin)}:${index}`}
@@ -400,7 +394,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
         <article><div className="trip-stop-visual">
           <button type="button" className="trip-spot-photo-button" aria-label={`${stop.place.name}の詳細を表示`} onClick={() => setDetailsPlace(stop.place)}><FacilityPhoto place={stop.place} compact /></button>
           <div className="trip-stop-header"><span className="trip-stop-number">{stop.completed ? "✓" : index + 1}</span><div><time>{unknownTravel && !stop.completed ? "交通経路の確認後に時刻を表示" : `${tripClock(stop.start)} — ${tripClock(stop.end)}`}{stop.completed ? "（記録）" : ""}</time><h4>{stop.place.name}</h4></div>{stop.completed ? <span className="trip-completed-badge">訪問済み</span> : stop.locked && <span className="trip-fixed-badge">固定中</span>}</div>
-        </div><details className="trip-stop-fold"><summary className="trip-stop-fold-summary">操作</summary>
+        </div><div className="trip-stop-controls">
           <div className="trip-stop-actions">
             <button type="button" disabled={stop.completed} className={stop.locked ? "trip-pin active" : "trip-pin"} aria-pressed={stop.locked} aria-label={`${stop.place.name}${stop.locked ? "の固定を解除" : "を固定"}`} onClick={() => { if (!stop.completed) adopt(compute(plan.stops.map(item => item.place.id === stop.place.id ? { ...item, locked: !item.locked, anchorTime: item.locked ? null : item.anchorTime } : item)), stop.locked ? "固定を解除しました。" : "行き先と滞在時間を固定しました。"); }}>{stop.completed ? "記録を保護中" : stop.locked ? "● 固定中" : "○ 固定する"}</button>
             <button type="button" disabled={stop.completed} aria-expanded={editId === stop.place.id} aria-controls={`trip-edit-${index}`} aria-label={`${stop.place.name}の時間と費用を編集`} onClick={() => { setEditId(editId === stop.place.id ? null : stop.place.id); setError(null); }}>時間・費用</button>
@@ -415,13 +409,11 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
             <label className="trip-checkbox"><input name="locked" type="checkbox" defaultChecked={stop.locked} />行き先と滞在時間を固定する</label><small>開始時刻を指定すると、この予定を固定します。費用は1人分の見積もりです。</small>
             <div className="trip-stop-actions"><button type="submit" className="trip-primary">変更を確認</button><button type="button" onClick={() => { setEditId(null); setError(null); }}>編集を閉じる</button></div>
           </form>}
-        </details></article>
+        </div></article>
       </li>)}
     </ol>
     <TripTransit key={`return:${plan.date}:${JSON.stringify(plan.stops.map(item => [item.place.id, item.place.latitude, item.place.longitude, item.end]))}:${JSON.stringify(plan.returnTo)}`} from={plan.stops.at(-1)?.place ?? plan.origin} to={plan.returnTo} routePriority={routePriority} preferNearbyAirport={preferNearbyAirport} externalBusy={transitState === "loading"} date={plan.date} departureMinute={plan.stops.at(-1)?.end ?? clockMinutes(plan.input.departureTime)} initial={transportMatches(plan) ? plan.transport.route.timeline?.filter(item => item.type === "transit")[plan.stops.length] : undefined} onResult={result => applyTransit(plan.stops.length, result)} />
     <p className="trip-return"><span>{plan.unknownTravelSegments?.includes(plan.stops.length) ? "帰りの交通情報は未確認" : `帰りは約${plan.returnTravel}分`}</span><strong><time>{unknownTravel ? "交通経路の確認後" : tripClock(plan.returnMinute)}</time> {plan.returnTo.name}に帰着</strong><small>帰着時刻は目安です</small></p>
-    <div className="trip-footer-actions"><button type="button" disabled={plan.stops.length >= MAX_TRIP_STOPS} onClick={() => { setChooser({ swapId: null }); setCandidateNote(""); }}>＋ 寄り道を追加</button><button type="button" disabled={history.length === 0} onClick={() => { const previous = history[history.length - 1]; if (!previous) return; setHistory(current => current.slice(0, -1)); setPlan(previous); setNotice("ひとつ前の旅程に戻しました。"); }}>ひとつ前に戻す</button></div>
-    {plan.stops.length >= MAX_TRIP_STOPS && <p className="trip-travel-note">寄り道は8か所までです。入れ替え・削除して調整できます。</p>}
     {visitDialog && <TripDialog title={visitDialog === "complete" ? "訪問済みとして記録" : "訪問済みの記録を解除"} onClose={() => setVisitDialog(null)}>
       {visitDialog === "complete" ? <><p><strong>{plan.stops[completedCount]?.place.name}</strong></p><p>表示中の {tripClock(plan.stops[completedCount]?.start ?? 0)}〜{tripClock(plan.stops[completedCount]?.end ?? 0)} を記録します。以降の再計算では、この場所と時刻・滞在時間を変えません。</p><p>時刻を直す場合は、記録する前に「時間・費用」で調整してください。</p></> : <><p>{plan.stops[completedCount - 1]?.place.name} の訪問済みを解除します。場所と滞在時間の固定は残ります。</p><p>先の記録から順に解除すると、これまでの訪問順を保てます。</p></>}
       <div className="trip-dialog-actions"><button type="button" className="trip-primary" onClick={() => { adopt(visitDialog === "complete" ? completeNextStop(plan) : undoLastCompletedStop(plan), visitDialog === "complete" ? "訪問済みとして記録しました。これからの予定を調整できます。" : "訪問済みを解除しました。固定は残しています。"); setVisitDialog(null); }}>{visitDialog === "complete" ? "この時刻で記録する" : "訪問済みを解除する"}</button><button type="button" onClick={() => setVisitDialog(null)}>キャンセル</button></div>
@@ -440,7 +432,7 @@ export function DayTripEditor({ source, sourceDate, sourceTime, origin, returnTo
       {!previewFitsTime && <p role="alert">この時間枠に収まる変更案がありません。元の旅程を残して、使える時間や固定した予定を見直してください。</p>}{preview.violations.length > 0 && <div className="trip-warnings"><strong>反映後も確認が必要です</strong><ul>{preview.violations.map(message => <li key={message}>{message}</li>)}</ul></div>}
       <div className="trip-dialog-actions"><button type="button" className="trip-primary" disabled={!previewFitsTime} onClick={() => adopt(preview)}>この変更を反映</button><button type="button" onClick={() => setPreview(null)}>現在の旅程を残す</button></div>
     </TripDialog>}
-    {chooser && <TripDialog title={chooser.swapId ? "寄り道を入れ替える" : "寄り道を追加する"} onClose={closeChooser}>
+    {chooser && <TripDialog title="寄り道を入れ替える" onClose={closeChooser}>
       <p>施設名やジャンルで、周辺の寄り道を探せます。</p>
       <form className="trip-candidate-search" onSubmit={findCandidates}><label>候補を検索<input value={search} onChange={event => setSearch(event.target.value)} placeholder="例：カフェ、美術館、公園" maxLength={500} required /></label><button type="submit" aria-label="候補を検索" disabled={searching}>{searching ? "検索中…" : "ほかの候補も検索"}</button>{search && <button type="button" onClick={() => setSearch("")}>クリア</button>}</form>
       <p role="status">{candidateNote || `${visibleOptions.length}件の候補`}</p>

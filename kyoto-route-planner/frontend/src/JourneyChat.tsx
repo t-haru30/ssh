@@ -117,7 +117,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
         setProposal({ base, plan: next }); setView("changes");
         // Preserve the suggested itinerary for follow-up requests without claiming adoption.
         setMessages(current => [...current, { role: "assistant",
-          text: "変更案を用意しました。旅程プレビューで確認できます。",
+          text: "変更案を用意しました。プレビューで確認できます。",
           context: `未反映の変更案：${next.stops.map(s => `${s.place.name}（ID:${s.place.id}、${s.dwellMinutes}分）`).join(" → ")}` }]);
       }
     } catch (cause) {
@@ -210,8 +210,8 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   const content = <section className="journey-chat" data-mobile-panel={mobilePanel} aria-labelledby="journey-chat-title">
     {mobile && <header className="journey-mobile-header"><button type="button" autoFocus onClick={() => mobilePanel === "chat" ? setMobileOpen(false) : setMobilePanel("chat")}>{mobilePanel === "chat" ? "← 編集画面" : "← 会話に戻る"}</button><strong>旅の相談</strong><span>{working ? "考え中…" : pending ? "変更案あり" : "ConcierGO"}</span></header>}
     <header className="journey-workspace-header">
-      <div><span className="journey-workspace-icon" aria-hidden="true">✦</span><div><h3 id="journey-chat-title">相談しながら、旅を整える</h3><p>希望を伝える → 変更案を確認 → 旅程に反映</p></div></div>
-      <span className={`journey-state ${working ? "is-working" : pending ? "is-pending" : ""}`}>{working ? "相談中" : pending ? "変更案があります" : "現在の旅程を編集中"}</span>
+      <div><span className="journey-workspace-icon" aria-hidden="true">✦</span><div><h3 id="journey-chat-title">相談しながら、旅を整える</h3></div></div>
+      {(working || pending) && <span className={`journey-state ${working ? "is-working" : "is-pending"}`}>{working ? "相談中" : "変更案があります"}</span>}
       <button type="button" className="journey-preview-toggle" aria-expanded={chatVisible} aria-controls="journey-chat-panel" onClick={() => setChatVisible(v => !v)}>{chatVisible ? "チャットを隠す" : "チャットを表示"}</button>
       <button type="button" className="journey-preview-toggle" aria-expanded={mapVisible} aria-controls="journey-map-panel" onClick={() => setMapVisible(v => !v)}>{mapVisible ? "マップを隠す" : "マップを表示"}</button>
     </header>
@@ -222,7 +222,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
     </div>
     <div ref={panels} style={{ "--editor-width": `${editorRatio}%` } as CSSProperties} className={`journey-workspace-body ${mapVisible ? "has-map" : ""} ${chatVisible ? "" : "chat-hidden"}`}><div ref={workspace} className={`journey-editor-panes ${chatVisible ? "" : "is-chat-hidden"}`} style={{ "--chat-width": `${chatWidth}%` } as CSSProperties}>
       <div id="journey-chat-panel" className="journey-conversation" hidden={!chatVisible}>
-        <div className="journey-pane-label"><span>チャット</span><span>ConcierGO</span></div>
+        <div className="journey-pane-label"><span>チャット</span></div>
         <div className="journey-chat-log" ref={log} role="log" aria-label="旅程の相談履歴" aria-live="polite">
           {!messages.length && <div className="journey-chat-welcome"><span aria-hidden="true">✦</span><h4>どんな一日にしましょう？</h4><p>追加したい場所や、変えたい予定を<br />いつもの言葉で伝えてください。</p>
             <div className="journey-chat-examples">{["近くのカフェを追加したい", "立ち寄り先を減らして、ゆっくり過ごしたい", "最後の場所で30分長く過ごしたい"].map((text, i) => <button type="button" key={text} disabled={working || disabled} onClick={() => { setInput(text); composer.current?.focus(); }}><span aria-hidden="true">{["＋", "↘", "◷"][i]}</span>{text}<span aria-hidden="true">↗</span></button>)}</div>
@@ -258,7 +258,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
         onPointerCancel={() => { drag.current = null; }} onLostPointerCapture={() => { drag.current = null; }}
         onDoubleClick={() => resize(45)} onKeyDown={e => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) { e.preventDefault(); resize(e.key === "Home" ? 30 : e.key === "End" ? 70 : chatWidth + (e.key === "ArrowLeft" ? -2 : 2)); } }} title="ドラッグまたは左右キーで幅を調整。ダブルクリックで元に戻す"><span aria-hidden="true">⋮</span></div>
       <div id="journey-preview-panel" className={`journey-artifact ${reviewing ? "is-reviewing" : ""}`}>
-        <div className="journey-pane-label"><span>旅程プレビュー</span><div className="journey-view-switch" role="group" aria-label="表示する旅程"><button type="button" aria-pressed={!reviewing} onClick={() => setView("current")}>現在の旅程</button><button type="button" disabled={!pending} aria-pressed={reviewing} onClick={() => setView("changes")}>変更案{pending ? " ●" : ""}</button></div></div>
+        <div className="journey-pane-label"><span>プレビュー</span><div className="journey-view-switch" role="group" aria-label="表示する旅程"><button type="button" aria-pressed={!reviewing} onClick={() => setView("current")}>現在の旅程</button><button type="button" disabled={!pending} aria-pressed={reviewing} onClick={() => setView("changes")}>変更案{pending ? " ●" : ""}</button></div></div>
 
         <div className="journey-artifact-scroll">
           <div className="journey-artifact-heading"><span>{shown.date.replaceAll("-", "/")} · {shown.stops.length}か所</span><h4>{reviewing ? "旅程の変更案" : "いまの旅程"}</h4><p>{shown.origin.name} → {shown.returnTo.name}</p></div>
@@ -287,21 +287,21 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
           {reviewing && shown.stops.some(s => s.place.tags?.source === "OpenPOI API") && <p className="journey-source">追加候補の出典：<a href="https://openpoiapi.com/attribution.html" target="_blank" rel="noreferrer">OpenPOI API</a></p>}
           {reviewing && shown.stops.some(s => s.place.id.startsWith("osm-cafe-")) && <p className="journey-source">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>（ODbL）</p>}
         </div>
-        <div className="journey-review-footer">{pending ? <><p>確認してから反映。反映後も「ひとつ前に戻す」で取り消せます。</p><div className="journey-chat-actions"><button type="button" disabled={working} onClick={() => { setProposal(null); setView("current"); setMessages(current => [...current, { role: "assistant", text: "変更案を見送り、現在の旅程を残しました。" }]); }}>現在の旅程を残す</button><button type="button" className="trip-primary" disabled={working || disabled || !reviewing || routeStatus === "loading" || pending.violations.length > 0} onClick={() => {
+        <div className="journey-review-footer">{pending ? <><div className="journey-chat-actions"><button type="button" disabled={working} onClick={() => { setProposal(null); setView("current"); setMessages(current => [...current, { role: "assistant", text: "変更案を見送り、現在の旅程を残しました。" }]); }}>現在の旅程を残す</button><button type="button" className="trip-primary" disabled={working || disabled || !reviewing || routeStatus === "loading" || pending.violations.length > 0} onClick={() => {
           if (proposal?.base !== latest.current) return;
           onApply(pending); setProposal(null); setView("current");
           setMessages(current => [...current, { role: "assistant", text: "変更案を旅程に反映しました。続けて相談できます。" }]);
         }}>この変更を反映 <span aria-hidden="true">✓</span></button></div></> : <p>{working ? "現在の旅程を残したまま、変更案を作成しています。" : "相談すると、ここで変更前後を比べられます。"}</p>}</div>
       </div>
     </div>
-    <div className="journey-resizer journey-map-resizer" role="separator" aria-label="旅程プレビューとマップの幅" aria-orientation="vertical" aria-valuemin={30} aria-valuemax={75} aria-valuenow={Math.round(editorRatio)} aria-valuetext={`旅程側 ${Math.round(editorRatio)}%、マップ ${100 - Math.round(editorRatio)}%`} tabIndex={mapVisible ? 0 : -1} hidden={!mapVisible}
+    <div className="journey-resizer journey-map-resizer" role="separator" aria-label="プレビューとマップの幅" aria-orientation="vertical" aria-valuemin={30} aria-valuemax={75} aria-valuenow={Math.round(editorRatio)} aria-valuetext={`プレビュー側 ${Math.round(editorRatio)}%、マップ ${100 - Math.round(editorRatio)}%`} tabIndex={mapVisible ? 0 : -1} hidden={!mapVisible}
       onPointerDown={e => { if (e.button !== 0) return; const width = panels.current?.getBoundingClientRect().width; if (!width) return; mapDrag.current = { x: e.clientX, width, ratio: editorRatio }; e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault(); }}
       onPointerMove={e => { if (mapDrag.current) resizeMap(mapDrag.current.ratio + (e.clientX - mapDrag.current.x) / mapDrag.current.width * 100); }}
       onPointerUp={e => { mapDrag.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); }}
       onPointerCancel={() => { mapDrag.current = null; }} onLostPointerCapture={() => { mapDrag.current = null; }}
       onDoubleClick={() => setEditorWidth(null)} onKeyDown={e => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) { e.preventDefault(); resizeMap(e.key === "Home" ? 30 : e.key === "End" ? 75 : editorRatio + (e.key === "ArrowLeft" ? -2 : 2)); } }} title="ドラッグまたは左右キーで幅を調整。ダブルクリックで元に戻す"><span aria-hidden="true">⋮</span></div>
     <section id="journey-map-panel" className="journey-map-panel" aria-label="旅程マップ" hidden={!mapVisible}>
-      <div className="journey-pane-label"><span>マップ · {reviewing ? "変更案" : "現在の旅程"}</span><button type="button" onClick={() => setMapVisible(false)}>マップを閉じる</button></div>
+        <div className="journey-pane-label"><span>マップ · {reviewing ? "変更案" : "現在の旅程"}</span></div>
       {mapVisible && <div className="journey-large-map" id="journey-map"><LazyMapView initialMode="routes" routeLoading={routeStatus === "loading"} places={shown.stops.map(s => s.place)} origin={shown.origin} returnTo={shown.returnTo} journeyDate={shown.date} timeline={timeline} mapTokens={timeline.flatMap(t => t.type === "transit" && t.map_token ? [t.map_token] : [])} /></div>}
     </section>
     </div>
@@ -309,4 +309,3 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   const launcher = <button type="button" className="journey-mobile-launcher" onClick={() => {setChatVisible(true);setMobilePanel("chat");setMobileOpen(true);}}>✦ AIに相談{pending ? " · 変更案あり" : "して旅程を編集"}</button>;
   return <>{host ? createPortal(mobile ? launcher : content, host) : mobile ? launcher : content}{mobile && mobileOpen && createPortal(<dialog className="journey-mobile-dialog" ref={dialog} aria-label="旅程をチャットで編集" onCancel={() => setMobileOpen(false)}>{content}</dialog>, document.body)}</>;
 }
-

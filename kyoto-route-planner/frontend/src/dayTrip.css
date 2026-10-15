@@ -78,13 +78,12 @@
 .trip-stop-header h4 { font-size: clamp(15px, 2.2cqi, 20px); margin: 5px 0 0; overflow-wrap: anywhere; line-height: 1.45; }
 .trip-stop-header time { display:block; color: var(--forest); font-size: clamp(11px, 1.5cqi, 13px); font-weight: 600; font-variant-numeric: tabular-nums; line-height:1.5; }
 .trip-stop-number { display: grid; place-items: center; border-radius: 50%; background: var(--forest); color: var(--on-accent); width: 28px; height: 28px; flex: 0 0 28px; font-size: 12px; }
-.trip-stop-fold-summary { min-height:36px; padding:8px 0 0; color:var(--muted); font-size:12px; text-align:right; cursor:pointer; }
 .trip-stop-meta { font-size: 11px; color: color-mix(in srgb, var(--ink) 72%, var(--paper)); line-height: 1.9; margin: 10px 0 0 40px; }
 .trip-place-details { margin: 8px 0 0 40px; font-size: 11px; color: color-mix(in srgb, var(--ink) 72%, var(--paper)); line-height: 1.9; }
 .trip-place-details summary { cursor: pointer; padding: 5px 0; }
 .trip-place-details p { margin: 8px 0; overflow-wrap: anywhere; }
 .trip-fixed-help { font-size: 10px; color: color-mix(in srgb, var(--ink) 70%, var(--paper)); line-height: 1.8; margin: 10px 0 0; }
-.trip-stop-actions, .trip-footer-actions, .trip-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.trip-stop-actions, .trip-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .trip-stop-actions .trip-pin.active { color: var(--forest); background: var(--surface-muted); border-color: var(--forest); }
 .trip-stop-edit { border-top: 1px dashed var(--line); margin-top: 16px; padding-top: 16px; }
 .trip-editor label.trip-checkbox { flex-direction: row; align-items: center; margin: 15px 0 8px; }
@@ -97,7 +96,6 @@
 .trip-empty > span { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 12px; border-radius: 50%; background: var(--surface-muted); color: var(--forest); font-size: 24px; }
 .trip-empty h4 { margin: 0 0 10px; font-size: 16px; }
 .trip-empty p { font-size: 12px; color: var(--muted); line-height: 1.9; }
-.trip-footer-actions > button:first-child { flex: 1; border-style: dashed; color: var(--forest); background: color-mix(in srgb, var(--forest) 3%, var(--paper)); }
 .trip-bookmark { width: 100%; border: 1px solid var(--line); background: var(--surface-input); color: var(--ink); border-radius: 8px; padding: 14px; resize: vertical; min-height: 220px; font: inherit; font-size: 12px; line-height: 1.9; }
 .trip-copy-status { color: var(--forest); min-height: 1.8em; }
 .trip-dialog-backdrop { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; padding: 20px; background: rgba(12, 25, 19, .58); }
@@ -134,7 +132,7 @@
   .trip-transit-summary { grid-template-columns: minmax(0, 1fr); }
   .trip-transit-heading { flex-wrap: wrap; }
 }
-.trip-stops, .trip-stop, .trip-stop > article, .trip-stop-fold,
+.trip-stops, .trip-stop, .trip-stop > article, .trip-stop-controls,
 .trip-transit, .trip-transit-details, .trip-method-details, .trip-check-toggle {
   min-width: 0;
   max-width: 100%;
@@ -155,7 +153,6 @@
   .trip-stop-meta, .trip-place-details { margin-left: 0; }
   .trip-departure { padding: 14px; gap: 12px; }
   .trip-departure > span { display: none; }
-  .trip-footer-actions > button { flex: 1 1 100%; }
   .trip-dialog-backdrop { padding: 10px; }
   .trip-dialog { max-height: calc(100dvh - 20px); }
   .trip-dialog-actions { flex-direction: column; }
@@ -187,11 +184,7 @@
 .journey-file-controls dd { margin: 4px 0 8px; overflow-wrap: anywhere; }
 .trip-station-fields > small { display: block; margin-top: 8px; line-height: 1.8; }
 @media (max-width: 520px) { .trip-recommendation { margin-left: 0; } }
-.trip-stop-fold > summary { cursor:pointer; list-style:none; }
-.trip-stop-fold > summary { text-align:right; font-size:11px; color:var(--muted); }
-.trip-stop-fold[open] > summary { color:var(--forest); }
-.trip-stop-fold .trip-stop-header { margin:0; }
-.trip-stop-fold:not([open]) h4 { font-size:16px; }
+.trip-stop-controls { display:block; }
 .trip-stops .trip-stop > article { padding:14px 16px; }
 
 .trip-duration-input { display: flex; gap: 12px; }

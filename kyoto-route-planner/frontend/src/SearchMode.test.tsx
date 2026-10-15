@@ -571,8 +571,6 @@ it("renames a plan without restoring a removed stop, and updates the same saved 
   const favorites = JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1")!);
   expect(favorites).toHaveLength(1);
   expect(favorites[0]).toMatchObject({ title: "私の週末", edited: true });
-  const fold = view.container.querySelector<HTMLDetailsElement>(".trip-stop-fold")!;
-  fireEvent.click(fold.querySelector("summary")!);
   fireEvent.click(screen.getByRole("button", { name: "保存済みスポットを削除" }));
   fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
   fireEvent.change(titleInput, { target: { value: "新しい散歩" } });

@@ -12,7 +12,6 @@
 .journey-editor-panes { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(300px, 1.1fr); }
 .journey-conversation { display: flex; flex-direction: column; min-width: 0; padding: 0 20px 12px; }
 .journey-pane-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 55px; font-size: 12px; font-weight: 650; border-bottom: 1px solid var(--line); }
-.journey-conversation > .journey-pane-label > span:last-child { color: var(--muted); font-weight: 400; }
 .journey-chat-log { height: 310px; overflow-y: auto; overscroll-behavior: contain; padding: 16px 0; scrollbar-width: thin; }
 .journey-chat-welcome { padding: 14px 8px 4px; }
 .journey-chat-welcome > span { color: var(--chat-accent); font-size: 26px; }
@@ -135,7 +134,6 @@
 .journey-editor-panes { min-width:0; }
 .journey-conversation[hidden], .journey-map-panel[hidden] { display:none; }
 .journey-map-panel { min-width:0; padding:0 16px 16px; border-left:1px solid var(--line); background:var(--paper); }
-.journey-map-panel .journey-pane-label button { font-size:11px; }
 .journey-large-map { margin-top:12px; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
 .journey-chat .journey-large-map .map-canvas { height:clamp(460px,65vh,760px); min-height:460px; }
 .journey-chat .journey-large-map .map-frame { height:auto; min-height:460px; }
@@ -241,7 +239,6 @@
   .journey-chat-actions { display:grid; grid-template-columns:1fr 1fr; }
   .journey-chat-actions button { min-height:44px; }
   .journey-map-panel { flex:1; overflow-y:auto; min-height:0; padding:0 10px 10px; }
-  .journey-map-panel .journey-pane-label button { display:none; }
   .journey-chat .journey-large-map .map-canvas { height:46svh; min-height:260px; }
   .journey-chat .journey-large-map .map-frame { min-height:260px; }
   .journey-sort-hint { display:none; }

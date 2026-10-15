@@ -76,10 +76,18 @@ describe("chat proposal validation", () => {
 describe("JourneyChat", () => {
   it("shows the departure and estimated return times together", () => {
     const current = plan();
-    render(<JourneyChat plan={current} candidates={places} onApply={vi.fn()} />);
+    const view = render(<JourneyChat plan={current} candidates={places} onApply={vi.fn()} />);
 
     expect(screen.getByText("出発〜帰着の目安").nextElementSibling?.textContent)
       .toBe(`9:00~${tripClock(current.returnMinute)}`);
+    expect(view.container.querySelector(".journey-workspace-header .journey-state")).toBeNull();
+    expect(view.container.querySelector(".journey-workspace-header")?.textContent).not.toContain("希望を伝える");
+    expect(view.container.querySelector(".journey-conversation > .journey-pane-label")?.textContent).toBe("チャット");
+    expect(view.container.querySelector("#journey-preview-panel .journey-pane-label > span")?.textContent).toBe("プレビュー");
+    expect(screen.getByRole("button", { name: "マップを隠す" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "マップを閉じる" })).toBeNull();
+    expect(screen.queryByText("現在の旅程を編集中")).toBeNull();
+    expect(screen.queryByText("旅程プレビュー")).toBeNull();
   });
 
   it("allows adoption after transport refresh even when an edit exceeds legacy hidden limits", async () => {
