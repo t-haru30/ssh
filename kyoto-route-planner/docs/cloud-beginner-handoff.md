@@ -13,7 +13,8 @@ Cloud Scheduler（10分ごと）
   → Cloud RunのWeb画面（管理画面で結果を表示）
 ```
 
-PCを起動し続ける必要はありません。FirestoreはGoogleが管理するDBなので、DB専用サーバーを自分で用意する必要もありません。Gitで取得するのはプログラムと施設マスターです。Firestoreのデータ、APIキー、クラウドの設定はpullでは作成されません。
+PCを起動し続ける必要はありません。FirestoreはGoogleが管理するDBなので、DB専用サーバーを自分で用意する必要もありません。Gitで取得するのはプログラムと施設マスターです。Firestoreのデータ、APIキー、クラウドの$gcloud = 'C:\Users\harut\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd'
+& $gcloud components install cloud-run-proxy設定はpullでは作成されません。
 
 この仕組みで永続保存するのは施設情報の更新対象・確認結果・履歴です。検索メモリーや、いいね等の別SQLiteをすべてFirestoreへ移す機能ではありません。
 
