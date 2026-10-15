@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
@@ -158,7 +158,7 @@ describe("DiscoverCard", () => {
     expect(fetchMock.mock.calls[0][0]).toBe("/api/routes/photo");
   });
 
-  it("labels a verified second destination photo with its actual subject and attribution", async () => {
+  it("labels the destination photo and moves its own full attribution into the detail dialog", async () => {
     vi.stubGlobal("Image", class {
       onload: (() => void) | null = null; onerror: (() => void) | null = null;
       complete = false; naturalWidth = 0; decoding = "";
@@ -172,10 +172,36 @@ describe("DiscoverCard", () => {
     expect(screen.getByRole("img", { name: "庭園" })).toBeTruthy();
     expect(container.querySelectorAll(".route-photo-tile")).toHaveLength(2);
     expect(screen.getByRole("figure", { name: "庭園の写真" })).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: "Photographer" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("link", { name: "CC BY-SA 4.0" }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("link", { name: "Photographer" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "CC BY-SA 4.0" })).toBeNull();
+    expect(screen.queryByText("トリミング")).toBeNull();
+    fireEvent.click(screen.getByRole("button", {name:"庭園の詳細を見る"}));
+    const dialog=screen.getByRole("dialog",{name:"庭園"});
+    expect(within(dialog).getByRole("img",{name:"庭園"}).getAttribute("src")).toBe(image);
+    expect(within(dialog).getByRole("link",{name:"Photographer"})).toBeTruthy();
+    expect(within(dialog).getByRole("link",{name:"CC BY-SA 4.0"})).toBeTruthy();
+    expect(within(dialog).getByText("トリミング")).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button",{name:"ダイアログを閉じる"}));
     fireEvent.error(container.querySelector("img")!);
     expect(screen.queryByRole("img", {name:"庭園"})).toBeNull();
     expect(screen.queryByText(/AI.*イラスト/)).toBeNull();
+  });
+
+  it("keeps Google attribution on the thumbnail and opens that exact photo with its author without a second lookup", async () => {
+    const fetchMock=vi.fn(async(url:string)=>({ok:true,json:async()=>url==="/api/places/google-photo" ? {
+      status:"ready",place_id:"kiyomizu",image_url:"https://lh3.googleusercontent.com/selected-photo",source_url:"https://maps.google.com/?cid=1",
+      authors:[{name:"写真の作者",url:"https://www.google.com/maps/contrib/1"}]
+    } : {status:"unavailable",key:"a".repeat(64),image_url:null,note:"fixture"}}));
+    vi.stubGlobal("fetch",fetchMock);
+    render(<DiscoverCard route={route} depth={0} exitDirection="like" onSwipe={vi.fn()} />);
+    await screen.findByRole("img",{name:"清水寺"});
+    expect(screen.getByRole("link",{name:"Google Maps"})).toBeTruthy();
+    expect(screen.queryByRole("link",{name:"写真の作者"})).toBeNull();
+    fireEvent.click(screen.getByRole("button",{name:"清水寺の詳細を見る"}));
+    const dialog=screen.getByRole("dialog",{name:"清水寺"});
+    expect(within(dialog).getByRole("img",{name:"清水寺"}).getAttribute("src")).toBe("https://lh3.googleusercontent.com/selected-photo");
+    expect(within(dialog).getByRole("link",{name:"写真の作者"})).toBeTruthy();
+    expect(within(dialog).getByRole("link",{name:"元の写真・問題を報告"})).toBeTruthy();
+    expect(fetchMock.mock.calls.filter(([url])=>url==="/api/places/google-photo")).toHaveLength(1);
   });
 });

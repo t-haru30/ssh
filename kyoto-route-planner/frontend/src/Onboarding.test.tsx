@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Onboarding, ONBOARDING_STORAGE_KEY, setOnboardingSuppressed, shouldSuppressOnboarding } from "./Onboarding";
 
@@ -28,7 +28,7 @@ describe("Onboarding", () => {
     expect(shouldSuppressOnboarding()).toBe(false);
   });
 
-  it("requires reaching step three before starting or dismissing the guide", () => {
+  it("allows closing at any step while keeping the start action on step three", () => {
     let closed = 0;
     render(<Onboarding onClose={() => { closed += 1; }} />);
     const dialog = screen.getByRole("dialog", { name: "はじめての使い方" });
@@ -51,7 +51,7 @@ describe("Onboarding", () => {
     expect(screen.getByRole("region", { name: "STEP 1 / 3: 検索条件を選ぶ" }).querySelector(".onboarding-demo-controls .onboarding-next-button")).toBeNull();
 
     fireEvent.keyDown(window, { key: "Escape" });
-    expect(closed).toBe(0);
+    expect(closed).toBe(1);
 
     fireEvent.click(screen.getByRole("button", { name: /次のステップを見る/ }));
     expect(screen.getByRole("region", { name: "STEP 2 / 3: スワイプで旅を選ぶ" })).toBeTruthy();
@@ -60,7 +60,7 @@ describe("Onboarding", () => {
     expect(screen.getByRole("region", { name: "STEP 2 / 3: スワイプで旅を選ぶ" }).querySelector(".onboarding-step-description")).toBeNull();
     expect(screen.queryByRole("button", { name: "はじめる" })).toBeNull();
     fireEvent.keyDown(window, { key: "Escape" });
-    expect(closed).toBe(0);
+    expect(closed).toBe(2);
 
     fireEvent.click(screen.getByRole("button", { name: /次のステップを見る/ }));
     expect(screen.getByRole("region", { name: "STEP 3 / 3: プランを編集する" })).toBeTruthy();
@@ -78,12 +78,24 @@ describe("Onboarding", () => {
     expect(screen.getByRole("region", { name: "STEP 2 / 3: スワイプで旅を選ぶ" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /次のステップを見る/ }));
     fireEvent.click(screen.getByRole("button", { name: "はじめる" }));
-    expect(closed).toBe(1);
+    expect(closed).toBe(3);
     expect((screen.getByRole("checkbox", { name: "今後、使い方の説明を表示しない" }) as HTMLInputElement).checked).toBe(false);
 
     fireEvent.keyDown(window, { key: "Escape" });
-    expect(closed).toBe(2);
+    expect(closed).toBe(4);
     expect(dialog).toBeTruthy();
+  });
+
+  it("offers a close button at every step and preserves the opt-out selection", () => {
+    const close = vi.fn();
+    render(<Onboarding onClose={close} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "今後、使い方の説明を表示しない" }));
+    for (let step = 0; step < 3; step++) {
+      fireEvent.click(screen.getByRole("button", { name: "使い方を閉じる" }));
+      expect(close).toHaveBeenLastCalledWith(true);
+      if (step < 2) fireEvent.click(screen.getByRole("button", { name: /次のステップを見る/ }));
+    }
+    expect(close).toHaveBeenCalledTimes(3);
   });
 
   it("passes the opt-out choice when closing the welcome guide", () => {

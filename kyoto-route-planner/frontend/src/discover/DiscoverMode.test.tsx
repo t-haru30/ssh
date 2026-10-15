@@ -2,7 +2,7 @@ vi.mock("../PreferenceTags", () => ({ PreferenceTags: ({ onChange }: { onChange:
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { PrefectureProvider } from "../PrefectureContext";
-import { FavoritesProvider } from "../useFavorites";
+import { FavoritesProvider, useFavorites } from "../useFavorites";
 import { DiscoverMode } from "./DiscoverMode";
 import { clearRoutePhotoCache } from "./useRoutePhoto";
 import { composeLocalRoutes } from "./dynamicRoutes";
@@ -274,7 +274,7 @@ describe("sequential discovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "いいね ♥" }));
     await waitFor(() => expect(saved()).toHaveLength(1));
     expect(screen.getByText(/^2 \/ /)).toBeTruthy();
-    fireEvent.click(within(screen.getByRole("region", { name: "いいねした旅程" })).getByRole("button", { name: /編集する/ }));
+    fireEvent.click(within(screen.getByRole("region", { name: "過去にいいねした旅程" })).getByRole("button", { name: /編集する/ }));
     expect(onPlan).toHaveBeenCalledWith(first);
     fireEvent.click(screen.getByRole("button", { name: "← 今回は見送る" }));
     await waitFor(() => expect(screen.getByText(/^3 \/ /)).toBeTruthy());
@@ -290,8 +290,26 @@ describe("sequential discovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "いいね ♥" }));
     await act(async () => {});
     expect(saved()).toHaveLength(1);
-    expect(within(screen.getByRole("region", { name: "いいねした旅程" })).getAllByRole("article")).toHaveLength(1);
+    expect(within(screen.getByRole("region", { name: "過去にいいねした旅程" })).getAllByRole("article")).toHaveLength(1);
     expect(screen.getByText(/^2 \/ /)).toBeTruthy();
+  });
+  it("keeps a liked itinerary in history after it is removed from saved journeys", async () => {
+    function RemoveSaved() {
+      const {favorites,removeFavorite}=useFavorites();
+      return <button onClick={()=>removeFavorite(favorites[0].id)}>保存した旅程を削除</button>;
+    }
+    const onPlan=vi.fn();
+    render(<PrefectureProvider><FavoritesProvider><RemoveSaved/><DiscoverMode active onPlanInSearch={onPlan}/></FavoritesProvider></PrefectureProvider>);
+    next(); await generate();
+    fireEvent.click(screen.getByRole("button",{name:"いいね ♥"}));
+    await waitFor(()=>expect(saved()).toHaveLength(1));
+    const history=screen.getByRole("region",{name:"過去にいいねした旅程"});
+    fireEvent.click(screen.getByRole("button",{name:"保存した旅程を削除"}));
+    await waitFor(()=>expect(saved()).toHaveLength(0));
+    expect(within(history).getAllByRole("article")).toHaveLength(1);
+    fireEvent.click(within(history).getByRole("button",{name:/編集する/}));
+    expect(onPlan).toHaveBeenCalledTimes(1);
+    expect(saved()).toHaveLength(0);
   });
   it.each([["条件を変更", "まずは、あなたのこと。"], ["行き先を選び直す", "どこから、どこへ？"]])("cancels generation on %s and ignores stale responses", async (button, heading) => {
     let resolve!: (value: unknown) => void;

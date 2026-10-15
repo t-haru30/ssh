@@ -113,7 +113,7 @@ describe("App onboarding", () => {
 });
 
 describe("App journey replacement confirmation", () => {
-  it("lists saved journeys immediately in the editor, including before a draft exists", () => {
+  it("lists saved journeys below the editor, including before a draft exists", () => {
     window.localStorage.removeItem(JOURNEY_DRAFT_KEY);
     window.localStorage.setItem("kyoto-route-planner:active-tab:v1", "discover");
     savedState.favorites = [{ ...existingRoute, id: "26:garden", prefecture_code: "26", prefecture_name: "京都府", tags: {}, saved_at: "2026-10-15T00:00:00Z" }];
@@ -122,6 +122,7 @@ describe("App journey replacement confirmation", () => {
     fireEvent.click(screen.getByRole("tab", { name: /旅程を編集/ }));
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
     const saved = screen.getByRole("region", { name: "保存した旅程から編集" });
+    expect(saved.previousElementSibling?.textContent).toContain("編集中のしおり");
     fireEvent.click(within(saved).getByRole("button", { name: "庭園の旅を編集" }));
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(searchRender).toHaveBeenLastCalledWith(expect.objectContaining({ active: true,
