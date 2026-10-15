@@ -47,6 +47,8 @@ class OfficialPlaceInfo(BaseModel):
     closed_days: str | None = None
     admission: str | None = None
     field_sources: dict[str, str] = Field(default_factory=dict)
+    field_evidence: dict[str, dict] = Field(default_factory=dict)
+    extraction_trace: dict = Field(default_factory=dict)
     notices: list[ClosureNotice] = Field(default_factory=list)
     checked_at: str | None = None
     status: Literal["verified", "link_only", "unavailable"] = "unavailable"
@@ -163,10 +165,11 @@ def _extract_page(body: bytes, headers: dict, url: str, place: Place, guides: li
     if "text/html" not in content_type.casefold() and "application/xhtml+xml" not in content_type.casefold():
         raise FetchFailure("Not an HTML page")
     document = parse_document(body, headers)
-    name = _normalize(place.name)
+    from app.catalog_location import name_key
+    name = name_key(place.name)
     # Navigation/footer links listing a different museum are not its identity.
     identity = document.title + " " + document.meta + " " + " ".join(document.lines)
-    if len(name) < 2 or name not in _normalize(identity):
+    if len(name) < 2 or name not in name_key(identity):
         return OfficialPlaceInfo(url=url, status="link_only", note="施設名を公式ページ内で照合できませんでした。公式サイトで確認してください。")
     if guides is not None:
         candidates = []

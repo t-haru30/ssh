@@ -8,8 +8,8 @@
 ## 構成と範囲
 
 - Cloud Run service：Web画面・確認履歴を表示。初期設定では認証必須。
-- Cloud Run Job：最大3施設を確認して終了。Webの常駐ループは動かさない。
-- Cloud Scheduler：10分ごとにOAuth認証でJobの実行APIを呼ぶ。
+- Cloud Run Job：最大100施設を確認して終了。Webの常駐ループは動かさない。
+- Cloud Scheduler：毎週月曜9時（日本時間）にOAuth認証でJobの実行APIを呼ぶ。
 - Firestore：更新対象、採用済み公式情報、全確認履歴、日次処理数を保存。
 - 元の施設マスターJSONはイメージに同梱。確認結果をFirestoreから重ねて表示する。
 - GeminiキーはSecret Manager。サービスアカウントの鍵ファイルは作らない。

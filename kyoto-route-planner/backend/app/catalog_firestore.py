@@ -50,7 +50,7 @@ def seed(rows):
     return created
 
 
-def claim(now=None):
+def claim(now=None, facility_id=None):
     from google.cloud import firestore
     from google.cloud.firestore_v1.base_query import FieldFilter
     now = time.time() if now is None else now
@@ -59,7 +59,9 @@ def claim(now=None):
         raise ValueError('CATALOG_DAILY_LIMIT must be nonnegative')
     day = datetime.fromtimestamp(now, timezone(timedelta(hours=9))).date().isoformat()
     budget = collection('days').document(day)
-    candidates = list(collection('jobs').where(filter=FieldFilter('next_check', '<=', now)).order_by('next_check').limit(30).stream())
+    candidates = ([collection('jobs').document(facility_id).get()] if facility_id is not None else
+        list(collection('jobs').where(filter=FieldFilter('next_check', '<=', now)).order_by('next_check').limit(30).stream()))
+    candidates = [d for d in candidates if d.to_dict()]
     candidates.sort(key=lambda d:(d.to_dict()['next_check'], -d.to_dict().get('priority',0)))
     for candidate in candidates:
         token = uuid.uuid4().hex
@@ -67,7 +69,8 @@ def claim(now=None):
         def reserve(tx):
             row = candidate.reference.get(transaction=tx).to_dict()
             usage = budget.get(transaction=tx).to_dict() or {}
-            if not row or row['next_check'] > now or usage.get('reserved',0) >= limit:
+            if (not row or (row['next_check'] > now and (facility_id is None or row.get('lease')))
+                    or usage.get('reserved',0) >= limit):
                 return None
             tx.update(candidate.reference, {'next_check':now+900, 'lease':token})
             tx.set(budget, {'reserved':usage.get('reserved',0)+1})

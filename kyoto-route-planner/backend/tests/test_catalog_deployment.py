@@ -14,7 +14,7 @@ class DeploymentTests(unittest.TestCase):
         for public in (False, True):
             args = SimpleNamespace(action='deploy', project='test-project', region='asia-northeast1',
                                    name='test-web', database='test-db', tag='abc123', daily_limit=100,
-                                   public_web=public)
+                                   public_web=public, batch_size=100, task_timeout=14400)
             commands = list(module.commands(args))
             web = next(c for c in commands if c[1:4] == ['run', 'deploy', 'test-web'])
             admin = next(c for c in commands if c[1:4] == ['run', 'deploy', 'test-web-admin'])
@@ -23,6 +23,10 @@ class DeploymentTests(unittest.TestCase):
             self.assertIn('--invoker-iam-check', admin)
             self.assertNotIn('--allow-unauthenticated', admin)
             self.assertIn('CATALOG_ADMIN_ENABLED=1', admin[admin.index('--update-env-vars')+1])
+            job = next(c for c in commands if c[1:4] == ['run', 'jobs', 'deploy'])
+            self.assertIn('CATALOG_BATCH_SIZE=100', job[job.index('--update-env-vars')+1])
+            self.assertIn('CATALOG_URL_SEARCH_ENABLED=1', job[job.index('--update-env-vars')+1])
+            self.assertEqual(job[job.index('--task-timeout')+1], '14400s')
 
 
 if __name__ == '__main__':

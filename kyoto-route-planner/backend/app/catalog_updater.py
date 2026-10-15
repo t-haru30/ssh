@@ -18,6 +18,9 @@ from app.official_place_info import FIELDS, SEED_PATH, fetch_matched_official_in
 from app.public_catalog import PUBLIC_CATALOG_PATH
 from app.catalog_gemini import judge, model_name
 from app import catalog_firestore as cloud
+from app import catalog_metrics
+from app.catalog_url_search import discover
+from app.catalog_extraction import enrich
 
 DAY = 86400
 INTERVAL = 300
@@ -90,12 +93,17 @@ def decide(previous, result):
         return 'conflict', '以前の確認値との差分または休業告知あり。前回値を保持して要確認', None, changes
     # Fields not found on this pass retain their own old timestamps.
     fields = dict((previous or {}).get('fields', {}))
-    fields.update({k: {'value': v, 'url': evidence['sources'][k], 'checked_at': result.checked_at} for k, v in facts.items()})
+    fields.update({k: {'value': v, 'url': evidence['sources'][k], 'checked_at': result.checked_at,
+                      **({'evidence': result.field_evidence[k]} if k in result.field_evidence else {})} for k, v in facts.items()})
     evidence['fields'] = fields
     return 'updated', '施設名と公式ページの記載を照合。根拠のある項目だけ保存', evidence, changes
 
 
-async def run_batch(limit=3):
+async def run_batch(limit=3, facility_ids=None):
+    if not isinstance(limit, int) or not 1 <= limit <= 500:
+        raise ValueError("Batch size must be between 1 and 500")
+    if facility_ids is not None and (not cloud.active() or len(facility_ids) != limit or len(set(facility_ids)) != limit):
+        raise ValueError('Explicit trial requires unique IDs matching batch size and Firestore')
     if lock.locked():
         return {'processed': 0, 'busy': True}
     async with lock:
@@ -103,10 +111,11 @@ async def run_batch(limit=3):
             initialize()
         places = {p['id']: p for p in catalog()['places']}
         processed = 0
-        for _ in range(min(max(limit, 1), 3)):
+        for index in range(limit):
+            facility_started = time.monotonic()
             now = time.time()
             if cloud.active():
-                row = cloud.claim(now)
+                row = cloud.claim(now, facility_id=facility_ids[index]) if facility_ids is not None else cloud.claim(now)
                 if not row:
                     break
             else:
@@ -116,23 +125,42 @@ async def run_batch(limit=3):
                     if not row:
                         break
                     # Lease survives a crash and prevents concurrent processes selecting this job.
-                    db.execute('UPDATE jobs SET next_check=? WHERE id=?', (now + 180, row['id']))
+                    db.execute('UPDATE jobs SET next_check=? WHERE id=?', (now + 900, row['id']))
             p = places.get(row['id'])
             if not p:
                 continue
             previous = json.loads(row['accepted']) if row['accepted'] else None
             evidence, changes, accepted = {}, {}, None
             trace = []
+            search_trace = None
+            matched_url = (previous or {}).get("url", "")
             try:
                 place = Place.model_validate({**p, 'access_point': '', 'themes': []})
                 # Empty matched URL invokes identity-checked OSM/Wikipedia discovery.
                 # Existing seed URLs take precedence. Bypass response cache for fresh evidence.
+                extracted = None
                 for attempt in range(2):
-                    result = await asyncio.wait_for(fetch_matched_official_info(place, ''), 30)
+                    result = await asyncio.wait_for(fetch_matched_official_info(place, matched_url), 30)
+                    if not result.checked_at and search_trace is None and os.getenv('CATALOG_URL_SEARCH_ENABLED', '0') == '1':
+                        found, search_trace = await discover(place)
+                        if found is not None:
+                            result = found
+                            matched_url = search_trace['verified_url']
+                    if extracted is None:
+                        result = await enrich(place, result)
+                        if result.extraction_trace:
+                            extracted = result
+                    elif result.checked_at and (extracted.extraction_trace.get('status') == 'extracted' or not any(getattr(result, f) for f in FIELDS)):
+                        result = extracted
                     evidence = result.model_dump(mode='json')
                     decision, model = await asyncio.wait_for(judge(place, result, previous, attempt), 40)
                     trace.append({'step':attempt+1, 'model':model, **decision.model_dump(),
                                   'observation':result.model_dump(mode='json')})
+                    if decision.action == 'review' and attempt == 0 and extracted is None and result.checked_at:
+                        refined = await enrich(place, result, force=True)
+                        if refined.extraction_trace:
+                            extracted = refined
+                            continue
                     if decision.action == 'recheck' and attempt == 0:
                         continue
                     # Evaluate conflicts against ALL observations before any model filtering.
@@ -153,6 +181,12 @@ async def run_batch(limit=3):
                 status, note, accepted = 'failed', '取得またはGemini判断に失敗。前回値を保持して再試行', None
                 trace.append({'error':type(error).__name__})
             evidence['agent_trace'] = trace
+            if search_trace is not None:
+                evidence['url_search'] = search_trace
+                if accepted is not None and search_trace.get('status') == 'verified':
+                    accepted['url_search'] = search_trace
+            if catalog_metrics.current.get() is not None:
+                evidence['run_id'] = catalog_metrics.current.get()['run_id']
             failures = 0 if accepted else row['failures'] + 1
             delay = STALE if accepted else min(7 * DAY, 3600 * 2 ** min(failures - 1, 8))
             now = time.time()
@@ -167,6 +201,7 @@ async def run_batch(limit=3):
                     db.execute('INSERT INTO events(id,name,at,status,note,evidence,changes,next_check) VALUES(?,?,?,?,?,?,?,?)',
                                (p['id'], p['name'], now, status, note, json.dumps(evidence, ensure_ascii=False), json.dumps(changes, ensure_ascii=False), now+delay))
             processed += 1
+            catalog_metrics.facility_finished(p["id"], status, time.monotonic() - facility_started)
         return {'processed': processed, 'busy': False}
 
 
