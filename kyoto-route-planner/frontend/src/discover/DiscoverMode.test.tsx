@@ -10,10 +10,10 @@ import index from "../data/routes/index.json";
 import type { RouteDatasetIndex } from "./datasetTypes";
 import kyotoDataset from "../data/routes/kyoto.json";
 vi.mock("./RouteDetailModal", () => ({ RouteDetailModal: ({ route, onClose }: { route: { title: string }; onClose: () => void }) => <div role="dialog" aria-label={route.title}><button onClick={onClose}>閉じる</button></div> }));
-vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 } }, localPlaces: Array.from({ length: 18 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
+vi.mock("../localPlaces", () => ({ localOrigins: { kyoto: { name: "京都駅", latitude: 34.985849, longitude: 135.758766 }, ishikawa: {name:"金沢駅",latitude:36.578081,longitude:136.647718} }, localPlaces: Array.from({ length: 18 }, (_, i) => ({ id: `facility-${i}`, name: `博物館${i}`, category: "博物館", latitude: 34.985849 + i * .005, longitude: 135.758766, themes: ["history"], tags: { area: "kyoto" }, description: "", access_point: "" })) }));
 const noPhoto = { ok: true, json: async () => ({ status: "unavailable", key: "a".repeat(64), image_url: null, note: "fixture" }) };
 const fixtureRoutes = () => composeLocalRoutes({ entry: (index as RouteDatasetIndex).prefectures.find(p => p.id === "kyoto")!, origin: {name:"京都駅",latitude:34.985849,longitude:135.758766}, theme:"all", meals:[], course:"all", radius:30, crossPrefecture:true, variation:0 });
-beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? {ok:true,json:async()=>({routes:fixtureRoutes(),note:"verified fixture"})} : noPhoto)); });
+beforeEach(() => { clearRoutePhotoCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/discover" ? {ok:true,json:async()=>({routes:fixtureRoutes(),note:"verified fixture"})} : url === "/api/destination-suggestion" ? {ok:true,json:async()=>({status:"no_location",locations:[]})} : noPhoto)); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
 function mount(onPlanInSearch = vi.fn()) { return render(<PrefectureProvider><FavoritesProvider><DiscoverMode active onPlanInSearch={onPlanInSearch} /></FavoritesProvider></PrefectureProvider>); }
 function revealThemes() {
@@ -30,8 +30,128 @@ function goMood() {
   fireEvent.click(within(screen.getByRole("group", { name: "どれくらい楽しむ？" })).getByRole("button", { name: "おまかせ" }));
 }
 function next() { goMood(); fireEvent.click(screen.getByRole("button", { name: /行き先を選ぶ/ })); fireEvent.change(screen.getByLabelText("出発地点"), { target: { value: "京都駅|34.985849|135.758766" } }); }
-async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect(screen.queryByRole("button", {name:"検索を中止する"})).toBeNull()); }
+async function generate() { const departure = screen.queryByLabelText("出発地点") as HTMLSelectElement | null; if (departure?.selectedOptions[0]?.textContent === "名古屋駅") fireEvent.change(departure, { target: { value: "京都駅|34.985849|135.758766" } }); await waitFor(()=>expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false)); fireEvent.click(screen.getByRole("button", { name: /おすすめ旅程を見る/ })); await waitFor(() => expect(screen.queryByRole("button", {name:"検索を中止する"})).toBeNull()); }
 function saved() { return JSON.parse(localStorage.getItem("kyoto-route-planner:favorites:v1") ?? "[]"); }
+
+function expectDestination(prefecture: string, station: string) {
+  expect((screen.getByLabelText("行き先の都道府県") as HTMLSelectElement).selectedOptions[0].textContent).toBe(prefecture);
+  expect(screen.getByRole("group",{name:"行き先の駅・観光の起点"}).querySelector(".station-current-selection strong")?.textContent).toBe(station);
+  expect(within(screen.getByRole("group",{name:"行き先の駅・観光の起点"})).getByRole("button",{name:station}).getAttribute("aria-pressed")).toBe("true");
+}
+
+it("sets the prefecture and destination from written places on Next while preserving departure", () => {
+  mount(); goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/), {target:{value:"金沢で庭園を歩きたい"}});
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先/}));
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+  expectDestination("石川県","金沢駅");
+  expect(screen.getByText("「金沢」に合わせて、行き先を石川県・金沢駅に設定しました。")).toBeTruthy();
+});
+
+it("uses the inferred prefecture and sightseeing origin when requesting itineraries", async () => {
+  mount();goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"名古屋から金沢へ行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  expectDestination("石川県","金沢駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+  fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
+  await waitFor(()=>expect(vi.mocked(fetch).mock.calls.some(([url])=>url==="/api/discover")).toBe(true));
+  const request=vi.mocked(fetch).mock.calls.find(([url])=>url==="/api/discover")![1];
+  expect(JSON.parse(String(request?.body))).toMatchObject({area:"ishikawa",prefecture_name:"石川県",origin:{name:"金沢駅",latitude:36.578081,longitude:136.647718}});
+});
+
+it("rejects a destination response with an unrecognized prefecture", async () => {
+  vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/destination-suggestion" ? {ok:true,json:async()=>({status:"ready",locations:[{place_name:"伊豆",prefecture:"不明",origin:{name:"修善寺駅",latitude:34.98,longitude:138.95}}]})} : noPhoto));
+  mount();goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"伊豆に行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  expect(await screen.findByRole("button",{name:"地名からもう一度設定"})).toBeTruthy();
+  expectDestination("京都府","京都駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+});
+
+it("resolves Izu with Gemini and verified station data when the local list has no match", async () => {
+  const fetchMock=vi.fn(async(url:string,_init?:RequestInit)=> url === "/api/destination-suggestion" ? {ok:true,json:async()=>({status:"ready",locations:[{place_name:"伊豆",prefecture:"静岡県",origin:{name:"修善寺駅",latitude:34.98,longitude:138.95}}]})} : noPhoto);
+  vi.stubGlobal("fetch",fetchMock);mount();goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"伊豆に行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(true);
+  expect(await screen.findByText("「伊豆」に合わせて、行き先を静岡県・修善寺駅に設定しました。")).toBeTruthy();
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+  expectDestination("静岡県","修善寺駅");
+  expect(JSON.parse(fetchMock.mock.calls.find(c=>c[0]==="/api/destination-suggestion")![1]!.body as string)).toEqual({text:"伊豆に行きたい",explicit_only:true});
+  expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false);
+});
+
+it.each(["prefecture","station"])("keeps a manual %s selection when a delayed destination lookup finishes", async (choice) => {
+  let finish!:(value:unknown)=>void;
+  const fetchMock=vi.fn((url:string,_init?:RequestInit)=>url==="/api/destination-suggestion" ? new Promise(resolve=>{finish=resolve;}) : Promise.resolve(noPhoto));
+  vi.stubGlobal("fetch",fetchMock);mount();goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"伊豆に行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  if (choice === "prefecture") fireEvent.change(screen.getByLabelText("行き先の都道府県"),{target:{value:"ishikawa"}});
+  else fireEvent.click(within(screen.getByRole("group",{name:"行き先の駅・観光の起点"})).getByRole("button",{name:"宇治駅"}));
+  expect(fetchMock.mock.calls.find(c=>c[0]==="/api/destination-suggestion")![1]?.signal?.aborted).toBe(true);
+  await act(async()=>finish({ok:true,json:async()=>({status:"ready",locations:[{place_name:"伊豆",prefecture:"静岡県",origin:{name:"修善寺駅",latitude:34.98,longitude:138.95}}]})}));
+  expectDestination(choice === "prefecture" ? "石川県" : "京都府",choice === "prefecture" ? "金沢駅" : "宇治駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+});
+
+it("lets departure change independently while resolving the destination", async () => {
+  let finish!:(value:unknown)=>void;
+  const fetchMock=vi.fn((url:string,_init?:RequestInit)=>url==="/api/destination-suggestion" ? new Promise(resolve=>{finish=resolve;}) : Promise.resolve(noPhoto));
+  vi.stubGlobal("fetch",fetchMock);mount();goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"伊豆に行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  fireEvent.change(screen.getByLabelText("出発地点"),{target:{value:"京都駅|34.985849|135.758766"}});
+  expect(fetchMock.mock.calls.find(c=>c[0]==="/api/destination-suggestion")![1]?.signal?.aborted).toBe(false);
+  await act(async()=>finish({ok:true,json:async()=>({status:"ready",locations:[{place_name:"伊豆",prefecture:"静岡県",origin:{name:"修善寺駅",latitude:34.98,longitude:138.95}}]})}));
+  expectDestination("静岡県","修善寺駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("京都駅");
+});
+
+it("allows retry after lookup failure and preserves the current destination", async () => {
+  vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/destination-suggestion" ? {ok:false,json:async()=>({detail:"unavailable"})} : noPhoto));
+  mount();goMood();fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"伊豆に行きたい"}});
+  fireEvent.click(screen.getByRole("button",{name:/次へ：行き先/}));
+  expect(await screen.findByRole("button",{name:"地名からもう一度設定"})).toBeTruthy();
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+  expectDestination("京都府","京都駅");
+  expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false);
+});
+
+it("preserves a manually changed destination for unchanged text, and applies a newly written place", () => {
+  mount(); goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/), {target:{value:"金沢で庭園を歩きたい"}});
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先/}));
+  fireEvent.change(screen.getByLabelText("行き先の都道府県"), {target:{value:"kyoto"}});
+  fireEvent.click(within(screen.getByRole("group",{name:"行き先の駅・観光の起点"})).getByRole("button",{name:"宇治駅"}));
+  fireEvent.click(screen.getByRole("button", {name:"← 戻る"}));
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先/}));
+  expectDestination("京都府","宇治駅");
+  fireEvent.click(screen.getByRole("button", {name:"← 戻る"}));
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/), {target:{value:"名古屋から金沢駅へ行きたい"}});
+  fireEvent.click(screen.getByRole("button", {name:"03 行先へ"}));
+  expectDestination("石川県","金沢駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+});
+
+it("offers a choice for multiple places and retains the destination without a place name", async () => {
+  mount(); goMood();
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/), {target:{value:"京都と金沢を歩きたい"}});
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先/}));
+  expect(screen.getByRole("button", {name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(true);
+  fireEvent.click(within(screen.getByRole("group", {name:"入力した地名の行き先候補"})).getByRole("button", {name:"石川県・金沢駅"}));
+  expect(screen.getByRole("button", {name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false);
+  expectDestination("石川県","金沢駅");
+  fireEvent.click(screen.getByRole("button", {name:"← 戻る"}));
+  fireEvent.change(screen.getByLabelText(/旅に加えたいこと/), {target:{value:"庭園とカフェに寄りたい"}});
+  fireEvent.click(screen.getByRole("button", {name:/次へ：行き先/}));
+  await waitFor(()=>expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false));
+  expectDestination("石川県","金沢駅");
+  expect((screen.getByLabelText("出発地点") as HTMLSelectElement).selectedOptions[0].textContent).toBe("名古屋駅");
+  expect(screen.queryByRole("group", {name:"入力した地名の行き先候補"})).toBeNull();
+});
 
 it("connects journey steps and marks completed steps with checkmarks", () => {
   mount();
@@ -119,6 +239,7 @@ it("combines interests in step one and sends written wishes ahead of optional ta
   fireEvent.change(screen.getByLabelText(/旅に加えたいこと/),{target:{value:"庭園とカフェに寄りたい"}});
   expect(screen.getByText("旅程で優先：カフェ・庭園")).toBeTruthy();
   fireEvent.click(screen.getByRole("button",{name:/行き先を選ぶ/}));
+  await waitFor(()=>expect(screen.getByRole("button",{name:/おすすめ旅程を見る/}).hasAttribute("disabled")).toBe(false));
   fireEvent.click(screen.getByRole("button",{name:/おすすめ旅程を見る/}));
   await waitFor(()=>expect(vi.mocked(fetch).mock.calls.some(([url])=>url==="/api/discover")).toBe(true));
   const body=JSON.parse(String(vi.mocked(fetch).mock.calls.find(([url])=>url==="/api/discover")![1]?.body));
