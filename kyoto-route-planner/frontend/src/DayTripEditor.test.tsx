@@ -8,6 +8,7 @@ import type { RouteSuggestion } from "./types";
 // External map and photo loading are tested independently of itinerary editing.
 vi.mock("./LazyMapView", () => ({ LazyMapView: () => null }));
 vi.mock("./FacilityPhoto", () => ({ FacilityPhoto: () => null }));
+vi.mock("./discover/PlaceDetails", () => ({ PlaceDetailsDialog: ({ place, stayMinutes, onClose }: { place: { name: string }; stayMinutes?: number; onClose: () => void }) => <div role="dialog" aria-label={place.name}>{stayMinutes}分滞在<button type="button" onClick={onClose}>閉じる詳細</button></div> }));
 
 function render(ui: ReactElement) { const view = renderBase(ui); view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold").forEach(item => { item.open = true; }); return view; }
 const origin = { name: "京都駅", latitude: 35, longitude: 135 };
@@ -21,7 +22,16 @@ it("shows fixed-start conflicts even though the removed budget and duration cont
     places.map((place,index)=>({...newTripStop(place),locked:index===0,anchorTime:index===0?"09:00":null})),
     {route:source,date:props.date,time:"09:00"});
   render(<DayTripEditor {...props} initialPlan={initialPlan} />);
+  expect(screen.getByRole("heading", { name: "私の旅のしおり" })).toBeTruthy();
   expect(screen.getByText(/公園の固定開始に.*間に合いません/)).toBeTruthy();
+});
+
+it("opens the selected spot details when its photo is clicked and closes the dialog", () => {
+  render(<DayTripEditor {...props} />);
+  fireEvent.click(screen.getByRole("button", { name: "公園の詳細を表示" }));
+  expect(screen.getByRole("dialog", { name: "公園" }).textContent).toContain("90分滞在");
+  fireEvent.click(screen.getByRole("button", { name: "閉じる詳細" }));
+  expect(screen.queryByRole("dialog", { name: "公園" })).toBeNull();
 });
 
 it("automatically searches all segments and displays total time without showing overruns", async () => {
@@ -31,17 +41,29 @@ it("automatically searches all segments and displays total time without showing 
   const changed = vi.fn();
   render(<DayTripEditor {...props} onPlanChange={changed} />);
   expect(screen.getByText("公共交通の経路を確認しています…")).toBeTruthy();
-  expect(await screen.findAllByText("約3時間45分")).toHaveLength(2);
+  expect(await screen.findAllByText("約3時間45分")).toHaveLength(1);
   expect(screen.getByLabelText("現在の旅程の概要")).toBeTruthy();
+  const tripSummary = screen.getByLabelText("現在の旅程の概要");
+  expect(tripSummary.querySelector(".trip-summary-range > span")?.textContent).toBe("出発〜帰着の目安");
+  expect(tripSummary.querySelector(".trip-summary-range > strong")?.textContent).toMatch(/^9:00~\d{1,2}:\d{2}$/);
   expect(screen.queryByText(/移動・滞在を含む総時間/)).toBeNull();
-  expect(screen.getByText(/移動 約45分 · 滞在/)).toBeTruthy();
+  expect(screen.getByText(/約3時間45分 · 移動 約45分 · 滞在/)).toBeTruthy();
   const costHeading = screen.getByText("/1人").parentElement;
   expect(costHeading?.className).toBe("trip-cost-heading");
   expect(costHeading?.firstElementChild?.tagName).toBe("STRONG");
   expect(screen.getByText("交通・施設・飲食の合計")).toBeTruthy();
   expect(screen.queryByText(/超過/)).toBeNull();
+  expect(screen.getAllByText("運賃目安：")[0].nextElementSibling?.textContent).toBe("200円");
+  expect(screen.getAllByText("交通手段・所要時間を見る")[0].closest("details")?.open).toBe(false);
+  fireEvent.click(screen.getAllByText("交通手段・所要時間を見る")[0]);
+  expect(screen.getAllByText("交通手段")[0].nextElementSibling?.textContent).toBe("地下鉄");
+  expect(screen.getAllByText("所要時間")[0].nextElementSibling?.textContent).toBe("約10分");
   await waitFor(() => expect(changed.mock.calls.at(-1)?.[0]).toMatchObject({ travelMinutes: 45, returnMinute: 765 }));
   expect(changed.mock.calls.at(-1)?.[0].stops.map((stop: { place: { id: string } }) => stop.place.id)).toEqual(["0", "1"]);
+  fireEvent.click(screen.getByRole("button", { name: "しおりを見る" }));
+  const bookmark = screen.getByRole("textbox", { name: "しおりの内容" }) as HTMLTextAreaElement;
+  expect(bookmark.value).toContain("交通手段：地下鉄 · 所要時間 約10分 · 運賃目安 200円（概算）");
+  expect(bookmark.value).toContain("帰りの交通手段：地下鉄 · 所要時間 約20分 · 運賃目安 200円（概算）");
 });
 
 it("offers related nearby places only on request and preserves the plan until adoption", async () => {
@@ -77,11 +99,20 @@ it("keeps a manually added distant stop even if it exceeds the time budget", () 
   expect(changed.mock.calls.at(-1)?.[0].stops.map((s: {place:{id:string}}) => s.place.id)).toEqual(["0","1","distant"]);
 });
 
-it("starts with a compact timeline whose spot details can be opened", () => {
+it("starts with a compact timeline and shows spot details only from the photo", () => {
   const view = renderBase(<DayTripEditor {...props} />);
+  const visuals = [...view.container.querySelectorAll<HTMLElement>(".trip-stop-visual")];
   const folds = [...view.container.querySelectorAll<HTMLDetailsElement>(".trip-stop-fold")];
+  expect(visuals).toHaveLength(2);
   expect(folds).toHaveLength(2);
+  expect(visuals[0].querySelector(".trip-stop-number")?.textContent).toBe("1");
+  expect(visuals[0].querySelector(".trip-stop-header time")?.textContent).toMatch(/\d{2}:\d{2} — \d{2}:\d{2}/);
+  expect(visuals[0].querySelector(".trip-stop-header h4")?.textContent).toBe("公園");
+  expect(visuals[0].querySelector(".trip-spot-photo-button")).not.toBeNull();
   expect(folds.every(item => !item.open)).toBe(true);
+  expect(folds[0].querySelector("summary")?.textContent).toBe("操作");
+  expect(view.queryByText("この場所をおすすめする理由")).toBeNull();
+  expect(view.queryByText(/場所の詳細/)).toBeNull();
   fireEvent.click(folds[0].querySelector("summary")!);
   expect(folds[0].open).toBe(true);
 });
@@ -152,7 +183,7 @@ describe("DayTripEditor", () => {
     expect(screen.queryByText("2026/10/12 · 京都駅発 → 大阪駅着")).toBeNull();
     expect(screen.getByText("2か所の寄り道")).toBeTruthy();
     expect(screen.getByText(/大阪駅に帰着/)).toBeTruthy();
-    expect(screen.getByText(preferenceReason(places[0], ["nature", "culture"]))).toBeTruthy();
+    expect(screen.queryByText(preferenceReason(places[0], ["nature", "culture"]))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "美術館を削除" }));
     fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
     fireEvent.click(screen.getByRole("button", { name: "ひとつ前に戻す" }));
@@ -173,23 +204,24 @@ describe("DayTripEditor", () => {
   it("refreshes recommendation reasons when preferences change without resetting the itinerary", async () => {
     const changed = vi.fn();
     const view = render(<DayTripEditor {...props} preferences={["nature"]} onPlanChange={changed} />);
-    expect(screen.getByText(preferenceReason(places[0], ["nature"]))).toBeTruthy();
+    expect(screen.queryByText(preferenceReason(places[0], ["nature"]))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "公園を固定" }));
     view.rerender(<DayTripEditor {...props} preferences={["culture", "coffee"]} onPlanChange={changed} />);
     await waitFor(() => expect(changed.mock.calls.at(-1)?.[0].input.preferences).toEqual(["culture", "coffee"]));
-    expect(screen.getByText(preferenceReason(places[0], ["culture", "coffee"]))).toBeTruthy();
+    expect(screen.queryByText(preferenceReason(places[0], ["culture", "coffee"]))).toBeNull();
     expect(screen.getByRole("button", { name: "公園の固定を解除" })).toBeTruthy();
     expect(changed.mock.calls.at(-1)?.[0].stops).toHaveLength(2);
   });
   it("previews per-stop edits and cancels without changing the itinerary", async () => {
     const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
-    render(<DayTripEditor {...props} />);
+    const changed = vi.fn();
+    render(<DayTripEditor {...props} onPlanChange={changed} />);
     fireEvent.click(screen.getByRole("button", {name:"美術館の時間と費用を編集"}));
     fireEvent.change(screen.getByLabelText("滞在時間（分）"), {target:{value:"45"}});
     fireEvent.click(screen.getByRole("button", {name:"変更を確認"}));
     const dialog = screen.getByRole("dialog", {name:"旅程の変更を確認"});
     fireEvent.click(within(dialog).getByRole("button", {name:"現在の旅程を残す"}));
-    expect(screen.getAllByText(/滞在 90分/)).toHaveLength(2);
+    expect(changed.mock.calls.at(-1)?.[0].stops[1].dwellMinutes).toBe(90);
     expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -205,14 +237,15 @@ describe("DayTripEditor", () => {
     expect(changed.mock.calls.at(-1)?.[0].stops[0].dwellMinutes).toBe(90);
   });
   it("supports manual estimates and appointment editing through an explicit preview", () => {
-    render(<DayTripEditor {...props} />);
+    const changed = vi.fn();
+    render(<DayTripEditor {...props} onPlanChange={changed} />);
     fireEvent.click(screen.getByRole("button", { name: "公園の時間と費用を編集" }));
     fireEvent.change(screen.getByLabelText("滞在時間（分）"), { target: { value: "45" } });
     fireEvent.change(screen.getByLabelText("固定開始時刻（任意）"), { target: { value: "10:00" } });
     fireEvent.change(screen.getByLabelText("施設・飲食の見積もり（円）"), { target: { value: "500" } });
     fireEvent.click(screen.getByRole("button", { name: "変更を確認" }));
     fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
-    expect(screen.getByText(/滞在 45分.*500円.*10:00開始/)).toBeTruthy();
+    expect(changed.mock.calls.at(-1)?.[0].stops[0]).toMatchObject({ dwellMinutes: 45, spending: 500, anchorTime: "10:00", locked: true });
     expect(screen.getByRole("button", { name: "公園の固定を解除" })).toBeTruthy();
   });
   it("allows swapping only a flexible stop, keeping the fixed stop and its duration", () => {

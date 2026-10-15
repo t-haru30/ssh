@@ -2,7 +2,7 @@ import { FacilityPhoto } from "../FacilityPhoto";
 import { ReasonSources, type ReasonSource } from "./reasonSources";
 import { useEffect, useState } from "react";
 import type { Place } from "../types";
-import { TripDialog } from "../DayTripEditor";
+import { TripDialog } from "../TripDialog";
 import { isRecord } from "../apiValidation";
 import { readOfficialNotices, type OfficialNotice } from "../officialNotices";
 import { googleMapsUrl } from "../mapLinks";

@@ -13,15 +13,24 @@ it("searches a facility pair with the rolled-over departure date and keeps fare 
   vi.stubGlobal("fetch", fetch);
   const onResult = vi.fn();
   const view = render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={1455} onResult={onResult} />);
-  expect(screen.getByText("交通費 未確認")).toBeTruthy();
+  expect(screen.getByText("運賃目安：").nextElementSibling?.textContent).toBe("未確認");
   expect(screen.queryByText(/250円/)).toBeNull();
   fireEvent.click(screen.getByRole("button"));
   await waitFor(() => expect(onResult).toHaveBeenCalledWith(result));
   expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ departure_date: "2026-10-14", departure_time: "00:15", origin: from, destination: to });
   view.rerender(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={1455} initial={result as never} onResult={onResult} />);
-  expect(screen.getByText("概算運賃 260円")).toBeTruthy();
-  expect(screen.getByText("地下鉄 · 約15分")).toBeTruthy();
-  expect(screen.queryByText("公共交通 · 地下鉄")).toBeNull();
+  expect(screen.getByText("博物館 → カフェ")).toBeTruthy();
+  const heading = screen.getByText("博物館 → カフェ").parentElement;
+  expect(heading?.className).toBe("trip-transit-heading");
+  expect(heading?.textContent).toContain("運賃目安：260円");
+  const fareLabel = screen.getByText("運賃目安：");
+  expect(fareLabel.nextElementSibling?.textContent).toBe("260円");
+  const transitDetails = screen.getByText("交通手段・所要時間を見る").closest("details");
+  expect(transitDetails?.open).toBe(false);
+  fireEvent.click(screen.getByText("交通手段・所要時間を見る"));
+  expect(transitDetails?.open).toBe(true);
+  expect(screen.getByText("交通手段").nextElementSibling?.textContent).toBe("地下鉄");
+  expect(screen.getByText("所要時間").nextElementSibling?.textContent).toBe("約15分");
   fireEvent.click(screen.getByText("路線・乗換を見る"));
   expect(screen.getAllByText(/地下鉄/).length).toBeGreaterThan(0);
 });
@@ -41,8 +50,11 @@ it("omits the movement category when route details are unavailable", () => {
   const initial = { type: "transit" as const, from_name: from.name, to_name: to.name, mode: "walk" as const,
     start_time: null, end_time: null, duration_minutes: 12, is_estimate: true, fare_yen: 0 };
   render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={540} initial={initial} onResult={vi.fn()} />);
-  expect(screen.getByText("路線未確認 · 約12分")).toBeTruthy();
-  expect(screen.getByText("概算運賃 0円")).toBeTruthy();
+  expect(screen.getByText("運賃目安：").nextElementSibling?.textContent).toBe("0円");
+  expect(screen.getByText("交通手段・所要時間を見る").closest("details")?.open).toBe(false);
+  fireEvent.click(screen.getByText("交通手段・所要時間を見る"));
+  expect(screen.getByText("交通手段").nextElementSibling?.textContent).toBe("徒歩");
+  expect(screen.getByText("所要時間").nextElementSibling?.textContent).toBe("約12分（概算）");
 });
 
 it("removes generic movement labels and stacks multiple route legs with downward arrows", () => {
@@ -63,7 +75,10 @@ it("removes generic movement labels and stacks multiple route legs with downward
     ],
   };
   render(<TripTransit from={from} to={to} date="2026-10-13" departureMinute={540} initial={initial} onResult={vi.fn()} />);
-
+  expect(screen.getByText("博物館 → カフェ")).toBeTruthy();
+  expect(screen.getByText("運賃目安：").nextElementSibling?.textContent).toBe("500円");
+  expect(screen.getByText("交通手段・所要時間を見る").closest("details")?.open).toBe(false);
+  fireEvent.click(screen.getByText("交通手段・所要時間を見る"));
   const route = screen.getByRole("list", { name: "利用する交通手段" });
   expect(route.textContent).toContain("JR東海道線");
   expect(route.textContent).toContain("市バス");
@@ -71,8 +86,8 @@ it("removes generic movement labels and stacks multiple route legs with downward
   expect(route.textContent).not.toContain("移動");
   expect(route.textContent).not.toContain("/");
   expect(route.querySelectorAll(".trip-transit-route-arrow")).toHaveLength(1);
-  expect(screen.getByText("概算運賃 500円")).toBeTruthy();
-  expect(screen.getByText("約45分")).toBeTruthy();
+  expect(screen.getByText("交通手段").nextElementSibling?.textContent).toBe("JR東海道線↓市バス");
+  expect(screen.getByText("所要時間").nextElementSibling?.textContent).toBe("約45分");
 });
 
 it("cancels the old segment when conditions change and never applies a late response to the new itinerary", async () => {

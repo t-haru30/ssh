@@ -1,8 +1,8 @@
 .journey-workspace-slot { grid-area: workspace; min-width: 0; }
 .search-mode--result:has(.journey-workspace-slot) { grid-template-areas: "hero hero" "files files" "banner banner" "workspace workspace" "form map" "timeline map"; }
-.journey-chat { --chat-accent: var(--forest, #244d40); margin: 18px 0 28px; border: 1px solid var(--line, #d5dfd9); border-radius: 20px; overflow: hidden; background: var(--paper, #fff); color: var(--ink, #203d34); box-shadow: 0 12px 40px #18352b08; font-size: 14px; }
+.journey-chat { --chat-accent: var(--forest, #244d40); margin: 18px 0 28px; border: 1px solid var(--line, #d5dfd9); border-radius: 20px; overflow: clip; background: var(--paper, #fff); color: var(--ink, #203d34); box-shadow: 0 12px 40px #18352b08; font-size: 14px; }
 .journey-chat * { box-sizing: border-box; }
-.journey-workspace-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+.journey-workspace-header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--line); background: var(--paper); }
 .journey-workspace-header > div { display: flex; align-items: center; gap: 12px; }
 .journey-workspace-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--chat-accent); color: var(--on-accent, white); font-size: 22px; }
 .journey-workspace-header h3 { margin: 0; font-size: 18px; font-weight: 650; }
@@ -264,7 +264,3 @@
   .journey-mobile-dialog .journey-privacy { font-size:10px; margin:5px 0 0; }
   .journey-mobile-dialog .journey-large-map .map-canvas { height:60dvh; }
 }
-
-.trip-departure-fields { display:flex; gap:12px; flex-wrap:wrap; padding:16px 0; }
-.trip-departure-fields label { display:grid; gap:7px; min-width:0; font-size:13px; }
-.trip-departure-fields input { min-height:44px; min-width:0; padding:8px 12px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--paper); font:inherit; }
