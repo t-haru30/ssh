@@ -63,16 +63,17 @@ describe("Onboarding", () => {
     expect(closed).toBe(2);
 
     fireEvent.click(screen.getByRole("button", { name: /次のステップを見る/ }));
-    expect(screen.getByRole("region", { name: "STEP 3 / 3: プランを編集する" })).toBeTruthy();
-    expect(screen.getByRole("img", { name: "訪問先と時間と予算を編集する画面" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "STEP 3 / 3: AIチャットでプランを変更" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "入力後、予定変更と完了メッセージが同時に表示される様子" })).toBeTruthy();
     expect(screen.getByText("京都のカフェ")).toBeTruthy();
     expect(screen.getByText("京都のレストラン")).toBeTruthy();
     expect(screen.getByText("京都のレストラン").parentElement?.className).toBe("onboarding-plan-stop-name");
-    expect(screen.getByText("¥3,000")).toBeTruthy();
+    expect(screen.getByText("京都のカフェ").parentElement?.textContent).toBe("京都のカフェ京都のレストラン");
     expect(screen.getByText("¥6,000")).toBeTruthy();
-    expect(screen.getByText("¥6,000").parentElement?.className).toBe("onboarding-plan-budget-amount");
-    expect(screen.queryByText("選んだ旅をもとに、訪問先や使える時間・予算を調整して自分のプランに仕上げます。")).toBeNull();
-    expect(screen.getByRole("region", { name: "STEP 3 / 3: プランを編集する" }).querySelector(".onboarding-step-description")).toBeNull();
+    expect(screen.getByText("¥3,000")).toBeTruthy();
+    expect(screen.getByText("¥6,000").parentElement?.textContent).toBe("¥6,000¥3,000");
+    expect(screen.getByText("カフェをレストランに変更して")).toBeTruthy();
+    expect(screen.getByText("レストランに変更").parentElement?.className).toBe("onboarding-chat-change");
     expect(screen.getByRole("button", { name: "はじめる" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /前へ/ }));
     expect(screen.getByRole("region", { name: "STEP 2 / 3: スワイプで旅を選ぶ" })).toBeTruthy();
