@@ -164,3 +164,10 @@ it("keeps sightseeing at least thirty minutes while allowing station transfers",
   expect(result.stops.every(stop => stop.dwellMinutes >= 30)).toBe(true);
   expect(before.stops.map(stop => stop.dwellMinutes)).toEqual([90, 90, 90]);
 });
+it("locks endpoint stations in new and restored journeys without mutating the saved input", () => {
+  const station=newTripStop(place('trip-arrival'),15);
+  expect(station.locked).toBe(true);
+  const legacy={...station,locked:false};
+  expect(plan([legacy]).stops[0].locked).toBe(true);
+  expect(legacy.locked).toBe(false);
+});

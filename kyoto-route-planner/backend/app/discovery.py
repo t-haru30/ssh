@@ -498,6 +498,8 @@ async def _discover_catalog(request: DiscoverRequest) -> tuple[dict, tuple[Catal
             fallback["note"] = "周辺の飲食店とご当地料理をPlacesでも検索し、OSM・OpenPOIの店名・位置と照合しています。営業時間・メニューは訪問前にご確認ください。"
     from app.facility_quality import filter_quality
     pool, quality = await filter_quality(request, pool, restaurants.google_results)
+    from app.catalog_information import enrich_places
+    pool = await enrich_places(pool)
     previous_source = fallback['source']
     fallback = build_discover_routes(request, pool)
     fallback['source'] = previous_source

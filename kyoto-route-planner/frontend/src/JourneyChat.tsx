@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CSSProperties, FormEvent } from "react";
 import type { TripPlan } from "./dayTrip";
-import { distanceKm, scheduleTrip, transportMatches, tripChanges, tripClock } from "./dayTrip";
+import { distanceKm, isTripEndpoint, scheduleTrip, transportMatches, tripChanges, tripClock } from "./dayTrip";
 import type { Place } from "./types";
 import { isRecord, isRouteSuggestion } from "./apiValidation";
 import { chatPayload, readChatProposal } from "./journeyChatState";
@@ -56,8 +56,6 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   const resize = (value: number) => setChatWidth(Math.max(30, Math.min(70, value)));
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [replacing, setReplacing] = useState<string | null>(null);
-  const [draggedStop, setDraggedStop] = useState<string | null>(null);
-  const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [reorderError, setReorderError] = useState("");
   const [view, setView] = useState<"current" | "changes">("current");
   const log = useRef<HTMLDivElement>(null);
@@ -77,7 +75,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   useEffect(() => {
     if (request.current) setError("旅程や移動時間が更新されたため、相談を中断しました。最新の旅程でもう一度相談してください。");
     request.current?.abort(); request.current = null;
-    setWorking(false); setProposal(null); setSteps([]); setReplacing(null); setDraggedStop(null); setDropTarget(null); setReorderError("");
+    setWorking(false); setProposal(null); setSteps([]); setReplacing(null); setReorderError("");
     // A changed applied plan invalidates any pending preview and in-flight reply.
   }, [identity]);
   useEffect(() => () => { request.current?.abort(); request.current = null; }, []);
@@ -170,7 +168,7 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   function replacePlace(oldId: string, nextId: string) {
     if (working || disabled) return;
     const old = shown.stops.find(s => s.place.id === oldId);
-    if (!old || old.locked || old.completed) return;
+    if (!old || old.locked || old.completed || isTripEndpoint(old.place)) return;
     try {
       const next = readChatProposal({ stops: shown.stops.map(s => ({ id: s.place.id === oldId ? nextId : s.place.id, dwell: s.dwellMinutes })) }, plan, [...candidates, ...shown.stops.map(s => s.place)]);
       setRouteStatus("loading");
@@ -180,11 +178,10 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
   }
   function canMove(from: number, to: number) {
     return !working && !disabled && from >= 0 && to >= 0 && to < shown.stops.length && from !== to
-      && !shown.stops.slice(Math.min(from, to), Math.max(from, to) + 1).some(s => s.locked || s.completed);
+      && !shown.stops.slice(Math.min(from, to), Math.max(from, to) + 1).some(s => s.locked || s.completed || isTripEndpoint(s.place));
   }
   function moveStop(id: string, to: number) {
     const from = shown.stops.findIndex(s => s.place.id === id);
-    setDraggedStop(null); setDropTarget(null);
     if (!canMove(from, to)) return;
     const stops = [...shown.stops]; const [stop] = stops.splice(from, 1); stops.splice(to, 0, stop);
     try {
@@ -195,11 +192,12 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
     } catch (cause) { setReorderError(cause instanceof Error ? cause.message : "並べ替えできませんでした。"); }
   }
   function transitBetween(index: number) {
-    const from = index ? shown.stops[index - 1].place.name : shown.origin.name;
-    const to = shown.stops[index]?.place.name ?? shown.returnTo.name;
+    const fromPoint = index ? shown.stops[index - 1].place : shown.origin;
+    const toPoint = shown.stops[index]?.place ?? shown.returnTo;
+    const from = fromPoint.name, to = toPoint.name;
     const minutes = shown.stops[index]?.travel ?? shown.returnTravel;
     const transit = timeline.filter(t => t.type === "transit")[index];
-    return <PreviewTransit from={from} to={to} minutes={minutes} unknown={shown.unknownTravelSegments?.includes(index)} loading={reviewing && routeStatus === "loading"} transit={transit} places={[shown.origin, ...shown.stops.map(s => s.place), shown.returnTo]} />;
+    return <PreviewTransit from={from} to={to} fromPoint={fromPoint} toPoint={toPoint} minutes={minutes} unknown={shown.unknownTravelSegments?.includes(index)} loading={reviewing && routeStatus === "loading"} transit={transit} places={[shown.origin, ...shown.stops.map(s => s.place), shown.returnTo]} />;
   }
   const money = (p: TripPlan) => p.totalCost === null ? "未確認" : `${p.totalCost.toLocaleString("ja-JP")}円`;
   function applyProposal() {
@@ -267,20 +265,18 @@ export function JourneyChat({ plan, candidates, onApply, disabled = false,routeP
           {reviewing && routeStatus === "loading" && <p role="status" className="journey-sort-hint">全区間の経路・移動時間を取得しています…</p>}
           {reviewing && routeStatus === "failed" && <p role="status">交通経路を取得できませんでした。徒歩概算を表示しています。<button type="button" onClick={() => setRouteRetry(v => v + 1)}>経路を再取得</button></p>}
           {reviewing && shown.violations.length > 0 && <p role="alert">{shown.violations.join(" ")}</p>}
-          <p className="journey-sort-hint">⋮⋮ をドラッグして順番を変更できます。固定・訪問済みの位置は保持します。</p>
+          <p className="journey-sort-hint">↑↓ボタンで順番を変更できます。出発・帰着の起点、固定・訪問済みの位置は保持します。</p>
           {reorderError && <p role="alert" className="trip-error">{reorderError}</p>}
           <ol className="journey-artifact-stops">{shown.stops.map((s, i) => {
             const oldIndex = plan.stops.findIndex(o => o.place.id === s.place.id);
             const old = plan.stops[oldIndex];
             const added = reviewing && !old;
             const changed = reviewing && old && (old.dwellMinutes !== s.dwellMinutes || oldIndex !== i);
-            return <Fragment key={s.place.id}>{transitBetween(i)}<li data-stop-id={s.place.id} className={`${added ? "is-added" : changed ? "is-changed" : ""} ${dropTarget === s.place.id ? "is-drop-target" : ""} ${draggedStop === s.place.id ? "is-dragging" : ""}`}
-              onDragOver={e => { if (draggedStop && canMove(shown.stops.findIndex(o => o.place.id === draggedStop), i)) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropTarget(s.place.id); } }}
-              onDrop={e => { e.preventDefault(); if (draggedStop) moveStop(draggedStop, i); }}><button type="button" className="journey-drag-handle" aria-label={`${s.place.name}の並べ替え`} title="ドラッグして移動（上下キーでも移動）" disabled={working || disabled || s.locked || s.completed} draggable={!working && !disabled && !s.locked && !s.completed}
-                onDragStart={e => { setDraggedStop(s.place.id); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", s.place.id); }} onDragEnd={() => { setDraggedStop(null); setDropTarget(null); }}
-                onKeyDown={e => { if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); moveStop(s.place.id, i + (e.key === "ArrowUp" ? -1 : 1)); } }}>⋮⋮</button><span className="journey-stop-index">{added ? "+" : i + 1}</span><div><div className="journey-stop-top"><time>{tripClock(s.start)} — {tripClock(s.end)}</time><span className="journey-stop-badge">{added ? "追加" : changed ? "変更" : s.completed ? "訪問済み" : s.locked ? "固定" : ""}</span></div><strong className="journey-preview-name">{s.place.name}</strong><FacilityPhoto place={s.place} compact /><p>{changed && old.dwellMinutes !== s.dwellMinutes && <><del>{old.dwellMinutes}分</del> → </>}{s.dwellMinutes}分の滞在{changed && oldIndex !== i && ` · ${oldIndex + 1}番目から移動`}</p><button type="button" className="journey-replace-button" aria-label={`プレビューで${s.place.name}を入れ替える`} disabled={working || disabled || s.locked || s.completed} onClick={() => setReplacing(replacing === s.place.id ? null : s.place.id)}>施設を入れ替える</button>
+            return <Fragment key={s.place.id}>{transitBetween(i)}<li data-stop-id={s.place.id} className={added ? "is-added" : changed ? "is-changed" : ""}>
+              <div className="journey-move-actions" role="group" aria-label={`${s.place.name}の訪問順`}><button type="button" aria-label={`${s.place.name}を前へ移動`} title="ひとつ上へ" disabled={!canMove(i,i-1)} onClick={() => moveStop(s.place.id,i-1)}>↑</button><button type="button" aria-label={`${s.place.name}を後へ移動`} title="ひとつ下へ" disabled={!canMove(i,i+1)} onClick={() => moveStop(s.place.id,i+1)}>↓</button></div>
+              <span className="journey-stop-index">{added ? "+" : i + 1}</span><div><div className="journey-stop-top"><time>{tripClock(s.start)} — {tripClock(s.end)}</time><span className="journey-stop-badge">{isTripEndpoint(s.place) ? "起点・固定" : added ? "追加" : changed ? "変更" : s.completed ? "訪問済み" : s.locked ? "固定" : ""}</span></div><strong className="journey-preview-name">{s.place.name}</strong><FacilityPhoto place={s.place} compact /><p>{changed && old.dwellMinutes !== s.dwellMinutes && <><del>{old.dwellMinutes}分</del> → </>}{s.dwellMinutes}分の滞在{changed && oldIndex !== i && ` · ${oldIndex + 1}番目から移動`}</p><button type="button" className="journey-replace-button" aria-label={`プレビューで${s.place.name}を入れ替える`} disabled={working || disabled || s.locked || s.completed || isTripEndpoint(s.place)} onClick={() => setReplacing(replacing === s.place.id ? null : s.place.id)}>施設を入れ替える</button>
               {replacing === s.place.id && <div className="journey-replace-picker"><label>入れ替え先<select aria-label={`${s.place.name}の入れ替え先`} value="" onChange={e => replacePlace(s.place.id, e.target.value)}><option value="" disabled>近くの候補から選択</option>{replacements.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>{!replacements.length && <p>手元の候補がありません。チャットで希望を伝えてください。</p>}<button type="button" onClick={() => { setInput(`「${s.place.name}」を別の施設に入れ替えたい。ほかの予定は残して、候補を提案して。`); setReplacing(null); setChatVisible(true); window.requestAnimationFrame(() => composer.current?.focus()); }}>AIに入れ替えを相談する</button></div>}
-              <div className="journey-move-actions"><button type="button" aria-label={`${s.place.name}を前へ移動`} disabled={!canMove(i,i-1)} onClick={() => moveStop(s.place.id,i-1)}>↑ 前へ</button><button type="button" aria-label={`${s.place.name}を後へ移動`} disabled={!canMove(i,i+1)} onClick={() => moveStop(s.place.id,i+1)}>↓ 後へ</button></div></div></li></Fragment>;
+              </div></li></Fragment>;
           })}{transitBetween(shown.stops.length)}</ol>
           {reviewing && removed.length > 0 && <div className="journey-removed"><strong>外す予定</strong>{removed.map(s => <p key={s.place.id}>− <del>{s.place.name}</del></p>)}</div>}
           <p className="journey-artifact-note">{reviewing ? "移動・費用は概算です。営業時間・営業状況は未確認です。" : "固定した予定と訪問済みの記録は、相談しても保持されます。"}</p>

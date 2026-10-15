@@ -33,6 +33,17 @@ it("opens the selected spot details when its photo is clicked and closes the dia
   fireEvent.click(screen.getByRole("button", { name: "閉じる詳細" }));
   expect(screen.queryByRole("dialog", { name: "公園" })).toBeNull();
 });
+it('keeps restored station endpoints fixed and disables unlock, replacement and deletion',()=>{
+  const endpoints=[{...places[0],id:'trip-arrival',name:'観光起点駅'},...places,{...places[0],id:'trip-return',name:'帰路駅'}];
+  const saved=scheduleTrip({departureTime:'09:00',availableMinutes:600,budget:5000},origin,props.date,endpoints.map(p=>({...newTripStop(p,30),locked:false})),{route:{...source,places:endpoints},date:props.date,time:'09:00'});
+  saved.stops[0].locked=false;saved.stops.at(-1)!.locked=false;
+  render(<DayTripEditor {...props} source={{...source,places:endpoints}} initialPlan={saved} />);
+  for(const name of ['観光起点駅','帰路駅']){
+    expect(screen.getByRole('button',{name:`${name}は起点のため固定`}).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button',{name:`${name}を入れ替える`}).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button',{name:`${name}を削除`}).hasAttribute('disabled')).toBe(true);
+  }
+});
 
 it("automatically searches all segments and displays total time without showing overruns", async () => {
   const timeline = [10, 15, 20].map(duration => ({ type: "transit", from_name: "地点A", to_name: "地点B", mode: "public_transport", transit_line: "地下鉄", duration_minutes: duration, is_estimate: false, start_time: "09:00", end_time: "09:10", fare_yen: 200 }));

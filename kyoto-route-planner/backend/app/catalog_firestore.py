@@ -112,6 +112,13 @@ def checked_rows():
     return {d.id:d.to_dict() for d in collection('jobs').where(filter=FieldFilter('attempted','>',0)).stream()}
 
 
+def accepted_rows(ids):
+    """Bounded read for visible cards; no full collection scan or history access."""
+    refs=[collection('jobs').document(identifier) for identifier in ids]
+    return {d.id:{'status':d.to_dict().get('status'),'accepted':d.to_dict().get('accepted')}
+            for d in client().get_all(refs,field_paths=['status','accepted'],retry=None,timeout=3) if d.exists}
+
+
 def import_events(rows, source):
     from google.api_core.exceptions import AlreadyExists
     count = 0

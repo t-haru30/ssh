@@ -132,15 +132,15 @@ describe("JourneyChat", () => {
     expect(screen.queryByRole("article", {name:"会話内の変更案"})).toBeNull();
   });
 
-  it("reorders by drag into a validated preview, with travel between stops and fixed positions protected", async () => {
+  it("reorders with arrow buttons into a validated preview and protects fixed positions", async () => {
     const base = scheduleTrip({departureTime:"09:00",availableMinutes:600,budget:10000}, origin, "2026-10-15", places.map(p => newTripStop(p,30)), {route:{...route,places},date:"2026-10-15",time:"09:00"});
     base.stops[0].locked = true;
     const apply = vi.fn();
     const {container} = render(<JourneyChat plan={base} candidates={places} onApply={apply} />);
-    expect(screen.getByRole("button",{name:"美術館の並べ替え"}).hasAttribute("disabled")).toBe(true);
+    expect(container.querySelector('[draggable="true"]')).toBeNull();
+    expect(screen.getByRole("button",{name:"美術館を後へ移動"}).hasAttribute("disabled")).toBe(true);
     expect(screen.getByRole("button",{name:"公園を前へ移動"}).hasAttribute("disabled")).toBe(true);
-    fireEvent.dragStart(screen.getByRole("button",{name:"カフェの並べ替え"}),{dataTransfer:{setData:vi.fn()}});
-    fireEvent.drop(container.querySelector('[data-stop-id="1"]')!);
+    fireEvent.click(screen.getByRole("button",{name:"カフェを前へ移動"}));
     expect(screen.getByTestId("preview-map").textContent).toBe("美術館 → カフェ → 公園");
     expect(container.querySelector('[aria-label="プレビューの移動：美術館からカフェ"]')).not.toBeNull();
     expect(base.stops.map(s=>s.place.id)).toEqual(["0","1","2"]);
@@ -148,6 +148,23 @@ describe("JourneyChat", () => {
     await waitFor(() => expect(screen.getByRole("button",{name:"この変更を反映"}).hasAttribute("disabled")).toBe(false));
     fireEvent.click(screen.getByRole("button",{name:"この変更を反映"}));
     expect(apply.mock.calls[0][0].stops.map((s:{place:{id:string}})=>s.place.id)).toEqual(["0","2","1"]);
+  });
+  it("protects both station endpoints in old unlocked journeys while allowing sightseeing reordering", () => {
+    const endpoints=[{...places[0],id:'trip-arrival',name:'到着駅'},...places.slice(0,2),{...places[0],id:'trip-return',name:'帰路駅'}];
+    const base=scheduleTrip({departureTime:'09:00',availableMinutes:600,budget:10000},origin,'2026-10-15',endpoints.map(p=>newTripStop(p,30)),{route:{...route,places:endpoints},date:'2026-10-15',time:'09:00'});
+    base.stops[0].locked=false;base.stops.at(-1)!.locked=false;
+    render(<JourneyChat plan={base} candidates={places} onApply={vi.fn()} />);
+    for(const name of ['到着駅','帰路駅']){
+      for(const action of ['前へ','後へ'])expect(screen.getByRole('button',{name:`${name}を${action}移動`}).hasAttribute('disabled')).toBe(true);
+      expect(screen.getByRole('button',{name:`プレビューで${name}を入れ替える`}).hasAttribute('disabled')).toBe(true);
+    }
+    expect(screen.getByRole('button',{name:'美術館を前へ移動'}).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button',{name:'公園を後へ移動'}).hasAttribute('disabled')).toBe(true);
+    fireEvent.click(screen.getByRole('button',{name:'公園を前へ移動'}));
+    expect(screen.getByTestId('preview-map').textContent).toBe('到着駅 → 公園 → 美術館 → 帰路駅');
+    const choices=(ids:string[])=>({stops:ids.map(id=>({id,dwell:30}))});
+    for(const ids of [['0','trip-arrival','1','trip-return'],['trip-arrival','trip-return','0','1'],['0','1','trip-return']])expect(()=>readChatProposal(choices(ids),base,places)).toThrow('起点');
+    expect(chatPayload(base,places,'順番を変更',[]).stops.filter(s=>s.place.id.startsWith('trip-')).every(s=>s.locked)).toBe(true);
   });
   it("previews replacements on the map, protects fixed stops and applies explicitly", async () => {
     const base = plan(); base.stops[0].locked = true;

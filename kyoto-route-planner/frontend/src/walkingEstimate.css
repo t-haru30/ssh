@@ -1,0 +1,3 @@
+.walking-estimate { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin:9px 0; padding:8px 10px; border-radius:8px; background:color-mix(in srgb,var(--forest, #244a3b) 6%,var(--paper, #fff)); font-size:12px; line-height:1.6; }
+p.walking-estimate > strong { color:var(--forest, #244a3b); font-size:12px; font-weight:650; }
+.walking-estimate small { color:var(--muted, #68756b); font-size:11px; }
