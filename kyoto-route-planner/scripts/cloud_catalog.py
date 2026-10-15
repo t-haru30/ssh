@@ -45,13 +45,13 @@ def commands(a):
             '--update-secrets',f'GEMINI_API_KEY={n}-gemini:latest')
         yield cmd('run','jobs','deploy',f'{n}-update','--image',image,'--region',r,'--service-account',runtime,
             '--command','python','--args=-m,app.catalog_job','--tasks','1','--parallelism','1','--max-retries','0',
-            '--task-timeout','600s','--memory','1Gi','--update-env-vars',env,
+            '--task-timeout',f'{a.task_timeout}s','--memory','1Gi','--update-env-vars',env+f',CATALOG_BATCH_SIZE={a.batch_size},CATALOG_URL_SEARCH_ENABLED=1',
             '--update-secrets',f'GEMINI_API_KEY={n}-gemini:latest')
         yield cmd('run','jobs','add-iam-policy-binding',f'{n}-update','--region',r,
             '--member',f'serviceAccount:{scheduler}','--role','roles/run.invoker')
     elif a.action=='schedule':
         # Explicit separate step, only AFTER migration and manual Job verification.
-        yield cmd('scheduler','jobs','create','http',f'{n}-schedule','--location',r,'--schedule','*/10 * * * *',
+        yield cmd('scheduler','jobs','create','http',f'{n}-schedule','--location',r,'--schedule','0 9 * * 1',
             '--time-zone','Asia/Tokyo','--uri',f'https://run.googleapis.com/v2/projects/{p}/locations/{r}/jobs/{n}-update:run',
             '--http-method','POST','--message-body','{}','--oauth-service-account-email',scheduler,
             '--oauth-token-scope','https://www.googleapis.com/auth/cloud-platform','--max-retry-attempts','0')
@@ -66,12 +66,18 @@ def main():
     parser.add_argument('--name',default='catalog-experiment')
     parser.add_argument('--tag',default='latest',help='Prefer a Git commit hash for reproducible releases')
     parser.add_argument('--daily-limit',type=int,default=100)
+    parser.add_argument('--batch-size',type=int,default=100)
+    parser.add_argument('--task-timeout',type=int,default=14400)
     parser.add_argument('--secret-file',type=Path)
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--public-web',action='store_true',help='Publish the visitor service; admin remains IAM-private')
     a=parser.parse_args()
     for value in (a.project,a.region,a.database,a.name,a.tag):
         if not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,62}',value): parser.error('Invalid resource identifier')
+    if not 1 <= a.batch_size <= 500 or not 1 <= a.task_timeout <= 86400:
+        parser.error('batch-size must be 1..500; task-timeout must be 1..86400 seconds')
+    if a.daily_limit < a.batch_size:
+        parser.error('daily-limit must be at least batch-size')
     if len(a.name)>20 or a.daily_limit<0: parser.error('name must be <=20 characters; daily-limit must be >=0')
     if a.apply and a.action == 'deploy':
         executable=shutil.which('gcloud') or shutil.which('gcloud.cmd')

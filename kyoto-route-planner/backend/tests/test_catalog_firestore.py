@@ -107,3 +107,12 @@ class FirestoreContractTests(unittest.TestCase):
             self.assertEqual(asyncio.run(agent.run_batch(1))['processed'],1)
             self.assertEqual(agent.report()['counts']['updated'],1)
             self.assertEqual(agent.merged_catalog()['places'][0]['tags']['official_opening_hours'],'9:00–17:00')
+
+    def test_explicit_trial_respects_active_lease_and_daily_budget(self):
+        store.seed(self.rows)
+        self.db.rows[('catalog_jobs','osm-node-0')]['next_check']=999999
+        first=store.claim(1000,facility_id='osm-node-0')
+        self.assertEqual(first['id'],'osm-node-0')
+        self.assertIsNone(store.claim(1000,facility_id='osm-node-0'))
+        self.assertIsNotNone(store.claim(1000,facility_id='osm-node-1'))
+        self.assertIsNone(store.claim(1000,facility_id='osm-node-2'))

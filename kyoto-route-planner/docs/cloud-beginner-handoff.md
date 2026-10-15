@@ -7,14 +7,13 @@
 ## 完成するとどう動くか
 
 ```text
-Cloud Scheduler（10分ごと）
-  → Cloud Run Job（最大3施設を選び、公式情報を取得、Geminiで判断）
+Cloud Scheduler（毎週月曜9時（日本時間））
+  → Cloud Run Job（最大100施設を選び、公式情報を取得、Geminiで判断）
   → Firestore（採用情報・出典・確認日時・要確認の理由を保存）
   → Cloud RunのWeb画面（管理画面で結果を表示）
 ```
 
-PCを起動し続ける必要はありません。FirestoreはGoogleが管理するDBなので、DB専用サーバーを自分で用意する必要もありません。Gitで取得するのはプログラムと施設マスターです。Firestoreのデータ、APIキー、クラウドの$gcloud = 'C:\Users\harut\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd'
-& $gcloud components install cloud-run-proxy設定はpullでは作成されません。
+PCを起動し続ける必要はありません。FirestoreはGoogleが管理するDBなので、DB専用サーバーを自分で用意する必要もありません。Gitで取得するのはプログラムと施設マスターです。Firestoreのデータ、APIキー、クラウドの設定はpullでは作成されません。
 
 この仕組みで永続保存するのは施設情報の更新対象・確認結果・履歴です。検索メモリーや、いいね等の別SQLiteをすべてFirestoreへ移す機能ではありません。
 
@@ -172,7 +171,7 @@ $env:CATALOG_FIRESTORE_DATABASE = $Database
 
 ```powershell
 $Tag = (git rev-parse --short HEAD).Trim()
-& $Python scripts/cloud_catalog.py deploy --project $Project --region $Region --database $Database --name $Service --tag $Tag --daily-limit 100 --public-web --apply
+& $Python scripts/cloud_catalog.py deploy --project $Project --region $Region --database $Database --name $Service --tag $Tag --daily-limit 100 --batch-size 100 --task-timeout 14400 --public-web --apply
 ```
 
 数分かかる場合があります。Cloud Buildが成功し、Cloud Runに一般向けWeb・管理用Web・更新Jobが作られればデプロイ成功です。
@@ -249,15 +248,18 @@ Schedulerの成功は「Jobの起動依頼を送れた」という意味です�
 |---|---|
 |catalog_jobs|施設ごとの状態、採用済み情報、次回確認時刻|
 |catalog_events|確認した日時、出典、Gemini判断、結果の履歴|
+|catalog_runs|実行ごとの件数・所要秒数・Gemini使用量・結果集計|
 |catalog_days|日本時間の日付ごとの処理予約数 `reserved`|
 
 1日100件は処理予約の上限で、成功件数ではありません。失敗も消費します。上限到達後もSchedulerは起動しますが、新しい施設の確認は翌日まで予約されません。FirestoreやCloud Run等の料金を含む金額上限ではありません。
 
-100件/日で6,000件を初回確認する場合は、単純計算でも約60日です。再確認も同じ枠を使うため、全施設を30日以内に確認できる設定ではありません。必要な鮮度と予算に応じて日次上限を見直します。
+週1回100件で6,000件を初回確認する場合は、単純計算でも約60週です。再確認も同じ枠を使うため、全施設を30日以内に確認できる設定ではありません。必要な鮮度と予算に応じて日次上限を見直します。
 
 「お支払い → レポート」でサービス別の実費を確認します。Firestoreは無料対象かどうかがDB構成によって異なり、無料運用を前提にしません。バックアップ・失敗通知・履歴の保存期間は別途設定する運用項目です。
 
 ## 14. 次回以降のpullと更新
+
+100施設更新・公式URL補完に更新する場合は、[既存環境の更新手順](catalog-batch-upgrade.md)を使ってください。pullだけではCloud Runの実行イメージやJob設定は変わりません。
 
 同じ環境を更新する場合、Firestoreの新規作成・キー登録・Scheduler作成は繰り返しません。4節の変数を設定し、次を実行します。
 
@@ -265,7 +267,7 @@ Schedulerの成功は「Jobの起動依頼を送れた」という意味です�
 git pull --ff-only
 & $Python -m pip install -r backend/requirements.txt
 $Tag = (git rev-parse --short HEAD).Trim()
-& $Python scripts/cloud_catalog.py deploy --project $Project --region $Region --database $Database --name $Service --tag $Tag --daily-limit 100 --public-web --apply
+& $Python scripts/cloud_catalog.py deploy --project $Project --region $Region --database $Database --name $Service --tag $Tag --daily-limit 100 --batch-size 100 --task-timeout 14400 --public-web --apply
 ```
 
 施設マスターが追加された場合は、8節の環境変数を設定して `& $Python -m app.catalog_migrate --apply` も実行します。既存IDは上書きせず、不足分を追加します。既存施設の内容変更や削除をFirestoreへ反映する仕組みとは異なるため、その場合は開発者の移行指示に従います。

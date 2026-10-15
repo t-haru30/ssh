@@ -6,6 +6,7 @@ from typing import Literal
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 from app.ai_settings import gemini_api_key, setting
+from app import catalog_metrics
 
 
 class Judgment(BaseModel):
@@ -47,13 +48,16 @@ async def judge(place, result, previous, attempt):
     if model.startswith('gemini-3'):
         config['thinkingConfig'] = {'thinkingLevel':'low'}
     async with httpx.AsyncClient(timeout=35, trust_env=False, follow_redirects=False, verify=ssl.create_default_context()) as client:
+        catalog_metrics.call_started(model)
         response = await client.post(f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
             headers={'x-goog-api-key':key}, json={'systemInstruction':{'parts':[{'text':SYSTEM}]},
             'contents':[{'role':'user','parts':[{'text':json.dumps(payload, ensure_ascii=False)}]}], 'generationConfig':config})
         response.raise_for_status()
         if len(response.content)>100000:
             raise ValueError('Oversized model response')
-        candidates=response.json().get('candidates',[])
+        data = response.json()
+        catalog_metrics.response_received(model, data)
+        candidates=data.get('candidates',[])
         if len(candidates)!=1 or candidates[0].get('finishReason')!='STOP':
             raise ValueError('Incomplete model response')
         parts=candidates[0].get('content',{}).get('parts',[])
