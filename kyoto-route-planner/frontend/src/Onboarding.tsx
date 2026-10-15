@@ -36,12 +36,17 @@ export function Onboarding({ onClose }: OnboardingProps) {
   const step = STEPS[activeStep];
 
   useEffect(() => {
+    const previousFocus = document.activeElement;
+    return () => { if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus(); };
+  }, []);
+
+  useEffect(() => {
     actionRef.current?.focus();
   }, [activeStep]);
 
   useEffect(() => {
     function handleKey(event: KeyboardEvent) {
-      if (event.key === "Escape" && activeStep === STEPS.length - 1) onClose(suppressFuture);
+      if (event.key === "Escape") onClose(suppressFuture);
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -50,6 +55,7 @@ export function Onboarding({ onClose }: OnboardingProps) {
   return (
     <div className="route-modal-backdrop" role="presentation">
       <div className="route-modal onboarding" role="dialog" aria-modal="true" aria-label="はじめての使い方">
+        <div className="onboarding-tools"><button type="button" className="onboarding-close" aria-label="使い方を閉じる" onClick={() => onClose(suppressFuture)}><span aria-hidden="true">×</span></button></div>
         <section
           className={`onboarding-step-panel onboarding-demo-${activeStep + 1}`}
           role="region"

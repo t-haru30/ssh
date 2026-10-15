@@ -67,6 +67,9 @@ button:disabled { cursor: not-allowed; }
 .favorite-pin-button, .favorite-remove-button, .favorite-cancel-button { min-height: 40px; padding: 8px 11px; border-radius: 9px; }
 .favorite-prefecture-tag { color: var(--forest); background: color-mix(in srgb, var(--forest) 8%, var(--paper)); }
 .onboarding { display: flex; flex-direction: column; gap: 12px; padding: 32px; }
+.onboarding-tools { display:flex; justify-content:flex-end; flex:none; }
+.onboarding-close { display:grid; place-items:center; width:44px; height:44px; padding:0; border:1px solid var(--line); border-radius:50%; background:var(--surface-muted); color:var(--ink); font:inherit; font-size:28px; line-height:1; cursor:pointer; }
+.onboarding-close:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
 .onboarding .idea-primary-button { min-height: 48px; border-radius: 10px; font-size: 14px; }
 .onboarding-step-panel { display: grid; grid-template-rows: auto minmax(250px, 1fr) auto; flex: 1; min-height: 0; gap: 10px; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .onboarding-step-header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }

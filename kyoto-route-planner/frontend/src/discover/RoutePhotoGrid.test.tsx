@@ -22,13 +22,13 @@ it("shows up to four photos per page, resets for another trip, and keeps taps se
   expect(screen.getAllByRole("img")).toHaveLength(4);
   expect(screen.queryByRole("img",{name:"施設5"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"施設4の詳細を見る"}));
-  expect(select).toHaveBeenCalledWith("3");
+  expect(select).toHaveBeenCalledWith("3", expect.objectContaining({provider:"licensed",imageUrl:expect.stringContaining("3.jpg")}));
   fireEvent.click(screen.getByRole("button",{name:"次の写真ページ"}));
   expect(screen.getAllByRole("img")).toHaveLength(3);
   expect(screen.getByText("写真 2 / 2")).toBeTruthy();
   expect(screen.getByRole("button",{name:"次の写真ページ"}).hasAttribute("disabled")).toBe(true);
   fireEvent.click(screen.getByRole("button",{name:"施設7の詳細を見る"}));
-  expect(select).toHaveBeenLastCalledWith("6");
+  expect(select).toHaveBeenLastCalledWith("6", expect.objectContaining({provider:"licensed",imageUrl:expect.stringContaining("6.jpg")}));
   view.rerender(<RoutePhotoGrid places={places.slice(0,4)} enabled onPlaceSelect={select} />);
   expect(screen.getAllByRole("img")).toHaveLength(4);
   expect(screen.queryByRole("button",{name:"次の写真ページ"})).toBeNull();

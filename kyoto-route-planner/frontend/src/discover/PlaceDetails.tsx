@@ -164,8 +164,8 @@ export function PlaceIntroduction({ place, stayMinutes, recommendations = [], re
   </div>;
 }
 
-export function PlaceDetailsDialog({ place, stayMinutes, recommendations, reasonSources, onClose, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; onClose: () => void; enableOfficialSearch?: boolean }) {
-  return <TripDialog title={place.name} onClose={onClose}><FacilityPhoto place={place} /><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
+export function PlaceDetailsDialog({ place, photo, stayMinutes, recommendations, reasonSources, onClose, enableOfficialSearch = true }: { place: Place; photo?:import("./PhotoFigure").PlacePhotoSnapshot; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; onClose: () => void; enableOfficialSearch?: boolean }) {
+  return <TripDialog title={place.name} onClose={onClose}><div className="place-details-photo"><FacilityPhoto place={place} photo={photo} /></div><PlaceIntroduction place={place} stayMinutes={stayMinutes} recommendations={recommendations} reasonSources={reasonSources} enableOfficialSearch={enableOfficialSearch} /></TripDialog>;
 }
 
 export function PlaceDescriptionToggle({ place, stayMinutes, recommendations, reasonSources, enableOfficialSearch = true }: { place: Place; stayMinutes?: number; recommendations?: string[]; reasonSources?: ReasonSource[]; enableOfficialSearch?: boolean }) {

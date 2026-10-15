@@ -4,3 +4,4 @@
 .facility-photo .route-photo-tile-credit { font-size:11px; line-height:1.5; }
 .facility-photo .route-category-badge, .facility-photo .route-category-badge > b { font-size:11px; }
 @media (max-width:600px) { .facility-photo .route-photo-tile { height:180px; } .facility-photo-compact .route-photo-tile { height:120px; } }
+.place-details-photo .facility-photo .route-photo-tile { height:clamp(260px,50svh,420px); }

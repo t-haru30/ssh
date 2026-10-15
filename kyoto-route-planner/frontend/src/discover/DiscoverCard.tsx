@@ -9,6 +9,7 @@ import { RoutePhotoGrid } from "./RoutePhotoGrid";
 import "./discoverCard.css";
 import { PlaceDetailsDialog } from "./PlaceDetails";
 import { placeRecommendation } from "./placeRecommendation";
+import type { PlacePhotoSnapshot } from "./PhotoFigure";
 
 export type DiscoverDirection = "like" | "pass";
 
@@ -42,7 +43,8 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
   const sharedExitDirection: SharedSwipeDirection = exitDirection === "like" ? "accept" : "skip";
   const isIdea = "places" in route;
   const selection = useMemo(() => routeSelection(route), [route]);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{id:string; photo?:PlacePhotoSnapshot} | null>(null);
+  const selectedPlaceId=selectedPhoto?.id;
   const selectedPlace=selection.places.find(place=>place.id===selectedPlaceId);
 
   return (
@@ -54,7 +56,7 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
         ? `${route.places.length}か所を巡る旅のプラン`
         : `${route.travel_origin ? "到着後の観光" : "総所要時間"} 約${formatMinutes(route.estimated_minutes)}`}
       spots={[]}
-      coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} onPlaceSelect={active && depth===0 && !preparingNext ? setSelectedPlaceId : undefined} /> : undefined}
+      coverContent={selection.places.length ? <RoutePhotoGrid places={selection.places} enabled={depth < 3 && active} showCredits={false} onPlaceSelect={active && depth===0 && !preparingNext ? (id,photo)=>setSelectedPhoto({id,photo}) : undefined} /> : undefined}
       coverBadge={isIdea
         ? `${route.places.length}か所`
         : route.course === "full_day" ? "1日コース" : "半日コース"}
@@ -66,9 +68,9 @@ export function DiscoverCard({ route, depth, exitDirection, onSwipe, active = tr
       skipLabel="今回は見送る"
       exitDirection={sharedExitDirection}
       onSwipe={(direction) => onSwipe(direction === "accept" ? "like" : "pass")}
-    />{depth===0 && selectedPlace && <PlaceDetailsDialog key={selectedPlace.id} place={selectedPlace} stayMinutes={selection.dwellMinutes[selectedPlace.id]}
+    />{depth===0 && selectedPlace && <PlaceDetailsDialog key={selectedPlace.id} place={selectedPlace} photo={selectedPhoto?.photo} stayMinutes={selection.dwellMinutes[selectedPlace.id]}
       recommendations={!isIdea && route.spots.find(spot=>spot.place_id===selectedPlace.id)?.reason ? [route.spots.find(spot=>spot.place_id===selectedPlace.id)!.reason!]
         : placeRecommendation(selectedPlace,{places:selection.places,origin:selection.origin,theme:route.theme,stayMinutes:selection.dwellMinutes[selectedPlace.id]})}
-      reasonSources={!isIdea ? route.spots.find(spot=>spot.place_id===selectedPlace.id)?.reason_sources : undefined} onClose={()=>setSelectedPlaceId(null)} />}</>
+      reasonSources={!isIdea ? route.spots.find(spot=>spot.place_id===selectedPlace.id)?.reason_sources : undefined} onClose={()=>setSelectedPhoto(null)} />}</>
   );
 }

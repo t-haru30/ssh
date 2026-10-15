@@ -116,8 +116,8 @@ function App() {
         active={activeTab === "discover"}
         onPlanInSearch={planInSearch}
       />
-      {activeTab === "search" && <SavedJourneyPicker favorites={favorites} onEdit={route => planInSearch(route)} />}
       <SearchMode active={activeTab === "search"} preset={searchPreset} editingOnly onDiscover={() => setActiveTab("discover")} />
+      {activeTab === "search" && <SavedJourneyPicker favorites={favorites} onEdit={route => planInSearch(route)} />}
       {showFavorites && <SavedRoutesList onClose={() => setShowFavorites(false)} onPlanInSearch={planInSearch} onGoHome={() => { setShowFavorites(false); setActiveTab("discover"); }} />}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
       {pendingPreset && <TripDialog title="編集中のしおりを置き換えますか？" onClose={() => setPendingPreset(null)}>
