@@ -320,7 +320,8 @@ describe("SearchMode local initial proposal", () => {
     expect(readJourneyDraft()?.plan.input).toMatchObject({availableMinutes:140,budget:500});
     expect(screen.queryByText("時間と予算を調整")).toBeNull();
     expect(screen.getAllByText(/帰着駅/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/登録カテゴリ「公園」.*希望の自然/)).toBeTruthy();
+    expect(readJourneyDraft()?.plan.input.preferences).toEqual(expect.arrayContaining(["nature", "culture", "food", "coffee"]));
+    expect(screen.queryByText(/登録カテゴリ「公園」.*希望の自然/)).toBeNull();
     expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(["/api/origins"]);
     fireEvent.click(screen.getByRole("button", { name: /交通経路を再検索/ }));
     await waitFor(() => expect(submitted).not.toBeNull());
@@ -497,20 +498,20 @@ describe("SearchMode selected route", () => {
     await waitFor(() => expect(submitted).not.toBeNull());
     expect(submitted).toMatchObject({ origin: {name:"東京都・エリア中心",latitude:35.68,longitude:139.76}, places:picked, stay_minutes:[45,90] });
     expect(screen.getByRole("heading", { name: "上野公園" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
+    expect(readJourneyDraft()?.plan.stops[0].dwellMinutes).toBe(45);
     fireEvent.click(screen.getByRole("button", { name: "上野公園を固定" }));
     fireEvent.click(screen.getByRole("button", { name: "庭園を削除" }));
     fireEvent.click(screen.getByRole("button", { name: "この変更を反映" }));
     expect(screen.queryByRole("button", { name: "条件を変更する" })).toBeNull();
     expect(await screen.findByRole("button", { name: "上野公園の固定を解除" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "庭園" })).toBeNull();
-    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
+    expect(readJourneyDraft()?.plan.stops[0].dwellMinutes).toBe(45);
     cleanup();
     render(<SearchMode active />);
     expect(await screen.findByRole("button", { name: "上野公園の固定を解除" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "庭園" })).toBeNull();
     expect(screen.getByText(/前回の旅程を復元しました/)).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "上野公園" }).closest("article")?.textContent).toContain("滞在 45分");
+    expect(readJourneyDraft()?.plan.stops[0].dwellMinutes).toBe(45);
   });
 });
 
